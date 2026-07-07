@@ -1,0 +1,934 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GymTracker Ultimate 6.0 RC1</title>
+<meta name="theme-color" content="#0a0b0d">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+:root{
+  --bg:#06070a;--panel:#10141b;--panel2:#171c25;--ink:#f6f1e7;--mut:#a79f93;
+  --gold:#d7b56d;--gold2:#fff0b8;--line:rgba(238,221,180,.14);
+  --ok:#9fd8a8;--warn:#e6c56b;--bad:#d48484;--blue:#78aaff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+body{
+  background:
+    radial-gradient(900px 520px at 10% -10%,rgba(215,181,109,.16),transparent 60%),
+    radial-gradient(700px 420px at 100% 0%,rgba(255,240,184,.07),transparent 58%),
+    linear-gradient(135deg,#050608,#0b0e13 48%,#06070a);
+}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;opacity:.12;background:repeating-linear-gradient(105deg,rgba(255,255,255,.018) 0 1px,transparent 1px 7px);mix-blend-mode:screen}
+header{position:sticky;top:0;z-index:20;padding:14px 16px;border-bottom:1px solid var(--line);background:rgba(6,7,10,.76);backdrop-filter:blur(22px)}
+h1,h2,h3{margin:0 0 10px;letter-spacing:-.045em}
+h1{font-size:1.05rem} h2{font-size:1.15rem} h3{font-size:1rem}
+main{max-width:940px;margin:auto;padding:16px 13px 100px}
+.screen{display:none}.screen.active{display:block;animation:fade .2s ease-out}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.card{
+  border:1px solid var(--line);border-radius:30px;padding:18px;margin:0 0 14px;
+  background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.015) 38%,rgba(255,255,255,.035)),linear-gradient(180deg,rgba(18,22,30,.88),rgba(8,10,14,.88));
+  box-shadow:0 26px 70px rgba(0,0,0,.44);overflow:hidden;
+}
+.soft{background:linear-gradient(180deg,rgba(255,240,184,.07),rgba(255,255,255,.018))}
+.mut{color:var(--mut)}.gold{color:var(--gold2)}
+button,input,select,textarea{font:inherit;border-radius:18px;border:1px solid rgba(238,221,180,.14);background:rgba(255,255,255,.035);color:var(--ink)}
+button{min-height:50px;padding:11px 14px;font-weight:800;cursor:pointer}
+button:active{transform:translateY(1px)}
+.primary{background:linear-gradient(135deg,#8f6a22,#d7b56d 46%,#fff0b8 58%,#9b7226)!important;color:#11100d!important;border:0!important}
+.ghost{background:transparent!important;border:0!important;color:var(--mut)!important}
+.danger{background:linear-gradient(135deg,#5d2525,#d48484)!important;color:#fff!important;border:0!important}
+input,select,textarea{width:100%;min-height:46px;padding:10px 12px}
+textarea{min-height:110px}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:720px){.grid,.grid3,.grid4{grid-template-columns:1fr}}
+.metric{border:1px solid rgba(255,255,255,.09);border-radius:24px;padding:14px;background:rgba(255,255,255,.03)}
+.metric span{display:block;color:var(--mut);font-size:.78rem;text-transform:uppercase;letter-spacing:.14em}.metric b{display:block;color:var(--gold2);font-size:1.5rem}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:40;padding:10px;background:rgba(6,7,10,.78);backdrop-filter:blur(22px);border-top:1px solid var(--line)}
+.dock{max-width:720px;margin:auto;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:7px;border:1px solid rgba(238,221,180,.11);border-radius:28px;background:rgba(255,255,255,.035)}
+.dock button{min-height:46px;border:0;background:transparent;color:var(--mut);font-size:.72rem;padding:5px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.dock button b{font-size:1.08rem}.dock .activeNav{color:var(--gold2);background:rgba(215,181,109,.11);border-radius:20px}
+.fab{position:fixed;right:20px;bottom:86px;width:58px;height:58px;border-radius:50%;z-index:45;background:linear-gradient(135deg,#8f6a22,#d7b56d,#fff0b8);color:#111;border:0}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.76);z-index:70;align-items:center;justify-content:center;padding:16px}.modal.on{display:flex}.box{max-width:780px;width:100%;max-height:90vh;overflow:auto;background:linear-gradient(180deg,#151a23,#090b0f);border:1px solid var(--line);border-radius:30px;padding:20px}
+.line{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(238,221,180,.10)}.line:last-child{border-bottom:0}
+.pill{display:inline-block;padding:7px 10px;border:1px solid rgba(255,255,255,.11);border-radius:999px;color:var(--mut);margin:3px;background:rgba(255,255,255,.025)}
+.hero{min-height:calc(100vh - 170px);display:flex;flex-direction:column;justify-content:center;gap:16px}
+.heroTitle{font-size:clamp(2.2rem,10vw,5.4rem);line-height:.9;font-weight:900;letter-spacing:-.09em}
+.startButton{min-height:86px;font-size:clamp(1.2rem,5vw,2rem);border-radius:32px;text-transform:uppercase}
+.blockBar{height:16px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden;border:1px solid rgba(255,255,255,.08)}
+.blockBar div{height:100%;background:linear-gradient(90deg,var(--ok),var(--gold2));width:0%}
+.trainingCard{min-height:calc(100vh - 130px);display:flex;flex-direction:column;justify-content:center;gap:14px}
+.exerciseName{text-align:center;font-size:clamp(2rem,9vw,5.3rem);line-height:.9;font-weight:900;letter-spacing:-.08em;text-transform:uppercase}
+.setDots{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}.setDot{min-width:52px;padding:8px;border-radius:16px;text-align:center;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.09);color:var(--mut)}.setDot.done{background:linear-gradient(135deg,#48634e,#a8e0b0);color:#07120a}.setDot.current{background:linear-gradient(135deg,#8f6a22,#d7b56d,#fff0b8);color:#111}
+.focusStats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}@media(max-width:560px){.focusStats{grid-template-columns:1fr}}
+.focusStat{border-radius:28px;padding:16px 12px;text-align:center;border:1px solid rgba(238,221,180,.13);background:radial-gradient(circle at 50% 0%,rgba(255,240,184,.07),transparent 55%),linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.012))}
+.focusStat span{display:block;color:var(--mut);text-transform:uppercase;letter-spacing:.16em;font-size:.72rem}.focusStat b{display:block;color:var(--gold2);font-size:clamp(2.5rem,12vw,5.5rem);line-height:.9;letter-spacing:-.07em}.focusStat small{color:var(--mut)}
+.casBtn{min-height:96px!important;font-size:clamp(1.4rem,5.4vw,2.2rem)!important;border-radius:32px!important}
+details.disclosure{border:1px solid rgba(238,221,180,.10);border-radius:22px;background:rgba(255,255,255,.018);overflow:hidden}
+details.disclosure>summary{cursor:pointer;list-style:none;padding:12px 14px;color:var(--mut);display:flex;justify-content:space-between}details.disclosure>summary::-webkit-details-marker{display:none}details.disclosure>summary::after{content:"＋";color:var(--gold2)}details[open].disclosure>summary::after{content:"−"}
+.hiddenBody{padding:0 12px 12px;display:grid;gap:10px}.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.tabs button{min-height:38px;font-size:.84rem}.panel{border-radius:18px;padding:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.025)}
+.fastControls{display:grid;gap:8px}.fastRow{border-radius:18px;padding:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.025)}.fastHeader{display:flex;justify-content:space-between;align-items:center}.bigLabel{color:var(--mut);text-transform:uppercase;letter-spacing:.12em;font-size:.72rem}.quickBtns{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}.quickBtns button{min-height:40px;font-size:.9rem}@media(max-width:430px){.quickBtns{grid-template-columns:repeat(2,1fr)}}
+.learnClean{display:grid;gap:12px}.learnSection{border-radius:20px;padding:13px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.025)}.learnSection h3{color:var(--gold2)}.learnSection li{margin:7px 0;line-height:1.35}
+.predBar{height:14px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden;margin:8px 0}.predBar div{height:100%;background:linear-gradient(90deg,var(--bad),var(--warn),var(--ok))}
+.execTimerBox{display:none;border-radius:30px;padding:18px;border:1px solid rgba(255,240,184,.18);background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.012));text-align:center}.execTimerBox.on{display:block}.execTimerLabel{color:var(--mut);text-transform:uppercase;letter-spacing:.18em;font-size:.72rem}.execTimerValue{font-family:"Courier New",monospace;font-size:clamp(3.2rem,17vw,7.2rem);line-height:1;color:var(--gold2);margin:10px 0;font-variant-numeric:tabular-nums}.execTimerBar{height:14px;border-radius:999px;overflow:hidden;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.06)}.execTimerBar div{height:100%;width:100%;transform-origin:left;background:linear-gradient(90deg,#9fd8a8,#fff0b8)}.execTimerActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.nextOverlay{position:fixed;inset:0;z-index:88;display:none;align-items:center;justify-content:center;background:radial-gradient(circle at center,rgba(255,240,184,.13),transparent 42%),rgba(0,0,0,.82);pointer-events:none}.nextOverlay.on{display:flex;animation:nextFade 1.05s ease-out forwards}.nextCard{width:min(92vw,620px);border-radius:34px;padding:28px;text-align:center;border:1px solid rgba(255,240,184,.22);background:linear-gradient(180deg,rgba(16,19,26,.94),rgba(5,6,8,.94));box-shadow:0 34px 100px rgba(0,0,0,.62)}.nextCard span{display:block;color:var(--mut);letter-spacing:.22em;text-transform:uppercase;margin-bottom:10px}.nextCard b{display:block;color:var(--gold2);font-size:clamp(2rem,9vw,5.2rem);letter-spacing:-.07em;text-transform:uppercase}@keyframes nextFade{0%{opacity:0;transform:scale(.97)}16%{opacity:1;transform:scale(1)}78%{opacity:1}100%{opacity:0;transform:scale(1.03)}}
+.focusHalo{animation:focusHalo 1.1s ease-out}@keyframes focusHalo{0%{box-shadow:0 0 0 0 rgba(255,240,184,.65)}100%{box-shadow:0 0 0 22px rgba(255,240,184,0)}}
+.coachSummaryBox{width:100%;min-height:320px;font-family:ui-monospace,"Courier New",monospace;font-size:.92rem;line-height:1.42;white-space:pre-wrap;background:#07090c!important;color:#f6f1e7!important;border:1px solid rgba(255,240,184,.18)!important;border-radius:18px!important}.coachSummaryActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}@media(max-width:560px){.coachSummaryActions{grid-template-columns:1fr}}.copyOk{color:var(--gold2);font-size:.9rem;min-height:20px}
+.casioShell{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;background:#020304;padding:18px}.casioShell.on{display:flex}
+.casioWatch{width:min(96vw,760px);border-radius:42px;background:linear-gradient(180deg,#222,#080808);padding:22px;border:5px solid #0a0a0a;box-shadow:inset 0 2px 0 rgba(255,255,255,.08),0 40px 100px rgba(0,0,0,.8)}
+.casioBrand{display:flex;justify-content:space-between;color:#d8d8d8;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;margin:4px 10px 10px}.casioInner{border-radius:20px;background:#b8c0a2;border:7px solid #111;padding:14px;box-shadow:inset 0 5px 16px rgba(0,0,0,.38)}
+.lcdTop{display:flex;justify-content:space-between;color:#1b2417;opacity:.72;font-size:.78rem;letter-spacing:.18em;font-weight:800;margin-bottom:8px}.lcdTime{display:grid;grid-template-columns:repeat(5,auto);gap:8px;align-items:center;justify-content:center;color:#111;margin:4px 0 10px}.lcdColon{font-size:clamp(3rem,13vw,7rem);line-height:.8;font-weight:900;color:#1b2417}
+.seven{display:grid;grid-template-areas:"a a a" "f x b" "f x b" "g g g" "e y c" "e y c" "d d d";grid-template-columns:18px 54px 18px;grid-template-rows:14px 34px 34px 14px 34px 34px 14px;gap:4px}
+.seg{background:#1b2417;border-radius:8px;opacity:.12}.seg.on{opacity:.96}.a{grid-area:a}.b{grid-area:b}.c{grid-area:c}.d{grid-area:d}.e{grid-area:e}.f{grid-area:f}.g{grid-area:g}
+@media(max-width:520px){.seven{grid-template-columns:12px 36px 12px;grid-template-rows:10px 24px 24px 10px 24px 24px 10px;gap:3px}.lcdTime{gap:5px}}
+.casioInfo{text-align:center;color:#1b2417;font-weight:800;margin:8px 0}.casioButtons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.casioButtons button{background:#111!important;color:#eee!important;border:1px solid #333!important}
+
+/* === ULTIMATE 5.1 POLISH === */
+.splash{
+  position:fixed;
+  inset:0;
+  z-index:120;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:
+    radial-gradient(circle at center,rgba(255,240,184,.13),transparent 38%),
+    linear-gradient(135deg,#050608,#0b0e13 55%,#020304);
+  animation:splashOut .9s ease 1.7s forwards;
+}
+.splashLogo{
+  width:min(68vw,310px);
+  aspect-ratio:1;
+  border-radius:42px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(255,240,184,.22);
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.018)),
+    radial-gradient(circle at 50% 15%,rgba(255,240,184,.16),transparent 42%);
+  box-shadow:0 44px 120px rgba(0,0,0,.62),inset 0 1px 0 rgba(255,255,255,.12);
+  animation:logoIn .8s ease-out;
+}
+.splashLogo .barbell{
+  width:170px;
+  height:92px;
+  margin-bottom:18px;
+}
+.splashLogo h1{
+  font-size:clamp(2rem,10vw,4rem);
+  line-height:.9;
+  margin:0;
+  color:var(--gold2);
+  letter-spacing:-.08em;
+}
+.splashLogo p{
+  margin:8px 0 0;
+  color:var(--mut);
+  letter-spacing:.24em;
+  text-transform:uppercase;
+  font-size:.72rem;
+}
+@keyframes logoIn{from{opacity:0;transform:translateY(16px) scale(.94)}to{opacity:1;transform:none}}
+@keyframes splashOut{to{opacity:0;visibility:hidden;pointer-events:none}}
+.hero .card{
+  text-align:center;
+}
+.hero .card .card,
+.hero details{
+  text-align:left;
+}
+.startButton{
+  display:block;
+  width:min(100%,520px);
+  margin:14px auto 10px;
+}
+.hero details{
+  max-width:620px;
+  margin:0 auto;
+}
+.finishMainActions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:12px;
+}
+@media(max-width:560px){.finishMainActions{grid-template-columns:1fr}}
+.coachHighlight{
+  border:1px solid rgba(255,240,184,.22);
+  background:rgba(255,240,184,.055);
+  border-radius:22px;
+  padding:12px;
+  margin:12px 0;
+}
+
+
+.coachSummaryBox{
+  min-height:380px!important;
+}
+.summaryHint{
+  color:var(--mut);
+  font-size:.9rem;
+  margin:6px 0 10px;
+}
+
+
+.coachPlainText{
+  width:100%;
+  min-height:420px;
+  font-family:ui-monospace,"Courier New",monospace;
+  font-size:.95rem;
+  line-height:1.45;
+  white-space:pre-wrap;
+  user-select:text;
+  -webkit-user-select:text;
+  background:#07090c;
+  color:#f6f1e7;
+  border:1px solid rgba(255,240,184,.18);
+  border-radius:18px;
+  padding:14px;
+  overflow:auto;
+}
+
+
+/* === 5.1.4 COACH TEXT HARD FIX === */
+.coachPlainText{
+  display:block!important;
+  width:100%!important;
+  min-height:60vh!important;
+  max-height:none!important;
+  font-family:ui-monospace,"Courier New",monospace!important;
+  font-size:1rem!important;
+  line-height:1.5!important;
+  white-space:pre-wrap!important;
+  user-select:text!important;
+  -webkit-user-select:text!important;
+  background:#07090c!important;
+  color:#f6f1e7!important;
+  border:1px solid rgba(255,240,184,.18)!important;
+  border-radius:18px!important;
+  padding:14px!important;
+  overflow:visible!important;
+}
+.coachSummaryActions,.copyOk{display:none!important}
+
+
+/* === ULTIMATE 5.2 PERSONALIZATION === */
+body.theme-luxury{
+  --gold:#d7b56d;--gold2:#fff0b8;--line:rgba(238,221,180,.14);
+  background:
+    radial-gradient(900px 520px at 10% -10%,rgba(215,181,109,.16),transparent 60%),
+    radial-gradient(700px 420px at 100% 0%,rgba(255,240,184,.07),transparent 58%),
+    linear-gradient(135deg,#050608,#0b0e13 48%,#06070a);
+}
+body.theme-elegance{
+  --gold:#aeb8c8;--gold2:#f2f5f8;--line:rgba(220,230,240,.16);
+  background:
+    radial-gradient(900px 520px at 10% -10%,rgba(180,195,215,.14),transparent 60%),
+    linear-gradient(135deg,#07090d,#121721 52%,#050609);
+}
+body.theme-humor{
+  --gold:#ff7ab6;--gold2:#fff176;--line:rgba(255,122,182,.20);
+  background:
+    radial-gradient(800px 500px at 15% 0%,rgba(255,122,182,.16),transparent 60%),
+    radial-gradient(700px 420px at 100% 5%,rgba(255,241,118,.12),transparent 58%),
+    linear-gradient(135deg,#160b24,#23113a 52%,#090611);
+}
+body.theme-retro{
+  --gold:#9bbc0f;--gold2:#d7f66a;--line:rgba(155,188,15,.22);
+  background:
+    linear-gradient(135deg,#061806,#0f250f 55%,#020802);
+  image-rendering:pixelated;
+}
+body.theme-punk{
+  --gold:#ff1744;--gold2:#ffea00;--line:rgba(255,23,68,.24);
+  background:
+    radial-gradient(900px 520px at 5% -10%,rgba(255,23,68,.22),transparent 60%),
+    linear-gradient(135deg,#090909,#1d0910 58%,#050505);
+}
+body.theme-luxury .primary{background:linear-gradient(135deg,#8f6a22,#d7b56d 46%,#fff0b8 58%,#9b7226)!important}
+body.theme-elegance .primary{background:linear-gradient(135deg,#586579,#cbd4df 50%,#ffffff 62%,#788699)!important}
+body.theme-humor .primary{background:linear-gradient(135deg,#ff7ab6,#fff176 54%,#7df9ff)!important}
+body.theme-retro .primary{background:linear-gradient(135deg,#306230,#9bbc0f,#d7f66a)!important}
+body.theme-punk .primary{background:linear-gradient(135deg,#ff1744,#ffea00 58%,#111)!important;color:#080808!important}
+
+body.font-small{font-size:14px}
+body.font-normal{font-size:16px}
+body.font-large{font-size:18px}
+body.font-xl{font-size:20px}
+body.lefty .fab{left:20px;right:auto}
+body.lefty .dock{direction:rtl}
+body.lefty .dock button{direction:ltr}
+body.compact .card{padding:14px;border-radius:24px}
+body.compact main{padding-left:9px;padding-right:9px}
+body.comfort .card{padding:22px}
+.personalGrid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+  gap:10px;
+}
+.themeChoice{
+  min-height:94px;
+  border-radius:24px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.03);
+  padding:12px;
+  text-align:left;
+  cursor:pointer;
+}
+.themeChoice b{display:block;color:var(--gold2);margin-bottom:6px}
+.themeChoice.on{outline:2px solid var(--gold2);background:rgba(255,240,184,.07)}
+.themePreview{
+  height:18px;border-radius:999px;margin-top:8px;
+}
+.preview-luxury{background:linear-gradient(90deg,#8f6a22,#fff0b8,#9b7226)}
+.preview-elegance{background:linear-gradient(90deg,#586579,#fff,#788699)}
+.preview-humor{background:linear-gradient(90deg,#ff7ab6,#fff176,#7df9ff)}
+.preview-retro{background:linear-gradient(90deg,#306230,#9bbc0f,#d7f66a)}
+.preview-punk{background:linear-gradient(90deg,#ff1744,#ffea00,#111)}
+.quickPersonal{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+@media(max-width:560px){.quickPersonal{grid-template-columns:1fr}}
+
+
+/* === ULTIMATE 5.3 TRUE SKINS === */
+
+/* Base skin transitions */
+body, .card, button, nav, header, .dock, .focusStat, .metric, .modal .box{
+  transition:background .25s ease,border-color .25s ease,box-shadow .25s ease,border-radius .25s ease,color .25s ease;
+}
+
+/* LUXURY — Rolls/Mercedes inspired */
+body.theme-luxury{
+  --bg:#050507;--panel:#101014;--panel2:#18151b;--ink:#f7f0df;--mut:#a99f8c;
+  --gold:#d7b56d;--gold2:#fff0b8;--line:rgba(255,240,184,.15);
+  background:
+    radial-gradient(900px 520px at 8% -12%,rgba(255,240,184,.18),transparent 60%),
+    linear-gradient(135deg,#050507,#111015 48%,#070608);
+}
+body.theme-luxury .card{
+  border-radius:34px;
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.016) 42%,rgba(215,181,109,.045)),
+    linear-gradient(180deg,#15141a,#070708);
+  box-shadow:0 32px 90px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.09);
+}
+body.theme-luxury button{border-radius:20px}
+body.theme-luxury .dock{border-radius:30px;background:rgba(255,240,184,.045)}
+body.theme-luxury .heroTitle, body.theme-luxury .exerciseName{text-shadow:0 12px 42px rgba(255,240,184,.13)}
+
+/* ELEGANCE — monochrome editorial / steel */
+body.theme-elegance{
+  --bg:#eef1f4;--panel:#ffffff;--panel2:#edf0f4;--ink:#11151b;--mut:#69707a;
+  --gold:#7c8797;--gold2:#11151b;--line:rgba(20,28,38,.13);
+  background:
+    linear-gradient(180deg,#f5f6f8,#dfe4ea);
+  color:var(--ink);
+}
+body.theme-elegance header,
+body.theme-elegance nav{
+  background:rgba(245,246,248,.82);
+  border-color:rgba(20,28,38,.12);
+}
+body.theme-elegance .card{
+  color:#11151b;
+  border-radius:12px;
+  background:#fff;
+  border:1px solid rgba(20,28,38,.12);
+  box-shadow:0 18px 40px rgba(28,36,48,.10);
+}
+body.theme-elegance .metric,
+body.theme-elegance .focusStat,
+body.theme-elegance .panel,
+body.theme-elegance details.disclosure{
+  background:#f7f8fa;
+  color:#11151b;
+  border-color:rgba(20,28,38,.12);
+  border-radius:10px;
+}
+body.theme-elegance button{
+  border-radius:8px;
+  background:#f6f7f9;
+  color:#11151b;
+  border-color:rgba(20,28,38,.16);
+  box-shadow:none;
+}
+body.theme-elegance .primary{
+  background:#11151b!important;
+  color:#fff!important;
+}
+body.theme-elegance .dock{
+  border-radius:12px;
+  background:#fff;
+}
+body.theme-elegance .heroTitle,
+body.theme-elegance .exerciseName{
+  font-family:Georgia, "Times New Roman", serif;
+  letter-spacing:-.06em;
+}
+
+/* HUMOR — playful candy cards */
+body.theme-humor{
+  --bg:#170b24;--panel:#27133d;--panel2:#341a52;--ink:#fff9fd;--mut:#ffd6ea;
+  --gold:#ff7ab6;--gold2:#fff176;--line:rgba(255,122,182,.26);
+  background:
+    radial-gradient(circle at 16% 5%,rgba(255,241,118,.22),transparent 28%),
+    radial-gradient(circle at 92% 10%,rgba(125,249,255,.18),transparent 32%),
+    linear-gradient(135deg,#190b28,#2a1042 55%,#0d0714);
+}
+body.theme-humor .card{
+  border-radius:38px 18px 38px 18px;
+  background:
+    radial-gradient(circle at 12% 0%,rgba(255,241,118,.13),transparent 42%),
+    linear-gradient(145deg,rgba(255,122,182,.18),rgba(125,249,255,.07));
+  border:2px solid rgba(255,241,118,.20);
+  box-shadow:0 22px 55px rgba(255,122,182,.10);
+}
+body.theme-humor button{
+  border-radius:999px;
+  border:2px solid rgba(255,241,118,.20);
+}
+body.theme-humor .primary{
+  background:linear-gradient(135deg,#ff7ab6,#fff176 52%,#7df9ff)!important;
+  color:#27133d!important;
+}
+body.theme-humor .dock{
+  border-radius:999px;
+  background:rgba(255,122,182,.13);
+}
+body.theme-humor .focusStat{
+  border-radius:36px;
+  transform:rotate(-.4deg);
+}
+body.theme-humor .focusStat:nth-child(2){transform:rotate(.35deg)}
+body.theme-humor .heroTitle,
+body.theme-humor .exerciseName{
+  letter-spacing:-.09em;
+  transform:rotate(-.6deg);
+}
+
+/* RETRO — 80s/8-bit console */
+body.theme-retro{
+  --bg:#061806;--panel:#0d240d;--panel2:#143214;--ink:#d7f66a;--mut:#9bbc0f;
+  --gold:#9bbc0f;--gold2:#d7f66a;--line:rgba(155,188,15,.35);
+  background:
+    linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px),
+    #061806;
+  background-size:12px 12px;
+  image-rendering:pixelated;
+}
+body.theme-retro *{
+  font-family:"Courier New",ui-monospace,monospace!important;
+}
+body.theme-retro .card,
+body.theme-retro .metric,
+body.theme-retro .focusStat,
+body.theme-retro .panel,
+body.theme-retro details.disclosure{
+  border-radius:0;
+  border:3px solid #9bbc0f;
+  background:#0f250f;
+  box-shadow:8px 8px 0 #020802;
+}
+body.theme-retro button{
+  border-radius:0;
+  border:3px solid #9bbc0f;
+  background:#143214;
+  color:#d7f66a;
+  box-shadow:4px 4px 0 #020802;
+}
+body.theme-retro .primary{
+  background:#9bbc0f!important;
+  color:#0f250f!important;
+  box-shadow:4px 4px 0 #020802!important;
+}
+body.theme-retro .dock{
+  border-radius:0;
+  border:3px solid #9bbc0f;
+  background:#0f250f;
+}
+body.theme-retro .heroTitle,
+body.theme-retro .exerciseName,
+body.theme-retro .focusStat b{
+  text-transform:uppercase;
+  text-shadow:3px 3px 0 #020802;
+}
+
+/* PUNK — ripped neon poster */
+body.theme-punk{
+  --bg:#050505;--panel:#14070a;--panel2:#23080f;--ink:#fff7d1;--mut:#ff9aaa;
+  --gold:#ff1744;--gold2:#ffea00;--line:rgba(255,23,68,.35);
+  background:
+    repeating-linear-gradient(-10deg,rgba(255,23,68,.10) 0 2px,transparent 2px 14px),
+    radial-gradient(circle at 8% 0%,rgba(255,23,68,.25),transparent 40%),
+    #050505;
+}
+body.theme-punk .card{
+  border-radius:8px 26px 10px 30px;
+  border:2px solid rgba(255,23,68,.40);
+  background:
+    linear-gradient(145deg,rgba(255,23,68,.14),rgba(255,234,0,.035)),
+    #0b0b0b;
+  box-shadow:10px 10px 0 rgba(255,23,68,.28), -4px -4px 0 rgba(255,234,0,.18);
+  transform:skew(-.5deg);
+}
+body.theme-punk .card > *{transform:skew(.5deg)}
+body.theme-punk button{
+  border-radius:4px 18px 4px 18px;
+  border:2px solid #ff1744;
+  background:#111;
+  color:#ffea00;
+  text-transform:uppercase;
+}
+body.theme-punk .primary{
+  background:linear-gradient(135deg,#ff1744,#ffea00 58%,#111)!important;
+  color:#090909!important;
+}
+body.theme-punk .dock{
+  border-radius:4px;
+  background:#111;
+  border:2px solid #ff1744;
+}
+body.theme-punk .heroTitle,
+body.theme-punk .exerciseName{
+  text-transform:uppercase;
+  text-shadow:4px 4px 0 #ff1744, -2px -2px 0 #ffea00;
+}
+
+/* Theme-specific timer skin */
+body.theme-retro .casioWatch{border-radius:0;border:5px solid #9bbc0f;box-shadow:10px 10px 0 #020802;background:#0f250f}
+body.theme-retro .casioInner{border-radius:0;background:#9bbc0f;border:6px solid #306230}
+body.theme-elegance .casioWatch{border-radius:18px;background:#e8edf2}
+body.theme-elegance .casioInner{background:#d8ded4}
+body.theme-punk .casioWatch{border-radius:8px;background:#111;border-color:#ff1744;box-shadow:12px 12px 0 rgba(255,23,68,.35)}
+body.theme-punk .casioInner{background:#ffea00}
+body.theme-humor .casioWatch{border-radius:48px;background:#ff7ab6}
+body.theme-humor .casioInner{background:#fff176;border-color:#7df9ff}
+
+/* Theme-specific splash */
+body.theme-retro .splashLogo{border-radius:0;border:4px solid #9bbc0f;box-shadow:10px 10px 0 #020802;background:#0f250f}
+body.theme-elegance .splashLogo{border-radius:12px;background:#fff;color:#111;box-shadow:0 20px 50px rgba(28,36,48,.12)}
+body.theme-humor .splashLogo{border-radius:50px 18px 50px 18px;background:linear-gradient(135deg,rgba(255,122,182,.28),rgba(255,241,118,.20))}
+body.theme-punk .splashLogo{border-radius:6px 28px 6px 28px;background:#090909;box-shadow:12px 12px 0 rgba(255,23,68,.35)}
+
+
+/* === ULTIMATE 5.4 DESIGN STUDIO 2.0 === */
+.preview-carbon{background:linear-gradient(90deg,#0b0d10,#18d4ff,#1c2633)}
+.preview-stealth{background:linear-gradient(90deg,#020403,#1e3b2d,#7b9b79)}
+.preview-laboratory{background:linear-gradient(90deg,#eef7fb,#8adfff,#ffffff)}
+body, .card, button, nav, header, .dock, .focusStat, .metric, .modal .box{transition:background .25s ease,border-color .25s ease,box-shadow .25s ease,border-radius .25s ease,color .25s ease}
+
+body.theme-carbon{--bg:#030608;--panel:#091018;--panel2:#111b25;--ink:#e9fbff;--mut:#7f9aa8;--gold:#18d4ff;--gold2:#a9f4ff;--line:rgba(24,212,255,.22);background:linear-gradient(115deg,rgba(255,255,255,.035) 0 1px,transparent 1px 8px),radial-gradient(900px 520px at 100% -10%,rgba(24,212,255,.18),transparent 60%),linear-gradient(135deg,#020406,#071016 46%,#030608);background-size:auto,auto,100%}
+body.theme-carbon::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.16;background:repeating-linear-gradient(45deg,rgba(255,255,255,.05) 0 2px,transparent 2px 8px),repeating-linear-gradient(-45deg,rgba(24,212,255,.05) 0 1px,transparent 1px 8px);mix-blend-mode:screen}
+body.theme-carbon .card{border-radius:18px;border:1px solid rgba(24,212,255,.28);background:linear-gradient(135deg,rgba(24,212,255,.08),rgba(255,255,255,.016) 40%,rgba(24,212,255,.035)),linear-gradient(180deg,#0a1118,#030608);box-shadow:0 24px 65px rgba(0,0,0,.55),0 0 0 1px rgba(24,212,255,.05),inset 0 1px 0 rgba(255,255,255,.07)}
+body.theme-carbon .primary{background:linear-gradient(135deg,#0a1d28,#18d4ff 52%,#a9f4ff)!important;color:#020608!important;border:0!important;box-shadow:0 0 24px rgba(24,212,255,.20)!important}
+body.theme-carbon button{border-radius:14px;border-color:rgba(24,212,255,.26);background:linear-gradient(180deg,rgba(24,212,255,.08),rgba(255,255,255,.02));color:#e9fbff;text-transform:uppercase;letter-spacing:.04em}
+body.theme-carbon .dock{border-radius:18px;background:rgba(3,8,12,.84);border-color:rgba(24,212,255,.24)}
+body.theme-carbon .heroTitle,body.theme-carbon .exerciseName{text-transform:uppercase;color:#e9fbff;text-shadow:0 0 32px rgba(24,212,255,.24)}
+body.theme-carbon .focusStat{border-radius:16px;border-color:rgba(24,212,255,.26);background:linear-gradient(135deg,rgba(24,212,255,.10),rgba(255,255,255,.018))}
+body.theme-carbon .casioWatch{border-radius:18px;background:#05090d;border:3px solid rgba(24,212,255,.45);box-shadow:0 0 60px rgba(24,212,255,.18), inset 0 1px 0 rgba(255,255,255,.08)}
+body.theme-carbon .casioInner{background:#071c25;border-color:#18d4ff}
+body.theme-carbon .lcdTop,body.theme-carbon .casioInfo,body.theme-carbon .lcdColon{color:#a9f4ff}
+body.theme-carbon .seg.on{background:#a9f4ff;box-shadow:0 0 12px rgba(24,212,255,.55)}
+
+body.theme-elegance{--bg:#090a0d;--panel:#111419;--panel2:#1a1e24;--ink:#ece8df;--mut:#9b9a94;--gold:#9ca4ad;--gold2:#e5e1d8;--line:rgba(229,225,216,.13);background:radial-gradient(900px 520px at 18% -10%,rgba(229,225,216,.08),transparent 60%),radial-gradient(700px 420px at 100% 0%,rgba(156,164,173,.08),transparent 58%),linear-gradient(135deg,#07080a,#14171c 50%,#08090b)}
+body.theme-elegance header,body.theme-elegance nav{background:rgba(9,10,13,.74);border-color:rgba(229,225,216,.11);backdrop-filter:blur(28px)}
+body.theme-elegance .card{color:#ece8df;border-radius:26px;border:1px solid rgba(229,225,216,.13);background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.012) 45%,rgba(156,164,173,.045)),linear-gradient(180deg,rgba(25,29,35,.92),rgba(8,9,11,.92));box-shadow:0 30px 85px rgba(0,0,0,.50), inset 0 1px 0 rgba(255,255,255,.06)}
+body.theme-elegance .metric,body.theme-elegance .focusStat,body.theme-elegance .panel,body.theme-elegance details.disclosure{background:rgba(255,255,255,.028);color:#ece8df;border-color:rgba(229,225,216,.11);border-radius:22px}
+body.theme-elegance button{border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.018));color:#ece8df;border-color:rgba(229,225,216,.13);box-shadow:inset 0 1px 0 rgba(255,255,255,.07)}
+body.theme-elegance .primary{background:linear-gradient(135deg,#525a63,#cfd3d6 52%,#f0ece4)!important;color:#090a0d!important}
+body.theme-elegance .dock{border-radius:26px;background:rgba(20,23,28,.72)}
+body.theme-elegance .heroTitle,body.theme-elegance .exerciseName{font-family:Georgia,"Times New Roman",serif;font-weight:500;letter-spacing:-.065em;color:#e5e1d8}
+body.theme-elegance .casioWatch{border-radius:32px;background:linear-gradient(180deg,#333941,#111418);border-color:#060708}
+body.theme-elegance .casioInner{background:#c8cec4;border-color:#1a1e24}
+
+body.theme-stealth{--bg:#010302;--panel:#050806;--panel2:#0a100c;--ink:#dfe8dc;--mut:#657567;--gold:#6f8f72;--gold2:#a8c7a1;--line:rgba(111,143,114,.18);background:linear-gradient(120deg,rgba(111,143,114,.055) 0 1px,transparent 1px 22px),radial-gradient(800px 500px at 8% -10%,rgba(111,143,114,.10),transparent 60%),#010302}
+body.theme-stealth .card{border-radius:12px;border:1px solid rgba(111,143,114,.18);background:#050806;box-shadow:0 18px 50px rgba(0,0,0,.70)}
+body.theme-stealth button{border-radius:6px;background:#070c09;color:#a8c7a1;border-color:rgba(111,143,114,.20);text-transform:uppercase;letter-spacing:.08em}
+body.theme-stealth .primary{background:#a8c7a1!important;color:#010302!important}
+body.theme-stealth .dock{border-radius:8px;background:#020403;border-color:rgba(111,143,114,.18)}
+body.theme-stealth .metric,body.theme-stealth .focusStat,body.theme-stealth .panel,body.theme-stealth details.disclosure{background:#040704;border-radius:8px;border-color:rgba(111,143,114,.18)}
+body.theme-stealth .heroTitle,body.theme-stealth .exerciseName{letter-spacing:-.04em;color:#dfe8dc;text-shadow:none}
+body.theme-stealth .casioWatch{border-radius:10px;background:#030503;border-color:#1d2d20;box-shadow:0 20px 90px rgba(0,0,0,.9)}
+body.theme-stealth .casioInner{background:#182417;border-color:#0a100c}
+body.theme-stealth .lcdTop,body.theme-stealth .casioInfo,body.theme-stealth .lcdColon{color:#a8c7a1}
+body.theme-stealth .seg.on{background:#a8c7a1;box-shadow:0 0 8px rgba(168,199,161,.28)}
+
+body.theme-laboratory{--bg:#eef7fb;--panel:#ffffff;--panel2:#f5fbff;--ink:#10202a;--mut:#627580;--gold:#4cbddf;--gold2:#067da4;--line:rgba(6,125,164,.16);background:linear-gradient(rgba(6,125,164,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(6,125,164,.035) 1px,transparent 1px),linear-gradient(180deg,#f7fcff,#e8f5fa);background-size:22px 22px,22px 22px,auto;color:#10202a}
+body.theme-laboratory header,body.theme-laboratory nav{background:rgba(247,252,255,.85);border-color:rgba(6,125,164,.12);backdrop-filter:blur(20px)}
+body.theme-laboratory .card{color:#10202a;border-radius:20px;border:1px solid rgba(6,125,164,.16);background:rgba(255,255,255,.78);box-shadow:0 18px 45px rgba(6,125,164,.09)}
+body.theme-laboratory button{border-radius:12px;background:#ffffff;color:#10202a;border-color:rgba(6,125,164,.18)}
+body.theme-laboratory .primary{background:linear-gradient(135deg,#067da4,#8adfff)!important;color:#fff!important}
+body.theme-laboratory .metric,body.theme-laboratory .focusStat,body.theme-laboratory .panel,body.theme-laboratory details.disclosure{background:rgba(255,255,255,.72);color:#10202a;border-color:rgba(6,125,164,.14);border-radius:16px}
+body.theme-laboratory .dock{border-radius:22px;background:rgba(255,255,255,.86)}
+body.theme-laboratory .heroTitle,body.theme-laboratory .exerciseName{color:#10202a;letter-spacing:-.075em}
+body.theme-laboratory .casioWatch{border-radius:24px;background:#ffffff;border-color:#d5eaf2;box-shadow:0 22px 60px rgba(6,125,164,.18)}
+body.theme-laboratory .casioInner{background:#e8f9ff;border-color:#8adfff}
+body.theme-laboratory .lcdTop,body.theme-laboratory .casioInfo,body.theme-laboratory .lcdColon{color:#067da4}
+body.theme-laboratory .seg.on{background:#067da4}
+body.theme-retro,body.theme-humor,body.theme-punk{}
+
+
+.focus-wall{border-radius:22px;box-shadow:0 10px 0 #4b3a14,0 20px 35px rgba(0,0,0,.35)!important;
+font-weight:800;letter-spacing:.05em}
+.rcbadge{position:fixed;top:10px;right:12px;background:#111;color:#f2d37b;
+padding:6px 10px;border-radius:999px;font:700 12px sans-serif;z-index:9999;border:1px solid #7a6428}
+</style>
+</head>
+<body><div class="rcbadge">6.0 RC1</div>
+
+<div id="splash" class="splash">
+  <div class="splashLogo">
+    <svg class="barbell" viewBox="0 0 260 120" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="sg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#8f6a22"/><stop offset=".52" stop-color="#fff0b8"/><stop offset="1" stop-color="#b8892e"/></linearGradient></defs>
+      <rect x="10" y="42" width="34" height="36" rx="8" fill="url(#sg)"/>
+      <rect x="48" y="30" width="22" height="60" rx="7" fill="url(#sg)"/>
+      <rect x="190" y="30" width="22" height="60" rx="7" fill="url(#sg)"/>
+      <rect x="216" y="42" width="34" height="36" rx="8" fill="url(#sg)"/>
+      <rect x="68" y="54" width="124" height="12" rx="6" fill="url(#sg)"/>
+      <circle cx="130" cy="60" r="28" fill="none" stroke="url(#sg)" stroke-width="6" opacity=".7"/>
+    </svg>
+    <h1>GT</h1>
+    <p>Forged progress</p>
+  </div>
+</div>
+
+<header><h1>GymTracker <span class="gold">Ultimate 6.0 RC1</span></h1><div id="todayLabel" class="mut"></div></header>
+<main>
+<section id="dashboard" class="screen active">
+  <div class="hero">
+    <div class="card">
+      <div class="mut" id="dashGreeting">Buenos días Alberto</div>
+      <h2 class="heroTitle" id="dashTitle">Hoy toca</h2>
+      <div id="dashMeta" class="mut"></div>
+      <div id="postNotice"></div>
+      <div class="card soft"><h3>Bloque</h3><div class="blockBar"><div id="blockFill"></div></div><p id="blockText" class="mut"></p></div>
+      <button id="startTodayBtn" class="primary startButton" onclick="startToday()">Comenzar</button>
+      <details class="disclosure"><summary>Ver ejercicios</summary><div id="todayExercises" style="padding:0 14px 14px"></div></details>
+    </div>
+  </div>
+</section>
+
+<section id="workout" class="screen">
+  <div id="routinePicker" class="card"><h2>Elegir rutina</h2><div id="routineButtons"></div></div>
+  <div id="activeWorkout" class="hide">
+    <div class="card"><h2 id="activeTitle"></h2><p id="activeSub" class="mut"></p></div>
+    <div id="exerciseBox"></div>
+  </div>
+</section>
+
+<section id="planning" class="screen">
+  <div class="card"><h2>Plan semanal</h2><div id="weekPlan"></div></div>
+  <div class="card"><h2>Temporada rápida</h2><div class="grid"><label>Inicio<input id="seasonStart" type="date"></label><label>Meses<select id="seasonMonths"><option>3</option><option selected>6</option><option>12</option></select></label></div><button onclick="saveSeason()">Guardar temporada</button><div id="seasonView"></div></div>
+</section>
+
+<section id="data" class="screen">
+  <div class="card"><h2>Peso corporal</h2><div class="row"><input id="weightInput" type="number" step=".1" placeholder="98.2"><button class="primary focus-wall" onclick="saveWeight()">Guardar</button></div></div>
+  <div class="grid4"><div class="metric"><span>Peso</span><b id="mWeight">—</b></div><div class="metric"><span>Volumen 7d</span><b id="mVol">—</b></div><div class="metric"><span>Sesiones</span><b id="mSessions">—</b></div><div class="metric"><span>PR</span><b id="mPR">—</b></div></div>
+  <div class="card"><h2>Últimos entrenos</h2><div id="recentSessions"></div></div>
+</section>
+
+<section id="library" class="screen">
+  <div class="card"><h2>Rutinas</h2><button class="primary" onclick="newRoutine()">Nueva rutina</button><div id="libRoutines"></div></div>
+  <div class="card"><h2>Ejercicios</h2><button onclick="newExercise()">Nuevo ejercicio</button><div id="libExercises"></div></div>
+</section>
+
+<section id="settings" class="screen">
+  <div class="card">
+    <h2>Personalización</h2>
+    <p class="mut">Design Studio 2.0: cada diseño cambia estructura visual, cronómetro, tarjetas, botones, navegación y personalidad.</p>
+    <div class="personalGrid">
+      <div class="themeChoice" onclick="setTheme('luxury')" id="theme_luxury"><b>Luxury</b><span class="mut">Rolls / Maybach</span><div class="themePreview preview-luxury"></div></div>
+      <div class="themeChoice" onclick="setTheme('elegance')" id="theme_elegance"><b>Elegance</b><span class="mut">Relojería suiza</span><div class="themePreview preview-elegance"></div></div>
+      <div class="themeChoice" onclick="setTheme('carbon')" id="theme_carbon"><b>Carbon</b><span class="mut">F1 / fibra</span><div class="themePreview preview-carbon"></div></div>
+      <div class="themeChoice" onclick="setTheme('stealth')" id="theme_stealth"><b>Stealth</b><span class="mut">Negro táctico</span><div class="themePreview preview-stealth"></div></div>
+      <div class="themeChoice" onclick="setTheme('laboratory')" id="theme_laboratory"><b>Laboratory</b><span class="mut">Datos clínicos</span><div class="themePreview preview-laboratory"></div></div>
+    </div>
+    <hr style="border-color:rgba(255,255,255,.08);margin:16px 0">
+    <div class="quickPersonal">
+      <label>Tamaño de letra<select id="fontSetting" onchange="setFontSize(this.value)"><option value="small">Pequeña</option><option value="normal">Normal</option><option value="large">Grande</option><option value="xl">Muy grande</option></select></label>
+      <label>Espaciado<select id="densitySetting" onchange="setDensity(this.value)"><option value="normal">Normal</option><option value="compact">Compacto</option><option value="comfort">Cómodo</option></select></label>
+      <label>Modo zurdo<select id="leftySetting" onchange="setLefty(this.value==='yes')"><option value="no">No</option><option value="yes">Sí</option></select></label>
+      <label>Mostrar splash<select id="splashSetting" onchange="setSplash(this.value==='yes')"><option value="yes">Sí</option><option value="no">No</option></select></label>
+    </div>
+  </div>
+  <div class="card"><h2>Ajustes de entreno</h2><div class="grid"><label>Descanso por defecto<input id="defaultRest" type="number" step="15"></label><label>Incremento<input id="incSetting" type="number" step=".25"></label></div><button class="primary" onclick="saveSettings()">Guardar</button></div>
+  <div class="card"><h2>Backup</h2><button onclick="downloadBackup()">Descargar JSON</button><button onclick="downloadCSV()">Descargar CSV</button><input type="file" accept=".json" onchange="importBackup(event)"></div>
+</section>
+</main>
+
+<button class="fab" onclick="openFeedback()">💡</button>
+<nav><div class="dock">
+<button id="nav_dashboard" onclick="show('dashboard')"><b>🏋️</b>Hoy</button>
+<button id="nav_workout" onclick="show('workout')"><b>▶</b>Entreno</button>
+<button id="nav_planning" onclick="show('planning')"><b>📅</b>Plan</button>
+<button id="nav_data" onclick="show('data')"><b>📈</b>Datos</button>
+<button id="nav_settings" onclick="show('settings')"><b>⚙</b>Ajustes</button>
+</div></nav>
+
+<div id="nextOverlay" class="nextOverlay"><div class="nextCard"><span>Siguiente ejercicio</span><b id="nextName">Ejercicio</b><small id="nextMeta"></small></div></div>
+
+<div id="restModal" class="casioShell">
+  <div class="casioWatch">
+    <div class="casioBrand"><span>GYMTRACKER</span><span>FORGED TIMER</span></div>
+    <div class="casioInner">
+      <div class="lcdTop"><span>STW</span><span>SIG</span><span>ALM</span></div>
+      <div id="lcdTime" class="lcdTime"></div>
+      <div id="restInfo" class="casioInfo"></div>
+    </div>
+    <div class="casioButtons"><button onclick="addRest(15)">+15s</button><button class="primary" onclick="endRest()">Terminar descanso</button></div>
+  </div>
+</div>
+
+<div id="finishModal" class="modal"><div class="box">
+  <h2>Entrenamiento completado</h2>
+  <div id="finishStats" class="grid4"></div>
+  <h3>Sensación</h3>
+  <select id="sessionFeeling" onchange="showCoachSummary()">
+    <option>Normal</option>
+    <option>Muy fácil</option>
+    <option>Fácil</option>
+    <option>Muy duro</option>
+    <option>Al límite</option>
+  </select>
+  <textarea id="sessionNote" placeholder="Nota final" oninput="showCoachSummary()"></textarea>
+  <div class="coachHighlight">
+    <h3>Resumen para entrenador</h3>
+    <p class="mut">Texto completo. Selecciona y copia manualmente.</p>
+  </div>
+  <pre id="coachSummaryText" class="coachPlainText"></pre>
+  <button class="primary" onclick="saveSession()">Guardar y volver al inicio</button>
+</div></div>
+
+<div id="feedbackModal" class="modal"><div class="box"><h2>Laboratorio</h2><select id="fbType"><option>Idea</option><option>Bug</option><option>Mejora</option></select><input id="fbTitle" placeholder="Título"><textarea id="fbDesc" placeholder="Descripción"></textarea><button class="primary" onclick="saveFeedback()">Guardar</button><button onclick="closeFeedback()">Cerrar</button></div></div>
+
+<script>
+const KEY="gymtracker_ultimate_v54", OLD_KEYS=["gymtracker_ultimate_v53","gymtracker_ultimate_v52","gymtracker_ultimate_v514","gymtracker_ultimate_v513","gymtracker_ultimate_v512","gymtracker_ultimate_v511","gymtracker_ultimate_v51","gymtracker_ultimate_v50","gymtracker_v461_stable_coach","gymtracker_v46_coach_summary","gymtracker_v45_next_plan_aware","gymtracker_v44_timed_exercises","gymtracker_v43_hidden_dashboard","gymtracker_v42_training_focus","gymtracker_v41_flow_polish","gymtracker_v40_life_season","gymtracker_v39_season_wizard","gymtracker_v38_season_planner","gymtracker_v37_block_calendar","gymtracker_v36_technique_atlas","gymtracker_aurum_v22_styles"];
+let S,A=null,restInt=null,restLeft=0,execInt=null,execLeft=0,execTotal=0;
+function id(){return Math.random().toString(36).slice(2)+Date.now().toString(36)}
+function now(){return new Date().toISOString()}
+function today(){return now().slice(0,10)}
+function save(){localStorage.setItem(KEY,JSON.stringify(S))}
+function load(){
+ let raw=localStorage.getItem(KEY); if(!raw){for(const k of OLD_KEYS){if(localStorage.getItem(k)){raw=localStorage.getItem(k);break}}}
+ try{S=raw?JSON.parse(raw):null}catch(e){S=null}
+ if(!S)S={version:"5.4-ultimate",settings:{defaultRest:120,inc:2.5},exercises:[],routines:[],plan:{},sessions:[],sets:[],weights:[],feedback:[],season:{startDate:today(),months:6}};
+ S.version="5.4-ultimate"; S.settings=S.settings||{defaultRest:120,inc:2.5}; S.exercises=S.exercises||[]; S.routines=S.routines||[]; S.plan=S.plan||{}; S.sessions=S.sessions||[]; S.sets=S.sets||[]; S.weights=S.weights||[]; S.feedback=S.feedback||[]; S.season=S.season||{startDate:today(),months:6};
+ seedDefaults(); seedPlan(); save();
+}
+function seedDefaults(){
+ if(!S.exercises.length){
+  S.exercises=[
+   {id:"e1",name:"Dominadas lastradas",pattern:"vertical_pull",inc:2.5,rest:180},
+   {id:"e2",name:"Press banca",pattern:"horizontal_push",inc:2.5,rest:180},
+   {id:"e3",name:"Remo barra",pattern:"horizontal_pull",inc:2.5,rest:120},
+   {id:"e4",name:"Fondos en paralelas",pattern:"dip",inc:2.5,rest:150},
+   {id:"e5",name:"Sentadilla",pattern:"squat",inc:2.5,rest:180},
+   {id:"e6",name:"Peso muerto rumano",pattern:"hinge",inc:2.5,rest:180},
+   {id:"e7",name:"Hip thrust",pattern:"hip_thrust",inc:2.5,rest:120},
+   {id:"e8",name:"Plancha",pattern:"core",inc:0,rest:60}
+  ];
+ }
+ if(!S.routines.length){
+  S.routines=[
+   {id:"r1",name:"Torso A",tag:"Fuerza",items:[mk("e1",4,[8,8,8,7],20,180,"reps"),mk("e2",4,[8,8,8,8],60,180,"reps"),mk("e3",4,[10,10,10,10],50,120,"reps"),mk("e4",3,[10,10,8],15,150,"reps")]},
+   {id:"r2",name:"Pierna A",tag:"Fuerza",items:[mk("e5",4,[8,8,8,8],80,180,"reps"),mk("e6",4,[8,8,8,8],60,180,"reps"),mk("e7",4,[10,10,10,10],80,120,"reps"),mk("e8",3,[30,30,30],0,60,"time")]},
+   {id:"r3",name:"Torso B",tag:"Calistenia",items:[mk("e1",3,[8,8,8],15,180,"reps"),mk("e4",4,[0,0,0,0],0,150,"failure"),mk("e3",4,[10,10,10,10],45,120,"reps")]},
+   {id:"r4",name:"Pierna B",tag:"Hipertrofia",items:[mk("e6",4,[8,8,8,8],65,180,"reps"),mk("e5",3,[10,10,10],70,180,"reps"),mk("e7",4,[10,10,10,10],85,120,"reps")]}
+  ];
+ }
+}
+function mk(exerciseId,sets,repsPlan,weight,rest,mode){return {id:id(),exerciseId,sets,repsPlan,weight,rest,mode,order:0}}
+function seedPlan(){for(let i=0;i<35;i++){let d=new Date();d.setDate(d.getDate()+i);let iso=d.toISOString().slice(0,10),day=d.getDay(),rid=null;if(day===1)rid="r1";if(day===2)rid="r2";if(day===4)rid="r3";if(day===5)rid="r4";if(!S.plan[iso])S.plan[iso]={date:iso,routineId:rid,type:rid?"entrenamiento":"descanso",status:"pendiente"}}}
+function ex(id){return S.exercises.find(e=>e.id===id)}
+function rt(id){return S.routines.find(r=>r.id===id)}
+function planToday(){return S.plan[today()]||{date:today(),routineId:null,type:"descanso"}}
+function show(scr){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(scr).classList.add("active");document.querySelectorAll(".dock button").forEach(b=>b.classList.remove("activeNav"));document.getElementById("nav_"+(scr==="library"?"data":scr))?.classList.add("activeNav");render()}
+function render(){applyPersonalization();todayLabel.textContent=today();renderDashboard();renderRoutines();renderPlan();renderData();renderLibrary();renderSettings()}
+function renderDashboard(){
+ let p=planToday(), r=rt(p.routineId), completed=sessionCompletedForDate(today());
+ dashGreeting.textContent="Buenos días Alberto";
+ if(completed){let n=nextPlanAfter(today());dashTitle.textContent="Hoy ya has entrenado";dashMeta.textContent=n?(n.routine?`Lo siguiente: ${n.routine.name} · ${n.date}`:`Lo siguiente: ${n.plan.type||"descanso"} · ${n.date}`):"Sin próximo evento";postNotice.innerHTML=n?`<div class="card soft"><h3>Ya toca mirar adelante</h3><p>${n.routine?`Siguiente entreno: <b>${n.routine.name}</b>`:`Siguiente día: <b>${n.plan.type||"descanso"}</b>`}</p><p class=mut>${n.date}</p></div>`:"";startTodayBtn.textContent=n&&n.routine?"Ver próximo entreno":"Ver planificación";startTodayBtn.onclick=()=>show("planning")}
+ else if(r){dashTitle.textContent=r.name;dashMeta.textContent=`${r.items.length} ejercicios · ${r.items.reduce((a,i)=>a+i.sets,0)} series`;postNotice.innerHTML="";startTodayBtn.textContent="Comenzar";startTodayBtn.onclick=startToday}
+ else{dashTitle.textContent="Descanso";dashMeta.textContent="No hay rutina asignada hoy";postNotice.innerHTML="";startTodayBtn.textContent="Planificar";startTodayBtn.onclick=()=>show("planning")}
+ todayExercises.innerHTML=r?r.items.map(i=>`<div class=line><span>${ex(i.exerciseId)?.name}</span><span>${repsText(i)}</span></div>`).join(""):"<p class=mut>Descanso o sin rutina.</p>";
+ let week=blockWeek();blockFill.style.width=week.pct+"%";blockText.textContent=`Semana ${week.week}/8 · ${week.pct}% del bloque`;
+}
+function sessionCompletedForDate(d){return S.sessions.some(s=>s.date&&s.date.slice(0,10)===d)}
+function nextPlanAfter(d){let start=new Date(d);for(let i=1;i<=30;i++){let x=new Date(start);x.setDate(x.getDate()+i);let iso=x.toISOString().slice(0,10),p=S.plan[iso];if(p&&(p.routineId||p.type==="descanso"||p.type==="deload"))return {date:iso,plan:p,routine:p.routineId?rt(p.routineId):null}}return null}
+function blockWeek(){let st=new Date(S.season?.startDate||today()), nw=new Date();let w=Math.max(1,Math.floor((nw-st)/(7*86400000))+1);return {week:w,pct:Math.max(0,Math.min(100,Math.round(w/8*100)))}}
+function startToday(){let p=planToday();if(!p.routineId)return show("planning");startRoutine(p.routineId)}
+function renderRoutines(){routineButtons.innerHTML=S.routines.map(r=>`<button onclick="startRoutine('${r.id}')">${r.name}</button>`).join("")}
+function startRoutine(rid){let items=rt(rid).items.map((i,idx)=>({...i,order:idx+1,id:i.id||id()}));A={id:id(),routineId:rid,start:Date.now(),idx:0,sets:[],items};show("workout");routinePicker.classList.add("hide");activeWorkout.classList.remove("hide");renderActive()}
+function items(){return A.items.sort((a,b)=>a.order-b.order)} function cur(){return items()[A.idx]}
+function repFor(item,n){return item.repsPlan[Math.min(n,item.repsPlan.length-1)]||0}
+function repsText(i){if(i.mode==="failure")return `${i.sets}xFALLO`;if(i.mode==="time")return `${i.sets}x${i.repsPlan.join("-")}s`;return `${i.sets}x${i.repsPlan.join("-")}`}
+function renderActive(){let r=rt(A.routineId);activeTitle.textContent=r.name;activeSub.textContent=`Ejercicio ${A.idx+1} de ${items().length}`;renderExercise()}
+function renderExercise(){
+ let item=cur(),e=ex(item.exerciseId),done=A.sets.filter(s=>s.itemId===item.id).length,target=repFor(item,done),timed=isTimedItem(item);
+ let repsLabel=timed?fmtClock(target):(item.mode==="failure"?"FALLO":target),weightLabel=(item.weight||0)+"kg";
+ exerciseBox.innerHTML=`<div class="card trainingCard">
+  <div class=mut style="text-align:center">${rt(A.routineId).name} · ${A.idx+1}/${items().length}</div>
+  <div class=exerciseName>${e.name}</div>
+  <div class=setDots>${Array.from({length:item.sets},(_,n)=>`<div class="setDot ${n<done?"done":n===done?"current":""}">${n+1}</div>`).join("")}</div>
+  <div class=focusStats><div class=focusStat><span>Serie</span><b>${done+1}</b><small>de ${item.sets}</small></div><div class=focusStat><span>${timed?"Tiempo":"Reps"}</span><b>${repsLabel}</b><small>${timed?"ejecución":(item.mode==="failure"?"al fallo":"objetivo")}</small></div><div class=focusStat><span>Peso</span><b>${weightLabel}</b><small>actual</small></div></div>
+  <div id=execTimerBox class=execTimerBox><div class=execTimerLabel>Crono de ejecución</div><div id=execTimerValue class=execTimerValue>${fmtClock(target)}</div><div class=execTimerBar><div id=execTimerFill></div></div><div class=execTimerActions><button onclick=pauseExec()>Pausa</button><button class=primary onclick=finishExec(true)>Terminar</button></div></div>
+  <button class="primary casBtn" onclick="${timed?'startExec()':'completeSet()'}">${timed?'INICIAR TIEMPO':'FIN SERIE'}</button>
+  ${hiddenDash(item,e,done,target)}
+  <details class=disclosure><summary>Más opciones</summary><select id=result><option>normal</option><option>facil</option><option>dificil</option><option>fallo</option><option>dolor</option><option>pr</option></select><textarea id=comment placeholder="Comentario opcional"></textarea></details>
+ </div>`;
+ setTimeout(updateLabels,0)
+}
+function hiddenDash(item,e,done,target){let info=cleanInfo(e.name),p=prob(item.exerciseId,item.weight,target);return `<details class=disclosure><summary>Dashboard discreto</summary><div class=hiddenBody><div class=tabs><button onclick="tab('pred')">Probabilidad</button><button onclick="tab('tech')">Técnica</button><button onclick="tab('edit')">Ajustes</button></div><div id=panel_pred class=panel><h3>${p}% probable</h3><div class=predBar><div style="width:${p}%"></div></div><p class=mut>${p>=80?'Adelante':p>=60?'Posible, exigente':p>=40?'Riesgo moderado':'Hoy quizá no'}</p></div><div id=panel_tech class="panel hide"><div class=learnClean><div class=learnSection><h3>📌 Puntos clave</h3><ul>${info.points.map(x=>`<li>${x}</li>`).join("")}</ul></div><div class=learnSection><h3>⚠️ Errores frecuentes</h3><ul>${info.errors.map(x=>`<li>${x}</li>`).join("")}</ul></div><div class=learnSection><h3>💡 Consejos</h3><ul>${info.tips.map(x=>`<li>${x}</li>`).join("")}</ul></div></div></div><div id=panel_edit class="panel hide"><div class=fastControls><div class=fastRow><div class=fastHeader><span class=bigLabel>Reps/Tiempo</span><strong id=fastReps>${isTimedItem(item)?fmtClock(target):(item.mode==="failure"?"FALLO":target)}</strong></div><div class=quickBtns><button onclick="quick(-1)">-1</button><button onclick="quick(1)">+1</button><button onclick="setTarget(8)">8</button><button onclick="setTarget(10)">10</button></div></div><div class=fastRow><div class=fastHeader><span class=bigLabel>Peso</span><strong id=fastWeight>${item.weight}kg</strong></div><div class=quickBtns><button onclick="weight(-1)">-inc</button><button onclick="weight(1)">+inc</button><button onclick="weightKg(-2.5)">-2.5</button><button onclick="weightKg(2.5)">+2.5</button></div></div><div class=fastRow><div class=fastHeader><span class=bigLabel>Descanso</span><strong id=fastRest>${item.rest||S.settings.defaultRest}s</strong></div><div class=quickBtns><button onclick="rest(-15)">-15</button><button onclick="rest(15)">+15</button><button onclick="setRest(90)">90</button><button onclick="setRest(120)">120</button></div></div></div></div></div></details>`}
+function tab(k){["pred","tech","edit"].forEach(x=>document.getElementById("panel_"+x)?.classList.add("hide"));document.getElementById("panel_"+k)?.classList.remove("hide")}
+function cleanInfo(name){let p=pattern(name),base={vertical_pull:{points:["Escápulas activas antes de iniciar.","Codos hacia las costillas.","Bajada controlada y completa."],errors:["Balancear el cuerpo.","Tirar con el cuello.","No extender abajo."],tips:["Codos a los bolsillos.","Aprieta glúteos.","Baja más lento."]},horizontal_push:{points:["Escápulas estables.","Trayectoria controlada.","Muñeca neutra."],errors:["Rebotar.","Codos sin control.","Perder hombros."],tips:["Mismo punto de contacto.","Pies firmes.","Bloquea antes de empujar."]},squat:{points:["Rodillas siguen pies.","Tronco sólido.","Profundidad controlada."],errors:["Rodillas colapsan.","Talones suben.","Pierdes tensión."],tips:["Empuja el suelo.","Abdomen duro.","No te dejes caer."]},hinge:{points:["Cadera atrás.","Espalda neutra.","Barra cerca."],errors:["Redondear lumbar.","Alejar barra.","Convertir en sentadilla."],tips:["Siente isquios.","Cierra puerta con cadera.","Aprieta glúteos."]},horizontal_pull:{points:["Espalda neutra.","Codos atrás.","Control al volver."],errors:["Tirar con lumbar.","Balancear.","Subir hombros."],tips:["Lleva el codo atrás.","Cuello largo.","Pausa arriba."]},dip:{points:["Hombros lejos.","Bajada controlada.","Codos estables."],errors:["Rebotar abajo.","Encoger hombros.","Perder core."],tips:["Pecho abierto.","Baja hasta controlar.","Empuja barras."]},core:{points:["Costillas abajo.","Glúteo activo.","Respira controlado."],errors:["Cadera baja.","Cadera alta.","Aguantar aire."],tips:["Respira corto.","Aprieta glúteos.","Cremallera abdominal."]}};return base[p]||base.horizontal_push}
+function pattern(name){name=(name||"").toLowerCase();if(/dominada|jal[oó]n/.test(name))return"vertical_pull";if(/remo/.test(name))return"horizontal_pull";if(/sentadilla|prensa|zancada/.test(name))return"squat";if(/peso muerto|rumano/.test(name))return"hinge";if(/fondo/.test(name))return"dip";if(/plancha|core|abdominal/.test(name))return"core";return"horizontal_push"}
+function prob(exId,w,r){let h=S.sets.filter(s=>s.exerciseId===exId).slice(-8);if(!h.length)return 72;let avg=h.reduce((a,s)=>a+(s.weight||0)*(s.reps||0),0)/h.length,target=(w||0)*(r||0);return Math.max(8,Math.min(96,Math.round(84-(target-avg)/Math.max(1,avg)*45)))}
+function isTimedItem(i){return i.mode==="time"||i.mode==="timed"||i.unit==="sec"}
+function fmtClock(s){s=Math.max(0,Math.round(s||0));return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
+function updateLabels(){focusCurrentSeries()}
+function quick(d){let i=cur(),n=A.sets.filter(s=>s.itemId===i.id).length;i.repsPlan[n]=Math.max(0,repFor(i,n)+d);renderExercise()}
+function setTarget(v){let i=cur(),n=A.sets.filter(s=>s.itemId===i.id).length;i.repsPlan[n]=+v;renderExercise()}
+function weight(dir){let i=cur(),inc=ex(i.exerciseId)?.inc||S.settings.inc;i.weight=Math.max(0,Math.round((i.weight+dir*inc)*100)/100);renderExercise()}
+function weightKg(d){let i=cur();i.weight=Math.max(0,Math.round((i.weight+d)*100)/100);renderExercise()}
+function rest(d){let i=cur();i.rest=Math.max(0,(i.rest||S.settings.defaultRest)+d);renderExercise()}
+function setRest(v){cur().rest=+v;renderExercise()}
+function startExec(){let i=cur(),done=A.sets.filter(s=>s.itemId===i.id).length;execTotal=repFor(i,done)||30;execLeft=execTotal;execTimerBox.classList.add("on");tickExec();clearInterval(execInt);execInt=setInterval(()=>{execLeft--;tickExec();if(execLeft<=0)finishExec(false)},1000)}
+function tickExec(){execTimerValue.textContent=fmtClock(execLeft);execTimerFill.style.transform=`scaleX(${Math.max(0,execLeft/execTotal)})`}
+function pauseExec(){if(execInt){clearInterval(execInt);execInt=null}else execInt=setInterval(()=>{execLeft--;tickExec();if(execLeft<=0)finishExec(false)},1000)}
+function finishExec(manual){clearInterval(execInt);execInt=null;let achieved=manual?Math.max(0,execTotal-execLeft):execTotal;completeSet(achieved)}
+function completeSet(override=null){let i=cur(),done=A.sets.filter(s=>s.itemId===i.id).length,target=repFor(i,done),reps=override!==null?override:target,res=document.getElementById("result")?.value||"normal";if(i.mode==="failure"||res==="fallo"){let v=prompt("Reps reales",target||"");if(v!==null&&!isNaN(+v))reps=+v}A.sets.push({id:id(),sessionId:A.id,itemId:i.id,routineId:A.routineId,exerciseId:i.exerciseId,order:A.idx,setNumber:done+1,targetReps:target,reps,weight:i.weight,result:res,comment:document.getElementById("comment")?.value||"",mode:i.mode,unit:i.mode==="time"?"sec":"reps",ts:now()});let finished=A.sets.filter(s=>s.itemId===i.id).length>=i.sets;if(finished){A.idx++;if(A.idx>=items().length)return finishSession();let nx=ex(items()[A.idx].exerciseId);showNext(nx.name,repsText(items()[A.idx]));renderActive()}else startRest(i.rest||S.settings.defaultRest,"Siguiente serie")}
+function showNext(name,meta){nextName.textContent=name;nextMeta.textContent=meta;nextOverlay.classList.add("on");setTimeout(()=>nextOverlay.classList.remove("on"),1050)}
+function focusCurrentSeries(){setTimeout(()=>{let c=document.querySelector(".setDot.current");if(c){c.scrollIntoView({behavior:"smooth",block:"center"});c.classList.add("focusHalo");setTimeout(()=>c.classList.remove("focusHalo"),1100)}},80)}
+function renderDigit(n){const map={0:"abcdef",1:"bc",2:"abged",3:"abgcd",4:"fgbc",5:"afgcd",6:"afgecd",7:"abc",8:"abcdefg",9:"abfgcd"};return `<div class=seven>${["a","b","c","d","e","f","g"].map(x=>`<div class="seg ${x} ${(map[n]||"").includes(x)?"on":""}"></div>`).join("")}</div>`}
+function renderLCD(sec){let t=fmtClock(sec).replace(":","");lcdTime.innerHTML=renderDigit(t[0])+renderDigit(t[1])+`<div class=lcdColon>:</div>`+renderDigit(t[2])+renderDigit(t[3])}
+function startRest(sec,info){restLeft=sec;restInfo.textContent=info;restModal.classList.add("on");renderLCD(restLeft);clearInterval(restInt);restInt=setInterval(()=>{restLeft--;renderLCD(restLeft);if(restLeft<=0)endRest()},1000)}
+function addRest(s){restLeft+=s;renderLCD(restLeft)}
+function endRest(){clearInterval(restInt);restModal.classList.remove("on");if(A){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));workout.classList.add("active");routinePicker.classList.add("hide");activeWorkout.classList.remove("hide");renderActive();focusCurrentSeries()}}
+function finishSession(){let dur=Math.max(1,Math.round((Date.now()-A.start)/60000));finishStats.innerHTML=`<div class=metric><span>Duración</span><b>${dur}m</b></div><div class=metric><span>Series</span><b>${A.sets.length}</b></div><div class=metric><span>Volumen</span><b>${Math.round(A.sets.reduce((a,s)=>a+s.weight*s.reps,0))}</b></div><div class=metric><span>PR</span><b>${A.sets.filter(s=>s.result==="pr").length}</b></div>`;finishModal.classList.add("on");showCoachSummary();setTimeout(showCoachSummary,50)}
+function simpleSetLine(s){
+ const target = (s.targetReps!==undefined && s.targetReps!==null && s.targetReps!=="") ? `/${s.targetReps}` : "";
+ const res = s.result && s.result!=="normal" ? ` · ${s.result}` : "";
+ const com = s.comment ? ` · ${s.comment}` : "";
+ const isTime = s.mode==="time" || s.unit==="sec";
+ if(isTime){
+   return `  Serie ${s.setNumber}: ${Math.round(Number(s.reps)||0)}s${target?target+"s":""}${Number(s.weight)?` · ${s.weight} kg`:""}${res}${com}`;
+ }
+ return `  Serie ${s.setNumber}: ${Number(s.weight)||0} kg x ${s.reps}${target}${res}${com}`;
+}
+function buildCoachSummaryFrom(session, sets){
+ sets = (sets||[]).slice().sort((a,b)=>{
+   let ai = Number(a.order ?? 999);
+   let bi = Number(b.order ?? 999);
+   return ai-bi || String(a.exerciseId||"").localeCompare(String(b.exerciseId||"")) || (Number(a.setNumber)||0)-(Number(b.setNumber)||0);
+ });
+ const r = rt(session.routineId);
+ const date = String(session.date||today()).slice(0,10);
+ const duration = session.duration ? `${session.duration} min` : "";
+ const volume = Math.round(sets.reduce((a,s)=>a+(Number(s.weight)||0)*(Number(s.reps)||0),0));
+ const lines = [];
+ lines.push(`ENTRENAMIENTO ${date}`);
+ lines.push(`Rutina: ${r?.name||"Sin nombre"}`);
+ if(duration) lines.push(`Duración: ${duration}`);
+ if(session.feeling) lines.push(`Sensación: ${session.feeling}`);
+ lines.push(`Series totales: ${sets.length}`);
+ lines.push(`Volumen aprox.: ${volume} kg`);
+ lines.push("");
+ let lastExercise = null;
+ sets.forEach((s,idx)=>{
+   if(s.exerciseId !== lastExercise){
+     if(idx > 0) lines.push("");
+     lines.push(ex(s.exerciseId)?.name || "Ejercicio");
+     lastExercise = s.exerciseId;
+   }
+   lines.push(simpleSetLine(s));
+ });
+ const note = session.note || document.getElementById("sessionNote")?.value || "";
+ if(note.trim()){
+   lines.push("");
+   lines.push(`Nota final: ${note.trim()}`);
+ }
+ return lines.join("\n").trim();
+}
+function buildCoachSummary(){
+ if(A){
+   const dur = Math.max(1,Math.round((Date.now()-A.start)/60000));
+   return buildCoachSummaryFrom({
+     id:A.id,
+     routineId:A.routineId,
+     date:now(),
+     duration:dur,
+     feeling:document.getElementById("sessionFeeling")?.value,
+     note:document.getElementById("sessionNote")?.value
+   }, A.sets.slice());
+ }
+ const last = S.sessions[S.sessions.length-1];
+ if(!last) return "";
+ return buildCoachSummaryFrom(last,S.sets.filter(s=>s.sessionId===last.id));
+}
+function showCoachSummary(){
+ const el = document.getElementById("coachSummaryText");
+ if(el) el.textContent = buildCoachSummary();
+}
+function copyLastCoachSummary(){
+ const last = S.sessions[S.sessions.length-1];
+ if(!last){ alert("Aún no hay sesión guardada."); return; }
+ alert(buildCoachSummaryFrom(last,S.sets.filter(s=>s.sessionId===last.id)));
+}
+
+function saveSession(){let dur=Math.max(1,Math.round((Date.now()-A.start)/60000));let sessionObj={id:A.id,routineId:A.routineId,date:now(),duration:dur,feeling:sessionFeeling.value,note:sessionNote.value};S.sessions.push({...sessionObj,coachSummary:buildCoachSummaryFrom(sessionObj,A.sets.slice())});S.sets.push(...A.sets);let p=planToday();p.status="completado";p.completedAt=now();save();A=null;finishModal.classList.remove("on");routinePicker.classList.remove("hide");activeWorkout.classList.add("hide");show("dashboard")}
+function renderPlan(){let out="",d0=new Date();for(let i=0;i<7;i++){let d=new Date(d0);d.setDate(d.getDate()+i);let iso=d.toISOString().slice(0,10),p=S.plan[iso]||{date:iso};out+=`<div class=card><h3>${iso}</h3><select onchange="S.plan['${iso}']={date:'${iso}',routineId:this.value||null,type:this.value?'entrenamiento':'descanso',status:'pendiente'};save();render()"><option value="">Descanso</option>${S.routines.map(r=>`<option value="${r.id}" ${p.routineId===r.id?"selected":""}>${r.name}</option>`).join("")}</select></div>`}weekPlan.innerHTML=out;seasonStart.value=S.season.startDate||today();seasonMonths.value=S.season.months||6;seasonView.innerHTML=`<p class=mut>Planificando desde ${S.season.startDate||today()} · ${S.season.months||6} meses</p>`}
+function saveSeason(){S.season.startDate=seasonStart.value;S.season.months=+seasonMonths.value;save();render()}
+function renderData(){let w=S.weights[S.weights.length-1];mWeight.textContent=w?w.weight+"kg":"—";let st=new Date();st.setDate(st.getDate()-7);let sets=S.sets.filter(s=>new Date(s.ts)>=st);mVol.textContent=Math.round(sets.reduce((a,s)=>a+s.weight*s.reps,0));mSessions.textContent=S.sessions.length;mPR.textContent=S.sets.filter(s=>s.result==="pr").length;recentSessions.innerHTML=S.sessions.slice(-6).reverse().map(s=>`<div class=line><span>${rt(s.routineId)?.name||"Rutina"}</span><span>${s.date.slice(0,10)}</span></div>`).join("")||"<p class=mut>Sin sesiones.</p>"}
+function saveWeight(){let v=parseFloat(weightInput.value);if(isNaN(v))return;S.weights.push({id:id(),date:today(),weight:v,ts:now()});save();render()}
+function renderLibrary(){libRoutines.innerHTML=S.routines.map(r=>`<div class=card><h3>${r.name}</h3>${r.items.map(i=>`<span class=pill>${ex(i.exerciseId)?.name} · ${repsText(i)}</span>`).join("")}<button onclick="startRoutine('${r.id}')">Iniciar</button></div>`).join("");libExercises.innerHTML=S.exercises.map(e=>`<div class=line><span>${e.name}</span><button onclick="alert(cleanInfo('${e.name.replaceAll("'","")}').points.join('\\n'))">Técnica</button></div>`).join("")}
+function newRoutine(){let name=prompt("Nombre rutina");if(!name)return;S.routines.push({id:id(),name,tag:"Configurable",items:[]});save();render()}
+function newExercise(){let name=prompt("Nombre ejercicio");if(!name)return;S.exercises.push({id:id(),name,pattern:"custom",inc:S.settings.inc,rest:S.settings.defaultRest});save();render()}
+
+function ensurePersonalization(){
+ S.ui=S.ui||{theme:"luxury",fontSize:"normal",density:"normal",lefty:false,splash:true};
+}
+function applyPersonalization(){
+ ensurePersonalization();
+ document.body.classList.remove("theme-luxury","theme-elegance","theme-carbon","theme-stealth","theme-laboratory","theme-humor","theme-retro","theme-punk","font-small","font-normal","font-large","font-xl","compact","comfort","lefty");
+ if(!["luxury","elegance","carbon","stealth","laboratory"].includes(S.ui.theme))S.ui.theme="luxury";document.body.classList.add("theme-"+(S.ui.theme||"luxury"));
+ document.body.classList.add("font-"+(S.ui.fontSize||"normal"));
+ if(S.ui.density==="compact")document.body.classList.add("compact");
+ if(S.ui.density==="comfort")document.body.classList.add("comfort");
+ if(S.ui.lefty)document.body.classList.add("lefty");
+ let sp=document.getElementById("splash");
+ if(sp && S.ui.splash===false)sp.style.display="none";
+}
+function setTheme(t){ensurePersonalization();S.ui.theme=t;save();applyPersonalization();renderSettings()}
+function setFontSize(v){ensurePersonalization();S.ui.fontSize=v;save();applyPersonalization()}
+function setDensity(v){ensurePersonalization();S.ui.density=v;save();applyPersonalization()}
+function setLefty(v){ensurePersonalization();S.ui.lefty=v;save();applyPersonalization()}
+function setSplash(v){ensurePersonalization();S.ui.splash=v;save();applyPersonalization()}
+
+function renderSettings(){
+ ensurePersonalization();
+ defaultRest.value=S.settings.defaultRest;
+ incSetting.value=S.settings.inc;
+ if(document.getElementById("fontSetting"))fontSetting.value=S.ui.fontSize||"normal";
+ if(document.getElementById("densitySetting"))densitySetting.value=S.ui.density||"normal";
+ if(document.getElementById("leftySetting"))leftySetting.value=S.ui.lefty?"yes":"no";
+ if(document.getElementById("splashSetting"))splashSetting.value=S.ui.splash===false?"no":"yes";
+ ["luxury","elegance","carbon","stealth","laboratory"].forEach(t=>document.getElementById("theme_"+t)?.classList.toggle("on",(S.ui.theme||"luxury")===t));
+}
+function saveSettings(){S.settings.defaultRest=+defaultRest.value||120;S.settings.inc=+incSetting.value||2.5;save();render()}
+function openFeedback(){feedbackModal.classList.add("on")}function closeFeedback(){feedbackModal.classList.remove("on")}function saveFeedback(){S.feedback.push({id:id(),date:now(),type:fbType.value,title:fbTitle.value,desc:fbDesc.value,status:"pendiente"});save();closeFeedback()}
+function downloadBackup(){let a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,2)],{type:"application/json"}));a.download="GymTracker_Backup_"+today()+".json";a.click()}
+function downloadCSV(){let rows=[["fecha","rutina","ejercicio","serie","peso","reps","objetivo","resultado"]];S.sets.forEach(s=>rows.push([s.ts,rt(s.routineId)?.name||"",ex(s.exerciseId)?.name||"",s.setNumber,s.weight,s.reps,s.targetReps,s.result]));let csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")).join("\n");let a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download="GymTracker_Progreso.csv";a.click()}
+function importBackup(ev){let f=ev.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{S=JSON.parse(r.result);save();render();alert("Backup importado")}catch(e){alert("Archivo no válido")}};r.readAsText(f)}
+load();render();show("dashboard");if("serviceWorker" in navigator)navigator.serviceWorker.register("./sw.js").catch(()=>{});
+</script>
+</body>
+</html>
