@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>GymTracker Lab 6.2</title>
+<title>GymTracker Lab 6.2.1</title>
 <meta name="theme-color" content="#0a0b0d">
 <link rel="manifest" href="manifest.webmanifest">
 <style>
@@ -582,7 +582,7 @@ font-weight:800;letter-spacing:.05em}
 .rcbadge{position:fixed;top:10px;right:12px;background:#111;color:#f2d37b;
 padding:6px 10px;border-radius:999px;font:700 12px sans-serif;z-index:9999;border:1px solid #7a6428}
 
-/* === GYMTRACKER LAB 6.2.2 — Focus UX + Blocks/Editing === */
+/* === GYMTRACKER LAB 6.2.1.2 — Focus UX + Blocks/Editing === */
 :root{
   --gt-gap:16px;
   --gt-gap2:24px;
@@ -926,7 +926,7 @@ body.theme-carbon .seasonStepRc4.on{
 .editSavedRc5{color:var(--gold2);font-size:.88rem;min-height:20px}
 
 
-/* === LAB 6.2.2 HOTFIX === */
+/* === LAB 6.2.1.2 HOTFIX === */
 .importRoutineBox{
   display:grid;
   gap:10px;
@@ -947,7 +947,7 @@ body.theme-carbon .seasonStepRc4.on{
 }
 
 
-/* === LAB 6.2.2 routine import visible fix === */
+/* === LAB 6.2.1.2 routine import visible fix === */
 .importHelpRc7{
   display:grid;
   gap:10px;
@@ -969,7 +969,7 @@ body.theme-carbon .seasonStepRc4.on{
 }
 
 
-/* === LAB 6.2.2 simple practical season/block planner === */
+/* === LAB 6.2.1.2 simple practical season/block planner === */
 .simpleSeasonRc8{display:grid;gap:12px}
 .simpleSeasonHeaderRc8{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media(max-width:620px){.simpleSeasonHeaderRc8{grid-template-columns:1fr}}
@@ -989,7 +989,7 @@ body.theme-carbon .seasonStepRc4.on{
 .seasonTodayRc8{border-radius:20px;padding:12px;background:rgba(255,240,184,.055);border:1px solid rgba(255,240,184,.16)}
 
 
-/* === LAB 6.2.2 FIXED === */
+/* === LAB 6.2.1.2 FIXED === */
 .profileChip61{
   position:fixed;top:48px;right:12px;z-index:9998;
   padding:8px 11px;border-radius:999px;
@@ -1018,7 +1018,7 @@ body.theme-carbon .seasonStepRc4.on{
 #theme_humor,#theme_retro,#theme_punk,#theme_stealth,#theme_laboratory{display:none!important}
 
 
-/* === LAB 6.2.2 visible profile selector === */
+/* === LAB 6.2.1.2 visible profile selector === */
 .profileTop611{
   margin:0 0 14px;
   padding:12px;
@@ -1035,7 +1035,7 @@ body.theme-carbon .seasonStepRc4.on{
 @media(max-width:420px){.profileTop611Btns{grid-template-columns:1fr}}
 
 
-/* === LAB 6.2 URGENT ROUTINE IMPORT === */
+/* === LAB 6.2.1 URGENT ROUTINE IMPORT === */
 .routineImport612{
   display:grid;
   gap:10px;
@@ -1063,7 +1063,7 @@ body.theme-carbon .seasonStepRc4.on{
 }
 
 
-/* === LAB 6.2 ROUTINES-FIRST STABLE === */
+/* === LAB 6.2.1 ROUTINES-FIRST STABLE === */
 .routineManager62{display:grid;gap:12px}
 .routinePanel62{
   border:2px solid rgba(255,240,184,.22);
@@ -1103,11 +1103,57 @@ body.theme-carbon .seasonStepRc4.on{
 }
 .routineStatus62{min-height:22px;color:var(--gold2);font-weight:900}
 
+
+/* === LAB 6.2.1 emergency import modal === */
+.importFab621{
+  position:fixed;
+  left:12px;
+  top:48px;
+  z-index:9998;
+  padding:8px 11px;
+  border-radius:999px;
+  border:1px solid var(--line,rgba(255,255,255,.16));
+  background:rgba(255,240,184,.12);
+  color:var(--gold2,#fff0b8);
+  font:900 13px system-ui,sans-serif;
+}
+.importModal621{
+  position:fixed;
+  inset:0;
+  z-index:10001;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:14px;
+  background:rgba(0,0,0,.82);
+}
+.importModal621.on{display:flex}
+.importBox621{
+  width:min(96vw,680px);
+  max-height:92vh;
+  overflow:auto;
+  border-radius:26px;
+  padding:16px;
+  border:1px solid var(--line,rgba(255,255,255,.16));
+  background:linear-gradient(180deg,#151a23,#08090c);
+}
+.importBox621 textarea{
+  min-height:260px!important;
+  font-family:ui-monospace,"Courier New",monospace!important;
+}
+.importBox621 pre{
+  white-space:pre-wrap;
+  padding:10px;
+  border-radius:14px;
+  background:rgba(0,0,0,.25);
+  color:var(--gold2,#fff0b8);
+}
+
 </style>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <style>.seasonWizardRc4,#seasonWizardRc4,.blockPlannerLite,#blocksRc3{display:none!important}</style>
 </head>
-<body><div class="rcbadge">LAB 6.2</div>
+<body><div class="rcbadge">LAB 6.2.1</div>
 
 <div id="splash" class="splash">
   <div class="splashLogo">
@@ -1125,7 +1171,7 @@ body.theme-carbon .seasonStepRc4.on{
   </div>
 </div>
 
-<header><h1>GymTracker <span class="gold">Ultimate LAB 6.2.2</span></h1><div id="todayLabel" class="mut"></div></header>
+<header><h1>GymTracker <span class="gold">Ultimate LAB 6.2.1.2</span></h1><div id="todayLabel" class="mut"></div></header>
 <main>
 <section id="dashboard" class="screen active">
   <div class="profileTop611">
@@ -1344,7 +1390,7 @@ function storageScoreRc6(obj){
  return (obj.sessions?.length||0)*1000 + (obj.sets?.length||0)*100 + (obj.routines?.length||0)*20 + (obj.exercises?.length||0)*5 + (obj.weights?.length||0)*10;
 }
 
-/* === LAB 6.2.2 Local Profiles FIXED === */
+/* === LAB 6.2.1.2 Local Profiles FIXED === */
 let CURRENT_PROFILE = localStorage.getItem("gymtracker_lab_61_current_profile") || "Alberto";
 function profileKey61(name){return "gymtracker_lab_61_"+name;}
 function profileMeta61(name){return name==="Edy"?{name:"Edy",icon:"🏋️",theme:"elegance"}:{name:"Alberto",icon:"💪",theme:"luxury"};}
@@ -1429,6 +1475,91 @@ function ex(id){return S.exercises.find(e=>e.id===id)}
 function rt(id){return S.routines.find(r=>r.id===id)}
 function planToday(){return S.plan[today()]||{date:today(),routineId:null,type:"descanso"}}
 function show(scr){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(scr).classList.add("active");document.querySelectorAll(".dock button").forEach(b=>b.classList.remove("activeNav"));document.getElementById("nav_"+(scr==="library"?"data":scr))?.classList.add("activeNav");render()}
+
+/* === LAB 6.2.1 guaranteed routine import === */
+function openImport621(){document.getElementById("importModal621")?.classList.add("on");}
+function closeImport621(){document.getElementById("importModal621")?.classList.remove("on");}
+function exampleRoutine621(){
+  document.getElementById("routineName621").value="Torso A";
+  document.getElementById("routineText621").value=`Press banca 4x8 80kg descanso 180
+Dominadas 4x fallo descanso 180
+Remo barra 4x10-12 60kg descanso 120
+Fondos en paralelas 4x al fallo descanso 150
+Plancha 3x45s descanso 60`;
+}
+function cleanName621(line){
+  return (line||"")
+    .replace(/^\s*[-•*]\s*/,"")
+    .replace(/\b\d+\s*x\s*(?:al\s*)?fallo\b/ig,"")
+    .replace(/\b\d+\s*x\s*\d+\s*(?:[-\/]\s*\d+)?\s*(?:reps?|rep)?\b/ig,"")
+    .replace(/\b\d+\s*x\s*\d+\s*s\b/ig,"")
+    .replace(/\b\d+(?:[.,]\d+)?\s*kg\b/ig,"")
+    .replace(/\b(?:descanso|rest)\s*\d+\s*s?\b/ig,"")
+    .replace(/\([^)]*\)/g,"")
+    .replace(/[:|]+/g," ")
+    .replace(/\s+/g," ")
+    .trim();
+}
+function getExercise621(name){
+  S.exercises=S.exercises||[];
+  name=(name||"Ejercicio").trim();
+  let e=S.exercises.find(x=>(x.name||"").toLowerCase()===name.toLowerCase());
+  if(e)return e;
+  e={id:id(),name,pattern:(typeof pattern==="function"?pattern(name):"custom"),inc:S.settings?.inc||2.5,rest:S.settings?.defaultRest||120};
+  S.exercises.push(e);
+  return e;
+}
+function parseRoutineLine621(line){
+  let raw=(line||"").trim();
+  if(!raw)return null;
+  if(/^(rutina|día|dia|bloque|semana|calentamiento|notas?|objetivo)\b/i.test(raw))return null;
+  let sets=0,repsPlan=[],mode="reps";
+  let fail=raw.match(/(\d+)\s*x\s*(?:al\s*)?fallo/i);
+  let time=raw.match(/(\d+)\s*x\s*(\d+)\s*s\b/i);
+  let reps=raw.match(/(\d+)\s*x\s*(\d+)(?:\s*[-\/]\s*(\d+))?/i);
+  if(fail){sets=+fail[1];mode="failure";repsPlan=Array.from({length:sets},()=>0);}
+  else if(time){sets=+time[1];mode="time";repsPlan=Array.from({length:sets},()=>+time[2]);}
+  else if(reps){sets=+reps[1];let a=+reps[2],b=reps[3]?+reps[3]:a;repsPlan=Array.from({length:sets},(_,i)=>Math.round(a+(b-a)*(sets<=1?0:i/(sets-1))));}
+  else return null;
+  let name=cleanName621(raw);
+  if(!name)return null;
+  let mw=raw.match(/(\d+(?:[.,]\d+)?)\s*kg/i);
+  let weight=mw?parseFloat(mw[1].replace(",",".")):0;
+  let mr=raw.match(/(?:descanso|rest)\s*(\d+)\s*s?/i);
+  let rest=mr?+mr[1]:(S.settings?.defaultRest||120);
+  let exo=getExercise621(name);
+  return {id:id(),exerciseId:exo.id,sets,repsPlan,weight,rest,mode,order:0};
+}
+function importRoutine621(){
+  try{
+    S.routines=S.routines||[];
+    let status=document.getElementById("routineStatus621");
+    let name=(document.getElementById("routineName621")?.value||"").trim();
+    let text=document.getElementById("routineText621")?.value||"";
+    let lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+    let items=[];
+    lines.forEach(line=>{
+      let item=parseRoutineLine621(line);
+      if(item){item.order=items.length+1;items.push(item);}
+    });
+    if(!items.length){
+      if(status)status.textContent="No detecto ejercicios. Usa el botón Ejemplo.";
+      alert("No detecto ejercicios. Usa formato: Press banca 4x8 80kg descanso 180");
+      return;
+    }
+    let routine={id:id(),name:name||`Rutina ${S.routines.length+1}`,tag:"Importada",items};
+    S.routines.push(routine);
+    save();
+    if(status)status.textContent=`Importada ${routine.name}: ${items.length} ejercicios`;
+    alert(`Rutina importada: ${routine.name}`);
+    closeImport621();
+    render();
+  }catch(e){
+    alert("Error importando: "+e.message);
+    console.error(e);
+  }
+}
+
 function render(){rc8EnsureSeason();rc3Ensure();rc4EnsureSeason();applyPersonalization();todayLabel.textContent=today();renderDashboard();renderRoutines();renderPlan();renderData();renderLibrary();renderSettings();renderRoutines62();updateProfileButtons611();rc8RenderSeason();rc3RenderBlocks();rc3RenderEditSessions();rc4RenderSeasonWizard();rc5RenderStats()}
 function renderDashboard(){
  let p=planToday(), r=rt(p.routineId), completed=sessionCompletedForDate(today());
@@ -1723,7 +1854,7 @@ function rc4RenderSeasonWizard(){
 }
 
 
-/* === LAB 6.2.2 Simple Season Planner === */
+/* === LAB 6.2.1.2 Simple Season Planner === */
 function rc8EnsureSeason(){
   S.season=S.season||{};
   S.season.startDate=S.season.startDate||today();
@@ -1877,7 +2008,7 @@ function rc5SaveEditSession(id){
 function renderData(){let w=S.weights[S.weights.length-1];mWeight.textContent=w?w.weight+"kg":"—";let st=new Date();st.setDate(st.getDate()-7);let sets=S.sets.filter(s=>new Date(s.ts)>=st);mVol.textContent=Math.round(sets.reduce((a,s)=>a+s.weight*s.reps,0));mSessions.textContent=S.sessions.length;mPR.textContent=S.sets.filter(s=>s.result==="pr").length;recentSessions.innerHTML=S.sessions.slice(-6).reverse().map(s=>`<div class=line><span>${rt(s.routineId)?.name||"Rutina"}</span><span>${s.date.slice(0,10)}</span></div>`).join("")||"<p class=mut>Sin sesiones.</p>"}
 function saveWeight(){let v=parseFloat(weightInput.value);if(isNaN(v))return;S.weights.push({id:id(),date:today(),weight:v,ts:now()});save();render()}
 
-/* === LAB 6.2.2 Routine Import === */
+/* === LAB 6.2.1.2 Routine Import === */
 function fillImportTemplateRc6(){
  const el=document.getElementById("routineImportTextRc6");
  if(!el)return;
@@ -1961,7 +2092,7 @@ function importRoutineTextRc6(){
 }
 
 
-/* === LAB 6.2.2 robust routine import === */
+/* === LAB 6.2.1.2 robust routine import === */
 function fillImportTemplateRc7(){
   const name=document.getElementById("routineImportNameRc7");
   const txt=document.getElementById("routineImportTextRc7");
@@ -2040,7 +2171,7 @@ function importRoutineTextRc7(){
 }
 
 
-/* === LAB 6.2 URGENT ROUTINE IMPORT === */
+/* === LAB 6.2.1 URGENT ROUTINE IMPORT === */
 function templateRoutine612(){
   const n=document.getElementById("routineName612");
   const t=document.getElementById("routineText612");
@@ -2137,7 +2268,7 @@ function importRoutine612(){
 }
 
 
-/* === LAB 6.2 Routines-first stable functions === */
+/* === LAB 6.2.1 Routines-first stable functions === */
 function templateRoutine62(){
   document.getElementById("routineName62").value="Torso A";
   document.getElementById("routineText62").value=`Torso A
