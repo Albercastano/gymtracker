@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>GymTracker Lab 6.1</title>
+<title>GymTracker Lab 6.2</title>
 <meta name="theme-color" content="#0a0b0d">
 <link rel="manifest" href="manifest.webmanifest">
 <style>
@@ -582,7 +582,7 @@ font-weight:800;letter-spacing:.05em}
 .rcbadge{position:fixed;top:10px;right:12px;background:#111;color:#f2d37b;
 padding:6px 10px;border-radius:999px;font:700 12px sans-serif;z-index:9999;border:1px solid #7a6428}
 
-/* === GYMTRACKER LAB 6.1 — Focus UX + Blocks/Editing === */
+/* === GYMTRACKER LAB 6.2.2 — Focus UX + Blocks/Editing === */
 :root{
   --gt-gap:16px;
   --gt-gap2:24px;
@@ -926,7 +926,7 @@ body.theme-carbon .seasonStepRc4.on{
 .editSavedRc5{color:var(--gold2);font-size:.88rem;min-height:20px}
 
 
-/* === LAB 6.1 HOTFIX === */
+/* === LAB 6.2.2 HOTFIX === */
 .importRoutineBox{
   display:grid;
   gap:10px;
@@ -947,7 +947,7 @@ body.theme-carbon .seasonStepRc4.on{
 }
 
 
-/* === LAB 6.1 routine import visible fix === */
+/* === LAB 6.2.2 routine import visible fix === */
 .importHelpRc7{
   display:grid;
   gap:10px;
@@ -969,7 +969,7 @@ body.theme-carbon .seasonStepRc4.on{
 }
 
 
-/* === LAB 6.1 simple practical season/block planner === */
+/* === LAB 6.2.2 simple practical season/block planner === */
 .simpleSeasonRc8{display:grid;gap:12px}
 .simpleSeasonHeaderRc8{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media(max-width:620px){.simpleSeasonHeaderRc8{grid-template-columns:1fr}}
@@ -989,7 +989,7 @@ body.theme-carbon .seasonStepRc4.on{
 .seasonTodayRc8{border-radius:20px;padding:12px;background:rgba(255,240,184,.055);border:1px solid rgba(255,240,184,.16)}
 
 
-/* === LAB 6.1 FIXED === */
+/* === LAB 6.2.2 FIXED === */
 .profileChip61{
   position:fixed;top:48px;right:12px;z-index:9998;
   padding:8px 11px;border-radius:999px;
@@ -1017,11 +1017,97 @@ body.theme-carbon .seasonStepRc4.on{
 .profileHint61{color:var(--mut,#aaa);font-size:.92rem;margin-top:10px}
 #theme_humor,#theme_retro,#theme_punk,#theme_stealth,#theme_laboratory{display:none!important}
 
+
+/* === LAB 6.2.2 visible profile selector === */
+.profileTop611{
+  margin:0 0 14px;
+  padding:12px;
+  border-radius:22px;
+  border:1px solid var(--line,rgba(255,255,255,.14));
+  background:rgba(255,255,255,.035);
+  display:grid;
+  gap:10px;
+}
+.profileTop611Title{color:var(--mut,#aaa);font-size:.86rem;letter-spacing:.12em;text-transform:uppercase;font-weight:800}
+.profileTop611Btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.profileTop611Btns button{min-height:54px!important}
+.profileTop611Btns button.activeProfile611{outline:2px solid var(--gold2,#fff0b8)}
+@media(max-width:420px){.profileTop611Btns{grid-template-columns:1fr}}
+
+
+/* === LAB 6.2 URGENT ROUTINE IMPORT === */
+.routineImport612{
+  display:grid;
+  gap:10px;
+  border:2px solid rgba(255,240,184,.20)!important;
+}
+.routineImport612 textarea{
+  min-height:260px!important;
+  font-family:ui-monospace,"Courier New",monospace!important;
+  font-size:.95rem!important;
+}
+.importExample612{
+  white-space:pre-wrap;
+  padding:12px;
+  border-radius:16px;
+  background:rgba(0,0,0,.25);
+  border:1px solid rgba(255,255,255,.10);
+  color:var(--gold2,#fff0b8);
+  font-family:ui-monospace,"Courier New",monospace;
+  font-size:.88rem;
+}
+.importStatus612{
+  color:var(--gold2,#fff0b8);
+  font-weight:900;
+  min-height:24px;
+}
+
+
+/* === LAB 6.2 ROUTINES-FIRST STABLE === */
+.routineManager62{display:grid;gap:12px}
+.routinePanel62{
+  border:2px solid rgba(255,240,184,.22);
+  border-radius:24px;
+  padding:14px;
+  background:rgba(255,240,184,.045);
+}
+.routinePanel62 textarea{
+  min-height:220px!important;
+  font-family:ui-monospace,"Courier New",monospace!important;
+}
+.routineList62{display:grid;gap:10px}
+.routineCard62{
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:22px;
+  padding:12px;
+  background:rgba(255,255,255,.028);
+}
+.routineCard62 summary{
+  list-style:none;cursor:pointer;
+  display:flex;justify-content:space-between;gap:10px;align-items:center;
+}
+.routineCard62 summary::-webkit-details-marker{display:none}
+.routineCard62 summary::after{content:"Editar";color:var(--gold2);font-weight:900;font-size:.85rem}
+.routineCard62[open] summary::after{content:"Cerrar"}
+.routineMeta62{color:var(--mut);font-size:.9rem}
+.routineItem62{
+  display:grid;
+  grid-template-columns:1fr 74px 74px 74px 44px;
+  gap:6px;
+  align-items:center;
+  margin:8px 0;
+}
+@media(max-width:680px){
+  .routineItem62{grid-template-columns:1fr 1fr; border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:8px}
+  .routineItem62 .full62{grid-column:1/-1}
+}
+.routineStatus62{min-height:22px;color:var(--gold2);font-weight:900}
+
 </style>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <style>.seasonWizardRc4,#seasonWizardRc4,.blockPlannerLite,#blocksRc3{display:none!important}</style>
 </head>
-<body><div class="rcbadge">LAB 6.1</div>
+<body><div class="rcbadge">LAB 6.2</div>
 
 <div id="splash" class="splash">
   <div class="splashLogo">
@@ -1039,9 +1125,17 @@ body.theme-carbon .seasonStepRc4.on{
   </div>
 </div>
 
-<header><h1>GymTracker <span class="gold">Ultimate LAB 6.1</span></h1><div id="todayLabel" class="mut"></div></header>
+<header><h1>GymTracker <span class="gold">Ultimate LAB 6.2.2</span></h1><div id="todayLabel" class="mut"></div></header>
 <main>
 <section id="dashboard" class="screen active">
+  <div class="profileTop611">
+    <div class="profileTop611Title">Quien va a entrenar</div>
+    <div class="profileTop611Btns">
+      <button id="profileBtnAlberto611" onclick="selectProfile61('Alberto','💪','luxury')">💪 Alberto</button>
+      <button id="profileBtnEdy611" onclick="selectProfile61('Edy','🏋️','elegance')">🏋️ Edy</button>
+    </div>
+  </div>
+
   <div class="hero">
     <div class="card">
       <div class="mut" id="dashGreeting">Buenos días Alberto</div>
@@ -1114,26 +1208,61 @@ body.theme-carbon .seasonStepRc4.on{
 </section>
 
 <section id="library" class="screen">
-  <div class="card"><h2>Rutinas</h2><button class="primary" onclick="newRoutine()">Nueva rutina</button><div id="libRoutines"></div></div>
-  <div class="card"><h2>Ejercicios</h2><button onclick="newExercise()">Nuevo ejercicio</button><div id="libExercises"></div></div>
+  <div class="card routineManager62">
+    <h2>Rutinas — Lab 6.2</h2>
+    <p class="mut">Prioridad: cargar, crear, editar, borrar y empezar rutinas sin pelearse con la app.</p>
 
-  <div class="card">
-    <h2>Importar rutina</h2>
-    <div class="importHelpRc7">
-      <p class="mut">Pega una rutina en texto. Formatos aceptados:</p>
-      <code>Press banca 4x8 80kg descanso 180
-Dominadas 4x al fallo descanso 180
-Plancha 3x45s descanso 60
-Remo barra 4x10-12 60kg descanso 120</code>
-      <input id="routineImportNameRc7" placeholder="Nombre de la rutina, por ejemplo: Torso A">
-      <textarea id="routineImportTextRc7" placeholder="Pega aquí la rutina completa" style="min-height:240px;font-family:ui-monospace,'Courier New',monospace"></textarea>
+    <div class="routinePanel62">
+      <h3>Importar rutina desde texto</h3>
+      <p class="mut">Formato recomendado:</p>
+      <pre class="importExample612">Press banca 4x8 80kg descanso 180
+Dominadas 4x fallo descanso 180
+Fondos en paralelas 4x al fallo descanso 150
+Remo barra 4x10-12 60kg descanso 120
+Plancha 3x45s descanso 60</pre>
+      <input id="routineName62" placeholder="Nombre de la rutina, ej: Torso A">
+      <textarea id="routineText62" placeholder="Pega aquí tu rutina"></textarea>
       <div class="row">
-        <button class="primary" onclick="importRoutineTextRc7()">Importar rutina</button>
-        <button onclick="fillImportTemplateRc7()">Rellenar ejemplo</button>
+        <button class="primary" onclick="importRoutine62()">Importar rutina</button>
+        <button onclick="templateRoutine62()">Ejemplo</button>
       </div>
-      <div id="routineImportStatusRc7" class="importStatusRc7"></div>
+      <div id="routineStatus62" class="routineStatus62"></div>
+    </div>
+
+    <div class="routinePanel62">
+      <h3>Crear rutina manual</h3>
+      <div class="row">
+        <input id="manualRoutineName62" placeholder="Nombre, ej: Pierna A">
+        <button onclick="createManualRoutine62()">Crear vacía</button>
+      </div>
+    </div>
+
+    <div>
+      <h3>Mis rutinas</h3>
+      <div id="routineList62" class="routineList62"></div>
     </div>
   </div>
+
+  <div class="card routineImport612">
+    <h2>Importar rutina</h2>
+    <p class="mut">Pega texto. Cada ejercicio debe tener series tipo <b>4x8</b>, <b>4x10-12</b>, <b>4x fallo</b> o <b>3x45s</b>.</p>
+    <div class="importExample612">Ejemplos:
+Press banca 4x8 80kg descanso 180
+Dominadas 4x fallo descanso 180
+Fondos en paralelas 4x al fallo descanso 150
+Remo barra 4x10-12 60kg descanso 120
+Plancha 3x45s descanso 60</div>
+    <input id="routineName612" placeholder="Nombre de la rutina, ej: Torso A">
+    <textarea id="routineText612" placeholder="Pega aquí tu rutina completa"></textarea>
+    <div class="row">
+      <button class="primary" onclick="importRoutine612()">Importar ahora</button>
+      <button onclick="templateRoutine612()">Poner ejemplo</button>
+    </div>
+    <div id="routineStatus612" class="importStatus612"></div>
+  </div>
+
+  <div class="card"><h2>Rutinas</h2><button class="primary" onclick="newRoutine()">Nueva rutina</button><div id="libRoutines"></div></div>
+  <div class="card"><h2>Ejercicios</h2><button onclick="newExercise()">Nuevo ejercicio</button><div id="libExercises"></div></div>
 </section>
 
 <section id="settings" class="screen">
@@ -1215,12 +1344,20 @@ function storageScoreRc6(obj){
  return (obj.sessions?.length||0)*1000 + (obj.sets?.length||0)*100 + (obj.routines?.length||0)*20 + (obj.exercises?.length||0)*5 + (obj.weights?.length||0)*10;
 }
 
-/* === LAB 6.1 Local Profiles FIXED === */
+/* === LAB 6.2.2 Local Profiles FIXED === */
 let CURRENT_PROFILE = localStorage.getItem("gymtracker_lab_61_current_profile") || "Alberto";
 function profileKey61(name){return "gymtracker_lab_61_"+name;}
 function profileMeta61(name){return name==="Edy"?{name:"Edy",icon:"🏋️",theme:"elegance"}:{name:"Alberto",icon:"💪",theme:"luxury"};}
 function applyProfileKey61(){let meta=profileMeta61(CURRENT_PROFILE);KEY=profileKey61(meta.name);localStorage.setItem("gymtracker_lab_61_current_profile",meta.name);}
-function updateProfileChip61(){let meta=profileMeta61(CURRENT_PROFILE);let chip=document.getElementById("profileChip61");if(chip)chip.textContent=`${meta.icon} ${meta.name}`;}
+function updateProfileChip61(){let meta=profileMeta61(CURRENT_PROFILE);let chip=document.getElementById("profileChip61");if(chip)chip.textContent=`${meta.icon} ${meta.name}`;updateProfileButtons611();}
+
+function updateProfileButtons611(){
+  let a=document.getElementById("profileBtnAlberto611");
+  let e=document.getElementById("profileBtnEdy611");
+  if(a)a.classList.toggle("activeProfile611",CURRENT_PROFILE==="Alberto");
+  if(e)e.classList.toggle("activeProfile611",CURRENT_PROFILE==="Edy");
+}
+
 function openProfileModal61(){document.getElementById("profileModal61")?.classList.add("on");}
 function closeProfileModal61(){document.getElementById("profileModal61")?.classList.remove("on");}
 function selectProfile61(name,icon,theme){
@@ -1229,7 +1366,7 @@ function selectProfile61(name,icon,theme){
     S=null;load();
     S.ui=S.ui||{};
     if(!localStorage.getItem(KEY+"_theme_set")){S.ui.theme=theme;localStorage.setItem(KEY+"_theme_set","1");save();}
-    updateProfileChip61();render();closeProfileModal61();
+    updateProfileChip61();render();updateProfileButtons611();closeProfileModal61();
   }catch(e){console.error(e);location.reload();}
 }
 applyProfileKey61();
@@ -1292,7 +1429,7 @@ function ex(id){return S.exercises.find(e=>e.id===id)}
 function rt(id){return S.routines.find(r=>r.id===id)}
 function planToday(){return S.plan[today()]||{date:today(),routineId:null,type:"descanso"}}
 function show(scr){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(scr).classList.add("active");document.querySelectorAll(".dock button").forEach(b=>b.classList.remove("activeNav"));document.getElementById("nav_"+(scr==="library"?"data":scr))?.classList.add("activeNav");render()}
-function render(){rc8EnsureSeason();rc3Ensure();rc4EnsureSeason();applyPersonalization();todayLabel.textContent=today();renderDashboard();renderRoutines();renderPlan();renderData();renderLibrary();renderSettings();rc8RenderSeason();rc3RenderBlocks();rc3RenderEditSessions();rc4RenderSeasonWizard();rc5RenderStats()}
+function render(){rc8EnsureSeason();rc3Ensure();rc4EnsureSeason();applyPersonalization();todayLabel.textContent=today();renderDashboard();renderRoutines();renderPlan();renderData();renderLibrary();renderSettings();renderRoutines62();updateProfileButtons611();rc8RenderSeason();rc3RenderBlocks();rc3RenderEditSessions();rc4RenderSeasonWizard();rc5RenderStats()}
 function renderDashboard(){
  let p=planToday(), r=rt(p.routineId), completed=sessionCompletedForDate(today());
  dashGreeting.textContent="Buenos días Alberto";
@@ -1586,7 +1723,7 @@ function rc4RenderSeasonWizard(){
 }
 
 
-/* === LAB 6.1 Simple Season Planner === */
+/* === LAB 6.2.2 Simple Season Planner === */
 function rc8EnsureSeason(){
   S.season=S.season||{};
   S.season.startDate=S.season.startDate||today();
@@ -1740,7 +1877,7 @@ function rc5SaveEditSession(id){
 function renderData(){let w=S.weights[S.weights.length-1];mWeight.textContent=w?w.weight+"kg":"—";let st=new Date();st.setDate(st.getDate()-7);let sets=S.sets.filter(s=>new Date(s.ts)>=st);mVol.textContent=Math.round(sets.reduce((a,s)=>a+s.weight*s.reps,0));mSessions.textContent=S.sessions.length;mPR.textContent=S.sets.filter(s=>s.result==="pr").length;recentSessions.innerHTML=S.sessions.slice(-6).reverse().map(s=>`<div class=line><span>${rt(s.routineId)?.name||"Rutina"}</span><span>${s.date.slice(0,10)}</span></div>`).join("")||"<p class=mut>Sin sesiones.</p>"}
 function saveWeight(){let v=parseFloat(weightInput.value);if(isNaN(v))return;S.weights.push({id:id(),date:today(),weight:v,ts:now()});save();render()}
 
-/* === LAB 6.1 Routine Import === */
+/* === LAB 6.2.2 Routine Import === */
 function fillImportTemplateRc6(){
  const el=document.getElementById("routineImportTextRc6");
  if(!el)return;
@@ -1824,7 +1961,7 @@ function importRoutineTextRc6(){
 }
 
 
-/* === LAB 6.1 robust routine import === */
+/* === LAB 6.2.2 robust routine import === */
 function fillImportTemplateRc7(){
   const name=document.getElementById("routineImportNameRc7");
   const txt=document.getElementById("routineImportTextRc7");
@@ -1900,6 +2037,262 @@ function importRoutineTextRc7(){
   render();
   if(status)status.textContent=`Rutina importada: ${name||"Sin nombre"} · ${items.length} ejercicios.`;
   alert(`Rutina importada con ${items.length} ejercicios.`);
+}
+
+
+/* === LAB 6.2 URGENT ROUTINE IMPORT === */
+function templateRoutine612(){
+  const n=document.getElementById("routineName612");
+  const t=document.getElementById("routineText612");
+  if(n)n.value="Torso A";
+  if(t)t.value=`Torso A
+Press banca 4x8 80kg descanso 180
+Dominadas 4x fallo descanso 180
+Remo barra 4x10-12 60kg descanso 120
+Fondos en paralelas 4x al fallo descanso 150
+Plancha 3x45s descanso 60`;
+}
+function cleanName612(line){
+  return line
+    .replace(/^\s*[-•*]\s*/,"")
+    .replace(/\b\d+\s*x\s*(?:al\s*)?fallo\b/ig,"")
+    .replace(/\b\d+\s*x\s*\d+\s*(?:[-\/]\s*\d+)?\s*(?:reps?|rep)?\b/ig,"")
+    .replace(/\b\d+\s*x\s*\d+\s*s\b/ig,"")
+    .replace(/\b\d+(?:[.,]\d+)?\s*kg\b/ig,"")
+    .replace(/\b(?:descanso|rest)\s*\d+\s*s?\b/ig,"")
+    .replace(/\([^)]*\)/g,"")
+    .replace(/[:|]+/g," ")
+    .replace(/\s+/g," ")
+    .trim();
+}
+function getExercise612(name){
+  name=(name||"Ejercicio").trim();
+  S.exercises=S.exercises||[];
+  let e=S.exercises.find(x=>(x.name||"").toLowerCase()===name.toLowerCase());
+  if(e)return e;
+  e={id:id(),name,pattern:(typeof pattern==="function"?pattern(name):"custom"),inc:S.settings?.inc||2.5,rest:S.settings?.defaultRest||120};
+  S.exercises.push(e);
+  return e;
+}
+function parseLine612(line){
+  let raw=(line||"").trim();
+  if(!raw)return null;
+  if(/^(rutina|día|dia|bloque|semana|calentamiento|notas?|objetivo)\b/i.test(raw))return null;
+
+  let sets=0,repsPlan=[],mode="reps";
+  let mFail=raw.match(/(\d+)\s*x\s*(?:al\s*)?fallo/i);
+  let mTime=raw.match(/(\d+)\s*x\s*(\d+)\s*s\b/i);
+  let mReps=raw.match(/(\d+)\s*x\s*(\d+)(?:\s*[-\/]\s*(\d+))?/i);
+
+  if(mFail){
+    sets=+mFail[1]; mode="failure"; repsPlan=Array.from({length:sets},()=>0);
+  }else if(mTime){
+    sets=+mTime[1]; mode="time"; repsPlan=Array.from({length:sets},()=>+mTime[2]);
+  }else if(mReps){
+    sets=+mReps[1];
+    let a=+mReps[2], b=mReps[3]?+mReps[3]:a;
+    repsPlan=Array.from({length:sets},(_,i)=>Math.round(a+(b-a)*(sets<=1?0:i/(sets-1))));
+  }else{
+    return null;
+  }
+
+  let name=cleanName612(raw);
+  if(!name || name.length<2)return null;
+
+  let mw=raw.match(/(\d+(?:[.,]\d+)?)\s*kg/i);
+  let weight=mw?parseFloat(mw[1].replace(",",".")):0;
+  let mr=raw.match(/(?:descanso|rest)\s*(\d+)\s*s?/i);
+  let rest=mr?+mr[1]:(S.settings?.defaultRest||120);
+
+  let exo=getExercise612(name);
+  return {id:id(),exerciseId:exo.id,sets,repsPlan,weight,rest,mode,order:0};
+}
+function importRoutine612(){
+  const status=document.getElementById("routineStatus612");
+  let name=(document.getElementById("routineName612")?.value||"").trim();
+  let text=document.getElementById("routineText612")?.value||"";
+  let lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  if(!name && lines.length && !/\d+\s*x/i.test(lines[0]))name=lines[0];
+
+  let items=[];
+  lines.forEach(line=>{
+    let item=parseLine612(line);
+    if(item){item.order=items.length+1;items.push(item);}
+  });
+
+  if(!items.length){
+    if(status)status.textContent="No he detectado ejercicios. Pulsa 'Poner ejemplo' y copia ese formato.";
+    alert("No he detectado ejercicios. Usa formato tipo: Press banca 4x8 80kg descanso 180");
+    return;
+  }
+
+  S.routines=S.routines||[];
+  let routine={id:id(),name:name||`Rutina ${S.routines.length+1}`,tag:"Importada",items};
+  S.routines.push(routine);
+  save();
+
+  if(status)status.textContent=`Importada: ${routine.name} · ${items.length} ejercicios`;
+  alert(`Rutina importada: ${routine.name} (${items.length} ejercicios)`);
+  try{render();}catch(e){console.error(e)}
+}
+
+
+/* === LAB 6.2 Routines-first stable functions === */
+function templateRoutine62(){
+  document.getElementById("routineName62").value="Torso A";
+  document.getElementById("routineText62").value=`Torso A
+Press banca 4x8 80kg descanso 180
+Dominadas 4x fallo descanso 180
+Remo barra 4x10-12 60kg descanso 120
+Fondos en paralelas 4x al fallo descanso 150
+Plancha 3x45s descanso 60`;
+}
+function cleanName62(line){
+  return (line||"")
+    .replace(/^\s*[-•*]\s*/,"")
+    .replace(/\b\d+\s*x\s*(?:al\s*)?fallo\b/ig,"")
+    .replace(/\b\d+\s*x\s*\d+\s*(?:[-\/]\s*\d+)?\s*(?:reps?|rep)?\b/ig,"")
+    .replace(/\b\d+\s*x\s*\d+\s*s\b/ig,"")
+    .replace(/\b\d+(?:[.,]\d+)?\s*kg\b/ig,"")
+    .replace(/\b(?:descanso|rest)\s*\d+\s*s?\b/ig,"")
+    .replace(/\([^)]*\)/g,"")
+    .replace(/[:|]+/g," ")
+    .replace(/\s+/g," ")
+    .trim();
+}
+function getExercise62(name){
+  S.exercises=S.exercises||[];
+  name=(name||"Ejercicio").trim();
+  let e=S.exercises.find(x=>(x.name||"").toLowerCase()===name.toLowerCase());
+  if(e)return e;
+  e={id:id(),name,pattern:(typeof pattern==="function"?pattern(name):"custom"),inc:S.settings?.inc||2.5,rest:S.settings?.defaultRest||120};
+  S.exercises.push(e);
+  return e;
+}
+function parseRoutineLine62(line){
+  let raw=(line||"").trim();
+  if(!raw)return null;
+  if(/^(rutina|día|dia|bloque|semana|calentamiento|notas?|objetivo)\b/i.test(raw))return null;
+  let sets=0,repsPlan=[],mode="reps";
+  let mFail=raw.match(/(\d+)\s*x\s*(?:al\s*)?fallo/i);
+  let mTime=raw.match(/(\d+)\s*x\s*(\d+)\s*s\b/i);
+  let mReps=raw.match(/(\d+)\s*x\s*(\d+)(?:\s*[-\/]\s*(\d+))?/i);
+  if(mFail){sets=+mFail[1];mode="failure";repsPlan=Array.from({length:sets},()=>0);}
+  else if(mTime){sets=+mTime[1];mode="time";repsPlan=Array.from({length:sets},()=>+mTime[2]);}
+  else if(mReps){sets=+mReps[1];let a=+mReps[2],b=mReps[3]?+mReps[3]:a;repsPlan=Array.from({length:sets},(_,i)=>Math.round(a+(b-a)*(sets<=1?0:i/(sets-1))));}
+  else return null;
+  let name=cleanName62(raw);
+  if(!name || name.length<2)return null;
+  let mw=raw.match(/(\d+(?:[.,]\d+)?)\s*kg/i);
+  let weight=mw?parseFloat(mw[1].replace(",",".")):0;
+  let mr=raw.match(/(?:descanso|rest)\s*(\d+)\s*s?/i);
+  let rest=mr?+mr[1]:(S.settings?.defaultRest||120);
+  let exo=getExercise62(name);
+  return {id:id(),exerciseId:exo.id,sets,repsPlan,weight,rest,mode,order:0};
+}
+function importRoutine62(){
+  let status=document.getElementById("routineStatus62");
+  let name=(document.getElementById("routineName62")?.value||"").trim();
+  let text=document.getElementById("routineText62")?.value||"";
+  let lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  if(!name && lines.length && !/\d+\s*x/i.test(lines[0]))name=lines[0];
+  let items=[];
+  lines.forEach(line=>{let item=parseRoutineLine62(line);if(item){item.order=items.length+1;items.push(item);}});
+  if(!items.length){
+    if(status)status.textContent="No he detectado ejercicios. Pulsa Ejemplo y usa ese formato.";
+    alert("No he detectado ejercicios. Ejemplo: Press banca 4x8 80kg descanso 180");
+    return;
+  }
+  S.routines=S.routines||[];
+  let routine={id:id(),name:name||`Rutina ${S.routines.length+1}`,tag:"Importada",items};
+  S.routines.push(routine);
+  save();renderRoutines62();render();
+  if(status)status.textContent=`Importada: ${routine.name} · ${items.length} ejercicios`;
+}
+function createManualRoutine62(){
+  let name=(document.getElementById("manualRoutineName62")?.value||"").trim();
+  if(!name){alert("Pon un nombre a la rutina.");return;}
+  S.routines=S.routines||[];
+  S.routines.push({id:id(),name,tag:"Manual",items:[]});
+  save();renderRoutines62();render();
+}
+function deleteRoutine62(rid){
+  let r=rt(rid);
+  if(!r)return;
+  if(!confirm(`¿Borrar la rutina "${r.name}"?`))return;
+  S.routines=S.routines.filter(x=>x.id!==rid);
+  Object.keys(S.plan||{}).forEach(d=>{if(S.plan[d]?.routineId===rid)S.plan[d].routineId=null;});
+  save();renderRoutines62();render();
+}
+function duplicateRoutine62(rid){
+  let r=rt(rid); if(!r)return;
+  let copy=JSON.parse(JSON.stringify(r));
+  copy.id=id(); copy.name=r.name+" copia"; copy.items=(copy.items||[]).map((it,i)=>({...it,id:id(),order:i+1}));
+  S.routines.push(copy); save();renderRoutines62();render();
+}
+function addExerciseToRoutine62(rid){
+  let r=rt(rid); if(!r)return;
+  let name=prompt("Nombre del ejercicio");
+  if(!name)return;
+  let sets=+(prompt("Series", "4")||4);
+  let reps=+(prompt("Reps objetivo", "8")||8);
+  let weight=+(prompt("Peso kg", "0")||0);
+  let rest=+(prompt("Descanso segundos", String(S.settings?.defaultRest||120))||120);
+  let exo=getExercise62(name);
+  r.items=r.items||[];
+  r.items.push({id:id(),exerciseId:exo.id,sets,repsPlan:Array.from({length:sets},()=>reps),weight,rest,mode:"reps",order:r.items.length+1});
+  save();renderRoutines62();render();
+}
+function updateRoutineItem62(rid,itemId,k,v){
+  let r=rt(rid); if(!r)return;
+  let it=(r.items||[]).find(x=>x.id===itemId); if(!it)return;
+  if(k==="sets"){it.sets=+v||1; it.repsPlan=Array.from({length:it.sets},(_,i)=>it.repsPlan?.[i] ?? 8);}
+  else if(k==="reps"){it.repsPlan=Array.from({length:it.sets||1},()=>+v||0);}
+  else if(k==="weight"){it.weight=+v||0;}
+  else if(k==="rest"){it.rest=+v||0;}
+  else if(k==="mode"){it.mode=v;}
+  save();
+}
+function deleteRoutineItem62(rid,itemId){
+  let r=rt(rid); if(!r)return;
+  r.items=(r.items||[]).filter(x=>x.id!==itemId).map((x,i)=>({...x,order:i+1}));
+  save();renderRoutines62();render();
+}
+function assignRoutineToday62(rid){
+  S.plan=S.plan||{};
+  S.plan[today()]={date:today(),routineId:rid,type:"entrenamiento",status:"pendiente"};
+  save();render();
+  alert("Asignada para hoy.");
+}
+function renderRoutines62(){
+  let el=document.getElementById("routineList62"); if(!el)return;
+  S.routines=S.routines||[];
+  if(!S.routines.length){el.innerHTML='<p class="mut">No hay rutinas. Importa una arriba.</p>';return;}
+  el.innerHTML=S.routines.map(r=>{
+    let items=r.items||[];
+    let rows=items.map(it=>{
+      let e=ex(it.exerciseId);
+      let rep=(it.repsPlan&&it.repsPlan.length)?it.repsPlan[0]:0;
+      return `<div class="routineItem62">
+        <div class="full62"><b>${e?.name||"Ejercicio"}</b><br><span class="mut">${it.mode==="failure"?"fallo":it.mode==="time"?"tiempo":"reps"}</span></div>
+        <input type="number" value="${it.sets||1}" onchange="updateRoutineItem62('${r.id}','${it.id}','sets',this.value)" title="series">
+        <input type="number" value="${rep}" onchange="updateRoutineItem62('${r.id}','${it.id}','reps',this.value)" title="reps">
+        <input type="number" step=".25" value="${it.weight||0}" onchange="updateRoutineItem62('${r.id}','${it.id}','weight',this.value)" title="kg">
+        <button class="danger" onclick="deleteRoutineItem62('${r.id}','${it.id}')">×</button>
+      </div>`;
+    }).join("");
+    return `<details class="routineCard62">
+      <summary><div><strong>${r.name}</strong><div class="routineMeta62">${items.length} ejercicios · ${r.tag||""}</div></div></summary>
+      <div class="row">
+        <button class="primary" onclick="startRoutine('${r.id}')">Comenzar</button>
+        <button onclick="assignRoutineToday62('${r.id}')">Asignar hoy</button>
+        <button onclick="duplicateRoutine62('${r.id}')">Duplicar</button>
+        <button class="danger" onclick="deleteRoutine62('${r.id}')">Borrar</button>
+      </div>
+      <div>${rows || '<p class="mut">Rutina vacía.</p>'}</div>
+      <button onclick="addExerciseToRoutine62('${r.id}')">Añadir ejercicio</button>
+    </details>`;
+  }).join("");
 }
 
 function renderLibrary(){libRoutines.innerHTML=S.routines.map(r=>`<div class=card><h3>${r.name}</h3>${r.items.map(i=>`<span class=pill>${ex(i.exerciseId)?.name} · ${repsText(i)}</span>`).join("")}<button onclick="startRoutine('${r.id}')">Iniciar</button></div>`).join("");libExercises.innerHTML=S.exercises.map(e=>`<div class=line><span>${e.name}</span><button onclick="alert(cleanInfo('${e.name.replaceAll("'","")}').points.join('\\n'))">Técnica</button></div>`).join("")}
