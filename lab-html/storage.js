@@ -15,7 +15,7 @@ function normalizeData(){
  if(!S.blocks.length)S.blocks=defaults().blocks;
 }
 function load(){try{S=JSON.parse(localStorage.getItem(key()))}catch(e){S=null}if(!S)S=defaults();normalizeData();save(false);dailyBackup()}
-function save(makeBackup=true){normalizeData();localStorage.setItem(key(),JSON.stringify(S));if(makeBackup)softBackup("autosave")}
+function save(makeBackup=false){normalizeData();localStorage.setItem(key(),JSON.stringify(S));if(makeBackup)softBackup('manual')}
 function softBackup(reason="auto"){try{let list=JSON.parse(localStorage.getItem(backupKey())||"[]");list.push({id:id(),reason,date:now(),name:`${reason}_${now()}`,data:S});list=list.slice(-10);localStorage.setItem(backupKey(),JSON.stringify(list))}catch(e){console.warn(e)}}
 function dailyBackup(){let d=today();if(S.meta.lastDailyBackup!==d){S.meta.lastDailyBackup=d;softBackup("daily");localStorage.setItem(key(),JSON.stringify(S))}}
 function backupList(){try{return JSON.parse(localStorage.getItem(backupKey())||"[]")}catch(e){return[]}}
@@ -30,3 +30,5 @@ function getActiveWorkout(){try{return JSON.parse(localStorage.getItem(activeKey
 function ex(eid){return S.exercises.find(e=>e.id===eid)}
 function rt(rid){return S.routines.find(r=>r.id===rid)}
 function theme(){document.body.classList.remove("elegance","carbon");let t=S.settings.theme||USERS[currentUser].theme;if(t==="elegance")document.body.classList.add("elegance");if(t==="carbon")document.body.classList.add("carbon")}
+
+function postWorkoutBackup(){softBackup('post_workout')}

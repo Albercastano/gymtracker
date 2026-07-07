@@ -193,3 +193,19 @@ nav button.on{background:rgba(255,240,184,.12);color:var(--gold2)}
 .validWarn{border:1px solid rgba(255,205,120,.3);background:rgba(255,205,120,.08);color:#ffd58c;border-radius:16px;padding:9px;margin:8px 0}
 .builderToolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 @media(max-width:520px){.builderToolbar{grid-template-columns:1fr}}
+
+/* LAB 9.0 All-in-One */
+.blockRoutineGrid,.dataList{display:grid;gap:8px}.checkRow{display:flex;gap:8px;align-items:center;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:9px;background:rgba(255,255,255,.025)}.checkRow input{width:auto}
+.memoryBox,.coachReportBox{border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:10px;background:rgba(0,0,0,.16);margin:10px 0}.memoryBox b{color:var(--gold2)}
+.historyCard{border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:12px;background:rgba(255,255,255,.025);margin:10px 0}.setEditRow{display:grid;grid-template-columns:1fr 70px 70px;gap:6px;align-items:center;margin:6px 0}
+.chart{display:flex;align-items:flex-end;gap:6px;height:150px;padding:10px;border:1px solid rgba(255,255,255,.1);border-radius:20px;background:rgba(0,0,0,.16);overflow:hidden}.barMini{flex:1;min-width:8px;border-radius:99px 99px 4px 4px;background:linear-gradient(180deg,var(--gold2),var(--gold))}
+.supersetBadge{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px 8px;color:var(--gold2);font-size:.78rem;font-weight:900}.categoryChip{display:inline-flex;margin:4px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);color:var(--gold2);background:rgba(255,255,255,.035);font-weight:900}.validWarn{border:1px solid rgba(255,205,120,.3);background:rgba(255,205,120,.08);color:#ffd58c;border-radius:16px;padding:9px;margin:8px 0}.builderToolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px}.noteArea{min-height:70px!important}
+
+/* === LAB 9.1 Polish + Intelligence === */
+.prBadge{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(255,240,184,.28);border-radius:999px;padding:5px 9px;color:var(--gold2);background:rgba(255,240,184,.08);font-weight:900}
+.exerciseChartCard{border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:12px;background:rgba(255,255,255,.025);margin:10px 0}
+.spark{display:flex;align-items:flex-end;gap:5px;height:110px;padding:8px;border-radius:18px;background:rgba(0,0,0,.16);border:1px solid rgba(255,255,255,.08)}
+.sparkBar{flex:1;min-width:7px;border-radius:99px 99px 3px 3px;background:linear-gradient(180deg,var(--gold2),var(--gold))}
+.lastBox{border:1px solid rgba(255,255,255,.12);border-radius:22px;padding:12px;margin:12px 0;background:rgba(255,255,255,.028);text-align:left}
+.lastBox strong{color:var(--gold2)}
+.gtFooterNote{font-size:.85rem;color:var(--mut);margin-top:8px}
