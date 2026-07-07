@@ -69,3 +69,29 @@ nav button.on{background:rgba(255,240,184,.12);color:var(--gold2)}
 .timer{display:grid;place-items:center;min-height:70dvh;text-align:center}.casio{border:4px solid #080808;border-radius:26px;background:linear-gradient(180deg,#1b1d1f,#050505);padding:18px;box-shadow:0 30px 90px rgba(0,0,0,.82)}.lcd{background:#b9c1a6;color:#1c2519;border:6px solid #101010;border-radius:18px;padding:20px;font-family:ui-monospace,monospace}.lcdTime{font-size:clamp(4rem,24vw,9rem);font-weight:950;letter-spacing:-.08em}
 .statGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.metric{border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:14px;background:rgba(255,255,255,.03)}.metric b{font-size:1.8rem}
 .block{border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:12px;background:rgba(255,255,255,.025);margin:10px 0}.bar{height:12px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}.bar span{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2))}
+
+
+/* === LAB 7.1: tomorrow-safe refinements === */
+.helpBox{
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:18px;
+  padding:10px;
+  background:rgba(0,0,0,.18);
+  color:var(--mut);
+  font-size:.92rem;
+}
+.importBox textarea{min-height:240px}
+.editorNote{font-size:.82rem;color:var(--mut);margin-top:6px}
+.timeAction{min-height:82px;font-size:1.35rem}
+.timeBadge{
+  display:inline-block;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  color:var(--gold2);
+  margin-top:8px;
+}
+.inlineActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.inlineActions button{flex:1}
+.routineItem input{min-height:44px}
+.routineItem select{min-height:44px}
