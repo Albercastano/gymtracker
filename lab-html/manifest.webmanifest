@@ -1,11 +1,10 @@
 {
-  "name": "GymTracker Ultimate 5.4",
-  "short_name": "GymTracker",
+  "name": "GymTracker Lab 7.0",
+  "short_name": "GymTracker Lab",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#06070a",
-  "theme_color": "#d7b56d",
-  "description": "GymTracker Ultimate 5.4 Design Studio 2.0.",
+  "theme_color": "#d6b46a",
   "icons": [
     {
       "src": "icon.svg",
