@@ -95,3 +95,101 @@ nav button.on{background:rgba(255,240,184,.12);color:var(--gold2)}
 .inlineActions button{flex:1}
 .routineItem input{min-height:44px}
 .routineItem select{min-height:44px}
+
+/* === LAB 7.2 Sprint 1: Data Safety === */
+.safePanel{border:2px solid rgba(155,231,180,.22)!important;background:rgba(155,231,180,.045)!important}
+.resumeBanner{border:2px solid rgba(255,240,184,.26)!important;background:rgba(255,240,184,.07)!important}
+.dataList{display:grid;gap:10px}
+.dataRow{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:10px;border:1px solid rgba(255,255,255,.1);border-radius:18px;background:rgba(255,255,255,.025)}
+.backupText{min-height:180px;font-family:ui-monospace,monospace;font-size:.85rem}
+.smallBtn{padding:9px 11px!important;border-radius:14px!important;font-size:.9rem}
+
+
+/* === LAB 7.2 Sprint 2: Constructor de Rutinas === */
+.builderHeader{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.builderGrid{display:grid;gap:12px}
+.routineDeck{display:grid;gap:10px}
+.routineTile{
+  border:1px solid rgba(255,255,255,.11);
+  border-radius:24px;
+  padding:14px;
+  background:rgba(255,255,255,.028);
+  box-shadow:0 14px 34px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.06);
+}
+.routineTileTop{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.routineTile h3{margin:0}
+.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:5px 9px;color:var(--gold2);font-size:.82rem;font-weight:900}
+.constructor{
+  border:2px solid rgba(255,240,184,.20)!important;
+}
+.exerciseCard{
+  border:1px solid rgba(255,255,255,.11);
+  border-radius:24px;
+  padding:12px;
+  margin:10px 0;
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.018));
+}
+.exerciseCardHeader{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:10px;
+  align-items:center;
+}
+.exerciseNameInput{font-size:1.1rem;font-weight:900}
+.exerciseControls{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+  margin-top:10px;
+}
+.exerciseControls label{font-size:.74rem;color:var(--mut);font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+.exerciseControls input,.exerciseControls select{margin-top:4px;padding:10px;border-radius:14px}
+@media(max-width:760px){.exerciseControls{grid-template-columns:1fr 1fr}.exerciseControls label:first-child{grid-column:1/-1}}
+.cardActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.cardActions button{flex:1;min-width:86px}
+.libraryPanel{
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:22px;
+  padding:12px;
+  background:rgba(0,0,0,.16);
+}
+.exercisePicker{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:8px;
+  align-items:center;
+}
+.pickList{display:grid;gap:8px;margin-top:10px;max-height:280px;overflow:auto}
+.pickRow{
+  display:grid;
+  grid-template-columns:1fr auto auto;
+  gap:8px;
+  align-items:center;
+  padding:9px;
+  border-radius:16px;
+  background:rgba(255,255,255,.035);
+  border:1px solid rgba(255,255,255,.08);
+}
+.previewBox{
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:20px;
+  padding:12px;
+  background:rgba(0,0,0,.16);
+}
+.previewLine{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid rgba(255,255,255,.06);padding:7px 0}
+.previewLine:last-child{border-bottom:0}
+.mochilaGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.mochilaBtn{text-align:left;min-height:54px}
+.searchInput{position:sticky;top:0;z-index:1}
+
+
+/* === LAB 8.0 Constructor PRO === */
+.proTag{background:rgba(255,240,184,.10)}
+.exerciseControls.pro{grid-template-columns:1.3fr .7fr .7fr .7fr .7fr .9fr}
+@media(max-width:860px){.exerciseControls.pro{grid-template-columns:1fr 1fr}}
+.noteArea{min-height:74px!important;font-size:.92rem!important}
+.copyBox{border:1px solid rgba(255,255,255,.10);border-radius:18px;padding:10px;background:rgba(0,0,0,.14);margin-top:10px}
+.categoryChip{display:inline-flex;align-items:center;gap:6px;margin:4px 5px 4px 0;padding:6px 10px;border-radius:999px;border:1px solid var(--line);color:var(--gold2);background:rgba(255,255,255,.035);font-weight:900;font-size:.82rem}
+.validWarn{border:1px solid rgba(255,205,120,.3);background:rgba(255,205,120,.08);color:#ffd58c;border-radius:16px;padding:9px;margin:8px 0}
+.builderToolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:520px){.builderToolbar{grid-template-columns:1fr}}
