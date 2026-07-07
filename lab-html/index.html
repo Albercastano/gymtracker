@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>GymTracker Lab 6.0 RC6</title>
+<title>GymTracker Lab 6.1</title>
 <meta name="theme-color" content="#0a0b0d">
 <link rel="manifest" href="manifest.webmanifest">
 <style>
@@ -582,7 +582,7 @@ font-weight:800;letter-spacing:.05em}
 .rcbadge{position:fixed;top:10px;right:12px;background:#111;color:#f2d37b;
 padding:6px 10px;border-radius:999px;font:700 12px sans-serif;z-index:9999;border:1px solid #7a6428}
 
-/* === GYMTRACKER 6.0 RC6 — Focus UX + Blocks/Editing === */
+/* === GYMTRACKER LAB 6.1 — Focus UX + Blocks/Editing === */
 :root{
   --gt-gap:16px;
   --gt-gap2:24px;
@@ -926,7 +926,7 @@ body.theme-carbon .seasonStepRc4.on{
 .editSavedRc5{color:var(--gold2);font-size:.88rem;min-height:20px}
 
 
-/* === LAB RC6 HOTFIX === */
+/* === LAB 6.1 HOTFIX === */
 .importRoutineBox{
   display:grid;
   gap:10px;
@@ -946,10 +946,82 @@ body.theme-carbon .seasonStepRc4.on{
   color:var(--mut);
 }
 
+
+/* === LAB 6.1 routine import visible fix === */
+.importHelpRc7{
+  display:grid;
+  gap:10px;
+}
+.importHelpRc7 code{
+  display:block;
+  white-space:pre-wrap;
+  padding:12px;
+  border-radius:16px;
+  background:rgba(0,0,0,.26);
+  border:1px solid rgba(255,255,255,.10);
+  color:var(--gold2);
+  font-family:ui-monospace,"Courier New",monospace;
+}
+.importStatusRc7{
+  min-height:24px;
+  color:var(--gold2);
+  font-weight:800;
+}
+
+
+/* === LAB 6.1 simple practical season/block planner === */
+.simpleSeasonRc8{display:grid;gap:12px}
+.simpleSeasonHeaderRc8{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:620px){.simpleSeasonHeaderRc8{grid-template-columns:1fr}}
+.blockListRc8{display:grid;gap:10px}
+.blockCardRc8{border:1px solid rgba(255,255,255,.10);border-radius:22px;padding:12px;background:rgba(255,255,255,.028)}
+.blockCardRc8 summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.blockCardRc8 summary::-webkit-details-marker{display:none}
+.blockCardRc8 summary::after{content:"Editar";color:var(--gold2);font-weight:800;font-size:.85rem}
+.blockCardRc8[open] summary::after{content:"Cerrar"}
+.blockMetaRc8{color:var(--mut);font-size:.9rem}
+.blockProgressRc8{height:12px;border-radius:999px;background:rgba(255,255,255,.08);margin:10px 0;overflow:hidden}
+.blockProgressRc8 span{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2))}
+.blockFormRc8{display:grid;gap:10px;padding-top:12px}
+.blockActionsRc8{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:520px){.blockActionsRc8{grid-template-columns:1fr}}
+.seasonSavedRc8{min-height:22px;color:var(--gold2);font-weight:800}
+.seasonTodayRc8{border-radius:20px;padding:12px;background:rgba(255,240,184,.055);border:1px solid rgba(255,240,184,.16)}
+
+
+/* === LAB 6.1 FIXED === */
+.profileChip61{
+  position:fixed;top:48px;right:12px;z-index:9998;
+  padding:8px 11px;border-radius:999px;
+  background:rgba(6,7,10,.78);color:var(--gold2,#fff0b8);
+  border:1px solid var(--line,rgba(255,255,255,.16));
+  font:800 13px system-ui,sans-serif;backdrop-filter:blur(12px);
+}
+.profileModal61{
+  position:fixed;inset:0;z-index:10000;display:none;
+  align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.78);
+}
+.profileModal61.on{display:flex}
+.profileBox61{
+  width:min(94vw,520px);border-radius:30px;padding:20px;
+  border:1px solid var(--line,rgba(255,255,255,.16));
+  background:linear-gradient(180deg,#151a23,#090b0f);
+  box-shadow:0 34px 100px rgba(0,0,0,.62);
+}
+.profileList61{display:grid;gap:10px}
+.profileBtn61{
+  min-height:76px!important;display:flex!important;align-items:center!important;
+  justify-content:flex-start!important;gap:14px!important;font-size:1.15rem!important;text-align:left!important;
+}
+.profileIcon61{font-size:2rem}
+.profileHint61{color:var(--mut,#aaa);font-size:.92rem;margin-top:10px}
+#theme_humor,#theme_retro,#theme_punk,#theme_stealth,#theme_laboratory{display:none!important}
+
 </style>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<style>.seasonWizardRc4,#seasonWizardRc4,.blockPlannerLite,#blocksRc3{display:none!important}</style>
 </head>
-<body><div class="rcbadge">LAB RC6</div>
+<body><div class="rcbadge">LAB 6.1</div>
 
 <div id="splash" class="splash">
   <div class="splashLogo">
@@ -967,7 +1039,7 @@ body.theme-carbon .seasonStepRc4.on{
   </div>
 </div>
 
-<header><h1>GymTracker <span class="gold">Ultimate 6.0 RC6</span></h1><div id="todayLabel" class="mut"></div></header>
+<header><h1>GymTracker <span class="gold">Ultimate LAB 6.1</span></h1><div id="todayLabel" class="mut"></div></header>
 <main>
 <section id="dashboard" class="screen active">
   <div class="hero">
@@ -1006,6 +1078,12 @@ body.theme-carbon .seasonStepRc4.on{
     <p class="mut">Configura la temporada paso a paso: inicio, objetivo, bloques, deload y vista anual.</p>
     <div id="seasonWizardRc4" class="seasonWizardRc4"></div>
   </div>
+
+  <div class="card">
+    <h2>Temporada y bloques</h2>
+    <p class="mut">Simple y práctico: fecha de inicio, bloques, deload, guardar y borrar sin asistente pesado.</p>
+    <div id="simpleSeasonRc8" class="simpleSeasonRc8"></div>
+  </div>
 </section>
 
 <section id="data" class="screen">
@@ -1041,19 +1119,19 @@ body.theme-carbon .seasonStepRc4.on{
 
   <div class="card">
     <h2>Importar rutina</h2>
-    <p class="mut">Pega una rutina escrita por ti u otra IA. GymTracker intentará separar títulos, ejercicios, series, reps, peso y descansos.</p>
-    <div class="importRoutineBox">
-      <input id="routineImportNameRc6" placeholder="Nombre de la rutina">
-      <textarea id="routineImportTextRc6" placeholder="Ejemplo:
-Torso A
-Press banca 4x8 80kg descanso 180
+    <div class="importHelpRc7">
+      <p class="mut">Pega una rutina en texto. Formatos aceptados:</p>
+      <code>Press banca 4x8 80kg descanso 180
 Dominadas 4x al fallo descanso 180
-Plancha 3x45s descanso 60"></textarea>
+Plancha 3x45s descanso 60
+Remo barra 4x10-12 60kg descanso 120</code>
+      <input id="routineImportNameRc7" placeholder="Nombre de la rutina, por ejemplo: Torso A">
+      <textarea id="routineImportTextRc7" placeholder="Pega aquí la rutina completa" style="min-height:240px;font-family:ui-monospace,'Courier New',monospace"></textarea>
       <div class="row">
-        <button class="primary" onclick="importRoutineTextRc6()">Importar rutina</button>
-        <button onclick="fillImportTemplateRc6()">Plantilla</button>
+        <button class="primary" onclick="importRoutineTextRc7()">Importar rutina</button>
+        <button onclick="fillImportTemplateRc7()">Rellenar ejemplo</button>
       </div>
-      <div id="routineImportResultRc6" class="labNotice"></div>
+      <div id="routineImportStatusRc7" class="importStatusRc7"></div>
     </div>
   </div>
 </section>
@@ -1126,7 +1204,7 @@ Plancha 3x45s descanso 60"></textarea>
 <div id="feedbackModal" class="modal"><div class="box"><h2>Laboratorio</h2><select id="fbType"><option>Idea</option><option>Bug</option><option>Mejora</option></select><input id="fbTitle" placeholder="Título"><textarea id="fbDesc" placeholder="Descripción"></textarea><button class="primary" onclick="saveFeedback()">Guardar</button><button onclick="closeFeedback()">Cerrar</button></div></div>
 
 <script>
-const KEY="gymtracker_lab_v60_rc6", OLD_KEYS=["gymtracker_lab_v60_rc6","gymtracker_ultimate_v60_rc5","gymtracker_ultimate_v60_rc4","gymtracker_ultimate_v60_rc3","gymtracker_ultimate_v54","gymtracker_ultimate_v53","gymtracker_ultimate_v52","gymtracker_ultimate_v514","gymtracker_ultimate_v513","gymtracker_ultimate_v512","gymtracker_ultimate_v511","gymtracker_ultimate_v51","gymtracker_ultimate_v50","gymtracker_v461_stable_coach","gymtracker_v46_coach_summary","gymtracker_v45_next_plan_aware","gymtracker_v44_timed_exercises","gymtracker_v43_hidden_dashboard","gymtracker_v42_training_focus","gymtracker_v41_flow_polish","gymtracker_v40_life_season","gymtracker_v39_season_wizard","gymtracker_v38_season_planner","gymtracker_v37_block_calendar","gymtracker_v36_technique_atlas","gymtracker_aurum_v22_styles"];
+let KEY="gymtracker_lab_61_Alberto"; const KEY_BASE="gymtracker_lab_61", OLD_KEYS=["gymtracker_lab_v60_rc6","gymtracker_ultimate_v60_rc5","gymtracker_ultimate_v60_rc4","gymtracker_ultimate_v60_rc3","gymtracker_ultimate_v54","gymtracker_ultimate_v53","gymtracker_ultimate_v52","gymtracker_ultimate_v514","gymtracker_ultimate_v513","gymtracker_ultimate_v512","gymtracker_ultimate_v511","gymtracker_ultimate_v51","gymtracker_ultimate_v50","gymtracker_v461_stable_coach","gymtracker_v46_coach_summary","gymtracker_v45_next_plan_aware","gymtracker_v44_timed_exercises","gymtracker_v43_hidden_dashboard","gymtracker_v42_training_focus","gymtracker_v41_flow_polish","gymtracker_v40_life_season","gymtracker_v39_season_wizard","gymtracker_v38_season_planner","gymtracker_v37_block_calendar","gymtracker_v36_technique_atlas","gymtracker_aurum_v22_styles"];
 let S,A=null,restInt=null,restLeft=0,execInt=null,execLeft=0,execTotal=0;
 function id(){return Math.random().toString(36).slice(2)+Date.now().toString(36)}
 function now(){return new Date().toISOString()}
@@ -1136,6 +1214,27 @@ function storageScoreRc6(obj){
  if(!obj||typeof obj!=="object")return -1;
  return (obj.sessions?.length||0)*1000 + (obj.sets?.length||0)*100 + (obj.routines?.length||0)*20 + (obj.exercises?.length||0)*5 + (obj.weights?.length||0)*10;
 }
+
+/* === LAB 6.1 Local Profiles FIXED === */
+let CURRENT_PROFILE = localStorage.getItem("gymtracker_lab_61_current_profile") || "Alberto";
+function profileKey61(name){return "gymtracker_lab_61_"+name;}
+function profileMeta61(name){return name==="Edy"?{name:"Edy",icon:"🏋️",theme:"elegance"}:{name:"Alberto",icon:"💪",theme:"luxury"};}
+function applyProfileKey61(){let meta=profileMeta61(CURRENT_PROFILE);KEY=profileKey61(meta.name);localStorage.setItem("gymtracker_lab_61_current_profile",meta.name);}
+function updateProfileChip61(){let meta=profileMeta61(CURRENT_PROFILE);let chip=document.getElementById("profileChip61");if(chip)chip.textContent=`${meta.icon} ${meta.name}`;}
+function openProfileModal61(){document.getElementById("profileModal61")?.classList.add("on");}
+function closeProfileModal61(){document.getElementById("profileModal61")?.classList.remove("on");}
+function selectProfile61(name,icon,theme){
+  CURRENT_PROFILE=name;applyProfileKey61();
+  try{
+    S=null;load();
+    S.ui=S.ui||{};
+    if(!localStorage.getItem(KEY+"_theme_set")){S.ui.theme=theme;localStorage.setItem(KEY+"_theme_set","1");save();}
+    updateProfileChip61();render();closeProfileModal61();
+  }catch(e){console.error(e);location.reload();}
+}
+applyProfileKey61();
+window.addEventListener("DOMContentLoaded",()=>setTimeout(updateProfileChip61,50));
+
 function load(){
  let bestRaw=null,bestScore=-1,bestKey=null;
  [KEY,...OLD_KEYS].forEach(k=>{
@@ -1193,7 +1292,7 @@ function ex(id){return S.exercises.find(e=>e.id===id)}
 function rt(id){return S.routines.find(r=>r.id===id)}
 function planToday(){return S.plan[today()]||{date:today(),routineId:null,type:"descanso"}}
 function show(scr){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(scr).classList.add("active");document.querySelectorAll(".dock button").forEach(b=>b.classList.remove("activeNav"));document.getElementById("nav_"+(scr==="library"?"data":scr))?.classList.add("activeNav");render()}
-function render(){rc3Ensure();rc4EnsureSeason();applyPersonalization();todayLabel.textContent=today();renderDashboard();renderRoutines();renderPlan();renderData();renderLibrary();renderSettings();rc3RenderBlocks();rc3RenderEditSessions();rc4RenderSeasonWizard();rc5RenderStats()}
+function render(){rc8EnsureSeason();rc3Ensure();rc4EnsureSeason();applyPersonalization();todayLabel.textContent=today();renderDashboard();renderRoutines();renderPlan();renderData();renderLibrary();renderSettings();rc8RenderSeason();rc3RenderBlocks();rc3RenderEditSessions();rc4RenderSeasonWizard();rc5RenderStats()}
 function renderDashboard(){
  let p=planToday(), r=rt(p.routineId), completed=sessionCompletedForDate(today());
  dashGreeting.textContent="Buenos días Alberto";
@@ -1486,6 +1585,113 @@ function rc4RenderSeasonWizard(){
   el.innerHTML=steps+panel;
 }
 
+
+/* === LAB 6.1 Simple Season Planner === */
+function rc8EnsureSeason(){
+  S.season=S.season||{};
+  S.season.startDate=S.season.startDate||today();
+  S.season.months=+(S.season.months||6);
+  S.blocks=S.blocks||[];
+  if(!S.blocks.length){
+    S.blocks.push({id:id(),name:"Bloque actual",type:"Fuerza",startDate:S.season.startDate,weeks:8,deload:true,note:""});
+  }
+}
+function rc8AddDays(dateStr,days){
+  let d=new Date(dateStr||today());
+  d.setDate(d.getDate()+days);
+  return d.toISOString().slice(0,10);
+}
+function rc8BlockEnd(b){
+  let weeks=+(b.weeks||8)+(b.deload?1:0);
+  return rc8AddDays(b.startDate||today(),weeks*7-1);
+}
+function rc8Progress(b){
+  let st=new Date(b.startDate||today());
+  let nw=new Date(today());
+  let weeks=+(b.weeks||8)+(b.deload?1:0);
+  let current=Math.floor((nw-st)/(7*86400000))+1;
+  return {current:Math.max(1,current),total:weeks,pct:Math.max(0,Math.min(100,Math.round(current/weeks*100)))};
+}
+function rc8CurrentBlock(){
+  rc8EnsureSeason();
+  let t=today();
+  return S.blocks.find(b=>t>=(b.startDate||today()) && t<=rc8BlockEnd(b)) || S.blocks[0];
+}
+function rc8SaveSeason(){
+  let start=document.getElementById("seasonStartRc8")?.value;
+  let months=+(document.getElementById("seasonMonthsRc8")?.value||6);
+  if(start)S.season.startDate=start;
+  S.season.months=months;
+  save();
+  let msg=document.getElementById("seasonSavedRc8");
+  if(msg){msg.textContent="Temporada guardada";setTimeout(()=>msg.textContent="",1400);}
+  rc8RenderSeason();
+}
+function rc8NewBlock(){
+  rc8EnsureSeason();
+  let last=S.blocks[S.blocks.length-1];
+  let start=last?rc8AddDays(rc8BlockEnd(last),1):(S.season.startDate||today());
+  S.blocks.push({id:id(),name:"Nuevo bloque",type:"Fuerza",startDate:start,weeks:8,deload:true,note:""});
+  save();rc8RenderSeason();
+}
+function rc8UpdateBlock(bid,k,v){
+  let b=S.blocks.find(x=>x.id===bid);
+  if(!b)return;
+  if(k==="weeks")v=+v||1;
+  if(k==="deload")v=!!v;
+  b[k]=v;
+  save();
+  let msg=document.getElementById("blockSaved_"+bid);
+  if(msg){msg.textContent="Guardado";setTimeout(()=>msg.textContent="",1200);}
+  rc8RenderSeason();
+}
+function rc8DeleteBlock(bid){
+  if(!confirm("¿Borrar este bloque?"))return;
+  S.blocks=S.blocks.filter(x=>x.id!==bid);
+  save();rc8RenderSeason();
+}
+function rc8DuplicateBlock(bid){
+  let b=S.blocks.find(x=>x.id===bid);
+  if(!b)return;
+  let copy={...b,id:id(),name:b.name+" copia",startDate:rc8AddDays(rc8BlockEnd(b),1)};
+  S.blocks.push(copy);
+  save();rc8RenderSeason();
+}
+function rc8RenderSeason(){
+  rc8EnsureSeason();
+  let el=document.getElementById("simpleSeasonRc8");
+  if(!el)return;
+  let current=rc8CurrentBlock();
+  let cp=rc8Progress(current);
+  let header=`<div class="simpleSeasonHeaderRc8">
+    <label>Inicio temporada<input id="seasonStartRc8" type="date" value="${S.season.startDate||today()}"></label>
+    <label>Duración<select id="seasonMonthsRc8"><option value="3" ${S.season.months==3?'selected':''}>3 meses</option><option value="6" ${S.season.months==6?'selected':''}>6 meses</option><option value="12" ${S.season.months==12?'selected':''}>12 meses</option></select></label>
+  </div>
+  <div class="row"><button class="primary" onclick="rc8SaveSeason()">Guardar temporada</button><button onclick="rc8NewBlock()">Nuevo bloque</button></div>
+  <div id="seasonSavedRc8" class="seasonSavedRc8"></div>
+  <div class="seasonTodayRc8"><b>Bloque actual:</b> ${current?.name||"—"}<br><span class="mut">${current?.type||""} · semana ${cp.current}/${cp.total} · termina ${current?rc8BlockEnd(current):"—"}</span><div class="blockProgressRc8"><span style="width:${cp.pct}%"></span></div></div>`;
+  let list=`<div class="blockListRc8">${S.blocks.map(b=>{
+    let p=rc8Progress(b);
+    return `<details class="blockCardRc8">
+      <summary><div><strong>${b.name||"Bloque"}</strong><div class="blockMetaRc8">${b.type||"Fuerza"} · ${b.weeks||8} semanas${b.deload?" + deload":""} · ${b.startDate||today()} → ${rc8BlockEnd(b)}</div></div></summary>
+      <div class="blockProgressRc8"><span style="width:${p.pct}%"></span></div>
+      <div class="blockFormRc8">
+        <label>Nombre<input value="${b.name||""}" onchange="rc8UpdateBlock('${b.id}','name',this.value)"></label>
+        <label>Tipo<select onchange="rc8UpdateBlock('${b.id}','type',this.value)"><option ${b.type==='Fuerza'?'selected':''}>Fuerza</option><option ${b.type==='Hipertrofia'?'selected':''}>Hipertrofia</option><option ${b.type==='Técnica'?'selected':''}>Técnica</option><option ${b.type==='Calistenia'?'selected':''}>Calistenia</option><option ${b.type==='Deload'?'selected':''}>Deload</option></select></label>
+        <div class="grid">
+          <label>Inicio<input type="date" value="${b.startDate||today()}" onchange="rc8UpdateBlock('${b.id}','startDate',this.value)"></label>
+          <label>Semanas<input type="number" min="1" max="24" value="${b.weeks||8}" onchange="rc8UpdateBlock('${b.id}','weeks',this.value)"></label>
+        </div>
+        <label>Semana deload<select onchange="rc8UpdateBlock('${b.id}','deload',this.value==='yes')"><option value="yes" ${b.deload?'selected':''}>Sí</option><option value="no" ${!b.deload?'selected':''}>No</option></select></label>
+        <label>Nota / siguiente bloque<textarea onchange="rc8UpdateBlock('${b.id}','note',this.value)">${b.note||""}</textarea></label>
+        <div id="blockSaved_${b.id}" class="seasonSavedRc8"></div>
+        <div class="blockActionsRc8"><button onclick="rc8DuplicateBlock('${b.id}')">Duplicar</button><button class="danger" onclick="rc8DeleteBlock('${b.id}')">Borrar</button></div>
+      </div>
+    </details>`;
+  }).join("")}</div>`;
+  el.innerHTML=header+list;
+}
+
 function renderPlan(){let out="",d0=new Date();for(let i=0;i<7;i++){let d=new Date(d0);d.setDate(d.getDate()+i);let iso=d.toISOString().slice(0,10),p=S.plan[iso]||{date:iso};out+=`<div class=card><h3>${iso}</h3><select onchange="S.plan['${iso}']={date:'${iso}',routineId:this.value||null,type:this.value?'entrenamiento':'descanso',status:'pendiente'};save();render()"><option value="">Descanso</option>${S.routines.map(r=>`<option value="${r.id}" ${p.routineId===r.id?"selected":""}>${r.name}</option>`).join("")}</select></div>`}weekPlan.innerHTML=out;seasonStart.value=S.season.startDate||today();seasonMonths.value=S.season.months||6;seasonView.innerHTML=`<p class=mut>Planificando desde ${S.season.startDate||today()} · ${S.season.months||6} meses</p>`}
 function saveSeason(){S.season.startDate=seasonStart.value;S.season.months=+seasonMonths.value;save();render()}
 
@@ -1534,7 +1740,7 @@ function rc5SaveEditSession(id){
 function renderData(){let w=S.weights[S.weights.length-1];mWeight.textContent=w?w.weight+"kg":"—";let st=new Date();st.setDate(st.getDate()-7);let sets=S.sets.filter(s=>new Date(s.ts)>=st);mVol.textContent=Math.round(sets.reduce((a,s)=>a+s.weight*s.reps,0));mSessions.textContent=S.sessions.length;mPR.textContent=S.sets.filter(s=>s.result==="pr").length;recentSessions.innerHTML=S.sessions.slice(-6).reverse().map(s=>`<div class=line><span>${rt(s.routineId)?.name||"Rutina"}</span><span>${s.date.slice(0,10)}</span></div>`).join("")||"<p class=mut>Sin sesiones.</p>"}
 function saveWeight(){let v=parseFloat(weightInput.value);if(isNaN(v))return;S.weights.push({id:id(),date:today(),weight:v,ts:now()});save();render()}
 
-/* === LAB RC6 Routine Import === */
+/* === LAB 6.1 Routine Import === */
 function fillImportTemplateRc6(){
  const el=document.getElementById("routineImportTextRc6");
  if(!el)return;
@@ -1615,6 +1821,85 @@ function importRoutineTextRc6(){
  S.routines.push(routine);
  save();render();
  document.getElementById("routineImportResultRc6").textContent=`Importada: ${routine.name} · ${items.length} ejercicios.`;
+}
+
+
+/* === LAB 6.1 robust routine import === */
+function fillImportTemplateRc7(){
+  const name=document.getElementById("routineImportNameRc7");
+  const txt=document.getElementById("routineImportTextRc7");
+  if(name)name.value="Torso A ejemplo";
+  if(txt)txt.value=`Torso A
+Press banca 4x8 80kg descanso 180
+Dominadas 4x al fallo descanso 180
+Remo barra 4x10-12 60kg descanso 120
+Fondos en paralelas 3x fallo descanso 150
+Plancha 3x45s descanso 60`;
+}
+function rc7CleanExerciseName(line){
+  return line
+    .replace(/^\s*[-•*]\s*/,"")
+    .replace(/\b\d+\s*x\s*(al\s*)?fallo\b/ig,"")
+    .replace(/\b\d+\s*x\s*\d+\s*(?:[-\/]\s*\d+)?\s*(?:reps?|rep)?\b/ig,"")
+    .replace(/\b\d+\s*x\s*\d+\s*s\b/ig,"")
+    .replace(/\b\d+(?:[.,]\d+)?\s*kg\b/ig,"")
+    .replace(/\b(?:descanso|rest)\s*\d+\s*s?\b/ig,"")
+    .replace(/\([^)]*\)/g,"")
+    .replace(/[:|]+/g," ")
+    .replace(/\s+/g," ")
+    .trim();
+}
+function rc7GetOrCreateExercise(name){
+  name=(name||"Ejercicio").trim();
+  let e=S.exercises.find(x=>x.name.toLowerCase()===name.toLowerCase());
+  if(e)return e;
+  e={id:id(),name,pattern:typeof pattern==="function"?pattern(name):"custom",inc:S.settings?.inc||2.5,rest:S.settings?.defaultRest||120};
+  S.exercises.push(e);
+  return e;
+}
+function rc7ParseLine(line){
+  let raw=line.trim();
+  if(!raw)return null;
+  if(/^(rutina|día|dia|bloque|semana|calentamiento|nota|notas)\b/i.test(raw))return null;
+  let sets=3,repsPlan=[8,8,8],mode="reps";
+  let mFail=raw.match(/(\d+)\s*x\s*(?:al\s*)?fallo/i);
+  let mTime=raw.match(/(\d+)\s*x\s*(\d+)\s*s\b/i);
+  let mReps=raw.match(/(\d+)\s*x\s*(\d+)(?:\s*[-\/]\s*(\d+))?/i);
+  if(mFail){sets=+mFail[1];mode="failure";repsPlan=Array.from({length:sets},()=>0);}
+  else if(mTime){sets=+mTime[1];mode="time";repsPlan=Array.from({length:sets},()=>+mTime[2]);}
+  else if(mReps){sets=+mReps[1];let a=+mReps[2],b=mReps[3]?+mReps[3]:a;repsPlan=Array.from({length:sets},(_,i)=>Math.round(a+(b-a)*(sets<=1?0:i/(sets-1))));}
+  else return null;
+  let mw=raw.match(/(\d+(?:[.,]\d+)?)\s*kg/i);
+  let weight=mw?parseFloat(mw[1].replace(",",".")):0;
+  let mr=raw.match(/(?:descanso|rest)\s*(\d+)\s*s?/i);
+  let rest=mr?+mr[1]:(S.settings?.defaultRest||120);
+  let name=rc7CleanExerciseName(raw);
+  if(!name || name.length<2)return null;
+  let exercise=rc7GetOrCreateExercise(name);
+  return {id:id(),exerciseId:exercise.id,sets,repsPlan,weight,rest,mode,order:0};
+}
+function importRoutineTextRc7(){
+  const status=document.getElementById("routineImportStatusRc7");
+  const nameEl=document.getElementById("routineImportNameRc7");
+  const txtEl=document.getElementById("routineImportTextRc7");
+  let name=(nameEl?.value||"").trim();
+  let text=txtEl?.value||"";
+  let lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  if(!name && lines.length)name=lines[0].replace(/^#+\s*/,"").trim();
+  let items=[];
+  lines.forEach(line=>{
+    let item=rc7ParseLine(line);
+    if(item){item.order=items.length+1;items.push(item);}
+  });
+  if(!items.length){
+    if(status)status.textContent="No he detectado ejercicios. Pulsa 'Rellenar ejemplo' para ver el formato.";
+    return;
+  }
+  S.routines.push({id:id(),name:name||`Rutina ${S.routines.length+1}`,tag:"Importada",items});
+  save();
+  render();
+  if(status)status.textContent=`Rutina importada: ${name||"Sin nombre"} · ${items.length} ejercicios.`;
+  alert(`Rutina importada con ${items.length} ejercicios.`);
 }
 
 function renderLibrary(){libRoutines.innerHTML=S.routines.map(r=>`<div class=card><h3>${r.name}</h3>${r.items.map(i=>`<span class=pill>${ex(i.exerciseId)?.name} · ${repsText(i)}</span>`).join("")}<button onclick="startRoutine('${r.id}')">Iniciar</button></div>`).join("");libExercises.innerHTML=S.exercises.map(e=>`<div class=line><span>${e.name}</span><button onclick="alert(cleanInfo('${e.name.replaceAll("'","")}').points.join('\\n'))">Técnica</button></div>`).join("")}
