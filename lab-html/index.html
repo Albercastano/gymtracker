@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>GymTracker Lab 6.2.1</title>
+<title>GymTracker Lab 6.2.2</title>
 <meta name="theme-color" content="#0a0b0d">
 <link rel="manifest" href="manifest.webmanifest">
 <style>
@@ -582,7 +582,7 @@ font-weight:800;letter-spacing:.05em}
 .rcbadge{position:fixed;top:10px;right:12px;background:#111;color:#f2d37b;
 padding:6px 10px;border-radius:999px;font:700 12px sans-serif;z-index:9999;border:1px solid #7a6428}
 
-/* === GYMTRACKER LAB 6.2.1.2 — Focus UX + Blocks/Editing === */
+/* === GYMTRACKER LAB 6.2.2.2 — Focus UX + Blocks/Editing === */
 :root{
   --gt-gap:16px;
   --gt-gap2:24px;
@@ -926,7 +926,7 @@ body.theme-carbon .seasonStepRc4.on{
 .editSavedRc5{color:var(--gold2);font-size:.88rem;min-height:20px}
 
 
-/* === LAB 6.2.1.2 HOTFIX === */
+/* === LAB 6.2.2.2 HOTFIX === */
 .importRoutineBox{
   display:grid;
   gap:10px;
@@ -947,7 +947,7 @@ body.theme-carbon .seasonStepRc4.on{
 }
 
 
-/* === LAB 6.2.1.2 routine import visible fix === */
+/* === LAB 6.2.2.2 routine import visible fix === */
 .importHelpRc7{
   display:grid;
   gap:10px;
@@ -969,7 +969,7 @@ body.theme-carbon .seasonStepRc4.on{
 }
 
 
-/* === LAB 6.2.1.2 simple practical season/block planner === */
+/* === LAB 6.2.2.2 simple practical season/block planner === */
 .simpleSeasonRc8{display:grid;gap:12px}
 .simpleSeasonHeaderRc8{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media(max-width:620px){.simpleSeasonHeaderRc8{grid-template-columns:1fr}}
@@ -989,7 +989,7 @@ body.theme-carbon .seasonStepRc4.on{
 .seasonTodayRc8{border-radius:20px;padding:12px;background:rgba(255,240,184,.055);border:1px solid rgba(255,240,184,.16)}
 
 
-/* === LAB 6.2.1.2 FIXED === */
+/* === LAB 6.2.2.2 FIXED === */
 .profileChip61{
   position:fixed;top:48px;right:12px;z-index:9998;
   padding:8px 11px;border-radius:999px;
@@ -1018,7 +1018,7 @@ body.theme-carbon .seasonStepRc4.on{
 #theme_humor,#theme_retro,#theme_punk,#theme_stealth,#theme_laboratory{display:none!important}
 
 
-/* === LAB 6.2.1.2 visible profile selector === */
+/* === LAB 6.2.2.2 visible profile selector === */
 .profileTop611{
   margin:0 0 14px;
   padding:12px;
@@ -1035,7 +1035,7 @@ body.theme-carbon .seasonStepRc4.on{
 @media(max-width:420px){.profileTop611Btns{grid-template-columns:1fr}}
 
 
-/* === LAB 6.2.1 URGENT ROUTINE IMPORT === */
+/* === LAB 6.2.2 URGENT ROUTINE IMPORT === */
 .routineImport612{
   display:grid;
   gap:10px;
@@ -1063,7 +1063,7 @@ body.theme-carbon .seasonStepRc4.on{
 }
 
 
-/* === LAB 6.2.1 ROUTINES-FIRST STABLE === */
+/* === LAB 6.2.2 ROUTINES-FIRST STABLE === */
 .routineManager62{display:grid;gap:12px}
 .routinePanel62{
   border:2px solid rgba(255,240,184,.22);
@@ -1104,7 +1104,7 @@ body.theme-carbon .seasonStepRc4.on{
 .routineStatus62{min-height:22px;color:var(--gold2);font-weight:900}
 
 
-/* === LAB 6.2.1 emergency import modal === */
+/* === LAB 6.2.2 emergency import modal === */
 .importFab621{
   position:fixed;
   left:12px;
@@ -1149,11 +1149,29 @@ body.theme-carbon .seasonStepRc4.on{
   color:var(--gold2,#fff0b8);
 }
 
+
+/* === LAB 6.2.2 import always visible on home === */
+.homeImport622{
+  border:2px solid rgba(255,240,184,.24)!important;
+  background:rgba(255,240,184,.06)!important;
+}
+.homeImport622 textarea{
+  min-height:220px!important;
+  font-family:ui-monospace,"Courier New",monospace!important;
+}
+.homeImport622 pre{
+  white-space:pre-wrap;
+  padding:10px;
+  border-radius:14px;
+  background:rgba(0,0,0,.25);
+  color:var(--gold2,#fff0b8);
+}
+
 </style>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <style>.seasonWizardRc4,#seasonWizardRc4,.blockPlannerLite,#blocksRc3{display:none!important}</style>
 </head>
-<body><div class="rcbadge">LAB 6.2.1</div>
+<body><div class="rcbadge">LAB 6.2.2</div>
 
 <div id="splash" class="splash">
   <div class="splashLogo">
@@ -1171,1301 +1189,66 @@ body.theme-carbon .seasonStepRc4.on{
   </div>
 </div>
 
-<header><h1>GymTracker <span class="gold">Ultimate LAB 6.2.1.2</span></h1><div id="todayLabel" class="mut"></div></header>
+<header><h1>GymTracker <span class="gold">Ultimate LAB 6.2.2.2</span></h1><div id="todayLabel" class="mut"></div></header>
 <main>
 <section id="dashboard" class="screen active">
-  <div class="profileTop611">
-    <div class="profileTop611Title">Quien va a entrenar</div>
-    <div class="profileTop611Btns">
-      <button id="profileBtnAlberto611" onclick="selectProfile61('Alberto','💪','luxury')">💪 Alberto</button>
-      <button id="profileBtnEdy611" onclick="selectProfile61('Edy','🏋️','elegance')">🏋️ Edy</button>
-    </div>
-  </div>
-
-  <div class="hero">
-    <div class="card">
-      <div class="mut" id="dashGreeting">Buenos días Alberto</div>
-      <h2 class="heroTitle" id="dashTitle">Hoy toca</h2>
-      <div id="dashMeta" class="mut"></div>
-      <div id="postNotice"></div>
-      <div class="card soft"><h3>Bloque</h3><div class="blockBar"><div id="blockFill"></div></div><p id="blockText" class="mut"></p></div>
-      <button id="startTodayBtn" class="primary startButton" onclick="startToday()">Comenzar</button>
-      <details class="disclosure"><summary>Ver ejercicios</summary><div id="todayExercises" style="padding:0 14px 14px"></div></details>
-    </div>
-  </div>
-</section>
-
-<section id="workout" class="screen">
-  <div id="routinePicker" class="card"><h2>Elegir rutina</h2><div id="routineButtons"></div></div>
-  <div id="activeWorkout" class="hide">
-    <div class="card"><h2 id="activeTitle"></h2><p id="activeSub" class="mut"></p></div>
-    <div id="exerciseBox"></div>
-  </div>
-</section>
-
-<section id="planning" class="screen">
-  <div class="card"><h2>Plan semanal</h2><div id="weekPlan"></div></div>
-  <div class="card"><h2>Temporada rápida</h2><div class="grid"><label>Inicio<input id="seasonStart" type="date"></label><label>Meses<select id="seasonMonths"><option>3</option><option selected>6</option><option>12</option></select></label></div><button onclick="saveSeason()">Guardar temporada</button><div id="seasonView"></div></div>
-
-  <div class="card">
-    <h2>Bloques de entrenamiento</h2>
-    <p class="mut">Planifica ciclos, deloads y el siguiente bloque sin perder el foco del entreno diario.</p>
-    <div id="blocksRc3" class="blockPlannerLite"></div>
-  </div>
-
-  <div class="card">
-    <h2>Temporada guiada</h2>
-    <p class="mut">Configura la temporada paso a paso: inicio, objetivo, bloques, deload y vista anual.</p>
-    <div id="seasonWizardRc4" class="seasonWizardRc4"></div>
-  </div>
-
-  <div class="card">
-    <h2>Temporada y bloques</h2>
-    <p class="mut">Simple y práctico: fecha de inicio, bloques, deload, guardar y borrar sin asistente pesado.</p>
-    <div id="simpleSeasonRc8" class="simpleSeasonRc8"></div>
-  </div>
-</section>
-
-<section id="data" class="screen">
-  <div class="card"><h2>Peso corporal</h2><div class="row"><input id="weightInput" type="number" step=".1" placeholder="98.2"><button class="primary focus-wall" onclick="saveWeight()">Guardar</button></div></div>
-  <div class="grid4"><div class="metric"><span>Peso</span><b id="mWeight">—</b></div><div class="metric"><span>Volumen 7d</span><b id="mVol">—</b></div><div class="metric"><span>Sesiones</span><b id="mSessions">—</b></div><div class="metric"><span>PR</span><b id="mPR">—</b></div></div>
-  <div class="card"><h2>Últimos entrenos</h2><div id="recentSessions"></div></div>
-
-  
-  <div class="card">
-    <h2>Estadísticas</h2>
-    <div id="statsRc5" class="statsRc5"></div>
-    <div class="grid">
-      <div class="chartRc5">
-        <h3>Volumen últimos entrenos</h3>
-        <div id="volumeChartRc5" class="chartBarsRc5"></div>
-      </div>
-      <div class="chartRc5">
-        <h3>Ejercicios más realizados</h3>
-        <div id="rankRc5" class="exerciseRankRc5"></div>
-      </div>
-    </div>
-  </div>
-<div class="card">
-    <h2>Editar entrenos</h2>
-    <p class="mut">Selecciona un entreno solo cuando quieras modificarlo. Cerrado no ocupa espacio ni tapa estadísticas.</p>
-    <div id="editSessionsRc3" class="editWorkoutList"></div>
-  </div>
-</section>
-
-<section id="library" class="screen">
-  <div class="card routineManager62">
-    <h2>Rutinas — Lab 6.2</h2>
-    <p class="mut">Prioridad: cargar, crear, editar, borrar y empezar rutinas sin pelearse con la app.</p>
-
-    <div class="routinePanel62">
-      <h3>Importar rutina desde texto</h3>
-      <p class="mut">Formato recomendado:</p>
-      <pre class="importExample612">Press banca 4x8 80kg descanso 180
+  <div class="card homeImport622">
+    <h2>Importar rutina</h2>
+    <p class="mut">Urgente/visible: pega la rutina aquí. Formato por línea:</p>
+    <pre>Press banca 4x8 80kg descanso 180
 Dominadas 4x fallo descanso 180
-Fondos en paralelas 4x al fallo descanso 150
 Remo barra 4x10-12 60kg descanso 120
 Plancha 3x45s descanso 60</pre>
-      <input id="routineName62" placeholder="Nombre de la rutina, ej: Torso A">
-      <textarea id="routineText62" placeholder="Pega aquí tu rutina"></textarea>
-      <div class="row">
-        <button class="primary" onclick="importRoutine62()">Importar rutina</button>
-        <button onclick="templateRoutine62()">Ejemplo</button>
-      </div>
-      <div id="routineStatus62" class="routineStatus62"></div>
-    </div>
-
-    <div class="routinePanel62">
-      <h3>Crear rutina manual</h3>
-      <div class="row">
-        <input id="manualRoutineName62" placeholder="Nombre, ej: Pierna A">
-        <button onclick="createManualRoutine62()">Crear vacía</button>
-      </div>
-    </div>
-
-    <div>
-      <h3>Mis rutinas</h3>
-      <div id="routineList62" class="routineList62"></div>
-    </div>
-  </div>
-
-  <div class="card routineImport612">
-    <h2>Importar rutina</h2>
-    <p class="mut">Pega texto. Cada ejercicio debe tener series tipo <b>4x8</b>, <b>4x10-12</b>, <b>4x fallo</b> o <b>3x45s</b>.</p>
-    <div class="importExample612">Ejemplos:
-Press banca 4x8 80kg descanso 180
-Dominadas 4x fallo descanso 180
-Fondos en paralelas 4x al fallo descanso 150
-Remo barra 4x10-12 60kg descanso 120
-Plancha 3x45s descanso 60</div>
-    <input id="routineName612" placeholder="Nombre de la rutina, ej: Torso A">
-    <textarea id="routineText612" placeholder="Pega aquí tu rutina completa"></textarea>
+    <input id="routineName622" placeholder="Nombre de la rutina, ej: Torso A">
+    <textarea id="routineText622" placeholder="Pega aquí la rutina"></textarea>
     <div class="row">
-      <button class="primary" onclick="importRoutine612()">Importar ahora</button>
-      <button onclick="templateRoutine612()">Poner ejemplo</button>
+      <button class="primary" onclick="importRoutine622()">Importar rutina</button>
+      <button onclick="exampleRoutine622()">Ejemplo</button>
     </div>
-    <div id="routineStatus612" class="importStatus612"></div>
+    <div id="routineStatus622" style="color:var(--gold2);font-weight:900;min-height:24px"></div>
   </div>
 
-  <div class="card"><h2>Rutinas</h2><button class="primary" onclick="newRoutine()">Nueva rutina</button><div id="libRoutines"></div></div>
-  <div class="card"><h2>Ejercicios</h2><button onclick="newExercise()">Nuevo ejercicio</button><div id="libExercises"></div></div>
-</section>
-
-<section id="settings" class="screen">
-  <div class="card">
-    <h2>Personalización</h2>
-    <p class="mut">Lab estable: solo Luxury, Elegance y Carbon.</p>
-    <div class="personalGrid">
-      <div class="themeChoice" onclick="setTheme('luxury')" id="theme_luxury"><b>Luxury</b><span class="mut">Rolls / Maybach</span><div class="themePreview preview-luxury"></div></div>
-      <div class="themeChoice" onclick="setTheme('elegance')" id="theme_elegance"><b>Elegance</b><span class="mut">Grafito y titanio</span><div class="themePreview preview-elegance"></div></div>
-      <div class="themeChoice" onclick="setTheme('carbon')" id="theme_carbon"><b>Carbon</b><span class="mut">F1 / fibra</span><div class="themePreview preview-carbon"></div></div>
-    </div>
-    <hr style="border-color:rgba(255,255,255,.08);margin:16px 0">
-    <div class="quickPersonal">
-      <label>Tamaño de letra<select id="fontSetting" onchange="setFontSize(this.value)"><option value="small">Pequeña</option><option value="normal">Normal</option><option value="large">Grande</option><option value="xl">Muy grande</option></select></label>
-      <label>Espaciado<select id="densitySetting" onchange="setDensity(this.value)"><option value="normal">Normal</option><option value="compact">Compacto</option><option value="comfort">Cómodo</option></select></label>
-      <label>Modo zurdo<select id="leftySetting" onchange="setLefty(this.value==='yes')"><option value="no">No</option><option value="yes">Sí</option></select></label>
-      <label>Mostrar splash<select id="splashSetting" onchange="setSplash(this.value==='yes')"><option value="yes">Sí</option><option value="no">No</option></select></label>
-    </div>
-  </div>
-  <div class="card"><h2>Ajustes de entreno</h2><div class="grid"><label>Descanso por defecto<input id="defaultRest" type="number" step="15"></label><label>Incremento<input id="incSetting" type="number" step=".25"></label></div><button class="primary" onclick="saveSettings()">Guardar</button></div>
-  <div class="card"><h2>Backup</h2><button onclick="downloadBackup()">Descargar JSON</button><button onclick="downloadCSV()">Descargar CSV</button><input type="file" accept=".json" onchange="importBackup(event)"></div>
-</section>
-</main>
-
-<button class="fab" onclick="openFeedback()">💡</button>
-<nav><div class="dock">
-<button id="nav_dashboard" onclick="show('dashboard')"><b>🏋️</b>Hoy</button>
-<button id="nav_workout" onclick="show('workout')"><b>▶</b>Entreno</button>
-<button id="nav_planning" onclick="show('planning')"><b>📅</b>Plan</button>
-<button id="nav_data" onclick="show('data')"><b>📈</b>Datos</button>
-<button id="nav_settings" onclick="show('settings')"><b>⚙</b>Ajustes</button>
-</div></nav>
-
-<div id="nextOverlay" class="nextOverlay"><div class="nextCard"><span>Siguiente ejercicio</span><b id="nextName">Ejercicio</b><small id="nextMeta"></small></div></div>
-
-<div id="restModal" class="casioShell">
-  <div class="casioWatch">
-    <div class="casioBrand"><span>GYMTRACKER</span><span>FORGED TIMER</span></div>
-    <div class="casioInner">
-      <div class="lcdTop"><span>STW</span><span>SIG</span><span>ALM</span></div>
-      <div id="lcdTime" class="lcdTime"></div>
-      <div id="restInfo" class="casioInfo"></div>
-    </div>
-    <div class="casioButtons"><button onclick="addRest(15)">+15s</button><button class="primary" onclick="endRest()">Terminar descanso</button></div>
-  </div>
-</div>
-
-<div id="finishModal" class="modal"><div class="box">
-  <h2>Entrenamiento completado</h2>
-  <div id="finishStats" class="grid4"></div>
-  <h3>Sensación</h3>
-  <select id="sessionFeeling" onchange="showCoachSummary()">
-    <option>Normal</option>
-    <option>Muy fácil</option>
-    <option>Fácil</option>
-    <option>Muy duro</option>
-    <option>Al límite</option>
-  </select>
-  <textarea id="sessionNote" placeholder="Nota final" oninput="showCoachSummary()"></textarea>
-  <div class="coachHighlight">
-    <h3>Resumen para entrenador</h3>
-    <p class="mut">Texto completo. Selecciona y copia manualmente.</p>
-  </div>
-  <pre id="coachSummaryText" class="coachPlainText"></pre>
-  <button class="primary" onclick="saveSession()">Guardar y volver al inicio</button>
-</div></div>
-
-<div id="feedbackModal" class="modal"><div class="box"><h2>Laboratorio</h2><select id="fbType"><option>Idea</option><option>Bug</option><option>Mejora</option></select><input id="fbTitle" placeholder="Título"><textarea id="fbDesc" placeholder="Descripción"></textarea><button class="primary" onclick="saveFeedback()">Guardar</button><button onclick="closeFeedback()">Cerrar</button></div></div>
-
-<script>
-let KEY="gymtracker_lab_61_Alberto"; const KEY_BASE="gymtracker_lab_61", OLD_KEYS=["gymtracker_lab_v60_rc6","gymtracker_ultimate_v60_rc5","gymtracker_ultimate_v60_rc4","gymtracker_ultimate_v60_rc3","gymtracker_ultimate_v54","gymtracker_ultimate_v53","gymtracker_ultimate_v52","gymtracker_ultimate_v514","gymtracker_ultimate_v513","gymtracker_ultimate_v512","gymtracker_ultimate_v511","gymtracker_ultimate_v51","gymtracker_ultimate_v50","gymtracker_v461_stable_coach","gymtracker_v46_coach_summary","gymtracker_v45_next_plan_aware","gymtracker_v44_timed_exercises","gymtracker_v43_hidden_dashboard","gymtracker_v42_training_focus","gymtracker_v41_flow_polish","gymtracker_v40_life_season","gymtracker_v39_season_wizard","gymtracker_v38_season_planner","gymtracker_v37_block_calendar","gymtracker_v36_technique_atlas","gymtracker_aurum_v22_styles"];
-let S,A=null,restInt=null,restLeft=0,execInt=null,execLeft=0,execTotal=0;
-function id(){return Math.random().toString(36).slice(2)+Date.now().toString(36)}
-function now(){return new Date().toISOString()}
-function today(){return now().slice(0,10)}
-function save(){localStorage.setItem(KEY,JSON.stringify(S))}
-function storageScoreRc6(obj){
- if(!obj||typeof obj!=="object")return -1;
- return (obj.sessions?.length||0)*1000 + (obj.sets?.length||0)*100 + (obj.routines?.length||0)*20 + (obj.exercises?.length||0)*5 + (obj.weights?.length||0)*10;
-}
-
-/* === LAB 6.2.1.2 Local Profiles FIXED === */
-let CURRENT_PROFILE = localStorage.getItem("gymtracker_lab_61_current_profile") || "Alberto";
-function profileKey61(name){return "gymtracker_lab_61_"+name;}
-function profileMeta61(name){return name==="Edy"?{name:"Edy",icon:"🏋️",theme:"elegance"}:{name:"Alberto",icon:"💪",theme:"luxury"};}
-function applyProfileKey61(){let meta=profileMeta61(CURRENT_PROFILE);KEY=profileKey61(meta.name);localStorage.setItem("gymtracker_lab_61_current_profile",meta.name);}
-function updateProfileChip61(){let meta=profileMeta61(CURRENT_PROFILE);let chip=document.getElementById("profileChip61");if(chip)chip.textContent=`${meta.icon} ${meta.name}`;updateProfileButtons611();}
-
-function updateProfileButtons611(){
-  let a=document.getElementById("profileBtnAlberto611");
-  let e=document.getElementById("profileBtnEdy611");
-  if(a)a.classList.toggle("activeProfile611",CURRENT_PROFILE==="Alberto");
-  if(e)e.classList.toggle("activeProfile611",CURRENT_PROFILE==="Edy");
-}
-
-function openProfileModal61(){document.getElementById("profileModal61")?.classList.add("on");}
-function closeProfileModal61(){document.getElementById("profileModal61")?.classList.remove("on");}
-function selectProfile61(name,icon,theme){
-  CURRENT_PROFILE=name;applyProfileKey61();
-  try{
-    S=null;load();
-    S.ui=S.ui||{};
-    if(!localStorage.getItem(KEY+"_theme_set")){S.ui.theme=theme;localStorage.setItem(KEY+"_theme_set","1");save();}
-    updateProfileChip61();render();updateProfileButtons611();closeProfileModal61();
-  }catch(e){console.error(e);location.reload();}
-}
-applyProfileKey61();
-window.addEventListener("DOMContentLoaded",()=>setTimeout(updateProfileChip61,50));
-
-function load(){
- let bestRaw=null,bestScore=-1,bestKey=null;
- [KEY,...OLD_KEYS].forEach(k=>{
-   let raw=localStorage.getItem(k);
-   if(!raw)return;
-   try{
-     let obj=JSON.parse(raw);
-     let sc=storageScoreRc6(obj);
-     if(sc>bestScore){bestScore=sc;bestRaw=raw;bestKey=k;}
-   }catch(e){}
- });
- try{S=bestRaw?JSON.parse(bestRaw):null}catch(e){S=null}
- if(!S)S={version:"6.0-lab-rc6",settings:{defaultRest:120,inc:2.5},exercises:[],routines:[],plan:{},sessions:[],sets:[],weights:[],feedback:[],season:{startDate:today(),months:6}};
- S.version="6.0-lab-rc6";
- S.settings=S.settings||{defaultRest:120,inc:2.5};
- S.exercises=S.exercises||[];
- S.routines=S.routines||[];
- S.plan=S.plan||{};
- S.sessions=S.sessions||[];
- S.sets=S.sets||[];
- S.weights=S.weights||[];
- S.feedback=S.feedback||[];
- S.season=S.season||{startDate:today(),months:6};
- S.ui=S.ui||{theme:"luxury",fontSize:"normal",density:"normal",lefty:false,splash:true};
- if(!["luxury","elegance","carbon"].includes(S.ui.theme))S.ui.theme="luxury";
- seedDefaults(); seedPlan(); save();
- if(bestKey && bestKey!==KEY)console.log("GymTracker Lab: datos recuperados desde",bestKey);
-}
-
-function seedDefaults(){
- if(!S.exercises.length){
-  S.exercises=[
-   {id:"e1",name:"Dominadas lastradas",pattern:"vertical_pull",inc:2.5,rest:180},
-   {id:"e2",name:"Press banca",pattern:"horizontal_push",inc:2.5,rest:180},
-   {id:"e3",name:"Remo barra",pattern:"horizontal_pull",inc:2.5,rest:120},
-   {id:"e4",name:"Fondos en paralelas",pattern:"dip",inc:2.5,rest:150},
-   {id:"e5",name:"Sentadilla",pattern:"squat",inc:2.5,rest:180},
-   {id:"e6",name:"Peso muerto rumano",pattern:"hinge",inc:2.5,rest:180},
-   {id:"e7",name:"Hip thrust",pattern:"hip_thrust",inc:2.5,rest:120},
-   {id:"e8",name:"Plancha",pattern:"core",inc:0,rest:60}
-  ];
- }
- if(!S.routines.length){
-  S.routines=[
-   {id:"r1",name:"Torso A",tag:"Fuerza",items:[mk("e1",4,[8,8,8,7],20,180,"reps"),mk("e2",4,[8,8,8,8],60,180,"reps"),mk("e3",4,[10,10,10,10],50,120,"reps"),mk("e4",3,[10,10,8],15,150,"reps")]},
-   {id:"r2",name:"Pierna A",tag:"Fuerza",items:[mk("e5",4,[8,8,8,8],80,180,"reps"),mk("e6",4,[8,8,8,8],60,180,"reps"),mk("e7",4,[10,10,10,10],80,120,"reps"),mk("e8",3,[30,30,30],0,60,"time")]},
-   {id:"r3",name:"Torso B",tag:"Calistenia",items:[mk("e1",3,[8,8,8],15,180,"reps"),mk("e4",4,[0,0,0,0],0,150,"failure"),mk("e3",4,[10,10,10,10],45,120,"reps")]},
-   {id:"r4",name:"Pierna B",tag:"Hipertrofia",items:[mk("e6",4,[8,8,8,8],65,180,"reps"),mk("e5",3,[10,10,10],70,180,"reps"),mk("e7",4,[10,10,10,10],85,120,"reps")]}
-  ];
- }
-}
-function mk(exerciseId,sets,repsPlan,weight,rest,mode){return {id:id(),exerciseId,sets,repsPlan,weight,rest,mode,order:0}}
-function seedPlan(){for(let i=0;i<35;i++){let d=new Date();d.setDate(d.getDate()+i);let iso=d.toISOString().slice(0,10),day=d.getDay(),rid=null;if(day===1)rid="r1";if(day===2)rid="r2";if(day===4)rid="r3";if(day===5)rid="r4";if(!S.plan[iso])S.plan[iso]={date:iso,routineId:rid,type:rid?"entrenamiento":"descanso",status:"pendiente"}}}
-function ex(id){return S.exercises.find(e=>e.id===id)}
-function rt(id){return S.routines.find(r=>r.id===id)}
-function planToday(){return S.plan[today()]||{date:today(),routineId:null,type:"descanso"}}
-function show(scr){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(scr).classList.add("active");document.querySelectorAll(".dock button").forEach(b=>b.classList.remove("activeNav"));document.getElementById("nav_"+(scr==="library"?"data":scr))?.classList.add("activeNav");render()}
-
-/* === LAB 6.2.1 guaranteed routine import === */
-function openImport621(){document.getElementById("importModal621")?.classList.add("on");}
-function closeImport621(){document.getElementById("importModal621")?.classList.remove("on");}
-function exampleRoutine621(){
-  document.getElementById("routineName621").value="Torso A";
-  document.getElementById("routineText621").value=`Press banca 4x8 80kg descanso 180
+/* === LAB 6.2.2 home import === */
+function exampleRoutine622(){
+  document.getElementById("routineName622").value="Torso A";
+  document.getElementById("routineText622").value=`Press banca 4x8 80kg descanso 180
 Dominadas 4x fallo descanso 180
 Remo barra 4x10-12 60kg descanso 120
 Fondos en paralelas 4x al fallo descanso 150
 Plancha 3x45s descanso 60`;
 }
-function cleanName621(line){
-  return (line||"")
-    .replace(/^\s*[-•*]\s*/,"")
-    .replace(/\b\d+\s*x\s*(?:al\s*)?fallo\b/ig,"")
-    .replace(/\b\d+\s*x\s*\d+\s*(?:[-\/]\s*\d+)?\s*(?:reps?|rep)?\b/ig,"")
-    .replace(/\b\d+\s*x\s*\d+\s*s\b/ig,"")
-    .replace(/\b\d+(?:[.,]\d+)?\s*kg\b/ig,"")
-    .replace(/\b(?:descanso|rest)\s*\d+\s*s?\b/ig,"")
-    .replace(/\([^)]*\)/g,"")
-    .replace(/[:|]+/g," ")
-    .replace(/\s+/g," ")
-    .trim();
-}
-function getExercise621(name){
-  S.exercises=S.exercises||[];
-  name=(name||"Ejercicio").trim();
-  let e=S.exercises.find(x=>(x.name||"").toLowerCase()===name.toLowerCase());
-  if(e)return e;
-  e={id:id(),name,pattern:(typeof pattern==="function"?pattern(name):"custom"),inc:S.settings?.inc||2.5,rest:S.settings?.defaultRest||120};
-  S.exercises.push(e);
-  return e;
-}
-function parseRoutineLine621(line){
-  let raw=(line||"").trim();
-  if(!raw)return null;
-  if(/^(rutina|día|dia|bloque|semana|calentamiento|notas?|objetivo)\b/i.test(raw))return null;
-  let sets=0,repsPlan=[],mode="reps";
-  let fail=raw.match(/(\d+)\s*x\s*(?:al\s*)?fallo/i);
-  let time=raw.match(/(\d+)\s*x\s*(\d+)\s*s\b/i);
-  let reps=raw.match(/(\d+)\s*x\s*(\d+)(?:\s*[-\/]\s*(\d+))?/i);
-  if(fail){sets=+fail[1];mode="failure";repsPlan=Array.from({length:sets},()=>0);}
-  else if(time){sets=+time[1];mode="time";repsPlan=Array.from({length:sets},()=>+time[2]);}
-  else if(reps){sets=+reps[1];let a=+reps[2],b=reps[3]?+reps[3]:a;repsPlan=Array.from({length:sets},(_,i)=>Math.round(a+(b-a)*(sets<=1?0:i/(sets-1))));}
-  else return null;
-  let name=cleanName621(raw);
-  if(!name)return null;
-  let mw=raw.match(/(\d+(?:[.,]\d+)?)\s*kg/i);
-  let weight=mw?parseFloat(mw[1].replace(",",".")):0;
-  let mr=raw.match(/(?:descanso|rest)\s*(\d+)\s*s?/i);
-  let rest=mr?+mr[1]:(S.settings?.defaultRest||120);
-  let exo=getExercise621(name);
-  return {id:id(),exerciseId:exo.id,sets,repsPlan,weight,rest,mode,order:0};
-}
-function importRoutine621(){
+function importRoutine622(){
   try{
-    S.routines=S.routines||[];
-    let status=document.getElementById("routineStatus621");
-    let name=(document.getElementById("routineName621")?.value||"").trim();
-    let text=document.getElementById("routineText621")?.value||"";
-    let lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+    let n=document.getElementById("routineName622")?.value?.trim()||"Rutina importada";
+    let t=document.getElementById("routineText622")?.value||"";
+    if(!t.trim()){alert("Pega una rutina primero.");return}
+    let lines=t.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
     let items=[];
-    lines.forEach(line=>{
-      let item=parseRoutineLine621(line);
-      if(item){item.order=items.length+1;items.push(item);}
+    lines.forEach(raw=>{
+      let fail=raw.match(/(\d+)\s*x\s*(?:al\s*)?fallo/i);
+      let time=raw.match(/(\d+)\s*x\s*(\d+)\s*s\b/i);
+      let reps=raw.match(/(\d+)\s*x\s*(\d+)(?:\s*[-\/]\s*(\d+))?/i);
+      if(!fail&&!time&&!reps)return;
+      let sets=3,repsPlan=[8,8,8],mode="reps";
+      if(fail){sets=+fail[1];mode="failure";repsPlan=Array.from({length:sets},()=>0)}
+      else if(time){sets=+time[1];mode="time";repsPlan=Array.from({length:sets},()=>+time[2])}
+      else {sets=+reps[1];let a=+reps[2],b=reps[3]?+reps[3]:a;repsPlan=Array.from({length:sets},(_,i)=>Math.round(a+(b-a)*(sets<=1?0:i/(sets-1))))}
+      let name=raw.replace(/\b\d+\s*x\s*(?:al\s*)?fallo\b/ig,"").replace(/\b\d+\s*x\s*\d+\s*(?:[-\/]\s*\d+)?\b/ig,"").replace(/\b\d+\s*x\s*\d+\s*s\b/ig,"").replace(/\b\d+(?:[.,]\d+)?\s*kg\b/ig,"").replace(/\b(?:descanso|rest)\s*\d+\s*s?\b/ig,"").replace(/\s+/g," ").trim();
+      if(!name)return;
+      S.exercises=S.exercises||[];
+      let e=S.exercises.find(x=>(x.name||"").toLowerCase()===name.toLowerCase());
+      if(!e){e={id:id(),name,pattern:(typeof pattern==="function"?pattern(name):"custom"),inc:S.settings?.inc||2.5,rest:S.settings?.defaultRest||120};S.exercises.push(e)}
+      let mw=raw.match(/(\d+(?:[.,]\d+)?)\s*kg/i);
+      let mr=raw.match(/(?:descanso|rest)\s*(\d+)\s*s?/i);
+      items.push({id:id(),exerciseId:e.id,sets,repsPlan,weight:mw?parseFloat(mw[1].replace(",",".")):0,rest:mr?+mr[1]:(S.settings?.defaultRest||120),mode,order:items.length+1});
     });
-    if(!items.length){
-      if(status)status.textContent="No detecto ejercicios. Usa el botón Ejemplo.";
-      alert("No detecto ejercicios. Usa formato: Press banca 4x8 80kg descanso 180");
-      return;
-    }
-    let routine={id:id(),name:name||`Rutina ${S.routines.length+1}`,tag:"Importada",items};
-    S.routines.push(routine);
-    save();
-    if(status)status.textContent=`Importada ${routine.name}: ${items.length} ejercicios`;
-    alert(`Rutina importada: ${routine.name}`);
-    closeImport621();
-    render();
-  }catch(e){
-    alert("Error importando: "+e.message);
-    console.error(e);
-  }
-}
-
-function render(){rc8EnsureSeason();rc3Ensure();rc4EnsureSeason();applyPersonalization();todayLabel.textContent=today();renderDashboard();renderRoutines();renderPlan();renderData();renderLibrary();renderSettings();renderRoutines62();updateProfileButtons611();rc8RenderSeason();rc3RenderBlocks();rc3RenderEditSessions();rc4RenderSeasonWizard();rc5RenderStats()}
-function renderDashboard(){
- let p=planToday(), r=rt(p.routineId), completed=sessionCompletedForDate(today());
- dashGreeting.textContent="Buenos días Alberto";
- if(completed){let n=nextPlanAfter(today());dashTitle.textContent="Hoy ya has entrenado";dashMeta.textContent=n?(n.routine?`Lo siguiente: ${n.routine.name} · ${n.date}`:`Lo siguiente: ${n.plan.type||"descanso"} · ${n.date}`):"Sin próximo evento";postNotice.innerHTML=n?`<div class="card soft"><h3>Ya toca mirar adelante</h3><p>${n.routine?`Siguiente entreno: <b>${n.routine.name}</b>`:`Siguiente día: <b>${n.plan.type||"descanso"}</b>`}</p><p class=mut>${n.date}</p></div>`:"";startTodayBtn.textContent=n&&n.routine?"Ver próximo entreno":"Ver planificación";startTodayBtn.onclick=()=>show("planning")}
- else if(r){dashTitle.textContent=r.name;dashMeta.textContent=`${r.items.length} ejercicios · ${r.items.reduce((a,i)=>a+i.sets,0)} series`;postNotice.innerHTML="";startTodayBtn.textContent="Comenzar";startTodayBtn.onclick=startToday}
- else{dashTitle.textContent="Descanso";dashMeta.textContent="No hay rutina asignada hoy";postNotice.innerHTML="";startTodayBtn.textContent="Planificar";startTodayBtn.onclick=()=>show("planning")}
- todayExercises.innerHTML=r?r.items.map(i=>`<div class=line><span>${ex(i.exerciseId)?.name}</span><span>${repsText(i)}</span></div>`).join(""):"<p class=mut>Descanso o sin rutina.</p>";
- let week=blockWeek();blockFill.style.width=week.pct+"%";blockText.textContent=`Semana ${week.week}/8 · ${week.pct}% del bloque`;
-}
-function sessionCompletedForDate(d){return S.sessions.some(s=>s.date&&s.date.slice(0,10)===d)}
-function nextPlanAfter(d){let start=new Date(d);for(let i=1;i<=30;i++){let x=new Date(start);x.setDate(x.getDate()+i);let iso=x.toISOString().slice(0,10),p=S.plan[iso];if(p&&(p.routineId||p.type==="descanso"||p.type==="deload"))return {date:iso,plan:p,routine:p.routineId?rt(p.routineId):null}}return null}
-function blockWeek(){let st=new Date(S.season?.startDate||today()), nw=new Date();let w=Math.max(1,Math.floor((nw-st)/(7*86400000))+1);return {week:w,pct:Math.max(0,Math.min(100,Math.round(w/8*100)))}}
-function startToday(){let p=planToday();if(!p.routineId)return show("planning");startRoutine(p.routineId)}
-function renderRoutines(){routineButtons.innerHTML=S.routines.map(r=>`<button onclick="startRoutine('${r.id}')">${r.name}</button>`).join("")}
-function startRoutine(rid){let items=rt(rid).items.map((i,idx)=>({...i,order:idx+1,id:i.id||id()}));A={id:id(),routineId:rid,start:Date.now(),idx:0,sets:[],items};show("workout");routinePicker.classList.add("hide");activeWorkout.classList.remove("hide");renderActive()}
-function items(){return A.items.sort((a,b)=>a.order-b.order)} function cur(){return items()[A.idx]}
-function repFor(item,n){return item.repsPlan[Math.min(n,item.repsPlan.length-1)]||0}
-function repsText(i){if(i.mode==="failure")return `${i.sets}xFALLO`;if(i.mode==="time")return `${i.sets}x${i.repsPlan.join("-")}s`;return `${i.sets}x${i.repsPlan.join("-")}`}
-function renderActive(){let r=rt(A.routineId);activeTitle.textContent=r.name;activeSub.textContent=`Ejercicio ${A.idx+1} de ${items().length}`;renderExercise()}
-function renderExercise(){
- let item=cur(),e=ex(item.exerciseId),done=A.sets.filter(s=>s.itemId===item.id).length,target=repFor(item,done),timed=isTimedItem(item);
- let repsLabel=timed?fmtClock(target):(item.mode==="failure"?"FALLO":target),weightLabel=(item.weight||0)+"kg";
- exerciseBox.innerHTML=`<div class="card trainingCard">
-  <div class=mut style="text-align:center">${rt(A.routineId).name} · ${A.idx+1}/${items().length}</div>
-  <div class=exerciseName>${e.name}</div>
-  <div class=setDots>${Array.from({length:item.sets},(_,n)=>`<div class="setDot ${n<done?"done":n===done?"current":""}">${n+1}</div>`).join("")}</div>
-  <div class=focusStats><div class=focusStat><span>Serie</span><b>${done+1}</b><small>de ${item.sets}</small></div><div class=focusStat><span>${timed?"Tiempo":"Reps"}</span><b>${repsLabel}</b><small>${timed?"ejecución":(item.mode==="failure"?"al fallo":"objetivo")}</small></div><div class=focusStat><span>Peso</span><b>${weightLabel}</b><small>actual</small></div></div>
-  <div id=execTimerBox class=execTimerBox><div class=execTimerLabel>Crono de ejecución</div><div id=execTimerValue class=execTimerValue>${fmtClock(target)}</div><div class=execTimerBar><div id=execTimerFill></div></div><div class=execTimerActions><button onclick=pauseExec()>Pausa</button><button class=primary onclick=finishExec(true)>Terminar</button></div></div>
-  <button class="primary casBtn" onclick="${timed?'startExec()':'completeSet()'}">${timed?'INICIAR TIEMPO':'FIN SERIE'}</button>
-  ${hiddenDash(item,e,done,target)}
-  <details class=disclosure><summary>Más opciones</summary><select id=result><option>normal</option><option>facil</option><option>dificil</option><option>fallo</option><option>dolor</option><option>pr</option></select><textarea id=comment placeholder="Comentario opcional"></textarea></details>
- </div>`;
- setTimeout(updateLabels,0)
-}
-function hiddenDash(item,e,done,target){let info=cleanInfo(e.name),p=prob(item.exerciseId,item.weight,target);return `<details class=disclosure><summary>Dashboard discreto</summary><div class=hiddenBody><div class=tabs><button onclick="tab('pred')">Probabilidad</button><button onclick="tab('tech')">Técnica</button><button onclick="tab('edit')">Ajustes</button></div><div id=panel_pred class=panel><h3>${p}% probable</h3><div class=predBar><div style="width:${p}%"></div></div><p class=mut>${p>=80?'Adelante':p>=60?'Posible, exigente':p>=40?'Riesgo moderado':'Hoy quizá no'}</p></div><div id=panel_tech class="panel hide"><div class=learnClean><div class=learnSection><h3>📌 Puntos clave</h3><ul>${info.points.map(x=>`<li>${x}</li>`).join("")}</ul></div><div class=learnSection><h3>⚠️ Errores frecuentes</h3><ul>${info.errors.map(x=>`<li>${x}</li>`).join("")}</ul></div><div class=learnSection><h3>💡 Consejos</h3><ul>${info.tips.map(x=>`<li>${x}</li>`).join("")}</ul></div></div></div><div id=panel_edit class="panel hide"><div class=fastControls><div class=fastRow><div class=fastHeader><span class=bigLabel>Reps/Tiempo</span><strong id=fastReps>${isTimedItem(item)?fmtClock(target):(item.mode==="failure"?"FALLO":target)}</strong></div><div class=quickBtns><button onclick="quick(-1)">-1</button><button onclick="quick(1)">+1</button><button onclick="setTarget(8)">8</button><button onclick="setTarget(10)">10</button></div></div><div class=fastRow><div class=fastHeader><span class=bigLabel>Peso</span><strong id=fastWeight>${item.weight}kg</strong></div><div class=quickBtns><button onclick="weight(-1)">-inc</button><button onclick="weight(1)">+inc</button><button onclick="weightKg(-2.5)">-2.5</button><button onclick="weightKg(2.5)">+2.5</button></div></div><div class=fastRow><div class=fastHeader><span class=bigLabel>Descanso</span><strong id=fastRest>${item.rest||S.settings.defaultRest}s</strong></div><div class=quickBtns><button onclick="rest(-15)">-15</button><button onclick="rest(15)">+15</button><button onclick="setRest(90)">90</button><button onclick="setRest(120)">120</button></div></div></div></div></div></details>`}
-function tab(k){["pred","tech","edit"].forEach(x=>document.getElementById("panel_"+x)?.classList.add("hide"));document.getElementById("panel_"+k)?.classList.remove("hide")}
-function cleanInfo(name){let p=pattern(name),base={vertical_pull:{points:["Escápulas activas antes de iniciar.","Codos hacia las costillas.","Bajada controlada y completa."],errors:["Balancear el cuerpo.","Tirar con el cuello.","No extender abajo."],tips:["Codos a los bolsillos.","Aprieta glúteos.","Baja más lento."]},horizontal_push:{points:["Escápulas estables.","Trayectoria controlada.","Muñeca neutra."],errors:["Rebotar.","Codos sin control.","Perder hombros."],tips:["Mismo punto de contacto.","Pies firmes.","Bloquea antes de empujar."]},squat:{points:["Rodillas siguen pies.","Tronco sólido.","Profundidad controlada."],errors:["Rodillas colapsan.","Talones suben.","Pierdes tensión."],tips:["Empuja el suelo.","Abdomen duro.","No te dejes caer."]},hinge:{points:["Cadera atrás.","Espalda neutra.","Barra cerca."],errors:["Redondear lumbar.","Alejar barra.","Convertir en sentadilla."],tips:["Siente isquios.","Cierra puerta con cadera.","Aprieta glúteos."]},horizontal_pull:{points:["Espalda neutra.","Codos atrás.","Control al volver."],errors:["Tirar con lumbar.","Balancear.","Subir hombros."],tips:["Lleva el codo atrás.","Cuello largo.","Pausa arriba."]},dip:{points:["Hombros lejos.","Bajada controlada.","Codos estables."],errors:["Rebotar abajo.","Encoger hombros.","Perder core."],tips:["Pecho abierto.","Baja hasta controlar.","Empuja barras."]},core:{points:["Costillas abajo.","Glúteo activo.","Respira controlado."],errors:["Cadera baja.","Cadera alta.","Aguantar aire."],tips:["Respira corto.","Aprieta glúteos.","Cremallera abdominal."]}};return base[p]||base.horizontal_push}
-function pattern(name){name=(name||"").toLowerCase();if(/dominada|jal[oó]n/.test(name))return"vertical_pull";if(/remo/.test(name))return"horizontal_pull";if(/sentadilla|prensa|zancada/.test(name))return"squat";if(/peso muerto|rumano/.test(name))return"hinge";if(/fondo/.test(name))return"dip";if(/plancha|core|abdominal/.test(name))return"core";return"horizontal_push"}
-function prob(exId,w,r){let h=S.sets.filter(s=>s.exerciseId===exId).slice(-8);if(!h.length)return 72;let avg=h.reduce((a,s)=>a+(s.weight||0)*(s.reps||0),0)/h.length,target=(w||0)*(r||0);return Math.max(8,Math.min(96,Math.round(84-(target-avg)/Math.max(1,avg)*45)))}
-function isTimedItem(i){return i.mode==="time"||i.mode==="timed"||i.unit==="sec"}
-function fmtClock(s){s=Math.max(0,Math.round(s||0));return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
-function updateLabels(){focusCurrentSeries()}
-function quick(d){let i=cur(),n=A.sets.filter(s=>s.itemId===i.id).length;i.repsPlan[n]=Math.max(0,repFor(i,n)+d);renderExercise()}
-function setTarget(v){let i=cur(),n=A.sets.filter(s=>s.itemId===i.id).length;i.repsPlan[n]=+v;renderExercise()}
-function weight(dir){let i=cur(),inc=ex(i.exerciseId)?.inc||S.settings.inc;i.weight=Math.max(0,Math.round((i.weight+dir*inc)*100)/100);renderExercise()}
-function weightKg(d){let i=cur();i.weight=Math.max(0,Math.round((i.weight+d)*100)/100);renderExercise()}
-function rest(d){let i=cur();i.rest=Math.max(0,(i.rest||S.settings.defaultRest)+d);renderExercise()}
-function setRest(v){cur().rest=+v;renderExercise()}
-function startExec(){let i=cur(),done=A.sets.filter(s=>s.itemId===i.id).length;execTotal=repFor(i,done)||30;execLeft=execTotal;execTimerBox.classList.add("on");tickExec();clearInterval(execInt);execInt=setInterval(()=>{execLeft--;tickExec();if(execLeft<=0)finishExec(false)},1000)}
-function tickExec(){execTimerValue.textContent=fmtClock(execLeft);execTimerFill.style.transform=`scaleX(${Math.max(0,execLeft/execTotal)})`}
-function pauseExec(){if(execInt){clearInterval(execInt);execInt=null}else execInt=setInterval(()=>{execLeft--;tickExec();if(execLeft<=0)finishExec(false)},1000)}
-function finishExec(manual){clearInterval(execInt);execInt=null;let achieved=manual?Math.max(0,execTotal-execLeft):execTotal;completeSet(achieved)}
-function completeSet(override=null){let i=cur(),done=A.sets.filter(s=>s.itemId===i.id).length,target=repFor(i,done),reps=override!==null?override:target,res=document.getElementById("result")?.value||"normal";if(i.mode==="failure"||res==="fallo"){let v=prompt("Reps reales",target||"");if(v!==null&&!isNaN(+v))reps=+v}A.sets.push({id:id(),sessionId:A.id,itemId:i.id,routineId:A.routineId,exerciseId:i.exerciseId,order:A.idx,setNumber:done+1,targetReps:target,reps,weight:i.weight,result:res,comment:document.getElementById("comment")?.value||"",mode:i.mode,unit:i.mode==="time"?"sec":"reps",ts:now()});let finished=A.sets.filter(s=>s.itemId===i.id).length>=i.sets;if(finished){A.idx++;if(A.idx>=items().length)return finishSession();let nx=ex(items()[A.idx].exerciseId);showNext(nx.name,repsText(items()[A.idx]));renderActive()}else startRest(i.rest||S.settings.defaultRest,"Siguiente serie")}
-function showNext(name,meta){nextName.textContent=name;nextMeta.textContent=meta;nextOverlay.classList.add("on");setTimeout(()=>nextOverlay.classList.remove("on"),1050)}
-function focusCurrentSeries(){setTimeout(()=>{let c=document.querySelector(".setDot.current");if(c){c.scrollIntoView({behavior:"smooth",block:"center"});c.classList.add("focusHalo");setTimeout(()=>c.classList.remove("focusHalo"),1100)}},80)}
-function renderDigit(n){const map={0:"abcdef",1:"bc",2:"abged",3:"abgcd",4:"fgbc",5:"afgcd",6:"afgecd",7:"abc",8:"abcdefg",9:"abfgcd"};return `<div class=seven>${["a","b","c","d","e","f","g"].map(x=>`<div class="seg ${x} ${(map[n]||"").includes(x)?"on":""}"></div>`).join("")}</div>`}
-function renderLCD(sec){let t=fmtClock(sec).replace(":","");lcdTime.innerHTML=renderDigit(t[0])+renderDigit(t[1])+`<div class=lcdColon>:</div>`+renderDigit(t[2])+renderDigit(t[3])}
-function startRest(sec,info){restLeft=sec;restInfo.textContent=info;restModal.classList.add("on");renderLCD(restLeft);clearInterval(restInt);restInt=setInterval(()=>{restLeft--;renderLCD(restLeft);if(restLeft<=0)endRest()},1000)}
-function addRest(s){restLeft+=s;renderLCD(restLeft)}
-function endRest(){clearInterval(restInt);restModal.classList.remove("on");if(A){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));workout.classList.add("active");routinePicker.classList.add("hide");activeWorkout.classList.remove("hide");renderActive();focusCurrentSeries()}}
-function finishSession(){let dur=Math.max(1,Math.round((Date.now()-A.start)/60000));finishStats.innerHTML=`<div class=metric><span>Duración</span><b>${dur}m</b></div><div class=metric><span>Series</span><b>${A.sets.length}</b></div><div class=metric><span>Volumen</span><b>${Math.round(A.sets.reduce((a,s)=>a+s.weight*s.reps,0))}</b></div><div class=metric><span>PR</span><b>${A.sets.filter(s=>s.result==="pr").length}</b></div>`;finishModal.classList.add("on");showCoachSummary();setTimeout(showCoachSummary,50)}
-function simpleSetLine(s){
- const target = (s.targetReps!==undefined && s.targetReps!==null && s.targetReps!=="") ? `/${s.targetReps}` : "";
- const res = s.result && s.result!=="normal" ? ` · ${s.result}` : "";
- const com = s.comment ? ` · ${s.comment}` : "";
- const isTime = s.mode==="time" || s.unit==="sec";
- if(isTime){
-   return `  Serie ${s.setNumber}: ${Math.round(Number(s.reps)||0)}s${target?target+"s":""}${Number(s.weight)?` · ${s.weight} kg`:""}${res}${com}`;
- }
- return `  Serie ${s.setNumber}: ${Number(s.weight)||0} kg x ${s.reps}${target}${res}${com}`;
-}
-function buildCoachSummaryFrom(session, sets){
- sets = (sets||[]).slice().sort((a,b)=>{
-   let ai = Number(a.order ?? 999);
-   let bi = Number(b.order ?? 999);
-   return ai-bi || String(a.exerciseId||"").localeCompare(String(b.exerciseId||"")) || (Number(a.setNumber)||0)-(Number(b.setNumber)||0);
- });
- const r = rt(session.routineId);
- const date = String(session.date||today()).slice(0,10);
- const duration = session.duration ? `${session.duration} min` : "";
- const volume = Math.round(sets.reduce((a,s)=>a+(Number(s.weight)||0)*(Number(s.reps)||0),0));
- const lines = [];
- lines.push(`ENTRENAMIENTO ${date}`);
- lines.push(`Rutina: ${r?.name||"Sin nombre"}`);
- if(duration) lines.push(`Duración: ${duration}`);
- if(session.feeling) lines.push(`Sensación: ${session.feeling}`);
- lines.push(`Series totales: ${sets.length}`);
- lines.push(`Volumen aprox.: ${volume} kg`);
- lines.push("");
- let lastExercise = null;
- sets.forEach((s,idx)=>{
-   if(s.exerciseId !== lastExercise){
-     if(idx > 0) lines.push("");
-     lines.push(ex(s.exerciseId)?.name || "Ejercicio");
-     lastExercise = s.exerciseId;
-   }
-   lines.push(simpleSetLine(s));
- });
- const note = session.note || document.getElementById("sessionNote")?.value || "";
- if(note.trim()){
-   lines.push("");
-   lines.push(`Nota final: ${note.trim()}`);
- }
- return lines.join("\n").trim();
-}
-function buildCoachSummary(){
- if(A){
-   const dur = Math.max(1,Math.round((Date.now()-A.start)/60000));
-   return buildCoachSummaryFrom({
-     id:A.id,
-     routineId:A.routineId,
-     date:now(),
-     duration:dur,
-     feeling:document.getElementById("sessionFeeling")?.value,
-     note:document.getElementById("sessionNote")?.value
-   }, A.sets.slice());
- }
- const last = S.sessions[S.sessions.length-1];
- if(!last) return "";
- return buildCoachSummaryFrom(last,S.sets.filter(s=>s.sessionId===last.id));
-}
-function showCoachSummary(){
- const el = document.getElementById("coachSummaryText");
- if(el) el.textContent = buildCoachSummary();
-}
-function copyLastCoachSummary(){
- const last = S.sessions[S.sessions.length-1];
- if(!last){ alert("Aún no hay sesión guardada."); return; }
- alert(buildCoachSummaryFrom(last,S.sets.filter(s=>s.sessionId===last.id)));
-}
-
-function saveSession(){let dur=Math.max(1,Math.round((Date.now()-A.start)/60000));let sessionObj={id:A.id,routineId:A.routineId,date:now(),duration:dur,feeling:sessionFeeling.value,note:sessionNote.value};S.sessions.push({...sessionObj,coachSummary:buildCoachSummaryFrom(sessionObj,A.sets.slice())});S.sets.push(...A.sets);let p=planToday();p.status="completado";p.completedAt=now();save();A=null;finishModal.classList.remove("on");routinePicker.classList.remove("hide");activeWorkout.classList.add("hide");show("dashboard")}
-
-/* === RC3 Blocks + Edit Workouts === */
-function rc3Ensure(){
-  S.blocks=S.blocks||[];
-  S.trash=S.trash||{sessions:[],sets:[]};
-  if(!S.blocks.length){
-    S.blocks.push({id:id(),name:"Bloque actual",type:"Fuerza",startDate:S.season?.startDate||today(),weeks:8,deload:true,next:"Hipertrofia o técnica"});
-  }
-}
-function rc3AddDays(dateStr,days){
-  let d=new Date(dateStr); d.setDate(d.getDate()+days); return d.toISOString().slice(0,10);
-}
-function rc3BlockProgress(b){
-  let st=new Date(b.startDate), nw=new Date(today());
-  let w=Math.max(1,Math.floor((nw-st)/(7*86400000))+1);
-  let total=(+b.weeks||8)+(b.deload?1:0);
-  return {week:w,total,pct:Math.max(0,Math.min(100,Math.round(w/total*100)))};
-}
-function rc3RenderBlocks(){
-  rc3Ensure();
-  let el=document.getElementById("blocksRc3");
-  if(!el)return;
-  el.innerHTML=S.blocks.map(b=>{
-    let p=rc3BlockProgress(b), total=(+b.weeks||8)+(b.deload?1:0);
-    let weeks=Array.from({length:total},(_,i)=>{
-      let deload=b.deload && i===total-1;
-      return `<div class="blockWeek ${deload?'deload':''} ${i+1===p.week?'active':''}">${deload?'D':i+1}</div>`;
-    }).join("");
-    return `<div class="blockCard">
-      <div class="line"><strong>${b.name}</strong><span class="mut">${b.type} · ${p.week}/${p.total}</span></div>
-      <div class="blockTimeline">${weeks}</div>
-      <div class="grid">
-        <label>Nombre<input value="${b.name||''}" onchange="rc3UpdateBlock('${b.id}','name',this.value)"></label>
-        <label>Tipo<select onchange="rc3UpdateBlock('${b.id}','type',this.value)"><option ${b.type==='Fuerza'?'selected':''}>Fuerza</option><option ${b.type==='Hipertrofia'?'selected':''}>Hipertrofia</option><option ${b.type==='Técnica'?'selected':''}>Técnica</option><option ${b.type==='Deload'?'selected':''}>Deload</option></select></label>
-        <label>Inicio<input type="date" value="${b.startDate||today()}" onchange="rc3UpdateBlock('${b.id}','startDate',this.value)"></label>
-        <label>Semanas<input type="number" min="1" max="24" value="${b.weeks||8}" onchange="rc3UpdateBlock('${b.id}','weeks',+this.value)"></label>
-      </div>
-      <label>Idea siguiente bloque<textarea onchange="rc3UpdateBlock('${b.id}','next',this.value)">${b.next||''}</textarea></label>
-      <div class="row"><button onclick="rc3ToggleDeload('${b.id}')">${b.deload?'Quitar deload':'Añadir deload'}</button><button class="danger" onclick="rc3DeleteBlock('${b.id}')">Borrar bloque</button></div>
-    </div>`;
-  }).join("")+`<button class="primary" onclick="rc3NewBlock()">Nuevo bloque</button>`;
-}
-function rc3NewBlock(){
-  rc3Ensure();
-  S.blocks.push({id:id(),name:"Nuevo bloque",type:"Fuerza",startDate:today(),weeks:8,deload:true,next:""});
-  save(); render();
-}
-function rc3UpdateBlock(idb,k,v){
-  let b=S.blocks.find(x=>x.id===idb); if(!b)return;
-  b[k]=v; save(); rc3RenderBlocks();
-}
-function rc3ToggleDeload(idb){let b=S.blocks.find(x=>x.id===idb); if(b){b.deload=!b.deload;save();render();}}
-function rc3DeleteBlock(idb){if(!confirm("¿Borrar este bloque?"))return; S.blocks=S.blocks.filter(x=>x.id!==idb);save();render();}
-function rc3RenderEditSessions(){
-  let el=document.getElementById("editSessionsRc3");
-  if(!el)return;
-  let sessions=(S.sessions||[]).slice(-10).reverse();
-  if(!sessions.length){el.innerHTML='<p class="mut">Aún no hay sesiones guardadas.</p>';return;}
-  el.innerHTML=sessions.map(s=>{
-    let sets=(S.sets||[]).filter(x=>x.sessionId===s.id).sort((a,b)=>(a.order||0)-(b.order||0)||(a.setNumber||0)-(b.setNumber||0));
-    let rows=sets.map(st=>`<tr>
-      <td>${ex(st.exerciseId)?.name||'Ejercicio'}<br><span class="mut">S${st.setNumber}</span></td>
-      <td><input type="number" step=".25" value="${st.weight||0}" onchange="rc3EditSet('${st.id}','weight',+this.value);rc5SaveEditSession('${s.id}')"></td>
-      <td><input type="number" step="1" value="${st.reps||0}" onchange="rc3EditSet('${st.id}','reps',+this.value);rc5SaveEditSession('${s.id}')"></td>
-      <td><select onchange="rc3EditSet('${st.id}','result',this.value);rc5SaveEditSession('${s.id}')"><option ${st.result==='normal'?'selected':''}>normal</option><option ${st.result==='facil'?'selected':''}>facil</option><option ${st.result==='dificil'?'selected':''}>dificil</option><option ${st.result==='fallo'?'selected':''}>fallo</option><option ${st.result==='pr'?'selected':''}>pr</option></select></td>
-      <td><button class="danger" onclick="rc3DeleteSet('${st.id}')">×</button></td>
-    </tr>`).join("");
-    return `<details class="editSessionCard">
-      <summary><div><strong>${rt(s.routineId)?.name||'Rutina'}</strong><br><span class="mut">${String(s.date||'').slice(0,10)} · ${sets.length} series · ${Math.round(rc5SessionVolume(s.id)).toLocaleString("es-ES")}kg</span></div></summary>
-      <div class="editSessionBodyRc5">
-        <table class="editTable"><tbody>${rows}</tbody></table>
-        <label>Nota final<textarea onchange="rc3EditSession('${s.id}','note',this.value);rc5SaveEditSession('${s.id}')">${s.note||''}</textarea></label>
-        <div id="editSaved_${s.id}" class="editSavedRc5"></div>
-        <div class="row"><button onclick="rc3RebuildCoach('${s.id}');rc5SaveEditSession('${s.id}')">Regenerar resumen</button><button class="danger" onclick="rc3DeleteSession('${s.id}')">Borrar entreno</button></div>
-      </div>
-    </details>`;
-  }).join("");
-}
-function rc3EditSet(ids,k,v){let s=S.sets.find(x=>x.id===ids);if(s){s[k]=v;save();}}
-function rc3EditSession(ids,k,v){let s=S.sessions.find(x=>x.id===ids);if(s){s[k]=v;save();}}
-function rc3DeleteSet(ids){if(!confirm("¿Borrar esta serie?"))return;let st=S.sets.find(x=>x.id===ids);if(st){S.trash=S.trash||{sessions:[],sets:[]};S.trash.sets.push({...st,deletedAt:now()});S.sets=S.sets.filter(x=>x.id!==ids);save();render();}}
-function rc3DeleteSession(ids){if(!confirm("¿Borrar este entrenamiento completo?"))return;S.trash=S.trash||{sessions:[],sets:[]};let ss=S.sessions.find(x=>x.id===ids);if(ss)S.trash.sessions.push({...ss,deletedAt:now()});S.sets.filter(x=>x.sessionId===ids).forEach(x=>S.trash.sets.push({...x,deletedAt:now()}));S.sessions=S.sessions.filter(x=>x.id!==ids);S.sets=S.sets.filter(x=>x.sessionId!==ids);save();render();}
-function rc3RebuildCoach(ids){
-  let s=S.sessions.find(x=>x.id===ids); if(!s)return;
-  if(typeof buildCoachSummaryFrom==='function')s.coachSummary=buildCoachSummaryFrom(s,S.sets.filter(x=>x.sessionId===ids));
-  save(); alert("Resumen regenerado.");
+    if(!items.length){alert("No detecto ejercicios. Usa el botón Ejemplo.");return}
+    S.routines=S.routines||[];
+    S.routines.push({id:id(),name:n,tag:"Importada",items});
+    save(); render();
+    document.getElementById("routineStatus622").textContent=`Importada: ${n} · ${items.length} ejercicios`;
+    alert(`Rutina importada: ${n}`);
+  }catch(e){alert("Error importando: "+e.message);console.error(e)}
 }
 
 
-/* === RC4 Season Wizard restored === */
-function rc4EnsureSeason(){
-  S.season=S.season||{startDate:today(),months:6,status:"today",wizardStep:1,draft:{}};
-  if(!S.season.startDate)S.season.startDate=today();
-  if(!S.season.months)S.season.months=6;
-  if(!S.season.wizardStep)S.season.wizardStep=1;
-  S.blocks=S.blocks||[];
-}
-function rc4NextMonday(){
-  let d=new Date(), day=d.getDay(), add=(8-day)%7; if(add===0)add=7; d.setDate(d.getDate()+add); return d.toISOString().slice(0,10);
-}
-function rc4SetSeasonStart(mode){
-  rc4EnsureSeason();
-  S.season.status=mode;
-  if(mode==="today")S.season.startDate=today();
-  if(mode==="monday")S.season.startDate=rc4NextMonday();
-  save(); render();
-}
-function rc4WizardStep(n){rc4EnsureSeason();S.season.wizardStep=n;save();render();}
-function rc4Draft(k,v){rc4EnsureSeason();S.season.draft=S.season.draft||{};S.season.draft[k]=v;save();}
-function rc4RecommendedWeeks(type){return {Fuerza:8,Hipertrofia:6,Técnica:4,Deload:1,Calistenia:8}[type]||8}
-function rc4AddBlockFromWizard(){
-  rc4EnsureSeason();
-  let d=S.season.draft||{}, type=d.type||"Fuerza", weeks=+(d.weeks||rc4RecommendedWeeks(type));
-  S.blocks.push({id:id(),name:d.name||`${type} ${weeks} semanas`,type,startDate:S.season.startDate||today(),weeks,deload:d.deload!=="no",next:d.next||""});
-  S.season.draft={};
-  S.season.wizardStep=4;
-  save();render();
-}
-function rc4RenderSeasonWizard(){
-  rc4EnsureSeason();
-  let el=document.getElementById("seasonWizardRc4");
-  if(!el)return;
-  let s=S.season,d=s.draft||{},step=s.wizardStep||1;
-  let steps=`<div class="seasonStepsRc4">${[1,2,3,4].map(n=>`<div onclick="rc4WizardStep(${n})" class="seasonStepRc4 ${step===n?'on':''}">${n}. ${['Inicio','Objetivo','Bloque','Año'][n-1]}</div>`).join('')}</div>`;
-  let panel="";
-  if(step===1){
-    panel=`<div class="seasonPanelRc4"><h3>1. ¿Cuándo empieza?</h3>
-      <div class="seasonChoicesRc4">
-        <div class="seasonChoiceRc4 ${s.status==='today'?'on':''}" onclick="rc4SetSeasonStart('today')"><b>Hoy</b><p class="mut">${today()}</p></div>
-        <div class="seasonChoiceRc4 ${s.status==='monday'?'on':''}" onclick="rc4SetSeasonStart('monday')"><b>Próximo lunes</b><p class="mut">${rc4NextMonday()}</p></div>
-        <div class="seasonChoiceRc4 ${s.status==='custom'?'on':''}" onclick="rc4SetSeasonStart('custom')"><b>Elegir fecha</b><input type="date" value="${s.startDate}" onchange="S.season.startDate=this.value;S.season.status='custom';save();render()"></div>
-      </div>
-      <label>Horizonte<select onchange="S.season.months=+this.value;save();render()"><option value="3" ${s.months==3?'selected':''}>3 meses</option><option value="6" ${s.months==6?'selected':''}>6 meses</option><option value="12" ${s.months==12?'selected':''}>12 meses</option></select></label>
-      <button class="primary" onclick="rc4WizardStep(2)">Siguiente</button>
-    </div>`;
-  }else if(step===2){
-    let types=["Fuerza","Hipertrofia","Técnica","Calistenia"];
-    panel=`<div class="seasonPanelRc4"><h3>2. Objetivo del bloque</h3><div class="seasonChoicesRc4">${types.map(t=>`<div class="seasonChoiceRc4 ${d.type===t?'on':''}" onclick="rc4Draft('type','${t}');rc4Draft('weeks',rc4RecommendedWeeks('${t}'));render()"><b>${t}</b><p class="mut">${rc4RecommendedWeeks(t)} semanas recomendadas</p></div>`).join('')}</div><button class="primary" onclick="rc4WizardStep(3)">Siguiente</button></div>`;
-  }else if(step===3){
-    let type=d.type||"Fuerza";
-    panel=`<div class="seasonPanelRc4"><h3>3. Personaliza el bloque</h3>
-      <div class="grid">
-        <label>Nombre<input value="${d.name||''}" placeholder="${type} base" onchange="rc4Draft('name',this.value)"></label>
-        <label>Semanas<input type="number" min="1" max="24" value="${d.weeks||rc4RecommendedWeeks(type)}" onchange="rc4Draft('weeks',+this.value)"></label>
-        <label>Deload<select onchange="rc4Draft('deload',this.value)"><option value="yes" ${d.deload!=='no'?'selected':''}>Sí</option><option value="no" ${d.deload==='no'?'selected':''}>No</option></select></label>
-        <label>Siguiente idea<input value="${d.next||''}" placeholder="Hipertrofia, técnica..." onchange="rc4Draft('next',this.value)"></label>
-      </div>
-      <button class="primary" onclick="rc4AddBlockFromWizard()">Añadir bloque</button>
-    </div>`;
-  }else{
-    let months=[], base=new Date(s.startDate||today());
-    for(let i=0;i<(+s.months||6);i++){let x=new Date(base);x.setMonth(x.getMonth()+i);months.push(x)}
-    panel=`<div class="seasonPanelRc4"><h3>4. Vista anual</h3>
-      <div class="seasonMiniYearRc4">${months.map(m=>`<div class="seasonMonthRc4"><b>${m.toLocaleDateString('es-ES',{month:'short',year:'2-digit'})}</b>${(S.blocks||[]).slice(-4).map(b=>`<div class="seasonStripRc4" title="${b.name}"><span style="width:${Math.min(100,(b.weeks||8)*12)}%"></span></div>`).join('')||'<p class="mut">—</p>'}</div>`).join('')}</div>
-      <div class="row"><button onclick="rc4WizardStep(2)">Añadir otro bloque</button><button class="primary" onclick="show('planning')">Listo</button></div>
-    </div>`;
-  }
-  el.innerHTML=steps+panel;
-}
-
-
-/* === LAB 6.2.1.2 Simple Season Planner === */
-function rc8EnsureSeason(){
-  S.season=S.season||{};
-  S.season.startDate=S.season.startDate||today();
-  S.season.months=+(S.season.months||6);
-  S.blocks=S.blocks||[];
-  if(!S.blocks.length){
-    S.blocks.push({id:id(),name:"Bloque actual",type:"Fuerza",startDate:S.season.startDate,weeks:8,deload:true,note:""});
-  }
-}
-function rc8AddDays(dateStr,days){
-  let d=new Date(dateStr||today());
-  d.setDate(d.getDate()+days);
-  return d.toISOString().slice(0,10);
-}
-function rc8BlockEnd(b){
-  let weeks=+(b.weeks||8)+(b.deload?1:0);
-  return rc8AddDays(b.startDate||today(),weeks*7-1);
-}
-function rc8Progress(b){
-  let st=new Date(b.startDate||today());
-  let nw=new Date(today());
-  let weeks=+(b.weeks||8)+(b.deload?1:0);
-  let current=Math.floor((nw-st)/(7*86400000))+1;
-  return {current:Math.max(1,current),total:weeks,pct:Math.max(0,Math.min(100,Math.round(current/weeks*100)))};
-}
-function rc8CurrentBlock(){
-  rc8EnsureSeason();
-  let t=today();
-  return S.blocks.find(b=>t>=(b.startDate||today()) && t<=rc8BlockEnd(b)) || S.blocks[0];
-}
-function rc8SaveSeason(){
-  let start=document.getElementById("seasonStartRc8")?.value;
-  let months=+(document.getElementById("seasonMonthsRc8")?.value||6);
-  if(start)S.season.startDate=start;
-  S.season.months=months;
-  save();
-  let msg=document.getElementById("seasonSavedRc8");
-  if(msg){msg.textContent="Temporada guardada";setTimeout(()=>msg.textContent="",1400);}
-  rc8RenderSeason();
-}
-function rc8NewBlock(){
-  rc8EnsureSeason();
-  let last=S.blocks[S.blocks.length-1];
-  let start=last?rc8AddDays(rc8BlockEnd(last),1):(S.season.startDate||today());
-  S.blocks.push({id:id(),name:"Nuevo bloque",type:"Fuerza",startDate:start,weeks:8,deload:true,note:""});
-  save();rc8RenderSeason();
-}
-function rc8UpdateBlock(bid,k,v){
-  let b=S.blocks.find(x=>x.id===bid);
-  if(!b)return;
-  if(k==="weeks")v=+v||1;
-  if(k==="deload")v=!!v;
-  b[k]=v;
-  save();
-  let msg=document.getElementById("blockSaved_"+bid);
-  if(msg){msg.textContent="Guardado";setTimeout(()=>msg.textContent="",1200);}
-  rc8RenderSeason();
-}
-function rc8DeleteBlock(bid){
-  if(!confirm("¿Borrar este bloque?"))return;
-  S.blocks=S.blocks.filter(x=>x.id!==bid);
-  save();rc8RenderSeason();
-}
-function rc8DuplicateBlock(bid){
-  let b=S.blocks.find(x=>x.id===bid);
-  if(!b)return;
-  let copy={...b,id:id(),name:b.name+" copia",startDate:rc8AddDays(rc8BlockEnd(b),1)};
-  S.blocks.push(copy);
-  save();rc8RenderSeason();
-}
-function rc8RenderSeason(){
-  rc8EnsureSeason();
-  let el=document.getElementById("simpleSeasonRc8");
-  if(!el)return;
-  let current=rc8CurrentBlock();
-  let cp=rc8Progress(current);
-  let header=`<div class="simpleSeasonHeaderRc8">
-    <label>Inicio temporada<input id="seasonStartRc8" type="date" value="${S.season.startDate||today()}"></label>
-    <label>Duración<select id="seasonMonthsRc8"><option value="3" ${S.season.months==3?'selected':''}>3 meses</option><option value="6" ${S.season.months==6?'selected':''}>6 meses</option><option value="12" ${S.season.months==12?'selected':''}>12 meses</option></select></label>
-  </div>
-  <div class="row"><button class="primary" onclick="rc8SaveSeason()">Guardar temporada</button><button onclick="rc8NewBlock()">Nuevo bloque</button></div>
-  <div id="seasonSavedRc8" class="seasonSavedRc8"></div>
-  <div class="seasonTodayRc8"><b>Bloque actual:</b> ${current?.name||"—"}<br><span class="mut">${current?.type||""} · semana ${cp.current}/${cp.total} · termina ${current?rc8BlockEnd(current):"—"}</span><div class="blockProgressRc8"><span style="width:${cp.pct}%"></span></div></div>`;
-  let list=`<div class="blockListRc8">${S.blocks.map(b=>{
-    let p=rc8Progress(b);
-    return `<details class="blockCardRc8">
-      <summary><div><strong>${b.name||"Bloque"}</strong><div class="blockMetaRc8">${b.type||"Fuerza"} · ${b.weeks||8} semanas${b.deload?" + deload":""} · ${b.startDate||today()} → ${rc8BlockEnd(b)}</div></div></summary>
-      <div class="blockProgressRc8"><span style="width:${p.pct}%"></span></div>
-      <div class="blockFormRc8">
-        <label>Nombre<input value="${b.name||""}" onchange="rc8UpdateBlock('${b.id}','name',this.value)"></label>
-        <label>Tipo<select onchange="rc8UpdateBlock('${b.id}','type',this.value)"><option ${b.type==='Fuerza'?'selected':''}>Fuerza</option><option ${b.type==='Hipertrofia'?'selected':''}>Hipertrofia</option><option ${b.type==='Técnica'?'selected':''}>Técnica</option><option ${b.type==='Calistenia'?'selected':''}>Calistenia</option><option ${b.type==='Deload'?'selected':''}>Deload</option></select></label>
-        <div class="grid">
-          <label>Inicio<input type="date" value="${b.startDate||today()}" onchange="rc8UpdateBlock('${b.id}','startDate',this.value)"></label>
-          <label>Semanas<input type="number" min="1" max="24" value="${b.weeks||8}" onchange="rc8UpdateBlock('${b.id}','weeks',this.value)"></label>
-        </div>
-        <label>Semana deload<select onchange="rc8UpdateBlock('${b.id}','deload',this.value==='yes')"><option value="yes" ${b.deload?'selected':''}>Sí</option><option value="no" ${!b.deload?'selected':''}>No</option></select></label>
-        <label>Nota / siguiente bloque<textarea onchange="rc8UpdateBlock('${b.id}','note',this.value)">${b.note||""}</textarea></label>
-        <div id="blockSaved_${b.id}" class="seasonSavedRc8"></div>
-        <div class="blockActionsRc8"><button onclick="rc8DuplicateBlock('${b.id}')">Duplicar</button><button class="danger" onclick="rc8DeleteBlock('${b.id}')">Borrar</button></div>
-      </div>
-    </details>`;
-  }).join("")}</div>`;
-  el.innerHTML=header+list;
-}
-
-function renderPlan(){let out="",d0=new Date();for(let i=0;i<7;i++){let d=new Date(d0);d.setDate(d.getDate()+i);let iso=d.toISOString().slice(0,10),p=S.plan[iso]||{date:iso};out+=`<div class=card><h3>${iso}</h3><select onchange="S.plan['${iso}']={date:'${iso}',routineId:this.value||null,type:this.value?'entrenamiento':'descanso',status:'pendiente'};save();render()"><option value="">Descanso</option>${S.routines.map(r=>`<option value="${r.id}" ${p.routineId===r.id?"selected":""}>${r.name}</option>`).join("")}</select></div>`}weekPlan.innerHTML=out;seasonStart.value=S.season.startDate||today();seasonMonths.value=S.season.months||6;seasonView.innerHTML=`<p class=mut>Planificando desde ${S.season.startDate||today()} · ${S.season.months||6} meses</p>`}
-function saveSeason(){S.season.startDate=seasonStart.value;S.season.months=+seasonMonths.value;save();render()}
-
-/* === RC5 Stats restored === */
-function rc5SessionVolume(sessionId){
-  return (S.sets||[]).filter(s=>s.sessionId===sessionId).reduce((a,s)=>a+(Number(s.weight)||0)*(Number(s.reps)||0),0);
-}
-function rc5RenderStats(){
-  let box=document.getElementById("statsRc5");
-  if(!box)return;
-  let sessions=S.sessions||[], sets=S.sets||[], weights=S.weights||[];
-  let lastWeight=weights.length?weights[weights.length-1].weight:"—";
-  let totalVol=Math.round(sets.reduce((a,s)=>a+(Number(s.weight)||0)*(Number(s.reps)||0),0));
-  let prs=sets.filter(s=>s.result==="pr").length;
-  let avgDur=sessions.length?Math.round(sessions.reduce((a,s)=>a+(Number(s.duration)||0),0)/sessions.length):0;
-  box.innerHTML=`
-    <div class="metric"><span>Peso corporal</span><b>${lastWeight}${lastWeight==="—"?"":"kg"}</b></div>
-    <div class="metric"><span>Sesiones</span><b>${sessions.length}</b></div>
-    <div class="metric"><span>Volumen total</span><b>${totalVol.toLocaleString("es-ES")}</b></div>
-    <div class="metric"><span>Duración media</span><b>${avgDur||"—"}${avgDur?"m":""}</b></div>
-  `;
-  let chart=document.getElementById("volumeChartRc5");
-  if(chart){
-    let last=sessions.slice(-8);
-    let max=Math.max(1,...last.map(s=>rc5SessionVolume(s.id)));
-    chart.innerHTML=last.map(s=>{
-      let h=Math.max(6,Math.round(rc5SessionVolume(s.id)/max*120));
-      return `<div class="chartBarRc5" style="height:${h}px" title="${rt(s.routineId)?.name||"Rutina"} · ${Math.round(rc5SessionVolume(s.id))}kg"></div>`;
-    }).join("") || '<p class="mut">Sin datos todavía.</p>';
-  }
-  let rank=document.getElementById("rankRc5");
-  if(rank){
-    let counts={};
-    sets.forEach(s=>counts[s.exerciseId]=(counts[s.exerciseId]||0)+1);
-    let rows=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,6);
-    rank.innerHTML=rows.map(([eid,n])=>`<div class="rankRowRc5"><span>${ex(eid)?.name||"Ejercicio"}</span><b>${n}</b></div>`).join("") || '<p class="mut">Sin ejercicios todavía.</p>';
-  }
-}
-function rc5SaveEditSession(id){
-  let msg=document.getElementById("editSaved_"+id);
-  if(msg){msg.textContent="Guardado";setTimeout(()=>msg.textContent="",1400);}
-  save();
-  rc5RenderStats();
-}
-
-function renderData(){let w=S.weights[S.weights.length-1];mWeight.textContent=w?w.weight+"kg":"—";let st=new Date();st.setDate(st.getDate()-7);let sets=S.sets.filter(s=>new Date(s.ts)>=st);mVol.textContent=Math.round(sets.reduce((a,s)=>a+s.weight*s.reps,0));mSessions.textContent=S.sessions.length;mPR.textContent=S.sets.filter(s=>s.result==="pr").length;recentSessions.innerHTML=S.sessions.slice(-6).reverse().map(s=>`<div class=line><span>${rt(s.routineId)?.name||"Rutina"}</span><span>${s.date.slice(0,10)}</span></div>`).join("")||"<p class=mut>Sin sesiones.</p>"}
-function saveWeight(){let v=parseFloat(weightInput.value);if(isNaN(v))return;S.weights.push({id:id(),date:today(),weight:v,ts:now()});save();render()}
-
-/* === LAB 6.2.1.2 Routine Import === */
-function fillImportTemplateRc6(){
- const el=document.getElementById("routineImportTextRc6");
- if(!el)return;
- el.value=`Torso A
-Press banca 4x8 80kg descanso 180
-Dominadas 4x al fallo descanso 180
-Remo barra 4x10 60kg descanso 120
-Fondos en paralelas 3x fallo descanso 150
-Plancha 3x45s descanso 60`;
- document.getElementById("routineImportNameRc6").value="Torso A";
-}
-function normalizeExerciseNameRc6(line){
- return line
-  .replace(/\b\d+\s*x\s*(al\s*)?fallo\b/ig,"")
-  .replace(/\b\d+\s*x\s*\d+([\-\/]\d+)?\s*(reps?)?\b/ig,"")
-  .replace(/\b\d+\s*x\s*\d+\s*s\b/ig,"")
-  .replace(/\b\d+([.,]\d+)?\s*kg\b/ig,"")
-  .replace(/\bdescanso\s*\d+\s*s?\b/ig,"")
-  .replace(/\brest\s*\d+\s*s?\b/ig,"")
-  .replace(/[-:•]+/g," ")
-  .replace(/\s+/g," ")
-  .trim();
-}
-function getOrCreateExerciseRc6(name){
- name=(name||"Ejercicio").trim();
- let found=S.exercises.find(e=>e.name.toLowerCase()===name.toLowerCase());
- if(found)return found;
- let created={id:id(),name,pattern:pattern(name),inc:S.settings?.inc||2.5,rest:S.settings?.defaultRest||120};
- S.exercises.push(created);
- return created;
-}
-function parseRoutineLineRc6(line){
- let raw=line.trim();
- if(!raw || /^#+\s*/.test(raw))return null;
- if(/^(rutina|día|dia|bloque|semana|calentamiento|notas?)\b/i.test(raw))return null;
- let mSets=raw.match(/(\d+)\s*x\s*(al\s*)?fallo/i);
- let mode="reps", sets=3, repsPlan=[8,8,8];
- if(mSets){
-   sets=+mSets[1]; mode="failure"; repsPlan=Array.from({length:sets},()=>0);
- }else{
-   let mt=raw.match(/(\d+)\s*x\s*(\d+)\s*s\b/i);
-   if(mt){sets=+mt[1]; mode="time"; repsPlan=Array.from({length:sets},()=>+mt[2]);}
-   else{
-     let mr=raw.match(/(\d+)\s*x\s*(\d+)(?:\s*[-\/]\s*(\d+))?/i);
-     if(mr){
-       sets=+mr[1];
-       let r1=+mr[2], r2=mr[3]?+mr[3]:r1;
-       repsPlan=Array.from({length:sets},(_,i)=>Math.round(r1+(r2-r1)*(sets<=1?0:i/(sets-1))));
-     }else if(!/[a-záéíóúñ]/i.test(raw.replace(/\d/g,""))){
-       return null;
-     }
-   }
- }
- let w=0, mw=raw.match(/(\d+(?:[.,]\d+)?)\s*kg/i);
- if(mw)w=parseFloat(mw[1].replace(",","."));
- let rest=S.settings?.defaultRest||120, mrst=raw.match(/(?:descanso|rest)\s*(\d+)\s*s?/i);
- if(mrst)rest=+mrst[1];
- let name=normalizeExerciseNameRc6(raw);
- if(!name || name.length<2)return null;
- let exercise=getOrCreateExerciseRc6(name);
- return {id:id(),exerciseId:exercise.id,sets,repsPlan,weight:w,rest,mode,order:0};
-}
-function importRoutineTextRc6(){
- let name=(document.getElementById("routineImportNameRc6")?.value||"").trim();
- let text=document.getElementById("routineImportTextRc6")?.value||"";
- let lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
- if(!name && lines.length)name=lines[0].replace(/^#+\s*/,"").trim();
- let items=[];
- lines.forEach(line=>{
-   let item=parseRoutineLineRc6(line);
-   if(item){item.order=items.length+1;items.push(item);}
- });
- if(!items.length){
-   document.getElementById("routineImportResultRc6").textContent="No he detectado ejercicios. Usa la plantilla y prueba de nuevo.";
-   return;
- }
- let routine={id:id(),name:name||`Rutina ${S.routines.length+1}`,tag:"Importada",items};
- S.routines.push(routine);
- save();render();
- document.getElementById("routineImportResultRc6").textContent=`Importada: ${routine.name} · ${items.length} ejercicios.`;
-}
-
-
-/* === LAB 6.2.1.2 robust routine import === */
-function fillImportTemplateRc7(){
-  const name=document.getElementById("routineImportNameRc7");
-  const txt=document.getElementById("routineImportTextRc7");
-  if(name)name.value="Torso A ejemplo";
-  if(txt)txt.value=`Torso A
-Press banca 4x8 80kg descanso 180
-Dominadas 4x al fallo descanso 180
-Remo barra 4x10-12 60kg descanso 120
-Fondos en paralelas 3x fallo descanso 150
-Plancha 3x45s descanso 60`;
-}
-function rc7CleanExerciseName(line){
-  return line
-    .replace(/^\s*[-•*]\s*/,"")
-    .replace(/\b\d+\s*x\s*(al\s*)?fallo\b/ig,"")
-    .replace(/\b\d+\s*x\s*\d+\s*(?:[-\/]\s*\d+)?\s*(?:reps?|rep)?\b/ig,"")
-    .replace(/\b\d+\s*x\s*\d+\s*s\b/ig,"")
-    .replace(/\b\d+(?:[.,]\d+)?\s*kg\b/ig,"")
-    .replace(/\b(?:descanso|rest)\s*\d+\s*s?\b/ig,"")
-    .replace(/\([^)]*\)/g,"")
-    .replace(/[:|]+/g," ")
-    .replace(/\s+/g," ")
-    .trim();
-}
-function rc7GetOrCreateExercise(name){
-  name=(name||"Ejercicio").trim();
-  let e=S.exercises.find(x=>x.name.toLowerCase()===name.toLowerCase());
-  if(e)return e;
-  e={id:id(),name,pattern:typeof pattern==="function"?pattern(name):"custom",inc:S.settings?.inc||2.5,rest:S.settings?.defaultRest||120};
-  S.exercises.push(e);
-  return e;
-}
-function rc7ParseLine(line){
-  let raw=line.trim();
-  if(!raw)return null;
-  if(/^(rutina|día|dia|bloque|semana|calentamiento|nota|notas)\b/i.test(raw))return null;
-  let sets=3,repsPlan=[8,8,8],mode="reps";
-  let mFail=raw.match(/(\d+)\s*x\s*(?:al\s*)?fallo/i);
-  let mTime=raw.match(/(\d+)\s*x\s*(\d+)\s*s\b/i);
-  let mReps=raw.match(/(\d+)\s*x\s*(\d+)(?:\s*[-\/]\s*(\d+))?/i);
-  if(mFail){sets=+mFail[1];mode="failure";repsPlan=Array.from({length:sets},()=>0);}
-  else if(mTime){sets=+mTime[1];mode="time";repsPlan=Array.from({length:sets},()=>+mTime[2]);}
-  else if(mReps){sets=+mReps[1];let a=+mReps[2],b=mReps[3]?+mReps[3]:a;repsPlan=Array.from({length:sets},(_,i)=>Math.round(a+(b-a)*(sets<=1?0:i/(sets-1))));}
-  else return null;
-  let mw=raw.match(/(\d+(?:[.,]\d+)?)\s*kg/i);
-  let weight=mw?parseFloat(mw[1].replace(",",".")):0;
-  let mr=raw.match(/(?:descanso|rest)\s*(\d+)\s*s?/i);
-  let rest=mr?+mr[1]:(S.settings?.defaultRest||120);
-  let name=rc7CleanExerciseName(raw);
-  if(!name || name.length<2)return null;
-  let exercise=rc7GetOrCreateExercise(name);
-  return {id:id(),exerciseId:exercise.id,sets,repsPlan,weight,rest,mode,order:0};
-}
-function importRoutineTextRc7(){
-  const status=document.getElementById("routineImportStatusRc7");
-  const nameEl=document.getElementById("routineImportNameRc7");
-  const txtEl=document.getElementById("routineImportTextRc7");
-  let name=(nameEl?.value||"").trim();
-  let text=txtEl?.value||"";
-  let lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
-  if(!name && lines.length)name=lines[0].replace(/^#+\s*/,"").trim();
-  let items=[];
-  lines.forEach(line=>{
-    let item=rc7ParseLine(line);
-    if(item){item.order=items.length+1;items.push(item);}
-  });
-  if(!items.length){
-    if(status)status.textContent="No he detectado ejercicios. Pulsa 'Rellenar ejemplo' para ver el formato.";
-    return;
-  }
-  S.routines.push({id:id(),name:name||`Rutina ${S.routines.length+1}`,tag:"Importada",items});
-  save();
-  render();
-  if(status)status.textContent=`Rutina importada: ${name||"Sin nombre"} · ${items.length} ejercicios.`;
-  alert(`Rutina importada con ${items.length} ejercicios.`);
-}
-
-
-/* === LAB 6.2.1 URGENT ROUTINE IMPORT === */
-function templateRoutine612(){
-  const n=document.getElementById("routineName612");
-  const t=document.getElementById("routineText612");
-  if(n)n.value="Torso A";
-  if(t)t.value=`Torso A
-Press banca 4x8 80kg descanso 180
-Dominadas 4x fallo descanso 180
-Remo barra 4x10-12 60kg descanso 120
-Fondos en paralelas 4x al fallo descanso 150
-Plancha 3x45s descanso 60`;
-}
-function cleanName612(line){
-  return line
-    .replace(/^\s*[-•*]\s*/,"")
-    .replace(/\b\d+\s*x\s*(?:al\s*)?fallo\b/ig,"")
-    .replace(/\b\d+\s*x\s*\d+\s*(?:[-\/]\s*\d+)?\s*(?:reps?|rep)?\b/ig,"")
-    .replace(/\b\d+\s*x\s*\d+\s*s\b/ig,"")
-    .replace(/\b\d+(?:[.,]\d+)?\s*kg\b/ig,"")
-    .replace(/\b(?:descanso|rest)\s*\d+\s*s?\b/ig,"")
-    .replace(/\([^)]*\)/g,"")
-    .replace(/[:|]+/g," ")
-    .replace(/\s+/g," ")
-    .trim();
-}
-function getExercise612(name){
-  name=(name||"Ejercicio").trim();
-  S.exercises=S.exercises||[];
-  let e=S.exercises.find(x=>(x.name||"").toLowerCase()===name.toLowerCase());
-  if(e)return e;
-  e={id:id(),name,pattern:(typeof pattern==="function"?pattern(name):"custom"),inc:S.settings?.inc||2.5,rest:S.settings?.defaultRest||120};
-  S.exercises.push(e);
-  return e;
-}
-function parseLine612(line){
-  let raw=(line||"").trim();
-  if(!raw)return null;
-  if(/^(rutina|día|dia|bloque|semana|calentamiento|notas?|objetivo)\b/i.test(raw))return null;
-
-  let sets=0,repsPlan=[],mode="reps";
-  let mFail=raw.match(/(\d+)\s*x\s*(?:al\s*)?fallo/i);
-  let mTime=raw.match(/(\d+)\s*x\s*(\d+)\s*s\b/i);
-  let mReps=raw.match(/(\d+)\s*x\s*(\d+)(?:\s*[-\/]\s*(\d+))?/i);
-
-  if(mFail){
-    sets=+mFail[1]; mode="failure"; repsPlan=Array.from({length:sets},()=>0);
-  }else if(mTime){
-    sets=+mTime[1]; mode="time"; repsPlan=Array.from({length:sets},()=>+mTime[2]);
-  }else if(mReps){
-    sets=+mReps[1];
-    let a=+mReps[2], b=mReps[3]?+mReps[3]:a;
-    repsPlan=Array.from({length:sets},(_,i)=>Math.round(a+(b-a)*(sets<=1?0:i/(sets-1))));
-  }else{
-    return null;
-  }
-
-  let name=cleanName612(raw);
-  if(!name || name.length<2)return null;
-
-  let mw=raw.match(/(\d+(?:[.,]\d+)?)\s*kg/i);
-  let weight=mw?parseFloat(mw[1].replace(",",".")):0;
-  let mr=raw.match(/(?:descanso|rest)\s*(\d+)\s*s?/i);
-  let rest=mr?+mr[1]:(S.settings?.defaultRest||120);
-
-  let exo=getExercise612(name);
-  return {id:id(),exerciseId:exo.id,sets,repsPlan,weight,rest,mode,order:0};
-}
-function importRoutine612(){
-  const status=document.getElementById("routineStatus612");
-  let name=(document.getElementById("routineName612")?.value||"").trim();
-  let text=document.getElementById("routineText612")?.value||"";
-  let lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
-  if(!name && lines.length && !/\d+\s*x/i.test(lines[0]))name=lines[0];
-
-  let items=[];
-  lines.forEach(line=>{
-    let item=parseLine612(line);
-    if(item){item.order=items.length+1;items.push(item);}
-  });
-
-  if(!items.length){
-    if(status)status.textContent="No he detectado ejercicios. Pulsa 'Poner ejemplo' y copia ese formato.";
-    alert("No he detectado ejercicios. Usa formato tipo: Press banca 4x8 80kg descanso 180");
-    return;
-  }
-
-  S.routines=S.routines||[];
-  let routine={id:id(),name:name||`Rutina ${S.routines.length+1}`,tag:"Importada",items};
-  S.routines.push(routine);
-  save();
-
-  if(status)status.textContent=`Importada: ${routine.name} · ${items.length} ejercicios`;
-  alert(`Rutina importada: ${routine.name} (${items.length} ejercicios)`);
-  try{render();}catch(e){console.error(e)}
-}
-
-
-/* === LAB 6.2.1 Routines-first stable functions === */
-function templateRoutine62(){
-  document.getElementById("routineName62").value="Torso A";
-  document.getElementById("routineText62").value=`Torso A
-Press banca 4x8 80kg descanso 180
-Dominadas 4x fallo descanso 180
-Remo barra 4x10-12 60kg descanso 120
-Fondos en paralelas 4x al fallo descanso 150
-Plancha 3x45s descanso 60`;
-}
-function cleanName62(line){
-  return (line||"")
-    .replace(/^\s*[-•*]\s*/,"")
-    .replace(/\b\d+\s*x\s*(?:al\s*)?fallo\b/ig,"")
-    .replace(/\b\d+\s*x\s*\d+\s*(?:[-\/]\s*\d+)?\s*(?:reps?|rep)?\b/ig,"")
-    .replace(/\b\d+\s*x\s*\d+\s*s\b/ig,"")
-    .replace(/\b\d+(?:[.,]\d+)?\s*kg\b/ig,"")
-    .replace(/\b(?:descanso|rest)\s*\d+\s*s?\b/ig,"")
-    .replace(/\([^)]*\)/g,"")
-    .replace(/[:|]+/g," ")
-    .replace(/\s+/g," ")
-    .trim();
-}
-function getExercise62(name){
-  S.exercises=S.exercises||[];
-  name=(name||"Ejercicio").trim();
-  let e=S.exercises.find(x=>(x.name||"").toLowerCase()===name.toLowerCase());
-  if(e)return e;
-  e={id:id(),name,pattern:(typeof pattern==="function"?pattern(name):"custom"),inc:S.settings?.inc||2.5,rest:S.settings?.defaultRest||120};
-  S.exercises.push(e);
-  return e;
-}
-function parseRoutineLine62(line){
-  let raw=(line||"").trim();
-  if(!raw)return null;
-  if(/^(rutina|día|dia|bloque|semana|calentamiento|notas?|objetivo)\b/i.test(raw))return null;
-  let sets=0,repsPlan=[],mode="reps";
-  let mFail=raw.match(/(\d+)\s*x\s*(?:al\s*)?fallo/i);
-  let mTime=raw.match(/(\d+)\s*x\s*(\d+)\s*s\b/i);
-  let mReps=raw.match(/(\d+)\s*x\s*(\d+)(?:\s*[-\/]\s*(\d+))?/i);
-  if(mFail){sets=+mFail[1];mode="failure";repsPlan=Array.from({length:sets},()=>0);}
-  else if(mTime){sets=+mTime[1];mode="time";repsPlan=Array.from({length:sets},()=>+mTime[2]);}
-  else if(mReps){sets=+mReps[1];let a=+mReps[2],b=mReps[3]?+mReps[3]:a;repsPlan=Array.from({length:sets},(_,i)=>Math.round(a+(b-a)*(sets<=1?0:i/(sets-1))));}
-  else return null;
-  let name=cleanName62(raw);
-  if(!name || name.length<2)return null;
-  let mw=raw.match(/(\d+(?:[.,]\d+)?)\s*kg/i);
-  let weight=mw?parseFloat(mw[1].replace(",",".")):0;
-  let mr=raw.match(/(?:descanso|rest)\s*(\d+)\s*s?/i);
-  let rest=mr?+mr[1]:(S.settings?.defaultRest||120);
-  let exo=getExercise62(name);
-  return {id:id(),exerciseId:exo.id,sets,repsPlan,weight,rest,mode,order:0};
-}
-function importRoutine62(){
-  let status=document.getElementById("routineStatus62");
-  let name=(document.getElementById("routineName62")?.value||"").trim();
-  let text=document.getElementById("routineText62")?.value||"";
-  let lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
-  if(!name && lines.length && !/\d+\s*x/i.test(lines[0]))name=lines[0];
-  let items=[];
-  lines.forEach(line=>{let item=parseRoutineLine62(line);if(item){item.order=items.length+1;items.push(item);}});
-  if(!items.length){
-    if(status)status.textContent="No he detectado ejercicios. Pulsa Ejemplo y usa ese formato.";
-    alert("No he detectado ejercicios. Ejemplo: Press banca 4x8 80kg descanso 180");
-    return;
-  }
-  S.routines=S.routines||[];
-  let routine={id:id(),name:name||`Rutina ${S.routines.length+1}`,tag:"Importada",items};
-  S.routines.push(routine);
-  save();renderRoutines62();render();
-  if(status)status.textContent=`Importada: ${routine.name} · ${items.length} ejercicios`;
-}
-function createManualRoutine62(){
-  let name=(document.getElementById("manualRoutineName62")?.value||"").trim();
-  if(!name){alert("Pon un nombre a la rutina.");return;}
-  S.routines=S.routines||[];
-  S.routines.push({id:id(),name,tag:"Manual",items:[]});
-  save();renderRoutines62();render();
-}
-function deleteRoutine62(rid){
-  let r=rt(rid);
-  if(!r)return;
-  if(!confirm(`¿Borrar la rutina "${r.name}"?`))return;
-  S.routines=S.routines.filter(x=>x.id!==rid);
-  Object.keys(S.plan||{}).forEach(d=>{if(S.plan[d]?.routineId===rid)S.plan[d].routineId=null;});
-  save();renderRoutines62();render();
-}
-function duplicateRoutine62(rid){
-  let r=rt(rid); if(!r)return;
-  let copy=JSON.parse(JSON.stringify(r));
-  copy.id=id(); copy.name=r.name+" copia"; copy.items=(copy.items||[]).map((it,i)=>({...it,id:id(),order:i+1}));
-  S.routines.push(copy); save();renderRoutines62();render();
-}
-function addExerciseToRoutine62(rid){
-  let r=rt(rid); if(!r)return;
-  let name=prompt("Nombre del ejercicio");
-  if(!name)return;
-  let sets=+(prompt("Series", "4")||4);
-  let reps=+(prompt("Reps objetivo", "8")||8);
-  let weight=+(prompt("Peso kg", "0")||0);
-  let rest=+(prompt("Descanso segundos", String(S.settings?.defaultRest||120))||120);
-  let exo=getExercise62(name);
-  r.items=r.items||[];
-  r.items.push({id:id(),exerciseId:exo.id,sets,repsPlan:Array.from({length:sets},()=>reps),weight,rest,mode:"reps",order:r.items.length+1});
-  save();renderRoutines62();render();
-}
-function updateRoutineItem62(rid,itemId,k,v){
-  let r=rt(rid); if(!r)return;
-  let it=(r.items||[]).find(x=>x.id===itemId); if(!it)return;
-  if(k==="sets"){it.sets=+v||1; it.repsPlan=Array.from({length:it.sets},(_,i)=>it.repsPlan?.[i] ?? 8);}
-  else if(k==="reps"){it.repsPlan=Array.from({length:it.sets||1},()=>+v||0);}
-  else if(k==="weight"){it.weight=+v||0;}
-  else if(k==="rest"){it.rest=+v||0;}
-  else if(k==="mode"){it.mode=v;}
-  save();
-}
-function deleteRoutineItem62(rid,itemId){
-  let r=rt(rid); if(!r)return;
-  r.items=(r.items||[]).filter(x=>x.id!==itemId).map((x,i)=>({...x,order:i+1}));
-  save();renderRoutines62();render();
-}
-function assignRoutineToday62(rid){
-  S.plan=S.plan||{};
-  S.plan[today()]={date:today(),routineId:rid,type:"entrenamiento",status:"pendiente"};
-  save();render();
-  alert("Asignada para hoy.");
-}
-function renderRoutines62(){
-  let el=document.getElementById("routineList62"); if(!el)return;
-  S.routines=S.routines||[];
-  if(!S.routines.length){el.innerHTML='<p class="mut">No hay rutinas. Importa una arriba.</p>';return;}
-  el.innerHTML=S.routines.map(r=>{
-    let items=r.items||[];
-    let rows=items.map(it=>{
-      let e=ex(it.exerciseId);
-      let rep=(it.repsPlan&&it.repsPlan.length)?it.repsPlan[0]:0;
-      return `<div class="routineItem62">
-        <div class="full62"><b>${e?.name||"Ejercicio"}</b><br><span class="mut">${it.mode==="failure"?"fallo":it.mode==="time"?"tiempo":"reps"}</span></div>
-        <input type="number" value="${it.sets||1}" onchange="updateRoutineItem62('${r.id}','${it.id}','sets',this.value)" title="series">
-        <input type="number" value="${rep}" onchange="updateRoutineItem62('${r.id}','${it.id}','reps',this.value)" title="reps">
-        <input type="number" step=".25" value="${it.weight||0}" onchange="updateRoutineItem62('${r.id}','${it.id}','weight',this.value)" title="kg">
-        <button class="danger" onclick="deleteRoutineItem62('${r.id}','${it.id}')">×</button>
-      </div>`;
-    }).join("");
-    return `<details class="routineCard62">
-      <summary><div><strong>${r.name}</strong><div class="routineMeta62">${items.length} ejercicios · ${r.tag||""}</div></div></summary>
-      <div class="row">
-        <button class="primary" onclick="startRoutine('${r.id}')">Comenzar</button>
-        <button onclick="assignRoutineToday62('${r.id}')">Asignar hoy</button>
-        <button onclick="duplicateRoutine62('${r.id}')">Duplicar</button>
-        <button class="danger" onclick="deleteRoutine62('${r.id}')">Borrar</button>
-      </div>
-      <div>${rows || '<p class="mut">Rutina vacía.</p>'}</div>
-      <button onclick="addExerciseToRoutine62('${r.id}')">Añadir ejercicio</button>
-    </details>`;
-  }).join("");
-}
-
-function renderLibrary(){libRoutines.innerHTML=S.routines.map(r=>`<div class=card><h3>${r.name}</h3>${r.items.map(i=>`<span class=pill>${ex(i.exerciseId)?.name} · ${repsText(i)}</span>`).join("")}<button onclick="startRoutine('${r.id}')">Iniciar</button></div>`).join("");libExercises.innerHTML=S.exercises.map(e=>`<div class=line><span>${e.name}</span><button onclick="alert(cleanInfo('${e.name.replaceAll("'","")}').points.join('\\n'))">Técnica</button></div>`).join("")}
-function newRoutine(){let name=prompt("Nombre rutina");if(!name)return;S.routines.push({id:id(),name,tag:"Configurable",items:[]});save();render()}
-function newExercise(){let name=prompt("Nombre ejercicio");if(!name)return;S.exercises.push({id:id(),name,pattern:"custom",inc:S.settings.inc,rest:S.settings.defaultRest});save();render()}
-
-function ensurePersonalization(){
- S.ui=S.ui||{theme:"luxury",fontSize:"normal",density:"normal",lefty:false,splash:true};
-}
-function applyPersonalization(){
- ensurePersonalization();
- document.body.classList.remove("theme-luxury","theme-elegance","theme-carbon","theme-stealth","theme-laboratory","theme-humor","theme-retro","theme-punk","font-small","font-normal","font-large","font-xl","compact","comfort","lefty");
- if(!["luxury","elegance","carbon"].includes(S.ui.theme))S.ui.theme="luxury";document.body.classList.add("theme-"+(S.ui.theme||"luxury"));
- document.body.classList.add("font-"+(S.ui.fontSize||"normal"));
- if(S.ui.density==="compact")document.body.classList.add("compact");
- if(S.ui.density==="comfort")document.body.classList.add("comfort");
- if(S.ui.lefty)document.body.classList.add("lefty");
- let sp=document.getElementById("splash");
- if(sp && S.ui.splash===false)sp.style.display="none";
-}
-function setTheme(t){ensurePersonalization();S.ui.theme=t;save();applyPersonalization();renderSettings();rc3RenderBlocks();rc3RenderEditSessions();rc4RenderSeasonWizard()}
-function setFontSize(v){ensurePersonalization();S.ui.fontSize=v;save();applyPersonalization()}
-function setDensity(v){ensurePersonalization();S.ui.density=v;save();applyPersonalization()}
-function setLefty(v){ensurePersonalization();S.ui.lefty=v;save();applyPersonalization()}
-function setSplash(v){ensurePersonalization();S.ui.splash=v;save();applyPersonalization()}
-
-function renderSettings(){
- ensurePersonalization();
- defaultRest.value=S.settings.defaultRest;
- incSetting.value=S.settings.inc;
- if(document.getElementById("fontSetting"))fontSetting.value=S.ui.fontSize||"normal";
- if(document.getElementById("densitySetting"))densitySetting.value=S.ui.density||"normal";
- if(document.getElementById("leftySetting"))leftySetting.value=S.ui.lefty?"yes":"no";
- if(document.getElementById("splashSetting"))splashSetting.value=S.ui.splash===false?"no":"yes";
- ["luxury","elegance","carbon"].forEach(t=>document.getElementById("theme_"+t)?.classList.toggle("on",(S.ui.theme||"luxury")===t));
-}
-function saveSettings(){S.settings.defaultRest=+defaultRest.value||120;S.settings.inc=+incSetting.value||2.5;save();render()}
-function openFeedback(){feedbackModal.classList.add("on")}function closeFeedback(){feedbackModal.classList.remove("on")}function saveFeedback(){S.feedback.push({id:id(),date:now(),type:fbType.value,title:fbTitle.value,desc:fbDesc.value,status:"pendiente"});save();closeFeedback()}
-function downloadBackup(){let a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,2)],{type:"application/json"}));a.download="GymTracker_Backup_"+today()+".json";a.click()}
-function downloadCSV(){let rows=[["fecha","rutina","ejercicio","serie","peso","reps","objetivo","resultado"]];S.sets.forEach(s=>rows.push([s.ts,rt(s.routineId)?.name||"",ex(s.exerciseId)?.name||"",s.setNumber,s.weight,s.reps,s.targetReps,s.result]));let csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")).join("\n");let a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download="GymTracker_Progreso.csv";a.click()}
-function importBackup(ev){let f=ev.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{S=JSON.parse(r.result);save();render();alert("Backup importado")}catch(e){alert("Archivo no válido")}};r.readAsText(f)}
-load();render();show("dashboard");if("serviceWorker" in navigator)navigator.serviceWorker.register("./sw.js").catch(()=>{});
-</script>
-</body>
-</html>
