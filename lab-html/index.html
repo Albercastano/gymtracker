@@ -5,12 +5,22 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#06070a">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <title>GymTracker Lab 9.1</title>
+  <title>GymTracker Lab 9.3</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-  <div class="badge">LAB 9.1</div>
+<body><div id="splash" class="splash">
+  <div class="splashBox">
+    <div class="splashLogo">GT</div>
+    <h1>GymTracker</h1>
+    <p class="splashSub">Entrena. Registra. Progresa.</p>
+    <button class="wall primary" onclick="GT.selectUser('Alberto');GT.closeSplash()">💪 Alberto</button>
+    <button class="wall" onclick="GT.selectUser('Edy');GT.closeSplash()">🏋️ Edy</button>
+    <button onclick="GT.closeSplash()">Continuar</button>
+  </div>
+</div>
+<div id="summaryOverlay" class="summaryOverlay"><div class="summaryBox" id="summaryBox"></div></div>
+  <div class="badge">LAB 9.3</div>
 
   <div id="profileModal" class="modal on">
     <div class="modalBox">
@@ -24,7 +34,7 @@
   <header>
     <button id="userChip" class="chip" onclick="GT.openUsers()">💪 Alberto</button>
     <div>
-      <strong>GymTracker Lab 9.1</strong>
+      <strong>GymTracker Lab 9.3</strong>
       <small id="todayLabel"></small>
     </div>
   </header>

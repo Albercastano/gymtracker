@@ -209,3 +209,20 @@ nav button.on{background:rgba(255,240,184,.12);color:var(--gold2)}
 .lastBox{border:1px solid rgba(255,255,255,.12);border-radius:22px;padding:12px;margin:12px 0;background:rgba(255,255,255,.028);text-align:left}
 .lastBox strong{color:var(--gold2)}
 .gtFooterNote{font-size:.85rem;color:var(--mut);margin-top:8px}
+
+/* LAB 9.2 Final UX */
+.splash{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(900px 500px at 20% -10%,rgba(255,240,184,.16),transparent 60%),linear-gradient(135deg,#050507,#111015 48%,#070608)}
+.splash.hide{display:none}.splashBox{width:min(94vw,560px);border:1px solid var(--line);border-radius:34px;padding:24px;background:linear-gradient(180deg,#171923,#07080b);box-shadow:0 40px 110px rgba(0,0,0,.7);text-align:center}.splashLogo{font-size:clamp(3.2rem,18vw,7rem);line-height:.85;letter-spacing:-.1em;font-weight:1000;margin:12px 0;color:var(--gold2)}.splashSub{color:var(--mut);margin:8px 0 18px}
+.weekGrid{display:grid;gap:10px}.dayPlan{border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:12px;background:rgba(255,255,255,.028)}.dayPlan h3{margin:0 0 8px}
+.summaryOverlay{position:fixed;inset:0;z-index:180;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.82)}.summaryOverlay.on{display:flex}.summaryBox{width:min(94vw,680px);max-height:90vh;overflow:auto;border-radius:28px;padding:18px;border:1px solid var(--line);background:linear-gradient(180deg,#151a23,#07080b)}.summaryStats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}@media(max-width:560px){.summaryStats{grid-template-columns:1fr}}
+
+/* LAB 9.3 Profile Config */
+.profileCard{border:2px solid rgba(255,240,184,.22)!important;background:rgba(255,240,184,.055)!important}
+.profileGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.weightBig{font-size:clamp(2.2rem,11vw,4.8rem);font-weight:1000;letter-spacing:-.08em;color:var(--gold2);line-height:.9;margin:8px 0}
+.exerciseConfigCard{border:1px solid rgba(255,255,255,.10);border-radius:20px;padding:12px;background:rgba(255,255,255,.025);margin:10px 0}
+.exerciseConfigGrid{display:grid;grid-template-columns:1fr 90px 90px 90px;gap:8px;align-items:end}
+@media(max-width:680px){.exerciseConfigGrid{grid-template-columns:1fr 1fr}}
+.bodyChart{display:flex;align-items:flex-end;gap:5px;height:120px;border:1px solid rgba(255,255,255,.1);border-radius:18px;background:rgba(0,0,0,.16);padding:8px;overflow:hidden}
+.bodyBar{flex:1;min-width:7px;border-radius:99px 99px 3px 3px;background:linear-gradient(180deg,var(--gold2),var(--gold))}
+.exportHint{color:var(--mut);font-size:.88rem;margin-top:8px}

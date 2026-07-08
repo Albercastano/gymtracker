@@ -29,7 +29,7 @@ function getExercise(name){
  if(!name)return null;
  let e=S.exercises.find(x=>x.name.toLowerCase()===name.toLowerCase());
  if(e){ensureExerciseMeta();return e}
- e={id:id(),name,pattern:"custom",inc:S.settings.inc||2.5,rest:S.settings.rest||120};
+ e={id:id(),name,pattern:"custom",inc:S.settings.inc||2.5,rest:S.settings.rest||120,defaultWeight:0,lastWeight:0,defaultRest:S.settings.rest||120,techNotes:""};
  S.exercises.push(e);ensureExerciseMeta();S.exerciseMeta[e.id]={favorite:false,bag:true,category:guessCategory(name),notes:""};
  return e
 }
@@ -132,3 +132,5 @@ function renderRoutineBuilder(r){
  </details></div>`
 }
 function fmtRest(s){s=+s||0;return s>=60?`${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`:`${s}s`}
+
+function updateExerciseDefault(eid,k,v){let e=ex(eid);if(!e)return;if(k==="techNotes")e[k]=v;else e[k]=+v||0;save();GT.render();}
