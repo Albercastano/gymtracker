@@ -226,3 +226,18 @@ nav button.on{background:rgba(255,240,184,.12);color:var(--gold2)}
 .bodyChart{display:flex;align-items:flex-end;gap:5px;height:120px;border:1px solid rgba(255,255,255,.1);border-radius:18px;background:rgba(0,0,0,.16);padding:8px;overflow:hidden}
 .bodyBar{flex:1;min-width:7px;border-radius:99px 99px 3px 3px;background:linear-gradient(180deg,var(--gold2),var(--gold))}
 .exportHint{color:var(--mut);font-size:.88rem;margin-top:8px}
+
+
+/* === LAB 9.4 Visual + Routine Guide === */
+.card h2,.card h3,.hero,.profileCard,.metric,.focusStat,.splashBox{text-align:center}
+.card p.muted,.helpBox,.importBox pre,.previewBox,.exerciseCard,.historyCard,.block,.libraryPanel,.coachReportBox,.lastBox{text-align:center}
+input,textarea,select{text-align:center}
+.exerciseNameInput{text-align:center!important}
+.routineGuide{border:2px solid rgba(255,240,184,.22)!important;background:rgba(255,240,184,.055)!important}
+.guideSteps{display:grid;gap:10px;margin-top:12px}
+.guideStep{border:1px solid rgba(255,255,255,.10);border-radius:20px;padding:12px;background:rgba(255,255,255,.03)}
+.guideStep b{color:var(--gold2);display:block;font-size:1.05rem;margin-bottom:4px}
+.guideExample{white-space:pre-wrap;text-align:center;font-family:ui-monospace,monospace;color:var(--gold2);background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.10);border-radius:18px;padding:12px}
+.weightSaveRow{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+@media(max-width:520px){.weightSaveRow{grid-template-columns:1fr}}
+.saveWeightBtn{min-height:54px}
