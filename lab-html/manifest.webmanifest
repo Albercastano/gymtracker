@@ -1,6 +1,6 @@
 {
-  "name": "GymTracker Alpha 1.0",
-  "short_name": "GymTracker A1",
+  "name": "GymTracker Alpha 2.1",
+  "short_name": "GymTracker A2.1",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#06070a",
@@ -11,6 +11,5 @@
       "sizes": "any",
       "type": "image/svg+xml"
     }
-  ],
-  "description": "GymTracker Alpha 1.0 - fuerza y calistenia"
+  ]
 }

@@ -1,67 +1,10 @@
-<!doctype html>
-<html lang="es">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#06070a">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <title>GymTracker Alpha 1.0</title>
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body><div id="splash" class="splash">
-  <div class="splashBox">
-    <div class="splashLogo">GT</div>
-    <h1>GymTracker</h1>
-    <p class="splashSub">Entrena. Registra. Progresa.</p>
-    <button class="wall primary" onclick="GT.selectUser('Alberto');GT.closeSplash()">💪 Alberto</button>
-    <button class="wall" onclick="GT.selectUser('Edy');GT.closeSplash()">🏋️ Edy</button>
-    <button onclick="GT.closeSplash()">Continuar</button>
-  </div>
-</div>
-<div id="summaryOverlay" class="summaryOverlay"><div class="summaryBox" id="summaryBox"></div></div>
-  <div class="badge">ALPHA 1.0</div>
-
-  <div id="profileModal" class="modal on">
-    <div class="modalBox">
-      <h1>¿Quién va a entrenar?</h1>
-      <button class="wall primary" onclick="GT.selectUser('Alberto')">💪 Alberto</button>
-      <button class="wall" onclick="GT.selectUser('Edy')">🏋️ Edy</button>
-      <p class="muted">Cada perfil tiene rutinas, entrenos, datos y planificación propios.</p>
-    </div>
-  </div>
-
-  <header>
-    <button id="userChip" class="chip" onclick="GT.openUsers()">💪 Alberto</button>
-    <div>
-      <strong>GymTracker Alpha 1.0</strong>
-      <small id="todayLabel"></small>
-    </div>
-  </header>
-
-  <main>
-    <section id="home" class="screen on"></section>
-    <section id="workout" class="screen"></section>
-    <section id="routines" class="screen"></section>
-    <section id="plan" class="screen"></section>
-    <section id="data" class="screen"></section>
-    <section id="settings" class="screen"></section>
-  </main>
-
-  <nav>
-    <button onclick="GT.show('home')" data-nav="home">🏋️<span>Hoy</span></button>
-    <button onclick="GT.show('routines')" data-nav="routines">📚<span>Rutinas</span></button>
-    <button onclick="GT.show('plan')" data-nav="plan">📅<span>Plan</span></button>
-    <button onclick="GT.show('data')" data-nav="data">📈<span>Datos</span></button>
-    <button onclick="GT.show('settings')" data-nav="settings">⚙️<span>Ajustes</span></button>
-  </nav>
-
-  <script src="storage.js"></script>
-  <script src="routines.js"></script>
-  <script src="workout.js"></script>
-  <script src="stats.js"></script>
-  <script src="season.js"></script>
-  <script src="app.js"></script>
-<button id="labFloat" class="labFloat" onclick="openLabFeedback()">💡</button>
-<div id="labPanel" class="labPanel"><div class="labBox"><h2>Sugerencias y errores</h2><select id="labType"><option value="idea">Sugerencia</option><option value="bug">Error</option><option value="ux">Mejora visual</option></select><textarea id="labText" placeholder="Apunta aquí..."></textarea><div class="row"><button class="primary" onclick="saveLabFeedback()">Guardar</button><button onclick="closeLabFeedback()">Cerrar</button></div></div></div></body>
-</html>
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#06070a"><title>GymTracker Alpha 2.1</title><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="styles.css"></head><body>
+<div class="badge">ALPHA 2.1</div>
+<div id="splash" class="splash"><div class="splashBox"><div class="logo">GT</div><h1>GymTracker</h1><p>Entrena. Registra. Progresa.</p><button class="primary wall" onclick="GT.selectUser('Alberto')">💪 Alberto</button><button class="wall" onclick="GT.selectUser('Edy')">🏋️ Edy</button><button onclick="GT.closeSplash()">Continuar</button></div></div>
+<button class="labFloat" onclick="GT.openLab()">💡</button>
+<div id="labPanel" class="overlay"><div class="box"><h2>Sugerencias y errores</h2><select id="labType"><option value="idea">Sugerencia</option><option value="bug">Error</option><option value="ux">Mejora visual</option></select><textarea id="labText" placeholder="Apunta aquí lo que veas entrenando..."></textarea><div class="row"><button class="primary" onclick="GT.saveLab()">Guardar</button><button onclick="GT.closeLab()">Cerrar</button></div></div></div>
+<div id="summaryOverlay" class="overlay"><div class="box" id="summaryBox"></div></div>
+<header><button id="userChip" class="chip" onclick="GT.openUsers()">💪 Alberto</button><div><strong>GymTracker Alpha 2.1</strong><small id="todayLabel"></small></div></header>
+<main><section id="home" class="screen on"></section><section id="routines" class="screen"></section><section id="workout" class="screen"></section><section id="plan" class="screen"></section><section id="stats" class="screen"></section><section id="settings" class="screen"></section></main>
+<nav><button data-nav="home" onclick="GT.show('home')">🏠<span>Hoy</span></button><button data-nav="routines" onclick="GT.show('routines')">📚<span>Rutinas</span></button><button data-nav="plan" onclick="GT.show('plan')">📅<span>Plan</span></button><button data-nav="stats" onclick="GT.show('stats')">📈<span>Datos</span></button><button data-nav="settings" onclick="GT.show('settings')">⚙️<span>Ajustes</span></button></nav>
+<script src="storage.js"></script><script src="routines.js"></script><script src="workout.js"></script><script src="stats.js"></script><script src="plan.js"></script><script src="app.js"></script></body></html>

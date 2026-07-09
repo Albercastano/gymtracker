@@ -1,0 +1,3 @@
+GymTracker Alpha 2.0 CLEAN
+
+Reconstrucción limpia del prototipo HTML. No contiene textos Lab 9.x.

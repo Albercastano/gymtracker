@@ -1,63 +1,31 @@
-const USERS={Alberto:{icon:"💪",theme:"luxury"},Edy:{icon:"🏋️",theme:"elegance"}};
-let currentUser=localStorage.getItem("gt7_user")||"Alberto";
-let S=null;
-function key(){return "gt7_"+currentUser}
-function backupKey(){return "gt7_backups_"+currentUser}
-function activeKey(){return "gt7_active_"+currentUser}
-function id(){return Math.random().toString(36).slice(2)+Date.now().toString(36)}
-function today(){return new Date().toISOString().slice(0,10)}
-function now(){return new Date().toISOString()}
-function defaults(){return{version:"7.2",settings:{theme:USERS[currentUser].theme,rest:120,inc:2.5,fontSize:"normal",lefty:false,sound:false,vibration:false},profile:{name:currentUser,bodyWeight:null,targetWeight:null,height:null,birthDate:null,sex:""},exercises:[],routines:[],plan:{},sessions:[],sets:[],weights:[],blocks:[{id:id(),name:"Bloque actual",type:"Fuerza",startDate:today(),weeks:8,deload:true,note:""}],trash:{routines:[],blocks:[],sessions:[]},weekPlan:{},meta:{createdAt:now(),updatedAt:now(),lastDailyBackup:null}}}
-function normalizeData(){
- S.settings=S.settings||{};S.profile=S.profile||{name:currentUser};S.settings.inc=S.settings.inc||2.5;S.settings.rest=S.settings.rest||120;S.settings.theme=S.settings.theme||USERS[currentUser].theme;S.settings.fontSize=S.settings.fontSize||"normal";S.settings.sound=!!S.settings.sound;S.settings.vibration=!!S.settings.vibration;S.settings.defaultTime=S.settings.defaultTime||20;S.feedback=S.feedback||[];S.exercises=S.exercises||[];S.routines=S.routines||[];S.plan=S.plan||{};S.sessions=S.sessions||[];S.sets=S.sets||[];S.weights=S.weights||[];S.blocks=S.blocks||[];
- S.trash=S.trash||{routines:[],blocks:[],sessions:[]};S.trash.routines=S.trash.routines||[];S.trash.blocks=S.trash.blocks||[];S.trash.sessions=S.trash.sessions||[];
- S.meta=S.meta||{createdAt:now()};S.weekPlan=S.weekPlan||{};S.version="Alpha 1.0";S.meta.updatedAt=now();
- if(!S.blocks.length)S.blocks=defaults().blocks;ensureExerciseDefaults();
-}
-function load(){try{S=JSON.parse(localStorage.getItem(key()))}catch(e){S=null}if(!S)S=defaults();normalizeData();save(false);dailyBackup()}
-function save(makeBackup=false){normalizeData();localStorage.setItem(key(),JSON.stringify(S));if(makeBackup)softBackup('manual')}
-function softBackup(reason="auto"){try{let list=JSON.parse(localStorage.getItem(backupKey())||"[]");list.push({id:id(),reason,date:now(),name:`${reason}_${now()}`,data:S});list=list.slice(-10);localStorage.setItem(backupKey(),JSON.stringify(list))}catch(e){console.warn(e)}}
-function dailyBackup(){let d=today();if(S.meta.lastDailyBackup!==d){S.meta.lastDailyBackup=d;softBackup("daily");localStorage.setItem(key(),JSON.stringify(S))}}
-function backupList(){try{return JSON.parse(localStorage.getItem(backupKey())||"[]")}catch(e){return[]}}
-function restoreBackup(idb){let b=backupList().find(x=>x.id===idb);if(!b)return;if(!confirm("¿Restaurar este backup?"))return;softBackup("before_restore");S=b.data;normalizeData();save(false);GT.render();alert("Backup restaurado")}
-function deleteBackup(idb){localStorage.setItem(backupKey(),JSON.stringify(backupList().filter(x=>x.id!==idb)));GT.render()}
-function exportBackup(){const blob=new Blob([JSON.stringify({user:currentUser,exportedAt:now(),data:S},null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`GymTracker_${currentUser}_${today()}.json`;a.click();URL.revokeObjectURL(a.href)}
-function exportCSV(){let rows=["date,routine,exercise,set,weight,reps,mode"];S.sessions.forEach(sess=>{let r=rt(sess.routineId);S.sets.filter(x=>x.sessionId===sess.id).forEach(st=>{let e=ex(st.exerciseId);rows.push([sess.date,r?.name||"",e?.name||"",st.setNumber,st.weight,st.reps,st.mode||""].map(x=>`"${String(x).replaceAll('"','""')}"`).join(","))})});const blob=new Blob([rows.join("\n")],{type:"text/csv"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`GymTracker_${currentUser}_${today()}.csv`;a.click();URL.revokeObjectURL(a.href)}
-function importBackupText(txt){try{let obj=JSON.parse(txt);let data=obj.data||obj;if(!data.routines||!data.sessions)throw new Error("Backup no válido");softBackup("before_import");S=data;normalizeData();save(false);GT.render();alert("Backup restaurado")}catch(e){alert("No se pudo restaurar: "+e.message)}}
-function saveActiveWorkout(A){if(A)localStorage.setItem(activeKey(),JSON.stringify(A))}
-function clearActiveWorkout(){localStorage.removeItem(activeKey())}
-function getActiveWorkout(){try{return JSON.parse(localStorage.getItem(activeKey()))}catch(e){return null}}
-function ex(eid){return S.exercises.find(e=>e.id===eid)}
-function rt(rid){return S.routines.find(r=>r.id===rid)}
-function theme(){document.body.classList.remove("elegance","carbon");let t=S.settings.theme||USERS[currentUser].theme;if(t==="elegance")document.body.classList.add("elegance");if(t==="carbon")document.body.classList.add("carbon")}
-
-function postWorkoutBackup(){softBackup('post_workout')}
-
-function ensureExerciseDefaults(){S.exercises=S.exercises||[];S.exercises.forEach(e=>{e.defaultWeight=+(e.defaultWeight||0);e.lastWeight=+(e.lastWeight||0);e.inc=+(e.inc||S.settings.inc||2.5);e.defaultRest=+(e.defaultRest||S.settings.rest||120);e.techNotes=e.techNotes||"";});}
-function postWorkoutBackup(){softBackup("post_workout")}
-function exportExcel(){let html=`<html><head><meta charset="utf-8"></head><body><h1>GymTracker ${currentUser}</h1>`;html+=`<h2>Entrenamientos</h2><table border="1"><tr><th>Fecha</th><th>Rutina</th><th>Ejercicio</th><th>Serie</th><th>Peso</th><th>Reps</th><th>Modo</th></tr>`;S.sessions.forEach(sess=>{let r=rt(sess.routineId);S.sets.filter(x=>x.sessionId===sess.id).forEach(st=>{let e=ex(st.exerciseId);html+=`<tr><td>${sess.date}</td><td>${r?.name||""}</td><td>${e?.name||""}</td><td>${st.setNumber}</td><td>${st.weight||0}</td><td>${st.reps||0}</td><td>${st.mode||""}</td></tr>`})});html+=`</table><h2>Peso corporal</h2><table border="1"><tr><th>Fecha</th><th>Peso</th></tr>`;(S.weights||[]).forEach(w=>html+=`<tr><td>${w.date}</td><td>${w.weight}</td></tr>`);html+=`</table></body></html>`;const blob=new Blob([html],{type:"application/vnd.ms-excel"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`GymTracker_${currentUser}_${today()}.xls`;a.click();URL.revokeObjectURL(a.href);}
-
-function beep(){try{if(!S.settings?.sound)return;const c=new (window.AudioContext||window.webkitAudioContext)();const o=c.createOscillator();const g=c.createGain();o.frequency.value=880;g.gain.value=.08;o.connect(g);g.connect(c.destination);o.start();setTimeout(()=>{o.stop();c.close()},180)}catch(e){}}
-function buzz(ms=180){try{if(S.settings?.vibration&&navigator.vibrate)navigator.vibrate(ms)}catch(e){}}
-function openLabFeedback(){document.getElementById("labPanel")?.classList.add("on")}
-function closeLabFeedback(){document.getElementById("labPanel")?.classList.remove("on")}
-function saveLabFeedback(){let type=document.getElementById("labType")?.value||"idea";let text=(document.getElementById("labText")?.value||"").trim();if(!text){alert("Escribe algo primero.");return}S.feedback=S.feedback||[];S.feedback.push({id:id(),date:now(),type,text,screen:document.querySelector(".screen.on")?.id||""});save();document.getElementById("labText").value="";closeLabFeedback();alert("Guardado en Laboratorio")}
-
-function emergencyBackupNow(){
+const USERS={Alberto:{icon:"💪",theme:"luxury"},Edy:{icon:"🏋️",theme:"elegance"}};let currentUser=localStorage.getItem("gt_user")||"Alberto";let S=null;function key(){return"gymtracker_alpha2_"+currentUser}function backupKey(){return"gymtracker_alpha2_backups_"+currentUser}function activeKey(){return"gymtracker_alpha2_active_"+currentUser}function id(){return Math.random().toString(36).slice(2)+Date.now().toString(36)}function today(){return new Date().toISOString().slice(0,10)}function now(){return new Date().toISOString()}function defaults(){return{version:"Alpha 2.0",settings:{theme:USERS[currentUser].theme,rest:120,inc:2.5,defaultTime:20,sound:false,vibration:false},profile:{name:currentUser,bodyWeight:null,targetWeight:null,height:null},exercises:[],routines:[],weekPlan:{},plan:{},sessions:[],sets:[],weights:[],blocks:[{id:id(),name:"Bloque personalizado",type:"Personalizado",startDate:today(),weeks:6,objective:"",note:"",routineIds:[]}],feedback:[],trash:{routines:[],blocks:[],sessions:[]},meta:{createdAt:now(),lastDailyBackup:null}}}function normalize(){S.settings=S.settings||defaults().settings;S.profile=S.profile||{name:currentUser};S.exercises=S.exercises||[];S.routines=S.routines||[];S.weekPlan=S.weekPlan||{};S.plan=S.plan||{};S.sessions=S.sessions||[];S.sets=S.sets||[];S.weights=S.weights||[];S.blocks=S.blocks||[];S.feedback=S.feedback||[];S.trash=S.trash||{routines:[],blocks:[],sessions:[]};S.meta=S.meta||{};S.version="Alpha 2.1";S.exercises.forEach(e=>{e.defaultWeight=+(e.defaultWeight||0);e.lastWeight=+(e.lastWeight||0);e.inc=+(e.inc||S.settings.inc||2.5);e.defaultRest=+(e.defaultRest||S.settings.rest||120);e.defaultTime=+(e.defaultTime||S.settings.defaultTime||20);e.techNotes=e.techNotes||""});if(!S.blocks.length)S.blocks=defaults().blocks}function load(){try{S=JSON.parse(localStorage.getItem(key()))}catch(e){S=null}if(!S)S=defaults();normalize();save(false);dailyBackup();theme()}function save(makeBackup=false){normalize();localStorage.setItem(key(),JSON.stringify(S));if(makeBackup)softBackup("manual")}function softBackup(reason="backup"){let list=backupList();list.push({id:id(),reason,date:now(),data:S});list=list.slice(-10);localStorage.setItem(backupKey(),JSON.stringify(list))}function dailyBackup(){let d=today();if(S.meta.lastDailyBackup!==d){S.meta.lastDailyBackup=d;softBackup("daily");localStorage.setItem(key(),JSON.stringify(S))}}function postWorkoutBackup(){softBackup("post_workout")}function backupList(){try{return JSON.parse(localStorage.getItem(backupKey())||"[]")}catch(e){return[]}}function restoreBackup(bid){let b=backupList().find(x=>x.id===bid);if(!b)return;if(!confirm("¿Restaurar backup?"))return;softBackup("before_restore");S=b.data;normalize();save(false);GT.render();alert("Backup restaurado")}function deleteBackup(bid){localStorage.setItem(backupKey(),JSON.stringify(backupList().filter(x=>x.id!==bid)));GT.render()}function downloadBlob(blob,name){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href)}function exportBackup(){downloadBlob(new Blob([JSON.stringify({user:currentUser,exportedAt:now(),data:S},null,2)],{type:"application/json"}),`GymTracker_${currentUser}_${today()}.json`)}function exportCSV(){let rows=["date,routine,exercise,set,weight,reps,mode"];S.sessions.forEach(sess=>{let r=rt(sess.routineId);S.sets.filter(x=>x.sessionId===sess.id).forEach(st=>{let e=ex(st.exerciseId);rows.push([sess.date,r?.name||"",e?.name||"",st.setNumber,st.weight,st.reps,st.mode||""].map(x=>`"${String(x).replaceAll('"','""')}"`).join(","))})});downloadBlob(new Blob([rows.join("\n")],{type:"text/csv"}),`GymTracker_${currentUser}_${today()}.csv`)}function exportExcel(){let html=`<html><meta charset="utf-8"><body><h1>GymTracker ${currentUser}</h1><table border="1"><tr><th>Fecha</th><th>Rutina</th><th>Ejercicio</th><th>Serie</th><th>Peso</th><th>Reps</th><th>Modo</th></tr>`;S.sessions.forEach(sess=>{let r=rt(sess.routineId);S.sets.filter(x=>x.sessionId===sess.id).forEach(st=>{let e=ex(st.exerciseId);html+=`<tr><td>${sess.date}</td><td>${r?.name||""}</td><td>${e?.name||""}</td><td>${st.setNumber}</td><td>${st.weight||0}</td><td>${st.reps||0}</td><td>${st.mode||""}</td></tr>`})});html+="</table></body></html>";downloadBlob(new Blob([html],{type:"application/vnd.ms-excel"}),`GymTracker_${currentUser}_${today()}.xls`)}function importBackupText(txt){try{let obj=JSON.parse(txt);softBackup("before_import");S=obj.data||obj;normalize();save(false);GT.render();alert("Backup restaurado")}catch(e){alert("JSON no válido")}}function saveActiveWorkout(a){if(a)localStorage.setItem(activeKey(),JSON.stringify(a))}function getActiveWorkout(){try{return JSON.parse(localStorage.getItem(activeKey()))}catch(e){return null}}function clearActiveWorkout(){localStorage.removeItem(activeKey())}function ex(eid){return S.exercises.find(e=>e.id===eid)}function rt(rid){return S.routines.find(r=>r.id===rid)}function theme(){document.body.classList.remove("elegance","carbon");let t=S.settings?.theme||USERS[currentUser].theme;if(t==="elegance")document.body.classList.add("elegance");if(t==="carbon")document.body.classList.add("carbon")}function beep(){try{if(!S.settings.sound)return;const c=new (window.AudioContext||window.webkitAudioContext)();const o=c.createOscillator();const g=c.createGain();o.frequency.value=880;g.gain.value=.08;o.connect(g);g.connect(c.destination);o.start();setTimeout(()=>{o.stop();c.close()},180)}catch(e){}}function buzz(ms=180){try{if(S.settings.vibration&&navigator.vibrate)navigator.vibrate(ms)}catch(e){}}function saveWeight(w){w=+w;if(!w)return false;S.profile.bodyWeight=w;S.weights.push({date:today(),weight:w});save();return true}
+let pendingImportBackup=null;
+function chooseBackupFile(){let input=document.getElementById("backupFileInput");if(input)input.click()}
+function readBackupFile(file){
+ if(!file)return;
+ const reader=new FileReader();
+ reader.onload=()=>{
   try{
-    softBackup("emergency");
-    exportBackup();
-    alert("Backup creado y descargado. Guárdalo antes de borrar datos del sitio.");
-  }catch(e){
-    alert("No se pudo crear backup: "+e.message);
-  }
+   const obj=JSON.parse(reader.result);
+   const data=obj.data||obj;
+   if(!data||!Array.isArray(data.routines)||!Array.isArray(data.sessions)||!Array.isArray(data.sets)){
+    alert("Este archivo no parece un backup válido de GymTracker.");return;
+   }
+   pendingImportBackup={raw:obj,data};
+   let el=document.getElementById("backupPreview");
+   if(el)el.innerHTML=`<div class="backupPreview"><h3>Backup detectado</h3><p><b>Usuario:</b> ${obj.user||data.profile?.name||"Sin indicar"}</p><p><b>Fecha:</b> ${obj.exportedAt||"Sin indicar"}</p><p><b>Rutinas:</b> ${(data.routines||[]).length}</p><p><b>Entrenamientos:</b> ${(data.sessions||[]).length}</p><p><b>Series:</b> ${(data.sets||[]).length}</p><p><b>Peso corporal:</b> ${data.profile?.bodyWeight||"—"} kg</p><button class="primary wall" onclick="confirmImportBackup()">Restaurar este backup</button></div>`;
+  }catch(e){alert("No se pudo leer el JSON: "+e.message)}
+ };
+ reader.readAsText(file);
 }
-
-function alphaMigration(){
-  S.meta=S.meta||{};
-  if(!S.meta.alpha10MigratedAt){
-    S.meta.alpha10MigratedAt=now();
-    S.meta.alpha10Note="Migrated to GymTracker Alpha 1.0";
-    localStorage.setItem(key(),JSON.stringify(S));
-  }
+function confirmImportBackup(){
+ if(!pendingImportBackup){alert("No hay backup cargado.");return}
+ if(!confirm("Esto reemplazará los datos actuales. Se creará un backup de seguridad antes. ¿Continuar?"))return;
+ softBackup("before_file_import");
+ S=pendingImportBackup.data;
+ normalize();
+ save(false);
+ pendingImportBackup=null;
+ alert("Backup restaurado correctamente");
+ GT.render();
 }

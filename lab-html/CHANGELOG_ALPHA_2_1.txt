@@ -1,0 +1,3 @@
+GYMTRACKER ALPHA 2.1
+
+Añadido Importar JSON desde archivo móvil con vista previa y backup previo.
