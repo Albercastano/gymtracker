@@ -96,7 +96,7 @@ function updItem(rid,iid,k,v){
  else if(k==="sets"){it.sets=Math.max(1,+v||1);it.repsPlan=Array.from({length:it.sets},(_,i)=>it.repsPlan[i]??8)}
  else if(k==="reps"){it.repsPlan=Array.from({length:it.sets||1},()=>+v||0)}
  else if(k==="weight")it.weight=+v||0;
- else if(k==="rest")it.rest=+v||0;
+ else if(k==="rest"){it.rest=+v||0;}
  else if(k==="mode"){it.mode=v;if(v==="failure")it.repsPlan=Array.from({length:it.sets||1},()=>0);if(v==="time"&&(!it.repsPlan?.[0]))it.repsPlan=Array.from({length:it.sets||1},()=>20)}
  else if(k==="note")it.note=v;
  else if(k==="superset")it.superset=v;

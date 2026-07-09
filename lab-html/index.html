@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#06070a">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <title>GymTracker Lab 9.4.1</title>
+  <title>GymTracker Alpha 1.0</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -20,7 +20,7 @@
   </div>
 </div>
 <div id="summaryOverlay" class="summaryOverlay"><div class="summaryBox" id="summaryBox"></div></div>
-  <div class="badge">LAB 9.4.1</div>
+  <div class="badge">ALPHA 1.0</div>
 
   <div id="profileModal" class="modal on">
     <div class="modalBox">
@@ -34,7 +34,7 @@
   <header>
     <button id="userChip" class="chip" onclick="GT.openUsers()">💪 Alberto</button>
     <div>
-      <strong>GymTracker Lab 9.4.1</strong>
+      <strong>GymTracker Alpha 1.0</strong>
       <small id="todayLabel"></small>
     </div>
   </header>
@@ -62,5 +62,6 @@
   <script src="stats.js"></script>
   <script src="season.js"></script>
   <script src="app.js"></script>
-</body>
+<button id="labFloat" class="labFloat" onclick="openLabFeedback()">💡</button>
+<div id="labPanel" class="labPanel"><div class="labBox"><h2>Sugerencias y errores</h2><select id="labType"><option value="idea">Sugerencia</option><option value="bug">Error</option><option value="ux">Mejora visual</option></select><textarea id="labText" placeholder="Apunta aquí..."></textarea><div class="row"><button class="primary" onclick="saveLabFeedback()">Guardar</button><button onclick="closeLabFeedback()">Cerrar</button></div></div></div></body>
 </html>

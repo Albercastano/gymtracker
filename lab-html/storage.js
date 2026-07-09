@@ -9,9 +9,9 @@ function today(){return new Date().toISOString().slice(0,10)}
 function now(){return new Date().toISOString()}
 function defaults(){return{version:"7.2",settings:{theme:USERS[currentUser].theme,rest:120,inc:2.5,fontSize:"normal",lefty:false,sound:false,vibration:false},profile:{name:currentUser,bodyWeight:null,targetWeight:null,height:null,birthDate:null,sex:""},exercises:[],routines:[],plan:{},sessions:[],sets:[],weights:[],blocks:[{id:id(),name:"Bloque actual",type:"Fuerza",startDate:today(),weeks:8,deload:true,note:""}],trash:{routines:[],blocks:[],sessions:[]},weekPlan:{},meta:{createdAt:now(),updatedAt:now(),lastDailyBackup:null}}}
 function normalizeData(){
- S.settings=S.settings||{};S.profile=S.profile||{name:currentUser};S.settings.inc=S.settings.inc||2.5;S.settings.rest=S.settings.rest||120;S.settings.theme=S.settings.theme||USERS[currentUser].theme;S.settings.fontSize=S.settings.fontSize||"normal";S.settings.sound=!!S.settings.sound;S.settings.vibration=!!S.settings.vibration;S.exercises=S.exercises||[];S.routines=S.routines||[];S.plan=S.plan||{};S.sessions=S.sessions||[];S.sets=S.sets||[];S.weights=S.weights||[];S.blocks=S.blocks||[];
+ S.settings=S.settings||{};S.profile=S.profile||{name:currentUser};S.settings.inc=S.settings.inc||2.5;S.settings.rest=S.settings.rest||120;S.settings.theme=S.settings.theme||USERS[currentUser].theme;S.settings.fontSize=S.settings.fontSize||"normal";S.settings.sound=!!S.settings.sound;S.settings.vibration=!!S.settings.vibration;S.settings.defaultTime=S.settings.defaultTime||20;S.feedback=S.feedback||[];S.exercises=S.exercises||[];S.routines=S.routines||[];S.plan=S.plan||{};S.sessions=S.sessions||[];S.sets=S.sets||[];S.weights=S.weights||[];S.blocks=S.blocks||[];
  S.trash=S.trash||{routines:[],blocks:[],sessions:[]};S.trash.routines=S.trash.routines||[];S.trash.blocks=S.trash.blocks||[];S.trash.sessions=S.trash.sessions||[];
- S.meta=S.meta||{createdAt:now()};S.weekPlan=S.weekPlan||{};S.version="7.2";S.meta.updatedAt=now();
+ S.meta=S.meta||{createdAt:now()};S.weekPlan=S.weekPlan||{};S.version="Alpha 1.0";S.meta.updatedAt=now();
  if(!S.blocks.length)S.blocks=defaults().blocks;ensureExerciseDefaults();
 }
 function load(){try{S=JSON.parse(localStorage.getItem(key()))}catch(e){S=null}if(!S)S=defaults();normalizeData();save(false);dailyBackup()}
@@ -36,3 +36,28 @@ function postWorkoutBackup(){softBackup('post_workout')}
 function ensureExerciseDefaults(){S.exercises=S.exercises||[];S.exercises.forEach(e=>{e.defaultWeight=+(e.defaultWeight||0);e.lastWeight=+(e.lastWeight||0);e.inc=+(e.inc||S.settings.inc||2.5);e.defaultRest=+(e.defaultRest||S.settings.rest||120);e.techNotes=e.techNotes||"";});}
 function postWorkoutBackup(){softBackup("post_workout")}
 function exportExcel(){let html=`<html><head><meta charset="utf-8"></head><body><h1>GymTracker ${currentUser}</h1>`;html+=`<h2>Entrenamientos</h2><table border="1"><tr><th>Fecha</th><th>Rutina</th><th>Ejercicio</th><th>Serie</th><th>Peso</th><th>Reps</th><th>Modo</th></tr>`;S.sessions.forEach(sess=>{let r=rt(sess.routineId);S.sets.filter(x=>x.sessionId===sess.id).forEach(st=>{let e=ex(st.exerciseId);html+=`<tr><td>${sess.date}</td><td>${r?.name||""}</td><td>${e?.name||""}</td><td>${st.setNumber}</td><td>${st.weight||0}</td><td>${st.reps||0}</td><td>${st.mode||""}</td></tr>`})});html+=`</table><h2>Peso corporal</h2><table border="1"><tr><th>Fecha</th><th>Peso</th></tr>`;(S.weights||[]).forEach(w=>html+=`<tr><td>${w.date}</td><td>${w.weight}</td></tr>`);html+=`</table></body></html>`;const blob=new Blob([html],{type:"application/vnd.ms-excel"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`GymTracker_${currentUser}_${today()}.xls`;a.click();URL.revokeObjectURL(a.href);}
+
+function beep(){try{if(!S.settings?.sound)return;const c=new (window.AudioContext||window.webkitAudioContext)();const o=c.createOscillator();const g=c.createGain();o.frequency.value=880;g.gain.value=.08;o.connect(g);g.connect(c.destination);o.start();setTimeout(()=>{o.stop();c.close()},180)}catch(e){}}
+function buzz(ms=180){try{if(S.settings?.vibration&&navigator.vibrate)navigator.vibrate(ms)}catch(e){}}
+function openLabFeedback(){document.getElementById("labPanel")?.classList.add("on")}
+function closeLabFeedback(){document.getElementById("labPanel")?.classList.remove("on")}
+function saveLabFeedback(){let type=document.getElementById("labType")?.value||"idea";let text=(document.getElementById("labText")?.value||"").trim();if(!text){alert("Escribe algo primero.");return}S.feedback=S.feedback||[];S.feedback.push({id:id(),date:now(),type,text,screen:document.querySelector(".screen.on")?.id||""});save();document.getElementById("labText").value="";closeLabFeedback();alert("Guardado en Laboratorio")}
+
+function emergencyBackupNow(){
+  try{
+    softBackup("emergency");
+    exportBackup();
+    alert("Backup creado y descargado. Guárdalo antes de borrar datos del sitio.");
+  }catch(e){
+    alert("No se pudo crear backup: "+e.message);
+  }
+}
+
+function alphaMigration(){
+  S.meta=S.meta||{};
+  if(!S.meta.alpha10MigratedAt){
+    S.meta.alpha10MigratedAt=now();
+    S.meta.alpha10Note="Migrated to GymTracker Alpha 1.0";
+    localStorage.setItem(key(),JSON.stringify(S));
+  }
+}

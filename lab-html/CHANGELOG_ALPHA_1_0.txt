@@ -1,0 +1,25 @@
+GYMTRACKER ALPHA 1.0
+
+Versión acumulativa basada en Lab 9.4.4.
+
+Incluye:
+- Constructor visual de rutinas.
+- Importador de rutinas.
+- Plan semanal.
+- Bloques personalizados.
+- Perfil y peso corporal.
+- Pesos por defecto por ejercicio.
+- Entrenamiento con recuperación de sesión activa.
+- Cronómetro de ejercicio y descanso.
+- Descanso aplicado desde constructor.
+- Historial plegado editable.
+- Coach Report copiable.
+- PR por ejercicio.
+- Estadísticas, fuerza relativa y gráficas básicas.
+- Backups JSON / CSV / Excel compatible.
+- Botón flotante de sugerencias y errores.
+- Skins Luxury / Elegance / Carbon.
+- Protección contra pérdida de datos mediante backups.
+
+Nota:
+No borres “datos del sitio” si quieres conservar entrenos. Antes de limpiar caché, exporta JSON desde Ajustes.
