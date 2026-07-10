@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#050507">
+  <title>GymTracker Phoenix v6</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <section id="splash" class="splash">
+    <div class="splash-card forged">
+      <div class="phoenix-emblem" aria-hidden="true">
+        <svg viewBox="0 0 240 240" role="img">
+          <defs>
+            <linearGradient id="goldWing" x1="0" x2="1">
+              <stop offset="0" stop-color="#8a5a12"/>
+              <stop offset=".48" stop-color="#f4cf73"/>
+              <stop offset=".7" stop-color="#fff0b8"/>
+              <stop offset="1" stop-color="#8a5a12"/>
+            </linearGradient>
+          </defs>
+          <path d="M120 38c-10 18-19 31-32 42-18 16-41 24-66 28 20 12 41 16 61 12-19 13-36 24-52 41 26-2 48-10 68-26-12 18-17 35-19 55 14-12 26-27 40-48 14 21 26 36 40 48-2-20-7-37-19-55 20 16 42 24 68 26-16-17-33-28-52-41 20 4 41 0 61-12-25-4-48-12-66-28-13-11-22-24-32-42Z" fill="url(#goldWing)" stroke="#f8db8e" stroke-width="3"/>
+          <path d="M120 66c-18 19-28 39-29 58 9-10 18-17 29-22 11 5 20 12 29 22-1-19-11-39-29-58Z" fill="#0b0b0c" stroke="#f8db8e" stroke-width="3"/>
+          <circle cx="120" cy="84" r="7" fill="#fff0b8"/>
+        </svg>
+      </div>
+      <h1>GymTracker</h1>
+      <div class="splash-subtitle">PHOENIX</div>
+      <p>Entrena más. Toca menos. Progresa siempre.</p>
+    </div>
+  </section>
+
+  <main class="phone">
+    <header class="topbar">
+      <button class="ghost" onclick="Phoenix.goHome()">Inicio</button>
+      <div class="version">PHOENIX v6</div>
+    </header>
+
+    <section id="home" class="screen active">
+      <div class="home-core">
+        <div class="home-forged-panel">
+          <div class="eyebrow">HOY TOCA</div>
+          <h2 id="todayRoutine">TORSO A</h2>
+          <div class="meta-row">
+            <span id="todayDay">Lunes</span>
+            <span>3 ejercicios</span>
+            <span>25 min</span>
+          </div>
+
+          <div class="ready-card">
+            <div class="ready-score">
+              <div class="score-ring"><span>70</span></div>
+            </div>
+            <div class="ready-copy">
+              <strong>Índice de preparación</strong>
+              <p>Sesión exigente pero asumible. Ajusta peso o reps si hoy no estás fino.</p>
+            </div>
+          </div>
+
+          <div class="action-note">
+            <strong>Siguiente mejor acción</strong>
+            <span>Ejecuta la rutina limpia.</span>
+          </div>
+
+          <div class="home-primary-actions">
+            <button class="gym-button" onclick="Phoenix.enterGym()">
+              <span>GYM</span>
+              <small>Modo focus</small>
+            </button>
+            <button class="data-button" onclick="Phoenix.showDataHub()">
+              <span>DATOS</span>
+              <small>Organizar</small>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="gym" class="screen">
+      <div class="gym-stage">
+        <button class="back-pill" onclick="Phoenix.goHome()">← Inicio</button>
+        <div class="routine-name">TORSO A</div>
+        <h2>PRESS BANCA</h2>
+        <div id="gymExerciseRail" class="exercise-rail"></div><div class="control-panel forged-controls">
+          <div class="control-box"><div class="control-title">REPS</div><button class="arrow-button" onclick="Phoenix.adjust('reps',1)">▲</button><div class="control-value" id="repsValue">8</div><button class="arrow-button" onclick="Phoenix.adjust('reps',-1)">▼</button></div>
+          <div class="control-box"><div class="control-title">PESO</div><button class="arrow-button" onclick="Phoenix.adjust('weight',2.5)">▲</button><div class="control-value"><span id="weightValue">80</span><small>kg</small></div><button class="arrow-button" onclick="Phoenix.adjust('weight',-2.5)">▼</button></div>
+          <div class="control-box"><div class="control-title">DESCANSO</div><button class="arrow-button" onclick="Phoenix.adjust('rest',5)">▲</button><div class="control-value"><span id="restValue">90</span><small>s</small></div><button class="arrow-button" onclick="Phoenix.adjust('rest',-5)">▼</button></div>
+        </div>
+        <button class="king-button" onclick="Phoenix.startSeries()">INICIAR SERIE</button>
+      </div>
+    </section>
+
+    <section id="series" class="screen"><div class="gym-stage"><div class="routine-name" id="seriesExerciseName">PRESS BANCA</div><h2 id="seriesNumber">SERIE 1 / 3</h2><div class="series-focus-panel"><div class="series-big"><span id="seriesReps">8</span><small>reps</small></div><div class="series-weight"><span id="seriesWeight">80</span><small>kg</small></div></div><button class="king-button forged-king" onclick="Phoenix.finishSeries()">FINALIZAR SERIE</button></div></section>
+
+    <section id="rest" class="screen rest-screen">
+      <div class="casio">
+        <div class="casio-label">DESCANSO</div>
+        <div class="casio-time">01:30</div>
+        <div class="casio-next">Siguiente<br><b>DOMINADAS</b></div>
+      </div>
+      <button class="king-button orange" onclick="Phoenix.showExerciseSummary()">SALTAR DESCANSO</button>
+    </section>
+
+    <section id="exerciseSummary" class="screen">
+      <div class="gym-stage">
+        <button class="back-pill" onclick="Phoenix.showRest()">← Descanso</button>
+        <div class="routine-name">COMPLETADO</div>
+        <h2>PRESS BANCA</h2>
+        <div id="summaryRows" class="summary-lines"></div>
+        <button class="secondary-button" onclick="Phoenix.toggleEditSummary()">EDITAR</button>
+        <button class="king-button" onclick="Phoenix.nextExercise()">SIGUIENTE EJERCICIO</button>
+      </div>
+    </section>
+
+    <section id="data" class="screen">
+      <div class="data-hub">
+        <button class="back-pill" onclick="Phoenix.goHome()">← Inicio</button>
+        <div class="eyebrow">MODO</div>
+        <h2>DATOS</h2>
+        <p>Todo lo que no necesitas durante una serie vive aquí.</p>
+        <div class="data-grid">
+          <button class="gold-data-button" onclick="Phoenix.showRoutineBuilder()">Rutinas</button>
+          <button onclick="Phoenix.showDataStub('Historial')">Historial</button>
+          <button onclick="Phoenix.showDataStub('Progreso')">Progreso</button>
+          <button class="gold-data-button" onclick="Phoenix.showSeasonBuilder()">Plan anual</button>
+          <button onclick="Phoenix.showDataStub('Backups')">Backups</button>
+          <button onclick="Phoenix.showDataStub('Ajustes')">Ajustes</button>
+          <button onclick="Phoenix.showDataStub('Laboratorio')">Laboratorio</button>
+        </div>
+      </div>
+    </section>
+  <section id="workoutSummary" class="screen"><div class="gym-stage"><div class="routine-name">ENTRENAMIENTO</div><h2>COMPLETADO</h2><div class="summary-stats"><div><span id="doneExercises">0</span><small>ejercicios</small></div><div><span id="doneSets">0</span><small>series</small></div><div><span id="doneVolume">0</span><small>kg volumen</small></div></div><div class="coach-report" id="coachReport"></div><button class="king-button" onclick="Phoenix.finishWorkout()">VOLVER AL INICIO</button></div></section>
+    <section id="season" class="screen">
+      <div class="data-hub season-hub">
+        <button class="back-pill" onclick="Phoenix.showDataHub()">← Datos</button>
+        <div class="eyebrow">CONSTRUCTOR</div>
+        <h2>PLAN ANUAL</h2>
+        <p>Construye la temporada por bloques. Visual, simple y editable.</p>
+
+        <div class="season-steps">
+          <button class="season-step active" data-step="1" onclick="Phoenix.setSeasonStep(1)">1. Temporada</button>
+          <button class="season-step" data-step="2" onclick="Phoenix.setSeasonStep(2)">2. Objetivo</button>
+          <button class="season-step" data-step="3" onclick="Phoenix.setSeasonStep(3)">3. Bloques</button>
+          <button class="season-step" data-step="4" onclick="Phoenix.setSeasonStep(4)">4. Construir</button>
+          <button class="season-step" data-step="5" onclick="Phoenix.setSeasonStep(5)">5. Año</button>
+        </div>
+
+        <div id="seasonStepContent" class="season-content"></div>
+      </div>
+    </section>
+
+    <section id="dataStub" class="screen">
+      <div class="data-hub">
+        <button class="back-pill" onclick="Phoenix.showDataHub()">← Datos</button>
+        <div class="eyebrow">MÓDULO</div>
+        <h2 id="dataStubTitle">DATOS</h2>
+        <p>Este módulo llegará en los siguientes ZIP.</p>
+      </div>
+    </section>
+
+  
+    <section id="routines" class="screen">
+      <div class="data-hub routine-hub">
+        <button class="back-pill" onclick="Phoenix.showDataHub()">← Datos</button>
+        <div class="eyebrow">CONSTRUCTOR</div>
+        <h2>RUTINAS</h2>
+        <p>Construye tu rutina como si montaras piezas. Sin formularios eternos.</p>
+
+        <div class="routine-toolbar">
+          <button class="primary-data-action" onclick="Phoenix.newRoutine()">＋ Nueva rutina</button>
+          <button onclick="Phoenix.duplicateActiveRoutine()">Duplicar</button>
+          <button onclick="Phoenix.assignRoutineToday()">Asignar hoy</button>
+        </div>
+
+        <div class="routine-select-card">
+          <label>Rutina activa
+            <select id="routineSelect" onchange="Phoenix.selectRoutine(this.value)"></select>
+          </label>
+          <input id="routineNameInput" placeholder="Nombre de rutina" onchange="Phoenix.renameActiveRoutine(this.value)">
+        </div>
+
+        <div id="routineExerciseList" class="routine-exercise-list"></div>
+
+        <button class="king-button compact-king" onclick="Phoenix.openExerciseLibrary()">AÑADIR EJERCICIO</button>
+      </div>
+    </section>
+
+    <section id="exerciseLibrary" class="screen">
+      <div class="data-hub library-hub">
+        <button class="back-pill" onclick="Phoenix.showRoutineBuilder()">← Rutinas</button>
+        <div class="eyebrow">BIBLIOTECA</div>
+        <h2>EJERCICIOS</h2>
+        <input id="exerciseSearch" class="library-search" placeholder="Buscar ejercicio..." oninput="Phoenix.renderExerciseLibrary()">
+        <div id="exerciseCategories" class="category-row"></div>
+        <div id="exerciseLibraryList" class="exercise-library-list"></div>
+      </div>
+    </section>
+
+  </main>
+  <script src="app.js"></script>
+<div id="nextExerciseOverlay" class="next-exercise-overlay"><div class="next-exercise-card"><div class="checkmark">✓</div><div class="next-done" id="nextDoneExercise">PRESS BANCA</div><div class="next-caption">SIGUIENTE</div><div class="next-name" id="nextExerciseName">DOMINADAS</div><div class="next-meta" id="nextExerciseMeta">3 × 8 · 90 s</div></div></div></body>
+</html>
