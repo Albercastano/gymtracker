@@ -435,13 +435,17 @@ const App={
     this.saveActive();
 
     const overlay=document.getElementById("nextExerciseOverlay");
+    overlay.classList.remove("closing");
     overlay.classList.add("show");
     overlay.setAttribute("aria-hidden","false");
+
+    setTimeout(()=>overlay.classList.add("closing"),2350);
+
     setTimeout(()=>{
-      overlay.classList.remove("show");
+      overlay.classList.remove("show","closing");
       overlay.setAttribute("aria-hidden","true");
       this.renderGym()
-    },1100)
+    },2800)
   },
 
   finishWorkout(){

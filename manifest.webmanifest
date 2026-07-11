@@ -1,6 +1,6 @@
 {
-  "name": "GymTracker Phoenix v8.3 Polish RC1",
-  "short_name": "GT Phoenix 8.3",
+  "name": "GymTracker Phoenix v8.4 Transition Polish",
+  "short_name": "GT Phoenix 8.4",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#050507",

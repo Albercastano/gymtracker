@@ -201,3 +201,27 @@ main{
   .control-panel{gap:5px}
   .control-box{border-radius:20px}
 }
+
+/* v8.4 · transición siguiente ejercicio */
+.next-overlay.show .next-card{
+  animation:
+    nextFlyIn .42s cubic-bezier(.2,.8,.2,1) both,
+    nextHoldFade 2.4s ease-in-out .42s forwards;
+}
+@keyframes nextFlyIn{
+  from{opacity:0;transform:translateX(70%) scale(.97)}
+  to{opacity:1;transform:none}
+}
+@keyframes nextHoldFade{
+  0%,68%{opacity:1;transform:none}
+  82%{opacity:.88;transform:translateY(-2px)}
+  100%{opacity:0;transform:translateY(-10px) scale(.985)}
+}
+.next-overlay.closing{
+  display:flex;
+  animation:overlayFade .42s ease forwards;
+}
+@keyframes overlayFade{
+  from{background:rgba(0,0,0,.78);backdrop-filter:blur(12px)}
+  to{background:rgba(0,0,0,0);backdrop-filter:blur(0)}
+}
