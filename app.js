@@ -118,6 +118,8 @@ const App={
     }
 
     this.active.completedExercises=Array.isArray(this.active.completedExercises)?this.active.completedExercises:[];
+    this.active.exerciseProgress=(this.active.exerciseProgress&&typeof this.active.exerciseProgress==="object")
+      ?this.active.exerciseProgress:{};
     this.active.phase=["gym","series","rest","summary"].includes(this.active.phase)?this.active.phase:"gym";
 
     if(this.active.phase==="rest" && Number(this.active.restEndsAt)>0){
@@ -215,7 +217,7 @@ const App={
   startWorkout(routineId){
     const r=this.getRoutine(routineId);
     if(!r||!r.items.length){alert("No hay una rutina válida para hoy.");return}
-    this.active={id:"s"+Date.now(),routineId:r.id,date:new Date().toISOString(),exerciseIndex:0,setIndex:0,currentSets:[],completedExercises:[],startedAt:Date.now(),phase:"gym",restEndsAt:null,restLeft:0};
+    this.active={id:"s"+Date.now(),routineId:r.id,date:new Date().toISOString(),exerciseIndex:0,setIndex:0,currentSets:[],completedExercises:[],exerciseProgress:{},startedAt:Date.now(),phase:"gym",restEndsAt:null,restLeft:0};
     this.saveActive();
     this.renderGym()
   },
@@ -307,6 +309,18 @@ const App={
 
     this.active.currentSets.push(completedSet);
     this.active.setIndex=this.active.currentSets.length;
+
+    // Guardado duradero por ejercicio. No depende del peso externo ni de pulsar
+    // correctamente la transición al ejercicio siguiente.
+    const progressKey=String(this.active.exerciseIndex);
+    this.active.exerciseProgress[progressKey]={
+      plannedName:e.originalName||e.name,
+      name:e.name,
+      exerciseId:e.libraryId||null,
+      mode:e.mode||"reps",
+      sets:this.active.currentSets.map(x=>({...x}))
+    };
+
     this.active.phase=this.active.setIndex>=e.sets?"summary":"rest";
     this.saveActive(); // guardado inmediatamente después de cada serie
 
@@ -408,12 +422,29 @@ const App={
     const e=this.currentExercise();
     if(!e||!this.active)return;
 
-    this.active.completedExercises.push({
+    const completedEntry={
       plannedName:e.originalName||e.name,
       name:e.name,
       exerciseId:e.libraryId||null,
+      mode:e.mode||"reps",
       sets:this.active.currentSets.map(x=>({...x}))
-    });
+    };
+
+    const existingIndex=this.active.completedExercises.findIndex(
+      x=>x.exerciseIndex===this.active.exerciseIndex
+    );
+    completedEntry.exerciseIndex=this.active.exerciseIndex;
+
+    if(existingIndex>=0){
+      this.active.completedExercises[existingIndex]=completedEntry;
+    }else{
+      this.active.completedExercises.push(completedEntry);
+    }
+
+    this.active.exerciseProgress[String(this.active.exerciseIndex)]={
+      ...completedEntry,
+      sets:completedEntry.sets.map(x=>({...x}))
+    };
 
     if(this.active.exerciseIndex>=this.currentRoutine().items.length-1){
       this.saveActive();
@@ -448,14 +479,124 @@ const App={
     },2800)
   },
 
+  buildSessionExercises(){
+    if(!this.active)return[];
+    const routine=this.currentRoutine();
+    const byIndex=new Map();
+
+    // Datos consolidados al terminar cada ejercicio.
+    (this.active.completedExercises||[]).forEach((entry,fallbackIndex)=>{
+      const index=Number.isInteger(entry.exerciseIndex)?entry.exerciseIndex:fallbackIndex;
+      if(Array.isArray(entry.sets)&&entry.sets.length){
+        byIndex.set(index,{
+          ...entry,
+          exerciseIndex:index,
+          sets:entry.sets.map(s=>({...s,weight:Number(s.weight)||0,reps:Number(s.reps)||0}))
+        })
+      }
+    });
+
+    // Datos guardados inmediatamente después de cada serie.
+    Object.entries(this.active.exerciseProgress||{}).forEach(([key,entry])=>{
+      const index=Number(key);
+      if(Number.isInteger(index)&&Array.isArray(entry.sets)&&entry.sets.length){
+        byIndex.set(index,{
+          ...entry,
+          exerciseIndex:index,
+          sets:entry.sets.map(s=>({...s,weight:Number(s.weight)||0,reps:Number(s.reps)||0}))
+        })
+      }
+    });
+
+    // Incluye también el ejercicio actual si tiene series realizadas.
+    if(Array.isArray(this.active.currentSets)&&this.active.currentSets.length){
+      const e=this.currentExercise();
+      byIndex.set(this.active.exerciseIndex,{
+        exerciseIndex:this.active.exerciseIndex,
+        plannedName:e?.originalName||e?.name||"Ejercicio",
+        name:e?.name||"Ejercicio",
+        exerciseId:e?.libraryId||null,
+        mode:e?.mode||"reps",
+        sets:this.active.currentSets.map(s=>({
+          ...s,
+          weight:Number(s.weight)||0,
+          reps:Number(s.reps)||0
+        }))
+      })
+    }
+
+    return [...byIndex.values()]
+      .sort((a,b)=>a.exerciseIndex-b.exerciseIndex)
+      .map(entry=>({
+        ...entry,
+        plannedName:entry.plannedName||routine?.items?.[entry.exerciseIndex]?.name||entry.name,
+        name:entry.name||routine?.items?.[entry.exerciseIndex]?.name||"Ejercicio"
+      }))
+  },
+
   finishWorkout(){
     const r=this.currentRoutine();
-    const session={id:this.active.id,date:this.active.date,routineId:r.id,routineName:r.name,startedAt:this.active.startedAt,endedAt:Date.now(),exercises:this.active.completedExercises};
-    session.totalSets=session.exercises.reduce((a,e)=>a+e.sets.length,0);
-    session.volume=session.exercises.reduce((a,e)=>a+e.sets.reduce((s,x)=>s+x.weight*x.reps,0),0);
-    this.data.sessions.push(session);this.save();
-    this.active=null;this.saveActive();
-    document.getElementById("workoutSummary").innerHTML=`<div class="focus"><div class="eyebrow">ENTRENAMIENTO COMPLETADO</div><div class="title">${r.name.toUpperCase()}</div><div class="grid"><div class="card"><div class="title">${session.exercises.length}</div><div>ejercicios</div></div><div class="card"><div class="title">${session.totalSets}</div><div>series</div></div><div class="card"><div class="title">${Math.round(session.volume)}</div><div>kg volumen</div></div></div><button class="king small-king" onclick="App.renderHome()">VOLVER AL INICIO</button></div>`;
+    if(!r||!this.active)return;
+
+    const exercises=this.buildSessionExercises();
+    const session={
+      id:this.active.id,
+      date:this.active.date,
+      routineId:r.id,
+      routineName:r.name,
+      startedAt:this.active.startedAt,
+      endedAt:Date.now(),
+      exercises
+    };
+
+    session.totalSets=exercises.reduce((total,e)=>total+e.sets.length,0);
+
+    // El volumen es una métrica independiente. Peso 0 nunca elimina la serie.
+    session.volume=exercises.reduce(
+      (total,e)=>total+e.sets.reduce(
+        (sum,s)=>sum+((Number(s.weight)||0)*(Number(s.reps)||0)),
+        0
+      ),
+      0
+    );
+
+    session.reportedExerciseCount=exercises.length;
+    this.data.sessions.push(session);
+    this.save();
+
+    this.active=null;
+    this.saveActive();
+
+    const exerciseReport=exercises.map(e=>{
+      const series=e.sets.map(s=>{
+        const repsLabel=e.mode==="time"
+          ?`${s.reps} s`
+          :`${s.reps} reps`;
+        const weightLabel=(Number(s.weight)||0)>0
+          ?` · ${Number(s.weight)} kg`
+          :` · peso corporal / sin carga externa`;
+        return `${repsLabel}${weightLabel}`
+      }).join("<br>");
+
+      return `<div class="list-item"><strong>${e.name}</strong><br>${series}</div>`
+    }).join("");
+
+    document.getElementById("workoutSummary").innerHTML=
+      `<div class="focus">
+        <div class="eyebrow">ENTRENAMIENTO COMPLETADO</div>
+        <div class="title">${r.name.toUpperCase()}</div>
+        <div class="grid">
+          <div class="card"><div class="title">${exercises.length}</div><div>ejercicios</div></div>
+          <div class="card"><div class="title">${session.totalSets}</div><div>series</div></div>
+          <div class="card"><div class="title">${Math.round(session.volume)}</div><div>kg volumen externo</div></div>
+        </div>
+        <div class="card">
+          <div class="eyebrow">INFORME COMPLETO</div>
+          <div class="list">${exerciseReport||'<div class="muted">No se registraron series.</div>'}</div>
+        </div>
+        <button class="king small-king" onclick="App.renderHome()">VOLVER AL INICIO</button>
+      </div>`;
+
     this.show("workoutSummary","Inicio")
   },
 
@@ -557,7 +698,11 @@ const App={
   },
 
   renderHistory(withHistory=true){
-    document.getElementById("history").innerHTML=`<div class="card"><div class="eyebrow">HISTORIAL</div></div>${this.data.sessions.slice().reverse().map(s=>`<details class="card"><summary><strong>${s.routineName}</strong> · ${new Date(s.date).toLocaleDateString()}</summary><p>${s.totalSets} series · ${Math.round(s.volume)} kg</p>${s.exercises.map(e=>`<div class="list-item"><strong>${e.name}</strong><br>${e.sets.map(x=>`${x.weight}kg × ${x.reps}`).join(" · ")}</div>`).join("")}</details>`).join("")||'<div class="card muted">Todavía no hay entrenamientos guardados.</div>'}`;
+    document.getElementById("history").innerHTML=`<div class="card"><div class="eyebrow">HISTORIAL</div></div>${this.data.sessions.slice().reverse().map(s=>`<details class="card"><summary><strong>${s.routineName}</strong> · ${new Date(s.date).toLocaleDateString()}</summary><p>${s.totalSets} series · ${Math.round(s.volume)} kg</p>${s.exercises.map(e=>`<div class="list-item"><strong>${e.name}</strong><br>${e.sets.map(x=>{
+  const w=(Number(x.weight)||0)>0?`${Number(x.weight)}kg`:"Peso corporal / 0kg";
+  const unit=e.mode==="time"?"s":"reps";
+  return `${w} × ${Number(x.reps)||0} ${unit}`
+}).join(" · ")}</div>`).join("")}</details>`).join("")||'<div class="card muted">Todavía no hay entrenamientos guardados.</div>'}`;
     this.show("history","Datos",{history:withHistory})
   },
 
