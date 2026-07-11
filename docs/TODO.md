@@ -1,7 +1,4 @@
 # TODO
 
-- Historial.
-- Progreso.
-- Backup.
-- Ajustes.
-- Laboratorio.
+- Probar un entrenamiento completo.
+- Corregir únicamente bugs críticos antes del lunes.
