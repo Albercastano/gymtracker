@@ -1,9 +1,26 @@
-# TODO DE PRUEBA
+# CHECKLIST DE ACEPTACIÓN
 
-1. Completar 3 series.
-2. Comprobar Casio entre series.
-3. Salir de la app durante el descanso y volver.
-4. Corregir reps/peso en resumen.
-5. Pasar al siguiente ejercicio.
-6. Pulsar Atrás de Android en Gym, Datos, Biblioteca y Rutinas.
-7. Confirmar que no vuelve a la web anterior.
+## Inicio y navegación
+- [ ] Splash correcto.
+- [ ] GYM abre la rutina de hoy.
+- [ ] DATOS abre el menú.
+- [ ] Atrás Android no sale a la web anterior.
+- [ ] Botones Inicio/Datos/Rutinas/Ejercicio llevan al destino correcto.
+
+## Entrenamiento
+- [ ] Iniciar serie.
+- [ ] Finalizar serie una sola vez aunque se pulse dos veces.
+- [ ] Casio aparece.
+- [ ] Casio continúa tras bloquear/reabrir.
+- [ ] Siguiente serie correcta.
+- [ ] Resumen editable.
+- [ ] Transición al siguiente ejercicio.
+- [ ] Finalizar y guardar sesión.
+
+## Datos
+- [ ] Biblioteca.
+- [ ] Añadir ejercicio a rutina.
+- [ ] Asignar rutina a hoy.
+- [ ] Historial.
+- [ ] Peso corporal.
+- [ ] Exportar/importar backup.

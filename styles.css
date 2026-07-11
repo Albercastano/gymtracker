@@ -93,3 +93,111 @@ textarea{min-height:100px}
 .next-name{margin-top:8px;font-size:clamp(2.6rem,13vw,5.8rem);line-height:.82;letter-spacing:-.09em;font-weight:1000}
 .next-meta{margin-top:14px;color:var(--mut);font-weight:900}
 .inline-edit-note{color:var(--mut);font-size:.88rem;margin-top:8px}
+
+/* v8.2 VISUAL LOCK — estética FORGED aprobada */
+.forged{position:relative;overflow:hidden}
+.forged::before{
+  content:"";position:absolute;inset:-20%;
+  background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.06) 47%,transparent 58%);
+  transform:translateX(-55%);animation:metalSweep 2.8s ease-in-out infinite;
+  pointer-events:none
+}
+@keyframes metalSweep{
+  0%,30%{transform:translateX(-55%)}
+  70%,100%{transform:translateX(55%)}
+}
+.phoenix-emblem{
+  width:min(52vw,260px);margin:0 auto 12px;
+  filter:drop-shadow(0 18px 34px rgba(240,186,65,.18))
+}
+.phoenix-emblem svg{display:block;width:100%}
+.splash-card{
+  width:min(92vw,520px);
+  padding:28px 24px 32px;
+  border:1px solid rgba(255,240,184,.18);
+  border-radius:34px;
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.02)),
+    linear-gradient(180deg,#131319,#070708);
+  box-shadow:
+    0 36px 110px rgba(0,0,0,.76),
+    inset 0 1px 0 rgba(255,255,255,.12)
+}
+.splash-card h1{
+  margin:0;font-size:clamp(2.7rem,12vw,5.8rem);
+  line-height:.86;letter-spacing:-.09em
+}
+.splash-card .sub{
+  margin-top:10px;color:var(--gold2);
+  font-weight:1000;letter-spacing:.42em;font-size:.82rem
+}
+.splash-card p{margin-top:18px}
+.king,.data-king,.control-box,.card,.rest-dial,.series-box{
+  transform-style:preserve-3d
+}
+.dest-button{
+  box-shadow:0 6px 0 rgba(0,0,0,.38),0 12px 22px rgba(0,0,0,.28);
+  min-width:92px
+}
+.dest-button:active{
+  transform:translateY(4px);
+  box-shadow:0 2px 0 rgba(0,0,0,.38),0 5px 12px rgba(0,0,0,.24)
+}
+
+/* v8.3 POLISH RC1 */
+:root{
+  --tap-min:52px;
+}
+button{min-height:var(--tap-min)}
+.topbar{
+  min-height:64px;
+  padding-top:max(12px,env(safe-area-inset-top));
+}
+main{
+  padding-bottom:calc(40px + env(safe-area-inset-bottom));
+}
+.screen{
+  animation:screenIn .16s ease both;
+}
+@keyframes screenIn{
+  from{opacity:.001;transform:translateY(4px)}
+  to{opacity:1;transform:none}
+}
+.king,.data-king,.secondary,.danger,.dest-button,.arrow{
+  user-select:none;
+  touch-action:manipulation;
+}
+.king:focus-visible,.data-king:focus-visible,.secondary:focus-visible,
+.danger:focus-visible,.dest-button:focus-visible,.arrow:focus-visible{
+  outline:3px solid rgba(255,240,184,.65);
+  outline-offset:3px;
+}
+.control-value,.series-box b,.lcd .time{
+  font-variant-numeric:tabular-nums;
+}
+.card,.control-box,.series-box,.rest-dial{
+  backface-visibility:hidden;
+}
+.splash-card{
+  animation:splashRise .55s cubic-bezier(.2,.8,.2,1) both;
+}
+@keyframes splashRise{
+  from{opacity:0;transform:translateY(14px) scale(.985)}
+  to{opacity:1;transform:none}
+}
+.phoenix-emblem{
+  animation:emblemGlow 2.2s ease-in-out infinite;
+}
+@keyframes emblemGlow{
+  0%,100%{filter:drop-shadow(0 18px 34px rgba(240,186,65,.14))}
+  50%{filter:drop-shadow(0 20px 42px rgba(240,186,65,.24))}
+}
+.list-item,.exercise-card{
+  overflow-wrap:anywhere;
+}
+@media(max-width:380px){
+  .title{font-size:clamp(2.35rem,13vw,4.7rem)}
+  .king,.data-king{min-height:126px}
+  .control-panel{gap:5px}
+  .control-box{border-radius:20px}
+}

@@ -7,8 +7,20 @@ const App={
   destination:"Inicio",
   active:null,
   timer:null,
+  actionLock:false,
   backLock:false,
-  backExitAt:0,
+  navigationReady:false,
+
+  safeAction(fn){
+    if(this.actionLock)return;
+    this.actionLock=true;
+    try{fn()}finally{setTimeout(()=>{this.actionLock=false},220)}
+  },
+
+  reportError(error){
+    console.error(error);
+    try{this.toast("Ha ocurrido un error. Tus datos siguen guardados.")}catch(e){}
+  },
 
   defaults(){
     return{
@@ -123,8 +135,10 @@ const App={
   getRoutine(id){return this.data.routines.find(r=>r.id===id)},
 
   show(id,destination="Inicio",options={}){
+    const el=document.getElementById(id);
+    if(!el)return;
+
     document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
-    const el=document.getElementById(id); if(!el)return;
     el.classList.add("active");
     this.currentScreen=id;
     this.destination=destination;
@@ -134,28 +148,49 @@ const App={
     btn.style.visibility=id==="home"?"hidden":"visible";
 
     const state={phoenix:true,screen:id,destination};
-    if(options.history!==false){
-      history.pushState(state,"","#"+id);
-    }else{
+    if(options.history===false){
       history.replaceState(state,"","#"+id);
+    }else if(options.replace===true){
+      history.replaceState(state,"","#"+id);
+    }else{
+      history.pushState(state,"","#"+id);
     }
   },
 
-  destinationScreen(){
-    const map={Inicio:"home",Datos:"data",Rutinas:"routines",Ejercicio:"gym"};
-    return map[this.destination]||"home"
+  getParentRoute(screen=this.currentScreen){
+    const routes={
+      home:{screen:null,destination:"Inicio"},
+      data:{screen:"home",destination:"Inicio"},
+      library:{screen:this.librarySelectMode?"routines":"data",destination:this.librarySelectMode?"Rutinas":"Datos"},
+      routines:{screen:"data",destination:"Datos"},
+      history:{screen:"data",destination:"Datos"},
+      settings:{screen:"data",destination:"Datos"},
+      backups:{screen:"data",destination:"Datos"},
+      gym:{screen:"home",destination:"Inicio"},
+      series:{screen:"gym",destination:"Ejercicio"},
+      rest:{screen:"series",destination:"Ejercicio"},
+      exerciseSummary:{screen:"gym",destination:"Ejercicio"},
+      workoutSummary:{screen:"home",destination:"Inicio"}
+    };
+    return routes[screen]||{screen:"home",destination:"Inicio"}
   },
 
   goDestination(){
-    const target=this.destinationScreen();
-    this.renderScreen(target,false)
+    const parent=this.getParentRoute();
+    if(!parent.screen){this.renderHome();return}
+    this.renderRoute(parent.screen,true)
   },
 
-  renderScreen(target,withHistory=true){
+  renderRoute(target,withHistory=true){
     if(target==="home"){this.renderHome(withHistory);return}
     if(target==="data"){this.renderData(withHistory);return}
+    if(target==="library"){this.renderLibrary(this.librarySelectMode);return}
     if(target==="routines"){this.renderRoutines(withHistory);return}
+    if(target==="history"){this.renderHistory(withHistory);return}
+    if(target==="settings"){this.renderSettings(withHistory);return}
+    if(target==="backups"){this.renderBackups(withHistory);return}
     if(target==="gym"){this.renderGym(withHistory);return}
+    if(target==="series"){this.beginSet();return}
     this.renderHome(withHistory)
   },
 
@@ -254,6 +289,9 @@ const App={
   },
 
   finishSet(){
+    if(this.actionLock)return;
+    this.actionLock=true;
+    setTimeout(()=>{this.actionLock=false},300);
     this.normalizeActive();
     const e=this.currentExercise();
     if(!e||!this.active)return;
@@ -364,6 +402,9 @@ const App={
   },
 
   completeExercise(){
+    if(this.actionLock)return;
+    this.actionLock=true;
+    setTimeout(()=>{this.actionLock=false},500);
     const e=this.currentExercise();
     if(!e||!this.active)return;
 
@@ -511,21 +552,21 @@ const App={
     this.save();this.closePersonalExercise();document.getElementById("personalName").value="";this.updateLibraryView()
   },
 
-  renderHistory(){
+  renderHistory(withHistory=true){
     document.getElementById("history").innerHTML=`<div class="card"><div class="eyebrow">HISTORIAL</div></div>${this.data.sessions.slice().reverse().map(s=>`<details class="card"><summary><strong>${s.routineName}</strong> · ${new Date(s.date).toLocaleDateString()}</summary><p>${s.totalSets} series · ${Math.round(s.volume)} kg</p>${s.exercises.map(e=>`<div class="list-item"><strong>${e.name}</strong><br>${e.sets.map(x=>`${x.weight}kg × ${x.reps}`).join(" · ")}</div>`).join("")}</details>`).join("")||'<div class="card muted">Todavía no hay entrenamientos guardados.</div>'}`;
-    this.show("history","Datos")
+    this.show("history","Datos",{history:withHistory})
   },
 
-  renderSettings(){
+  renderSettings(withHistory=true){
     document.getElementById("settings").innerHTML=`<div class="card"><div class="eyebrow">AJUSTES</div><label>Peso corporal<input id="bodyWeight" type="number" step=".1" value="${this.data.profile.bodyWeight||""}"></label><button class="secondary" onclick="App.saveBodyWeight()">Guardar peso</button><label>Incremento de peso<input id="weightStep" type="number" step=".5" value="${this.data.settings.weightStep}"></label><button class="secondary" onclick="App.saveSettings()">Guardar ajustes</button></div>`;
-    this.show("settings","Datos")
+    this.show("settings","Datos",{history:withHistory})
   },
   saveBodyWeight(){const w=Number(document.getElementById("bodyWeight").value);if(w>0){this.data.profile.bodyWeight=w;this.data.weights.push({date:new Date().toISOString(),weight:w});this.save();alert("Peso guardado")}},
   saveSettings(){const x=Number(document.getElementById("weightStep").value);if(x>0)this.data.settings.weightStep=x;this.save();alert("Ajustes guardados")},
 
-  renderBackups(){
+  renderBackups(withHistory=true){
     document.getElementById("backups").innerHTML=`<div class="focus"><div class="eyebrow">BACKUPS</div><div class="title">TUS DATOS</div><button class="secondary" onclick="App.exportBackup()">Exportar JSON</button><button class="secondary" onclick="document.getElementById('importFile').click()">Importar JSON</button></div>`;
-    this.show("backups","Datos")
+    this.show("backups","Datos",{history:withHistory})
   },
   exportBackup(){const blob=new Blob([JSON.stringify({version:7,exportedAt:new Date().toISOString(),data:this.data},null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`GymTracker_${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(a.href)},
   importBackupFile(file){if(!file)return;const r=new FileReader();r.onload=()=>{try{const obj=JSON.parse(r.result);const data=obj.data||obj;if(!Array.isArray(data.routines)||!Array.isArray(data.sessions))throw new Error("Backup no válido");localStorage.setItem(DB_KEY,JSON.stringify(data));this.load();alert("Backup restaurado");this.renderHome()}catch(e){alert(e.message)}};r.readAsText(file)},
@@ -536,31 +577,37 @@ const App={
   init(){
     this.load();
 
-    history.replaceState({phoenix:true,screen:"home",destination:"Inicio"},"","#home");
-    history.pushState({phoenix:true,guard:true},"","#home");
+    history.replaceState(
+      {phoenix:true,screen:"home",destination:"Inicio"},
+      "",
+      "#home"
+    );
 
-    window.addEventListener("popstate",()=>{
-      if(this.backLock)return;
+    window.addEventListener("popstate",event=>{
+      if(!this.navigationReady||this.backLock)return;
       this.backLock=true;
 
-      if(this.currentScreen==="home"){
-        // No volver a la web anterior desde la app.
-        history.pushState({phoenix:true,guard:true},"","#home");
-        const now=Date.now();
-        if(now-this.backExitAt<1800){
-          this.backExitAt=0;
-        }else{
-          this.backExitAt=now;
-          this.toast("Estás en Inicio")
-        }
+      const parent=this.getParentRoute();
+      if(parent.screen){
+        this.renderRoute(parent.screen,false);
       }else{
-        const target=this.destinationScreen();
-        this.renderScreen(target,false);
-        history.pushState({phoenix:true,guard:true},"","#"+target)
+        // En Inicio evitamos volver accidentalmente a la web anterior.
+        history.replaceState(
+          {phoenix:true,screen:"home",destination:"Inicio"},
+          "",
+          "#home"
+        );
+        this.toast("Inicio")
       }
 
-      setTimeout(()=>{this.backLock=false},50)
+      setTimeout(()=>{this.backLock=false},80)
     });
+
+    window.addEventListener("pagehide",()=>this.saveActive());
+    window.addEventListener("beforeunload",()=>this.saveActive());
+
+    window.addEventListener("error",event=>this.reportError(event.error||event.message));
+    window.addEventListener("unhandledrejection",event=>this.reportError(event.reason));
 
     document.addEventListener("visibilitychange",()=>{
       if(document.hidden){
@@ -571,7 +618,7 @@ const App={
     });
 
     this.renderHome(false);
-    history.pushState({phoenix:true,guard:true},"","#home");
+    this.navigationReady=true;
     setTimeout(()=>document.getElementById("splash")?.remove(),2100)
   },
 
@@ -580,7 +627,7 @@ const App={
     if(!el){
       el=document.createElement("div");
       el.id="phoenixToast";
-      el.style.cssText="position:fixed;left:50%;bottom:28px;z-index:1000;transform:translateX(-50%);padding:12px 18px;border-radius:999px;background:#18191e;color:#fff0b8;border:1px solid rgba(255,240,184,.2);font-weight:900;box-shadow:0 14px 38px rgba(0,0,0,.5)";
+      el.style.cssText="position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom));z-index:1000;transform:translateX(-50%);padding:12px 18px;border-radius:999px;background:#18191e;color:#fff0b8;border:1px solid rgba(255,240,184,.2);font-weight:900;box-shadow:0 14px 38px rgba(0,0,0,.5)";
       document.body.appendChild(el)
     }
     el.textContent=message;
