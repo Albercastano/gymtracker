@@ -1,11 +1,10 @@
 # CHANGELOG
 
-## v8.4.1 Report Hotfix
-- Corrige informes finales incompletos.
-- Guarda cada serie asociada a su ejercicio inmediatamente.
-- Incluye ejercicios con peso externo 0.
-- Incluye dominadas, fondos, peso corporal, ejercicios por tiempo y al fallo.
-- Reconstruye el informe con datos consolidados y datos guardados serie a serie.
-- Evita duplicar ejercicios.
-- Separa volumen externo de la inclusión en el informe.
-- No modifica ningún elemento visual del diseño.
+## v8.4.2 Home Restore
+- Recupera la composición original de Phoenix:
+  - tarjeta superior «Hoy toca»;
+  - botones GYM y DATOS en paralelo.
+- Corrige la regla móvil que apilaba ambos botones.
+- Añade duración estimada con protagonismo secundario.
+- Mantiene el hotfix del informe completo.
+- No modifica GYM, Casio, Biblioteca, Datos, navegación ni historial.

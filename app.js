@@ -196,21 +196,62 @@ const App={
     this.renderHome(withHistory)
   },
 
+  estimateRoutineMinutes(routine){
+    if(!routine||!Array.isArray(routine.items)||!routine.items.length)return 0;
+
+    const workSeconds=routine.items.reduce((total,item)=>{
+      const sets=Math.max(1,Number(item.sets)||1);
+      const mode=item.mode||"reps";
+      const perSet=mode==="time"
+        ?Math.max(15,Number(item.reps)||30)
+        :35;
+      return total+(sets*perSet)
+    },0);
+
+    const restSeconds=routine.items.reduce((total,item)=>{
+      const sets=Math.max(1,Number(item.sets)||1);
+      const rest=Math.max(0,Number(item.rest)||0);
+      return total+(Math.max(0,sets-1)*rest)
+    },0);
+
+    const exerciseTransitions=Math.max(0,routine.items.length-1)*40;
+    const preparation=routine.items.length*20;
+
+    return Math.max(
+      1,
+      Math.round((workSeconds+restSeconds+exerciseTransitions+preparation)/60)
+    )
+  },
+
   renderHome(withHistory=true){
     const r=this.todayRoutine();
     const active=this.active;
+    const totalExercises=r?.items?.length||0;
+    const totalSets=r?.items?.reduce((a,x)=>a+(Number(x.sets)||0),0)||0;
+    const estimatedMinutes=this.estimateRoutineMinutes(r);
+
     document.getElementById("home").innerHTML=`<div class="focus">
       ${active?`<div class="card"><div class="eyebrow">ENTRENAMIENTO EN CURSO</div><div class="title">${this.getRoutine(active.routineId)?.name||"Rutina"}</div><button class="king small-king" onclick="App.resumeWorkout()">CONTINUAR</button><button class="danger" onclick="App.discardWorkout()">Descartar</button></div>`:""}
-      <div class="card">
+
+      <div class="card home-today-card">
         <div class="eyebrow">HOY TOCA</div>
         <div class="title">${r?r.name:"DESCANSO"}</div>
-        <div class="meta">${r?`<span>${r.items.length} ejercicios</span><span>${r.items.reduce((a,x)=>a+x.sets,0)} series</span>`:"<span>Sin rutina asignada</span>"}</div>
+
+        <div class="home-summary">
+          ${r?`
+            <span>${totalExercises} ejercicios</span>
+            <span>${totalSets} series</span>
+            <span class="estimated-time">~${estimatedMinutes} min</span>
+          `:`<span>Sin rutina asignada</span>`}
+        </div>
+
         <div class="two-actions">
           <button class="king" onclick="App.startWorkout('${r?.id||""}')">GYM</button>
           <button class="data-king" onclick="App.renderData()">DATOS</button>
         </div>
       </div>
     </div>`;
+
     this.show("home","Inicio",{history:withHistory})
   },
 
