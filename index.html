@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#050507">
-  <title>GymTracker Phoenix v7</title>
+  <title>GymTracker Phoenix v8.1</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -20,7 +20,7 @@
 
   <header class="topbar">
     <button id="destButton" class="dest-button" onclick="App.goDestination()">Inicio</button>
-    <div class="version">v7 · GYM READY</div>
+    <div class="version">v8.1 · GYM HOTFIX</div>
   </header>
 
   <main>
@@ -35,6 +35,7 @@
     <section id="history" class="screen"></section>
     <section id="settings" class="screen"></section>
     <section id="backups" class="screen"></section>
+    <section id="library" class="screen"></section>
   </main>
 
   <div id="alternativesSheet" class="sheet">
@@ -49,6 +50,30 @@
   </div>
 
   <input id="importFile" type="file" accept=".json,application/json" hidden onchange="App.importBackupFile(this.files[0])">
+  <div id="personalExerciseSheet" class="sheet">
+    <div class="sheet-backdrop" onclick="App.closePersonalExercise()"></div>
+    <div class="sheet-panel">
+      <div class="handle"></div>
+      <h2>Nuevo ejercicio personal</h2>
+      <label>Nombre<input id="personalName" placeholder="Ej. Press inclinado máquina"></label>
+      <label>Grupo<select id="personalGroup"><option>Pecho</option><option>Espalda</option><option>Pierna</option><option>Hombro</option><option>Bíceps</option><option>Tríceps</option><option>Core</option><option>Movilidad</option></select></label>
+      <label>Tamaño<select id="personalSize"><option value="large">Músculo grande</option><option value="small">Músculo pequeño</option></select></label>
+      <label>Tipo<select id="personalType"><option value="reps">Repeticiones</option><option value="time">Tiempo</option><option value="failure">Al fallo</option></select></label>
+      <button class="king small-king" onclick="App.savePersonalExercise()">GUARDAR</button>
+      <button class="secondary" onclick="App.closePersonalExercise()">Cancelar</button>
+    </div>
+  </div>
   <script src="app.js"></script>
+
+  <div id="nextExerciseOverlay" class="next-overlay" aria-hidden="true">
+    <div class="next-card">
+      <div class="next-check">✓</div>
+      <div id="completedExerciseName" class="next-completed"></div>
+      <div class="next-label">SIGUIENTE</div>
+      <div id="floatingNextName" class="next-name"></div>
+      <div id="floatingNextMeta" class="next-meta"></div>
+    </div>
+  </div>
+
 </body>
 </html>

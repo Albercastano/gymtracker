@@ -1,6 +1,6 @@
 {
-  "name": "GymTracker Phoenix v7 Gym Ready",
-  "short_name": "GT Phoenix",
+  "name": "GymTracker Phoenix v8.1 Gym Hotfix",
+  "short_name": "GT Phoenix 8.1",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#050507",

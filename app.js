@@ -1,5 +1,5 @@
-const DB_KEY="gymtracker_phoenix_v7";
-const ACTIVE_KEY="gymtracker_phoenix_v7_active";
+const DB_KEY="gymtracker_phoenix_v8";
+const ACTIVE_KEY="gymtracker_phoenix_v8_active";
 
 const App={
   data:null,
@@ -7,6 +7,8 @@ const App={
   destination:"Inicio",
   active:null,
   timer:null,
+  backLock:false,
+  backExitAt:0,
 
   defaults(){
     return{
@@ -26,7 +28,29 @@ const App={
         "Press banca":["Press con mancuernas","Flexiones","Press inclinado"],
         "Dominadas":["Jalón al pecho","Dominadas asistidas","Remo invertido"],
         "Remo con barra":["Remo con mancuerna","Remo en polea","Remo invertido"]
-      }
+      },
+      library:[
+        {id:"press_banca",name:"Press banca",group:"Pecho",size:"large",type:"reps",sets:3,reps:8,rest:90,increment:2.5,official:true},
+        {id:"press_inclinado",name:"Press inclinado",group:"Pecho",size:"large",type:"reps",sets:3,reps:8,rest:90,increment:2.5,official:true},
+        {id:"press_mancuernas",name:"Press con mancuernas",group:"Pecho",size:"large",type:"reps",sets:3,reps:8,rest:90,increment:1,official:true},
+        {id:"flexiones",name:"Flexiones",group:"Pecho",size:"large",type:"reps",sets:3,reps:8,rest:90,increment:0,official:true},
+        {id:"dominadas",name:"Dominadas",group:"Espalda",size:"large",type:"reps",sets:3,reps:8,rest:90,increment:1,official:true},
+        {id:"jalon_pecho",name:"Jalón al pecho",group:"Espalda",size:"large",type:"reps",sets:3,reps:8,rest:90,increment:2.5,official:true},
+        {id:"remo_barra",name:"Remo con barra",group:"Espalda",size:"large",type:"reps",sets:3,reps:8,rest:90,increment:2.5,official:true},
+        {id:"sentadilla",name:"Sentadilla",group:"Pierna",size:"large",type:"reps",sets:3,reps:8,rest:90,increment:2.5,official:true},
+        {id:"prensa",name:"Prensa",group:"Pierna",size:"large",type:"reps",sets:3,reps:8,rest:90,increment:5,official:true},
+        {id:"peso_muerto_rumano",name:"Peso muerto rumano",group:"Pierna",size:"large",type:"reps",sets:3,reps:8,rest:90,increment:2.5,official:true},
+        {id:"press_militar",name:"Press militar",group:"Hombro",size:"large",type:"reps",sets:3,reps:8,rest:90,increment:1,official:true},
+        {id:"elevaciones_laterales",name:"Elevaciones laterales",group:"Hombro",size:"small",type:"reps",sets:4,reps:12,rest:60,increment:.5,official:true},
+        {id:"curl_biceps",name:"Curl de bíceps",group:"Bíceps",size:"small",type:"reps",sets:4,reps:12,rest:60,increment:.5,official:true},
+        {id:"extension_triceps",name:"Extensión de tríceps",group:"Tríceps",size:"small",type:"reps",sets:4,reps:12,rest:60,increment:.5,official:true},
+        {id:"fondos",name:"Fondos",group:"Tríceps",size:"small",type:"reps",sets:4,reps:12,rest:60,increment:1,official:true},
+        {id:"plancha",name:"Plancha",group:"Core",size:"small",type:"time",sets:4,reps:30,rest:60,increment:5,official:true},
+        {id:"l_sit",name:"L-Sit",group:"Core",size:"small",type:"time",sets:4,reps:20,rest:60,increment:5,official:true}
+      ],
+      personalExercises:[],
+      recentExerciseIds:[],
+      favoriteExerciseIds:[]
     }
   },
 
@@ -47,19 +71,48 @@ const App={
     this.data.sessions=Array.isArray(this.data.sessions)?this.data.sessions:[];
     this.data.weights=Array.isArray(this.data.weights)?this.data.weights:[];
     this.data.alternatives=this.data.alternatives||{};
+    this.data.library=Array.isArray(this.data.library)?this.data.library:this.defaults().library;
+    this.data.personalExercises=Array.isArray(this.data.personalExercises)?this.data.personalExercises:[];
+    this.data.recentExerciseIds=Array.isArray(this.data.recentExerciseIds)?this.data.recentExerciseIds:[];
+    this.data.favoriteExerciseIds=Array.isArray(this.data.favoriteExerciseIds)?this.data.favoriteExerciseIds:[];
   },
 
   save(){localStorage.setItem(DB_KEY,JSON.stringify(this.data))},
   saveActive(){this.active?localStorage.setItem(ACTIVE_KEY,JSON.stringify(this.active)):localStorage.removeItem(ACTIVE_KEY)},
 
   normalizeActive(){
+    if(!this.active||typeof this.active!=="object"){this.active=null;this.saveActive();return}
     const r=this.getRoutine(this.active.routineId);
-    if(!r){this.active=null;this.saveActive();return}
-    this.active.exerciseIndex=Math.max(0,Math.min(Number(this.active.exerciseIndex)||0,r.items.length-1));
-    const e=r.items[this.active.exerciseIndex];
-    this.active.setIndex=Math.max(0,Math.min(Number(this.active.setIndex)||0,e.sets));
+    if(!r||!Array.isArray(r.items)||!r.items.length){this.active=null;this.saveActive();return}
+
+    let exerciseIndex=Number(this.active.exerciseIndex);
+    if(!Number.isInteger(exerciseIndex)||exerciseIndex<0||exerciseIndex>=r.items.length)exerciseIndex=0;
+    this.active.exerciseIndex=exerciseIndex;
+
+    const e=r.items[exerciseIndex];
+    let setIndex=Number(this.active.setIndex);
+    if(!Number.isInteger(setIndex)||setIndex<0||setIndex>e.sets)setIndex=0;
+    this.active.setIndex=setIndex;
+
     this.active.currentSets=Array.isArray(this.active.currentSets)?this.active.currentSets:[];
+    this.active.currentSets=this.active.currentSets.slice(0,e.sets).map((s,i)=>({
+      set:i+1,
+      reps:Number.isFinite(Number(s.reps))?Number(s.reps):e.reps,
+      weight:Number.isFinite(Number(s.weight))?Number(s.weight):e.weight,
+      mode:s.mode||e.mode||"reps"
+    }));
+    if(this.active.currentSets.length!==this.active.setIndex){
+      this.active.setIndex=Math.min(this.active.currentSets.length,e.sets);
+    }
+
     this.active.completedExercises=Array.isArray(this.active.completedExercises)?this.active.completedExercises:[];
+    this.active.phase=["gym","series","rest","summary"].includes(this.active.phase)?this.active.phase:"gym";
+
+    if(this.active.phase==="rest" && Number(this.active.restEndsAt)>0){
+      this.active.restLeft=Math.max(0,Math.ceil((Number(this.active.restEndsAt)-Date.now())/1000));
+      if(this.active.restLeft<=0)this.active.phase="series";
+    }
+    this.saveActive();
   },
 
   todayRoutine(){
@@ -69,28 +122,44 @@ const App={
   },
   getRoutine(id){return this.data.routines.find(r=>r.id===id)},
 
-  show(id,destination="Inicio"){
+  show(id,destination="Inicio",options={}){
     document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
     const el=document.getElementById(id); if(!el)return;
     el.classList.add("active");
     this.currentScreen=id;
     this.destination=destination;
+
     const btn=document.getElementById("destButton");
     btn.textContent=destination;
     btn.style.visibility=id==="home"?"hidden":"visible";
-    history.replaceState({phoenix:true,screen:id},"","#"+id);
+
+    const state={phoenix:true,screen:id,destination};
+    if(options.history!==false){
+      history.pushState(state,"","#"+id);
+    }else{
+      history.replaceState(state,"","#"+id);
+    }
+  },
+
+  destinationScreen(){
+    const map={Inicio:"home",Datos:"data",Rutinas:"routines",Ejercicio:"gym"};
+    return map[this.destination]||"home"
   },
 
   goDestination(){
-    const map={Inicio:"home",Datos:"data",Rutinas:"routines",Ejercicio:"gym"};
-    const target=map[this.destination]||"home";
-    if(target==="home")this.renderHome();
-    if(target==="data")this.renderData();
-    if(target==="routines")this.renderRoutines();
-    if(target==="gym")this.renderGym();
+    const target=this.destinationScreen();
+    this.renderScreen(target,false)
   },
 
-  renderHome(){
+  renderScreen(target,withHistory=true){
+    if(target==="home"){this.renderHome(withHistory);return}
+    if(target==="data"){this.renderData(withHistory);return}
+    if(target==="routines"){this.renderRoutines(withHistory);return}
+    if(target==="gym"){this.renderGym(withHistory);return}
+    this.renderHome(withHistory)
+  },
+
+  renderHome(withHistory=true){
     const r=this.todayRoutine();
     const active=this.active;
     document.getElementById("home").innerHTML=`<div class="focus">
@@ -105,24 +174,31 @@ const App={
         </div>
       </div>
     </div>`;
-    this.show("home","Inicio")
+    this.show("home","Inicio",{history:withHistory})
   },
 
   startWorkout(routineId){
     const r=this.getRoutine(routineId);
     if(!r||!r.items.length){alert("No hay una rutina válida para hoy.");return}
-    this.active={id:"s"+Date.now(),routineId:r.id,date:new Date().toISOString(),exerciseIndex:0,setIndex:0,currentSets:[],completedExercises:[],startedAt:Date.now()};
+    this.active={id:"s"+Date.now(),routineId:r.id,date:new Date().toISOString(),exerciseIndex:0,setIndex:0,currentSets:[],completedExercises:[],startedAt:Date.now(),phase:"gym",restEndsAt:null,restLeft:0};
     this.saveActive();
     this.renderGym()
   },
 
-  resumeWorkout(){this.normalizeActive();this.renderGym()},
+  resumeWorkout(){
+    this.normalizeActive();
+    if(!this.active){this.renderHome();return}
+    if(this.active.phase==="rest"){this.resumeRest();return}
+    if(this.active.phase==="series"){this.beginSet();return}
+    if(this.active.phase==="summary"){this.renderExerciseSummary();return}
+    this.renderGym()
+  },
   discardWorkout(){if(confirm("¿Descartar el entrenamiento en curso?")){this.active=null;this.saveActive();this.renderHome()}},
 
   currentRoutine(){return this.active?this.getRoutine(this.active.routineId):null},
   currentExercise(){return this.currentRoutine()?.items[this.active.exerciseIndex]},
 
-  renderGym(){
+  renderGym(withHistory=true){
     if(!this.active){this.renderHome();return}
     this.normalizeActive();
     const r=this.currentRoutine(),e=this.currentExercise();
@@ -144,7 +220,7 @@ const App={
       <button class="king small-king" onclick="App.beginSet()">INICIAR SERIE</button>
       <button class="secondary" onclick="App.pauseWorkout()">Salir sin terminar</button>
     </div>`;
-    this.show("gym","Inicio")
+    this.show("gym","Inicio",{history:withHistory})
   },
 
   controlBox(label,field,value,step,unit=""){
@@ -164,6 +240,7 @@ const App={
     this.normalizeActive();
     const e=this.currentExercise();
     if(this.active.setIndex>=e.sets){this.renderExerciseSummary();return}
+    this.active.phase="series";this.active.restEndsAt=null;this.active.restLeft=0;this.saveActive();
     document.getElementById("series").innerHTML=`<div class="focus">
       <div class="eyebrow">${e.name.toUpperCase()}</div>
       <div class="title">SERIE ${this.active.setIndex+1} / ${e.sets}</div>
@@ -177,31 +254,75 @@ const App={
   },
 
   finishSet(){
-    const e=this.currentExercise(); if(!e)return;
-    const reps=Number(prompt(e.mode==="time"?"Segundos realizados":"Repeticiones realizadas",String(e.reps)));
-    if(!Number.isFinite(reps)){return}
-    const weight=Number(prompt("Peso utilizado",String(e.weight)));
-    if(!Number.isFinite(weight)){return}
-    this.active.currentSets.push({set:this.active.setIndex+1,reps,weight,mode:e.mode||"reps"});
-    this.active.setIndex++;
-    this.saveActive();
-
+    this.normalizeActive();
+    const e=this.currentExercise();
+    if(!e||!this.active)return;
     if(this.active.setIndex>=e.sets){this.renderExerciseSummary();return}
-    this.startRest(e.rest)
+
+    const completedSet={
+      set:this.active.setIndex+1,
+      reps:Number(e.reps)||0,
+      weight:Number(e.weight)||0,
+      mode:e.mode||"reps",
+      completedAt:new Date().toISOString()
+    };
+
+    this.active.currentSets.push(completedSet);
+    this.active.setIndex=this.active.currentSets.length;
+    this.active.phase=this.active.setIndex>=e.sets?"summary":"rest";
+    this.saveActive(); // guardado inmediatamente después de cada serie
+
+    if(this.active.setIndex>=e.sets){
+      this.renderExerciseSummary();
+      return;
+    }
+    this.startRest(Number(e.rest)||0)
   },
 
   startRest(seconds){
     clearInterval(this.timer);
-    this.active.restLeft=seconds;
+    const safeSeconds=Math.max(0,Number(seconds)||0);
+    this.active.phase="rest";
+    this.active.restLeft=safeSeconds;
+    this.active.restEndsAt=Date.now()+(safeSeconds*1000);
     this.saveActive();
     this.renderRest();
-    this.timer=setInterval(()=>{
-      if(!this.active)return clearInterval(this.timer);
-      this.active.restLeft=Math.max(0,(this.active.restLeft||0)-1);
+    this.runRestTimer()
+  },
+
+  resumeRest(){
+    clearInterval(this.timer);
+    const remaining=Math.max(0,Math.ceil((Number(this.active.restEndsAt||Date.now())-Date.now())/1000));
+    this.active.restLeft=remaining;
+    if(remaining<=0){
+      this.active.phase="series";
       this.saveActive();
+      this.beginSet();
+      return
+    }
+    this.renderRest();
+    this.runRestTimer()
+  },
+
+  runRestTimer(){
+    clearInterval(this.timer);
+    this.timer=setInterval(()=>{
+      if(!this.active){clearInterval(this.timer);return}
+      const remaining=Math.max(0,Math.ceil((Number(this.active.restEndsAt||Date.now())-Date.now())/1000));
+      this.active.restLeft=remaining;
       this.updateRestDisplay();
-      if(this.active.restLeft<=0){clearInterval(this.timer);this.beep();this.buzz([120,60,120]);this.beginSet()}
-    },1000)
+      if(remaining<=0){
+        clearInterval(this.timer);
+        this.active.phase="series";
+        this.active.restEndsAt=null;
+        this.saveActive();
+        this.beep();
+        this.buzz([120,60,120]);
+        this.beginSet()
+      }else if(remaining%5===0){
+        this.saveActive()
+      }
+    },250)
   },
 
   renderRest(){
@@ -218,15 +339,16 @@ const App={
     const t=Math.max(0,this.active?.restLeft||0),m=Math.floor(t/60),s=t%60;
     const el=document.getElementById("restTime");if(el)el.textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`
   },
-  skipRest(){clearInterval(this.timer);this.beginSet()},
+  skipRest(){clearInterval(this.timer);this.active.phase="series";this.active.restEndsAt=null;this.active.restLeft=0;this.saveActive();this.beginSet()},
 
   renderExerciseSummary(){
     clearInterval(this.timer);
+    if(this.active){this.active.phase="summary";this.saveActive()}
     const e=this.currentExercise();
     document.getElementById("exerciseSummary").innerHTML=`<div class="focus">
       <div class="eyebrow">EJERCICIO COMPLETADO</div>
       <div class="title">${e.name.toUpperCase()}</div>
-      <div class="card">
+      <div class="card"><div class="inline-edit-note">Puedes corregir aquí reps y peso antes de continuar.</div>
         ${this.active.currentSets.map((s,i)=>`<div class="summary-row"><strong>Serie ${i+1}</strong><input type="number" value="${s.reps}" onchange="App.editCurrentSet(${i},'reps',this.value)"><input type="number" step=".5" value="${s.weight}" onchange="App.editCurrentSet(${i},'weight',this.value)"></div>`).join("")}
       </div>
       <button class="king small-king" onclick="App.completeExercise()">SIGUIENTE EJERCICIO</button>
@@ -234,16 +356,51 @@ const App={
     this.show("exerciseSummary","Ejercicio")
   },
 
-  editCurrentSet(index,field,value){this.active.currentSets[index][field]=Number(value)||0;this.saveActive()},
+  editCurrentSet(index,field,value){
+    if(!this.active?.currentSets?.[index])return;
+    const n=Number(value);
+    if(Number.isFinite(n))this.active.currentSets[index][field]=n;
+    this.saveActive()
+  },
 
   completeExercise(){
     const e=this.currentExercise();
-    this.active.completedExercises.push({name:e.name,sets:this.active.currentSets.map(x=>({...x}))});
-    if(this.active.exerciseIndex>=this.currentRoutine().items.length-1){this.finishWorkout();return}
+    if(!e||!this.active)return;
+
+    this.active.completedExercises.push({
+      plannedName:e.originalName||e.name,
+      name:e.name,
+      exerciseId:e.libraryId||null,
+      sets:this.active.currentSets.map(x=>({...x}))
+    });
+
+    if(this.active.exerciseIndex>=this.currentRoutine().items.length-1){
+      this.saveActive();
+      this.finishWorkout();
+      return
+    }
+
     const next=this.currentRoutine().items[this.active.exerciseIndex+1];
-    document.getElementById("exerciseSummary").innerHTML=`<div class="focus"><div class="eyebrow">SIGUIENTE</div><div class="title">${next.name.toUpperCase()}</div><div class="meta"><span>${next.sets}×${next.reps}</span><span>${next.weight} kg</span><span>${next.rest} s</span></div></div>`;
-    this.active.exerciseIndex++;this.active.setIndex=0;this.active.currentSets=[];this.saveActive();
-    setTimeout(()=>this.renderGym(),900)
+    document.getElementById("completedExerciseName").textContent=e.name.toUpperCase()+" COMPLETADO";
+    document.getElementById("floatingNextName").textContent=next.name.toUpperCase();
+    document.getElementById("floatingNextMeta").textContent=`${next.sets} × ${next.reps} · ${next.weight} kg · ${next.rest} s`;
+
+    this.active.exerciseIndex++;
+    this.active.setIndex=0;
+    this.active.currentSets=[];
+    this.active.phase="gym";
+    this.active.restEndsAt=null;
+    this.active.restLeft=0;
+    this.saveActive();
+
+    const overlay=document.getElementById("nextExerciseOverlay");
+    overlay.classList.add("show");
+    overlay.setAttribute("aria-hidden","false");
+    setTimeout(()=>{
+      overlay.classList.remove("show");
+      overlay.setAttribute("aria-hidden","true");
+      this.renderGym()
+    },1100)
   },
 
   finishWorkout(){
@@ -267,23 +424,92 @@ const App={
     document.getElementById("alternativesSheet").classList.add("show")
   },
   closeAlternatives(){document.getElementById("alternativesSheet").classList.remove("show")},
-  useAlternative(name){this.currentExercise().name=name;this.save();this.saveActive();this.closeAlternatives();this.renderGym()},
-
-  renderData(){
-    document.getElementById("data").innerHTML=`<div class="focus"><div class="eyebrow">MODO</div><div class="title">DATOS</div><div class="grid"><button class="secondary" onclick="App.renderRoutines()">Rutinas</button><button class="secondary" onclick="App.renderHistory()">Historial</button><button class="secondary" onclick="App.renderSettings()">Ajustes</button><button class="secondary" onclick="App.renderBackups()">Backups</button></div></div>`;
-    this.show("data","Inicio")
+  useAlternative(name){
+    const e=this.currentExercise();
+    if(!e)return;
+    if(!e.originalName)e.originalName=e.name;
+    e.name=name;
+    this.save();this.saveActive();this.closeAlternatives();this.renderGym()
   },
 
-  renderRoutines(){
+  renderData(withHistory=true){
+    document.getElementById("data").innerHTML=`<div class="focus"><div class="eyebrow">MODO</div><div class="title">DATOS</div><div class="grid"><button class="secondary" onclick="App.renderLibrary()">Biblioteca</button><button class="secondary" onclick="App.renderRoutines()">Rutinas</button><button class="secondary" onclick="App.renderHistory()">Historial</button><button class="secondary" onclick="App.renderSettings()">Ajustes</button><button class="secondary" onclick="App.renderBackups()">Backups</button></div></div>`;
+    this.show("data","Inicio",{history:withHistory})
+  },
+
+  renderRoutines(withHistory=true){
     document.getElementById("routines").innerHTML=`<div class="card"><div class="eyebrow">RUTINAS</div><button class="secondary" onclick="App.createRoutine()">＋ Nueva rutina</button></div>${this.data.routines.map(r=>`<div class="card"><input value="${r.name}" onchange="App.renameRoutine('${r.id}',this.value)"><div class="list">${r.items.map((e,i)=>`<div class="list-item"><strong>${i+1}. ${e.name}</strong><div class="grid"><input type="number" value="${e.sets}" onchange="App.editRoutineItem('${r.id}','${e.id}','sets',this.value)"><input type="number" value="${e.reps}" onchange="App.editRoutineItem('${r.id}','${e.id}','reps',this.value)"><input type="number" step=".5" value="${e.weight}" onchange="App.editRoutineItem('${r.id}','${e.id}','weight',this.value)"><input type="number" value="${e.rest}" onchange="App.editRoutineItem('${r.id}','${e.id}','rest',this.value)"></div></div>`).join("")}</div><button class="secondary" onclick="App.addExercise('${r.id}')">Añadir ejercicio</button><button class="secondary" onclick="App.assignToday('${r.id}')">Asignar a hoy</button></div>`).join("")}`;
-    this.show("routines","Datos")
+    this.show("routines","Datos",{history:withHistory})
   },
 
   createRoutine(){const name=prompt("Nombre de la rutina","Nueva rutina");if(!name)return;this.data.routines.push({id:"r"+Date.now(),name,items:[]});this.save();this.renderRoutines()},
   renameRoutine(id,name){const r=this.getRoutine(id);if(r){r.name=name;this.save()}},
-  addExercise(rid){const r=this.getRoutine(rid);if(!r)return;const name=prompt("Nombre del ejercicio");if(!name)return;const large=confirm("¿Músculo grande? Aceptar = 3×8/90 s. Cancelar = 4×12/60 s.");r.items.push({id:"i"+Date.now(),name,sets:large?3:4,reps:large?8:12,weight:0,rest:large?90:60,mode:"reps"});this.save();this.renderRoutines()},
+  addExercise(rid){this.pendingRoutineId=rid;this.renderLibrary(true)},
   editRoutineItem(rid,iid,field,value){const r=this.getRoutine(rid),e=r?.items.find(x=>x.id===iid);if(e){e[field]=Number(value)||0;this.save()}},
   assignToday(rid){this.data.weekPlan[new Date().getDay()]=rid;this.save();alert("Rutina asignada a hoy");this.renderHome()},
+
+
+  allExercises(){return [...this.data.library,...this.data.personalExercises]},
+
+  renderLibrary(selectMode=false){
+    this.librarySelectMode=selectMode;
+    document.getElementById("library").innerHTML=`<div class="card"><div class="eyebrow">BIBLIOTECA</div><div class="title">EJERCICIOS</div><div class="library-toolbar"><input id="librarySearch" placeholder="Buscar..." oninput="App.updateLibraryView()"><button class="secondary" onclick="App.openPersonalExercise()">＋ Personal</button></div><div id="libraryTabs" class="library-tabs"></div><div id="libraryList" class="list"></div></div>`;
+    this.libraryGroup="Todos";
+    this.updateLibraryView();
+    this.show("library",selectMode?"Rutinas":"Datos")
+  },
+
+  updateLibraryView(){
+    const search=(document.getElementById("librarySearch")?.value||"").toLowerCase();
+    const groups=["Todos","Favoritos","Recientes",...new Set(this.allExercises().map(e=>e.group))];
+    document.getElementById("libraryTabs").innerHTML=groups.map(g=>`<button class="${g===this.libraryGroup?"active":""}" onclick="App.setLibraryGroup('${g}')">${g}</button>`).join("");
+    let list=this.allExercises();
+    if(this.libraryGroup==="Favoritos")list=list.filter(e=>this.data.favoriteExerciseIds.includes(e.id));
+    else if(this.libraryGroup==="Recientes")list=this.data.recentExerciseIds.map(id=>list.find(e=>e.id===id)).filter(Boolean);
+    else if(this.libraryGroup!=="Todos")list=list.filter(e=>e.group===this.libraryGroup);
+    if(search)list=list.filter(e=>e.name.toLowerCase().includes(search)||e.group.toLowerCase().includes(search));
+    document.getElementById("libraryList").innerHTML=list.length?list.map(e=>this.exerciseLibraryCard(e)).join(""):`<div class="muted">Sin resultados.</div>`
+  },
+
+  setLibraryGroup(group){this.libraryGroup=group;this.updateLibraryView()},
+
+  exerciseLibraryCard(e){
+    const fav=this.data.favoriteExerciseIds.includes(e.id);
+    return `<div class="exercise-card"><div><strong>${e.name}</strong><small>${e.group} · ${e.size==="large"?"Músculo grande":"Músculo pequeño"} · ${e.type==="time"?"Tiempo":e.type==="failure"?"Al fallo":"Repeticiones"}</small><div class="exercise-badges"><span class="badge ${e.official?"official":"personal"}">${e.official?"Phoenix":"Personal"}</span><span class="badge">${e.sets}×${e.reps}</span><span class="badge">${e.rest}s</span><span class="badge">+${e.increment}kg</span></div><button class="secondary" style="margin-top:10px" onclick="App.toggleFavorite('${e.id}')">${fav?"★ Favorito":"☆ Favorito"}</button></div><button onclick="${this.librarySelectMode?`App.addLibraryExerciseToRoutine('${e.id}')`:`App.previewExercise('${e.id}')`}">${this.librarySelectMode?"Añadir":"Ver"}</button></div>`
+  },
+
+  toggleFavorite(id){
+    const a=this.data.favoriteExerciseIds;
+    this.data.favoriteExerciseIds=a.includes(id)?a.filter(x=>x!==id):[...a,id];
+    this.save();this.updateLibraryView()
+  },
+
+  previewExercise(id){
+    const e=this.allExercises().find(x=>x.id===id);if(!e)return;
+    alert(`${e.name}\n${e.sets}×${e.reps}\nDescanso ${e.rest}s\nIncremento ${e.increment}kg`)
+  },
+
+  addLibraryExerciseToRoutine(id){
+    const e=this.allExercises().find(x=>x.id===id);
+    const r=this.getRoutine(this.pendingRoutineId);
+    if(!e||!r)return;
+    r.items.push({id:"i"+Date.now(),libraryId:e.id,name:e.name,sets:e.sets,reps:e.reps,weight:0,rest:e.rest,mode:e.type,increment:e.increment});
+    this.data.recentExerciseIds=[e.id,...this.data.recentExerciseIds.filter(x=>x!==e.id)].slice(0,12);
+    this.save();this.renderRoutines()
+  },
+
+  openPersonalExercise(){document.getElementById("personalExerciseSheet").classList.add("show")},
+  closePersonalExercise(){document.getElementById("personalExerciseSheet").classList.remove("show")},
+  savePersonalExercise(){
+    const name=document.getElementById("personalName").value.trim();
+    const group=document.getElementById("personalGroup").value;
+    const size=document.getElementById("personalSize").value;
+    const type=document.getElementById("personalType").value;
+    if(!name){alert("Escribe un nombre");return}
+    const large=size==="large";
+    this.data.personalExercises.push({id:"p"+Date.now(),name,group,size,type,sets:large?3:4,reps:type==="time"?(large?30:20):(large?8:12),rest:large?90:60,increment:large?2.5:.5,official:false});
+    this.save();this.closePersonalExercise();document.getElementById("personalName").value="";this.updateLibraryView()
+  },
 
   renderHistory(){
     document.getElementById("history").innerHTML=`<div class="card"><div class="eyebrow">HISTORIAL</div></div>${this.data.sessions.slice().reverse().map(s=>`<details class="card"><summary><strong>${s.routineName}</strong> · ${new Date(s.date).toLocaleDateString()}</summary><p>${s.totalSets} series · ${Math.round(s.volume)} kg</p>${s.exercises.map(e=>`<div class="list-item"><strong>${e.name}</strong><br>${e.sets.map(x=>`${x.weight}kg × ${x.reps}`).join(" · ")}</div>`).join("")}</details>`).join("")||'<div class="card muted">Todavía no hay entrenamientos guardados.</div>'}`;
@@ -309,9 +535,58 @@ const App={
 
   init(){
     this.load();
-    this.renderHome();
-    window.addEventListener("popstate",()=>{if(this.currentScreen!=="home")this.goDestination()});
+
+    history.replaceState({phoenix:true,screen:"home",destination:"Inicio"},"","#home");
+    history.pushState({phoenix:true,guard:true},"","#home");
+
+    window.addEventListener("popstate",()=>{
+      if(this.backLock)return;
+      this.backLock=true;
+
+      if(this.currentScreen==="home"){
+        // No volver a la web anterior desde la app.
+        history.pushState({phoenix:true,guard:true},"","#home");
+        const now=Date.now();
+        if(now-this.backExitAt<1800){
+          this.backExitAt=0;
+        }else{
+          this.backExitAt=now;
+          this.toast("Estás en Inicio")
+        }
+      }else{
+        const target=this.destinationScreen();
+        this.renderScreen(target,false);
+        history.pushState({phoenix:true,guard:true},"","#"+target)
+      }
+
+      setTimeout(()=>{this.backLock=false},50)
+    });
+
+    document.addEventListener("visibilitychange",()=>{
+      if(document.hidden){
+        this.saveActive()
+      }else if(this.active?.phase==="rest"){
+        this.resumeRest()
+      }
+    });
+
+    this.renderHome(false);
+    history.pushState({phoenix:true,guard:true},"","#home");
     setTimeout(()=>document.getElementById("splash")?.remove(),2100)
+  },
+
+  toast(message){
+    let el=document.getElementById("phoenixToast");
+    if(!el){
+      el=document.createElement("div");
+      el.id="phoenixToast";
+      el.style.cssText="position:fixed;left:50%;bottom:28px;z-index:1000;transform:translateX(-50%);padding:12px 18px;border-radius:999px;background:#18191e;color:#fff0b8;border:1px solid rgba(255,240,184,.2);font-weight:900;box-shadow:0 14px 38px rgba(0,0,0,.5)";
+      document.body.appendChild(el)
+    }
+    el.textContent=message;
+    el.style.display="block";
+    clearTimeout(this.toastTimer);
+    this.toastTimer=setTimeout(()=>el.style.display="none",1400)
   }
 };
 
