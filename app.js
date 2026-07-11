@@ -1,25 +1,113 @@
-const Phoenix={
+const Phoenix={previousScreen:null,currentScreen:'home',
 routine:{name:"TORSO A",exercises:[{name:"PRESS BANCA",sets:3,reps:8,weight:80,rest:90},{name:"DOMINADAS",sets:3,reps:8,weight:0,rest:90},{name:"REMO CON BARRA",sets:3,reps:10,weight:60,rest:90}]},
 state:{exerciseIndex:0,setIndex:0,completed:[],currentExerciseSets:[],timer:null,timerLeft:90,editing:false},
-show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active")},
+show(id){
+  const target=document.getElementById(id);
+  if(!target)return;
+  if(this.currentScreen!==id)this.previousScreen=this.currentScreen;
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  target.classList.add("active");
+  this.currentScreen=id;
+},
+back(){this.show(this.previousScreen||"home")},
 goHome(){this.stopTimer();this.show("home")},showDataHub(){this.show("data")},
 current(){return this.routine.exercises[this.state.exerciseIndex]},
-save(){localStorage.setItem("phoenix_v6_workout",JSON.stringify({...this.state,timer:null}))},
-enterGym(){let x=localStorage.getItem("phoenix_v6_workout");if(x){try{this.state={...this.state,...JSON.parse(x),timer:null}}catch(e){}}this.showGym()},
+save(){localStorage.setItem("phoenix_v6_1_workout",JSON.stringify({...this.state,timer:null}))},
+enterGym(){
+  const saved=localStorage.getItem("phoenix_v6_1_workout");
+  if(saved){
+    try{this.state={...this.state,...JSON.parse(saved),timer:null}}catch(e){}
+  }
+  this.normalizeWorkoutState();
+  this.showGym();
+},
+normalizeWorkoutState(){
+  if(!Number.isInteger(this.state.exerciseIndex)||this.state.exerciseIndex<0||this.state.exerciseIndex>=this.routine.exercises.length){
+    this.state.exerciseIndex=0;
+  }
+  const e=this.current();
+  if(!Number.isInteger(this.state.setIndex)||this.state.setIndex<0||this.state.setIndex>=e.sets){
+    this.state.setIndex=0;
+    this.state.currentExerciseSets=[];
+  }
+  if(!Array.isArray(this.state.currentExerciseSets))this.state.currentExerciseSets=[];
+  if(!Array.isArray(this.state.completed))this.state.completed=[];
+  this.save();
+},
 pauseWorkout(){this.save();this.goHome()},
-showGym(){let e=this.current();document.querySelector("#gym .routine-name").textContent=this.routine.name;document.querySelector("#gym h2").textContent=e.name;let rail=document.getElementById("gymExerciseRail");if(rail)rail.innerHTML=this.routine.exercises.map((x,i)=>`<div class="exercise-rail-item ${i===this.state.exerciseIndex?"active":""}"><div class="index">${i+1}</div><div><strong>${x.name}</strong><small>${x.sets}×${x.reps} · ${x.weight}kg</small></div><span>${i===this.state.exerciseIndex?"ACTUAL":""}</span></div>`).join("");repsValue.textContent=e.reps;weightValue.textContent=e.weight;restValue.textContent=e.rest;this.show("gym")},
-adjust(t,d){let e=this.current();if(t==="reps")e.reps=Math.max(1,e.reps+d);if(t==="weight")e.weight=Math.max(0,+(e.weight+d).toFixed(2));if(t==="rest")e.rest=Math.max(0,e.rest+d);if(navigator.vibrate)navigator.vibrate(18);this.showGym();this.save()},
-startSeries(){let e=this.current();seriesExerciseName.textContent=e.name;seriesNumber.textContent=`SERIE ${this.state.setIndex+1} / ${e.sets}`;seriesReps.textContent=e.reps;seriesWeight.textContent=e.weight;this.show("series")},
-finishSeries(){let e=this.current();this.state.currentExerciseSets.push({set:this.state.setIndex+1,reps:e.reps,weight:e.weight});this.state.setIndex++;this.save();if(this.state.setIndex>=e.sets){this.showExerciseSummary();return}this.state.timerLeft=e.rest;this.startRest()},
+showGym(){
+  this.normalizeWorkoutState();
+  const e=this.current();
+  document.querySelector("#gym .routine-name").textContent=this.routine.name;
+  document.querySelector("#gym h2").textContent=e.name;
+  const rail=document.getElementById("gymExerciseRail");
+  if(rail)rail.innerHTML=this.routine.exercises.map((x,i)=>`<div class="exercise-rail-item ${i===this.state.exerciseIndex?"active":""}"><div class="index">${i+1}</div><div><strong>${x.name}</strong><small>${x.sets}×${x.reps} · ${x.weight}kg</small></div><span>${i===this.state.exerciseIndex?"ACTUAL":""}</span></div>`).join("");
+  document.getElementById("setsValue").textContent=e.sets;
+  document.getElementById("repsValue").textContent=e.reps;
+  document.getElementById("weightValue").textContent=e.weight;
+  document.getElementById("restValue").textContent=e.rest;
+  this.show("gym");
+},
+adjust(t,d){
+  const e=this.current();
+  if(t==="sets"){
+    e.sets=Math.max(1,e.sets+d);
+    if(this.state.setIndex>=e.sets){this.state.setIndex=0;this.state.currentExerciseSets=[]}
+  }
+  if(t==="reps")e.reps=Math.max(1,e.reps+d);
+  if(t==="weight")e.weight=Math.max(0,Math.round((e.weight+d)*2)/2);
+  if(t==="rest")e.rest=Math.max(0,e.rest+d);
+  if(navigator.vibrate)navigator.vibrate(18);
+  this.save();
+  this.showGym();
+},
+startSeries(){
+  this.normalizeWorkoutState();
+  const e=this.current();
+  const currentSet=Math.min(this.state.setIndex+1,e.sets);
+  document.getElementById("seriesExerciseName").textContent=e.name;
+  document.getElementById("seriesNumber").textContent=`SERIE ${currentSet} / ${e.sets}`;
+  document.getElementById("seriesReps").textContent=e.reps;
+  document.getElementById("seriesWeight").textContent=e.weight;
+  this.show("series");
+},
+finishSeries(){
+  const e=this.current();
+  if(!e)return;
+  this.normalizeWorkoutState();
+  if(this.state.setIndex>=e.sets)return;
+  this.state.currentExerciseSets.push({
+    set:this.state.setIndex+1,
+    reps:e.reps,
+    weight:e.weight
+  });
+  this.state.setIndex+=1;
+  this.save();
+
+  if(this.state.setIndex>=e.sets){
+    this.showExerciseSummary();
+    return;
+  }
+  this.state.timerLeft=e.rest;
+  this.startRest();
+},
 startRest(){this.stopTimer();this.renderRest();this.show("rest");this.state.timer=setInterval(()=>{this.state.timerLeft--;this.renderRest();if(this.state.timerLeft<=0){this.stopTimer();this.startSeries()}},1000)},
-renderRest(){let m=Math.floor(this.state.timerLeft/60),s=this.state.timerLeft%60;restTime.textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;let e=this.current();nextLabel.textContent=`SERIE ${Math.min(this.state.setIndex+1,e.sets)} / ${e.sets}`},
+renderRest(){
+  const left=Math.max(0,Number(this.state.timerLeft)||0);
+  const m=Math.floor(left/60),s=left%60;
+  const time=document.getElementById("restTime");
+  if(time)time.textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  const e=this.current();
+  const next=document.getElementById("nextLabel");
+  if(next)next.textContent=`SERIE ${Math.min(this.state.setIndex+1,e.sets)} / ${e.sets}`;
+},
 skipRest(){this.stopTimer();this.startSeries()},stopTimer(){if(this.state.timer){clearInterval(this.state.timer);this.state.timer=null}},
-showExerciseSummary(){this.stopTimer();summaryExerciseName.textContent=this.current().name;this.state.editing=false;this.renderSummary();this.show("exerciseSummary")},
-renderSummary(){summaryRows.innerHTML=this.state.currentExerciseSets.map((s,i)=>this.state.editing?`<div class="summary-edit-row"><span>Serie ${s.set}</span><input type="number" value="${s.reps}" onchange="Phoenix.edit(${i},'reps',this.value)"><input type="number" step=".25" value="${s.weight}" onchange="Phoenix.edit(${i},'weight',this.value)"></div>`:`<div>Serie ${s.set} · ${s.reps} × ${s.weight} kg</div>`).join("")},
+showExerciseSummary(){this.stopTimer();document.getElementById("summaryExerciseName").textContent=this.current().name;this.state.editing=false;this.renderSummary();this.show("exerciseSummary")},
+renderSummary(){document.getElementById("summaryRows").innerHTML=this.state.currentExerciseSets.map((s,i)=>this.state.editing?`<div class="summary-edit-row"><span>Serie ${s.set}</span><input type="number" value="${s.reps}" onchange="Phoenix.edit(${i},'reps',this.value)"><input type="number" step=".25" value="${s.weight}" onchange="Phoenix.edit(${i},'weight',this.value)"></div>`:`<div>Serie ${s.set} · ${s.reps} × ${s.weight} kg</div>`).join("")},
 toggleEditSummary(){this.state.editing=!this.state.editing;this.renderSummary()},edit(i,f,v){this.state.currentExerciseSets[i][f]=+v||0;this.save()},
 nextExercise(){let e=this.current();this.state.completed.push({name:e.name,sets:this.state.currentExerciseSets.map(x=>({...x}))});if(this.state.exerciseIndex>=this.routine.exercises.length-1){this.showWorkoutSummary();return}let next=this.routine.exercises[this.state.exerciseIndex+1];nextDoneExercise.textContent=e.name;nextExerciseName.textContent=next.name;nextExerciseMeta.textContent=`${next.sets} × ${next.reps} · ${next.weight} kg · ${next.rest} s`;nextExerciseOverlay.classList.add("show");setTimeout(()=>{nextExerciseOverlay.classList.remove("show");this.state.exerciseIndex++;this.state.setIndex=0;this.state.currentExerciseSets=[];this.save();this.showGym()},1100)},
 showWorkoutSummary(){let c=this.state.completed,sets=c.reduce((n,e)=>n+e.sets.length,0),vol=c.reduce((a,e)=>a+e.sets.reduce((s,x)=>s+x.weight*x.reps,0),0);doneExercises.textContent=c.length;doneSets.textContent=sets;doneVolume.textContent=Math.round(vol);coachReport.innerHTML=c.map(e=>`<div><b>${e.name}</b><br><span>${e.sets.map(s=>`${s.reps}×${s.weight}kg`).join(" · ")}</span></div>`).join("<hr>");this.show("workoutSummary")},
-finishWorkout(){localStorage.removeItem("phoenix_v6_workout");this.state={exerciseIndex:0,setIndex:0,completed:[],currentExerciseSets:[],timer:null,timerLeft:90,editing:false};this.goHome()}
+finishWorkout(){localStorage.removeItem("phoenix_v6_1_workout");this.state={exerciseIndex:0,setIndex:0,completed:[],currentExerciseSets:[],timer:null,timerLeft:90,editing:false};this.goHome()}
 ,
 season:{
   name:"Temporada 2026",

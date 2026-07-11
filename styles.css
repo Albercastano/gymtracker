@@ -513,3 +513,26 @@ body{
 }
 
 .exercise-rail{width:min(94vw,620px);display:grid;gap:8px;margin:4px 0 10px}.exercise-rail-item{display:grid;grid-template-columns:42px 1fr auto;gap:10px;align-items:center;padding:10px 12px;border:1px solid rgba(255,255,255,.08);border-radius:18px;background:rgba(255,255,255,.025);color:var(--mut);text-align:left;opacity:.62}.exercise-rail-item.active{opacity:1;color:var(--ink);border-color:rgba(255,240,184,.28);background:linear-gradient(145deg,rgba(255,240,184,.13),rgba(255,240,184,.035)),linear-gradient(180deg,#17181d,#090a0d);box-shadow:0 10px 0 rgba(0,0,0,.34),0 18px 32px rgba(0,0,0,.3)}.exercise-rail-item .index{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(255,255,255,.1);font-weight:1000}.exercise-rail-item.active .index{color:#111;background:linear-gradient(145deg,#7c5415,#d9b35e 46%,#fff0b8 58%,#94651a);border:0}.exercise-rail-item strong{font-size:.95rem}.exercise-rail-item small{font-size:.76rem;color:var(--mut)}.forged-controls .control-box{box-shadow:0 16px 0 rgba(0,0,0,.44),0 28px 46px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.12)}.forged-controls .arrow-button{min-height:62px;font-size:1.7rem;box-shadow:0 10px 0 #202127,0 16px 24px rgba(0,0,0,.46)}.series-focus-panel{width:min(92vw,560px);display:grid;grid-template-columns:1fr 1fr;gap:14px}.series-big,.series-weight{min-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:32px;background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.02)),linear-gradient(180deg,#17181d,#090a0d);box-shadow:0 18px 0 rgba(0,0,0,.42),0 30px 56px rgba(0,0,0,.42)}.series-big span,.series-weight span{font-size:clamp(4rem,20vw,8rem);line-height:.78;letter-spacing:-.11em;font-weight:1000;color:var(--gold2)}.series-big small,.series-weight small{margin-top:12px;color:var(--mut);font-size:1.05rem;font-weight:1000}.forged-king{box-shadow:0 24px 0 #4b330e,0 36px 56px rgba(0,0,0,.62),inset 0 2px 0 rgba(255,255,255,.65)}.next-exercise-overlay{position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.78);backdrop-filter:blur(12px)}.next-exercise-overlay.show{display:flex}.next-exercise-card{width:min(92vw,580px);border:1px solid rgba(255,240,184,.24);border-radius:34px;padding:28px 22px;text-align:center;background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.02)),linear-gradient(180deg,#17181d,#090a0d);box-shadow:0 34px 100px rgba(0,0,0,.72);animation:flyIn .72s cubic-bezier(.2,.8,.2,1) both}@keyframes flyIn{from{opacity:0;transform:translateX(110%) rotate(2deg) scale(.96)}to{opacity:1;transform:none}}.checkmark{width:66px;height:66px;border-radius:50%;display:grid;place-items:center;margin:0 auto 12px;background:linear-gradient(145deg,#2d6a3d,#9be7b4);color:#0a1b10;font-size:2rem;font-weight:1000;box-shadow:0 10px 0 #183b22}.next-done{color:var(--mut);font-weight:900}.next-caption{margin-top:22px;color:var(--gold2);font-weight:1000;letter-spacing:.24em;font-size:.82rem}.next-name{margin-top:8px;font-size:clamp(2.6rem,13vw,5.8rem);line-height:.82;letter-spacing:-.09em;font-weight:1000}.next-meta{margin-top:14px;color:var(--mut);font-weight:900;font-size:1.05rem}.coach-report{text-align:left;line-height:1.5}.coach-report::before{content:"COACH REPORT";display:block;margin-bottom:10px;color:var(--gold2);font-weight:1000;letter-spacing:.16em;font-size:.82rem}@media(max-width:520px){.series-focus-panel{gap:10px}.series-big,.series-weight{min-height:150px}.exercise-rail{max-height:210px;overflow:auto}}
+
+/* v6.1 hotfix */
+.rest-dial{
+  width:190px;height:190px;border-radius:50%;
+  margin:18px auto 4px;
+  display:grid;grid-template-rows:auto 42px 1fr 42px;
+  align-items:center;justify-items:center;
+  border:12px solid #24252a;
+  outline:2px solid rgba(255,240,184,.25);
+  background:radial-gradient(circle at 35% 25%,rgba(255,255,255,.09),rgba(255,255,255,.02) 55%,#0a0a0c 100%);
+  box-shadow:0 18px 0 rgba(0,0,0,.44),0 30px 54px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.12);
+}
+.rest-dial-title{font-size:.72rem;letter-spacing:.13em;color:var(--mut);font-weight:1000;margin-top:8px}
+.rest-dial button{
+  width:72px;height:38px;border:0;border-radius:15px;
+  background:linear-gradient(145deg,#25272d,#d9d3c7 45%,#fff 56%,#676a72);
+  color:#111;font-size:1.4rem;font-weight:1000;
+  box-shadow:0 6px 0 #202127;
+}
+.rest-dial button:active{transform:translateY(4px);box-shadow:0 2px 0 #202127}
+.rest-dial-value{display:flex;align-items:baseline;gap:3px;color:var(--gold2)}
+.rest-dial-value span{font-size:3.2rem;line-height:.8;font-weight:1000;letter-spacing:-.08em}
+.rest-dial-value small{font-weight:1000;color:var(--mut)}

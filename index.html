@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#050507">
-  <title>GymTracker Phoenix v6</title>
+  <title>GymTracker Phoenix v6.1</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -35,7 +35,7 @@
   <main class="phone">
     <header class="topbar">
       <button class="ghost" onclick="Phoenix.goHome()">Inicio</button>
-      <div class="version">PHOENIX v6</div>
+      <div class="version">PHOENIX v6.1</div>
     </header>
 
     <section id="home" class="screen active">
@@ -84,11 +84,34 @@
         <div class="routine-name">TORSO A</div>
         <h2>PRESS BANCA</h2>
         <div id="gymExerciseRail" class="exercise-rail"></div><div class="control-panel forged-controls">
-          <div class="control-box"><div class="control-title">REPS</div><button class="arrow-button" onclick="Phoenix.adjust('reps',1)">▲</button><div class="control-value" id="repsValue">8</div><button class="arrow-button" onclick="Phoenix.adjust('reps',-1)">▼</button></div>
-          <div class="control-box"><div class="control-title">PESO</div><button class="arrow-button" onclick="Phoenix.adjust('weight',2.5)">▲</button><div class="control-value"><span id="weightValue">80</span><small>kg</small></div><button class="arrow-button" onclick="Phoenix.adjust('weight',-2.5)">▼</button></div>
-          <div class="control-box"><div class="control-title">DESCANSO</div><button class="arrow-button" onclick="Phoenix.adjust('rest',5)">▲</button><div class="control-value"><span id="restValue">90</span><small>s</small></div><button class="arrow-button" onclick="Phoenix.adjust('rest',-5)">▼</button></div>
+          <div class="control-box">
+            <div class="control-title">SERIES</div>
+            <button class="arrow-button" onclick="Phoenix.adjust('sets',1)">▲</button>
+            <div class="control-value" id="setsValue">3</div>
+            <button class="arrow-button" onclick="Phoenix.adjust('sets',-1)">▼</button>
+          </div>
+          <div class="control-box">
+            <div class="control-title">REPS</div>
+            <button class="arrow-button" onclick="Phoenix.adjust('reps',1)">▲</button>
+            <div class="control-value" id="repsValue">8</div>
+            <button class="arrow-button" onclick="Phoenix.adjust('reps',-1)">▼</button>
+          </div>
+          <div class="control-box">
+            <div class="control-title">PESO</div>
+            <button class="arrow-button" onclick="Phoenix.adjust('weight',0.5)">▲</button>
+            <div class="control-value"><span id="weightValue">80</span><small>kg</small></div>
+            <button class="arrow-button" onclick="Phoenix.adjust('weight',-0.5)">▼</button>
+          </div>
         </div>
-        <button class="king-button" onclick="Phoenix.startSeries()">INICIAR SERIE</button>
+
+        <div class="rest-dial">
+          <div class="rest-dial-title">DESCANSO</div>
+          <button onclick="Phoenix.adjust('rest',5)">＋</button>
+          <div class="rest-dial-value"><span id="restValue">90</span><small>s</small></div>
+          <button onclick="Phoenix.adjust('rest',-5)">−</button>
+        </div>
+
+        <button class="king-button onclick="Phoenix.startSeries()">INICIAR SERIE</button>
       </div>
     </section>
 
@@ -134,7 +157,7 @@
   <section id="workoutSummary" class="screen"><div class="gym-stage"><div class="routine-name">ENTRENAMIENTO</div><h2>COMPLETADO</h2><div class="summary-stats"><div><span id="doneExercises">0</span><small>ejercicios</small></div><div><span id="doneSets">0</span><small>series</small></div><div><span id="doneVolume">0</span><small>kg volumen</small></div></div><div class="coach-report" id="coachReport"></div><button class="king-button" onclick="Phoenix.finishWorkout()">VOLVER AL INICIO</button></div></section>
     <section id="season" class="screen">
       <div class="data-hub season-hub">
-        <button class="back-pill" onclick="Phoenix.showDataHub()">← Datos</button>
+        <button class="back-pill" onclick="Phoenix.back()">← Volver</button>
         <div class="eyebrow">CONSTRUCTOR</div>
         <h2>PLAN ANUAL</h2>
         <p>Construye la temporada por bloques. Visual, simple y editable.</p>
@@ -153,7 +176,7 @@
 
     <section id="dataStub" class="screen">
       <div class="data-hub">
-        <button class="back-pill" onclick="Phoenix.showDataHub()">← Datos</button>
+        <button class="back-pill" onclick="Phoenix.back()">← Volver</button>
         <div class="eyebrow">MÓDULO</div>
         <h2 id="dataStubTitle">DATOS</h2>
         <p>Este módulo llegará en los siguientes ZIP.</p>
@@ -163,7 +186,7 @@
   
     <section id="routines" class="screen">
       <div class="data-hub routine-hub">
-        <button class="back-pill" onclick="Phoenix.showDataHub()">← Datos</button>
+        <button class="back-pill" onclick="Phoenix.back()">← Volver</button>
         <div class="eyebrow">CONSTRUCTOR</div>
         <h2>RUTINAS</h2>
         <p>Construye tu rutina como si montaras piezas. Sin formularios eternos.</p>
