@@ -1,1 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="128" fill="#050507"/><text x="256" y="320" font-family="Arial" font-size="210" font-weight="900" fill="#fff0b8" text-anchor="middle">GT</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="GymTracker Phoenix">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#121317"/>
+      <stop offset="1" stop-color="#050507"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" x2="1">
+      <stop offset="0" stop-color="#7a4c0e"/>
+      <stop offset="0.36" stop-color="#cf9836"/>
+      <stop offset="0.58" stop-color="#fff0b8"/>
+      <stop offset="0.76" stop-color="#d8b35e"/>
+      <stop offset="1" stop-color="#7a4c0e"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="url(#bg)"/>
+  <path d="M256 74c-25 42-52 74-89 100-37 27-81 43-143 52 41 26 83 35 130 27-43 28-81 60-113 97 53-4 102-23 149-58-24 39-37 82-44 129 35-30 69-68 110-133 41 65 75 103 110 133-7-47-20-90-44-129 47 35 96 54 149 58-32-37-70-69-113-97 47 8 89-1 130-27-62-9-106-25-143-52-37-26-64-58-89-100Z" fill="url(#gold)" stroke="#f8db8e" stroke-width="8"/>
+  <path d="M256 147c-36 37-56 76-58 115 19-20 38-35 58-44 20 9 39 24 58 44-2-39-22-78-58-115Z" fill="#0b0b0c" stroke="#f8db8e" stroke-width="8"/>
+  <circle cx="256" cy="182" r="15" fill="#fff0b8"/>
+</svg>

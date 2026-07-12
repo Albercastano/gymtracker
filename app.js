@@ -10,6 +10,7 @@ const App={
   actionLock:false,
   backLock:false,
   navigationReady:false,
+  dataMetric:"volume",
 
   safeAction(fn){
     if(this.actionLock)return;
@@ -240,6 +241,8 @@ const App={
     const weekSessions=sessions.filter(s=>new Date(s.date).getTime()>=weekStart);
     const weekVolume=weekSessions.reduce((sum,s)=>sum+(Number(s.volume)||0),0);
     const bodyWeight=Number(this.data.profile?.bodyWeight)||0;
+    const activeRoutine=active?this.getRoutine(active.routineId):null;
+    const activeExercise=active?this.currentExercise():null;
 
     const lastWorkoutCard=lastSession?`
       <button class="phx-card phx-card--base phx-card--interactive home-last-card" onclick="App.renderHistory()" aria-label="Abrir historial del último entrenamiento">
@@ -262,23 +265,38 @@ const App={
         <div class="phx-card__copy">Completa tu primer entrenamiento para ver aquí el resumen.</div>
       </div>`;
 
-    document.getElementById("home").innerHTML=`<div class="home-phoenix">
-      ${active?`<div class="phx-card phx-card--highlight active-workout-card"><div class="phx-card__eyebrow">ENTRENAMIENTO EN CURSO</div><div class="phx-card__hero-title">${this.getRoutine(active.routineId)?.name||"Rutina"}</div><button class="king small-king" onclick="App.resumeWorkout()">CONTINUAR</button><button class="danger" onclick="App.discardWorkout()">Descartar</button></div>`:""}
+    const todayEyebrow=active?"ENTRENAMIENTO EN CURSO":"HOY TOCA";
+    const todayTitle=active?(activeRoutine?.name||"Rutina"):(r?r.name:"DESCANSO");
+    const todayMeta=active
+      ? `<span>${Math.min((active.exerciseIndex||0)+1,activeRoutine?.items?.length||1)}/${activeRoutine?.items?.length||1} ejercicios</span><span>${activeExercise?.name||"Sesión activa"}</span><span class="estimated-time">Toca para continuar</span>`
+      : r
+        ? `<span>${totalExercises} ejercicios</span><span>${totalSets} series</span><span class="estimated-time">~${estimatedMinutes} min</span>`
+        : `<span>Sin rutina asignada</span>`;
 
-      <section class="phx-card phx-card--highlight home-today-card" aria-labelledby="today-title">
-        <div class="phx-card__eyebrow">HOY TOCA</div>
-        <div id="today-title" class="phx-card__hero-title">${r?r.name:"DESCANSO"}</div>
-        <div class="home-summary">
-          ${r?`
-            <span>${totalExercises} ejercicios</span>
-            <span>${totalSets} series</span>
-            <span class="estimated-time">~${estimatedMinutes} min</span>
-          `:`<span>Sin rutina asignada</span>`}
-        </div>
-        <div class="two-actions">
-          <button class="king" onclick="App.startWorkout('${r?.id||""}')">GYM</button>
-          <button class="data-king" onclick="App.renderData()">DATOS</button>
-        </div>
+    document.getElementById("home").innerHTML=`<div class="home-phoenix home-definitive">
+      <section class="home-brand home-brand--forged" aria-label="GymTracker Phoenix">
+        <div class="home-brand__plate"><img src="icon.svg" alt="" aria-hidden="true"></div>
+        <div><div class="home-brand__name">GYMTRACKER</div><div class="home-brand__sub">PHOENIX · FORGED</div></div>
+      </section>
+
+      <section class="phx-card phx-card--highlight home-today-card home-today-card--definitive ${active?'is-active':''}" aria-labelledby="today-title">
+        <div class="phx-card__eyebrow">${todayEyebrow}</div>
+        <div id="today-title" class="phx-card__hero-title">${todayTitle}</div>
+        <div class="home-summary">${todayMeta}</div>
+        ${active?`<div class="home-active-actions"><button class="home-continue" onclick="App.resumeWorkout()">CONTINUAR</button><button class="home-discard" onclick="App.discardWorkout()">Descartar</button></div>`:""}
+      </section>
+
+      <section class="home-mode-switch" aria-label="Acciones principales">
+        <button class="home-mode home-mode--gym ${active?'has-active':''}" onclick="${active?'App.resumeWorkout()':`App.startWorkout('${r?.id||""}')`}">
+          <span class="home-mode__kicker">${active?'SESIÓN ACTIVA':'ENTRENAR'}</span>
+          <strong>GYM</strong>
+          <small>${active?'Continuar ahora':r?'Comenzar entrenamiento':'Seleccionar rutina'}</small>
+        </button>
+        <button class="home-mode home-mode--data" onclick="App.renderData()">
+          <span class="home-mode__kicker">PROGRESO</span>
+          <strong>DATOS</strong>
+          <small>Historial y métricas</small>
+        </button>
       </section>
 
       <section class="home-metrics" aria-label="Resumen rápido">
@@ -289,7 +307,7 @@ const App={
         </button>
         <button class="phx-card phx-card--compact phx-card--interactive" onclick="App.renderHistory()">
           <span class="phx-card__eyebrow">VOLUMEN</span>
-          <strong class="phx-metric">${Math.round(weekVolume)}</strong>
+          <strong class="phx-metric">${Math.round(weekVolume).toLocaleString('es-ES')}</strong>
           <span class="phx-metric-label">kg · 7 días</span>
         </button>
         <button class="phx-card phx-card--compact phx-card--interactive" onclick="App.renderSettings()">
@@ -339,30 +357,56 @@ const App={
     this.normalizeActive();
     const r=this.currentRoutine(),e=this.currentExercise(),override=this.currentOverride();
     const completed=this.completedSeriesForCurrent();
-    document.getElementById("gym").innerHTML=`<div class="focus gym-forged">
-      <section class="exercise-header ${override?"is-alternative":""}">
-        <div class="exercise-header__top">
-          <div>
-            <div class="eyebrow">${r.name} · EJERCICIO ${this.active.exerciseIndex+1}/${r.items.length}</div>
-            <div class="exercise-header__name">${e.name.toUpperCase()}</div>
+    const progress=Math.max(0,Math.min(100,Math.round(((this.active.exerciseIndex+(completed/Math.max(1,e.sets)))/Math.max(1,r.items.length))*100)));
+    const previous=this.active.currentSets?.[this.active.currentSets.length-1]||null;
+    const remaining=Math.max(0,e.sets-completed);
+    document.getElementById("gym").innerHTML=`<div class="focus gym-complete-screen">
+      <section class="gym-status-strip">
+        <div><span>SESIÓN</span><strong>${r.name}</strong></div>
+        <div class="gym-status-strip__progress"><i style="width:${progress}%"></i></div>
+        <div><span>PROGRESO</span><strong>${progress}%</strong></div>
+      </section>
+
+      <section class="exercise-stage ${override?"is-alternative":""}">
+        <div class="exercise-stage__head">
+          <div class="exercise-stage__index">${String(this.active.exerciseIndex+1).padStart(2,"0")}<small>/${String(r.items.length).padStart(2,"0")}</small></div>
+          <div class="exercise-stage__copy">
+            <div class="eyebrow">EJERCICIO ACTUAL</div>
+            <h1>${e.name.toUpperCase()}</h1>
             ${override?`<div class="alternative-note">Sustituye a ${e.originalName} · ${override.reason}</div>`:""}
           </div>
-          <button class="exercise-alt-button" onclick="App.openAlternatives()" aria-label="Abrir alternativas"><span>${override?"CAMBIAR":"ALTERNATIVAS"}</span><b>⇄</b></button>
+          <button class="exercise-stage__alt" onclick="App.openAlternatives()" aria-label="Abrir alternativas"><b>⇄</b><span>${override?"CAMBIAR":"ALTERNATIVA"}</span></button>
         </div>
-        <div class="exercise-header__stats">
-          <span><b>${completed}/${e.sets}</b> series</span>
-          <span><b>${e.reps}</b> ${e.mode==="time"?"s":"reps"}</span>
-          <span><b>${this.formatDuration(e.rest)}</b> descanso</span>
+
+        <div class="exercise-stage__progress">
+          ${Array.from({length:e.sets},(_,i)=>`<span class="${i<completed?"done":i===completed?"current":""}">${i+1}</span>`).join("")}
         </div>
       </section>
-      <div class="control-panel">
-        ${this.controlBox("SERIES","sets",e.sets,1)}
-        ${this.controlBox("REPS","reps",e.reps,1)}
-        ${this.controlBox("PESO","weight",e.weight,this.data.settings.weightStep,"kg")}
-      </div>
-      <div class="rest-dial"><div class="control-label">DESCANSO</div><button onclick="App.adjustExercise('rest',5)">＋</button><div class="value">${e.rest}<small>s</small></div><button onclick="App.adjustExercise('rest',-5)">−</button></div>
-      <button class="king small-king" onclick="App.beginSet()">${completed?"CONTINUAR":"INICIAR"} SERIE</button>
-      <button class="secondary" onclick="App.pauseWorkout()">Salir sin terminar</button>
+
+      <section class="gym-target-card">
+        <div class="gym-target-card__label">OBJETIVO DE LA SIGUIENTE SERIE</div>
+        <div class="gym-target-grid">
+          <div><span>${e.mode==="time"?"TIEMPO":"REPS"}</span><strong>${e.reps}</strong><small>${e.mode==="time"?"segundos":"repeticiones"}</small></div>
+          <div><span>PESO</span><strong>${Number(e.weight)||0}</strong><small>kg</small></div>
+          <div><span>DESCANSO</span><strong>${this.formatDuration(e.rest)}</strong><small>entre series</small></div>
+        </div>
+      </section>
+
+      <section class="gym-context-row">
+        <div class="gym-context-card">
+          <span>COMPLETADAS</span>
+          <strong>${completed}/${e.sets}</strong>
+          <small>${remaining} restantes</small>
+        </div>
+        <div class="gym-context-card">
+          <span>ÚLTIMA SERIE</span>
+          <strong>${previous?`${previous.reps} × ${previous.weight}`:"—"}</strong>
+          <small>${previous?"reps · kg":"sin registrar"}</small>
+        </div>
+      </section>
+
+      <button class="gym-primary-action" onclick="App.beginSet()"><span>${completed?"CONTINUAR":"INICIAR"} SERIE</span><b>›</b></button>
+      <button class="gym-exit-action" onclick="App.pauseWorkout()">Salir sin terminar</button>
     </div>`;
     this.show("gym","Inicio",{history:withHistory})
   },
@@ -443,17 +487,47 @@ const App={
 
   beginSet(){
     this.normalizeActive();
-    const e=this.currentExercise();
+    const e=this.currentExercise(),r=this.currentRoutine(),override=this.currentOverride();
     if(this.active.setIndex>=e.sets){this.renderExerciseSummary();return}
     this.active.phase="series";this.active.restEndsAt=null;this.active.restLeft=0;this.saveActive();
-    document.getElementById("series").innerHTML=`<div class="focus">
-      <div class="eyebrow">${e.name.toUpperCase()}</div>
-      <div class="title">SERIE ${this.active.setIndex+1} / ${e.sets}</div>
-      <div class="series-focus">
-        <div class="series-box"><b>${e.reps}</b><small>${e.mode==="time"?"segundos":"reps"}</small></div>
-        <div class="series-box"><b>${e.weight}</b><small>kg</small></div>
-      </div>
-      <button class="king small-king" onclick="App.finishSet()">FINALIZAR SERIE</button>
+    const previous=this.active.currentSets?.[this.active.currentSets.length-1]||null;
+    document.getElementById("series").innerHTML=`<div class="focus set-forged">
+      <section class="set-header ${override?"is-alternative":""}">
+        <div>
+          <div class="eyebrow">${r.name} · EJERCICIO ${this.active.exerciseIndex+1}/${r.items.length}</div>
+          <div class="set-header__name">${e.name.toUpperCase()}</div>
+          ${override?`<div class="alternative-note">Sustituye a ${e.originalName}</div>`:""}
+        </div>
+        <div class="set-header__badge">SERIE<br><b>${this.active.setIndex+1}/${e.sets}</b></div>
+      </section>
+
+      <section class="set-card" aria-label="Serie actual">
+        <div class="set-card__eyebrow">SERIE ACTUAL</div>
+        <div class="set-card__values">
+          <div class="set-value">
+            <span>${e.mode==="time"?"TIEMPO":"REPETICIONES"}</span>
+            <div class="set-stepper">
+              <button type="button" aria-label="Reducir repeticiones" onclick="App.adjustExercise('reps',-1);App.beginSet()">−</button>
+              <strong>${e.reps}</strong>
+              <button type="button" aria-label="Aumentar repeticiones" onclick="App.adjustExercise('reps',1);App.beginSet()">＋</button>
+            </div>
+            <small>${e.mode==="time"?"segundos":"reps"}</small>
+          </div>
+          <div class="set-value">
+            <span>PESO</span>
+            <div class="set-stepper">
+              <button type="button" aria-label="Reducir peso" onclick="App.changeWeight(-1);App.beginSet()">−</button>
+              <strong>${Number(e.weight)||0}</strong>
+              <button type="button" aria-label="Aumentar peso" onclick="App.changeWeight(1);App.beginSet()">＋</button>
+            </div>
+            <small>kg</small>
+          </div>
+        </div>
+        ${previous?`<div class="set-previous">Anterior · ${previous.reps} reps × ${previous.weight} kg</div>`:`<div class="set-previous">Objetivo · ${e.reps} ${e.mode==="time"?"s":"reps"} × ${Number(e.weight)||0} kg</div>`}
+      </section>
+
+      <button class="set-finish" onclick="App.finishSet()"><span>TERMINAR SERIE</span><b>✓</b></button>
+      <button class="set-back" onclick="App.renderGym()">Volver al ejercicio</button>
     </div>`;
     this.show("series","Ejercicio")
   },
@@ -555,11 +629,20 @@ const App={
     const e=this.currentExercise();
     document.getElementById("rest").innerHTML=`<div class="focus casio-screen">
       <div id="casioTimer" class="casio-pro">
-        <div class="casio-pro__brand"><span>CASIO</span><span>PHOENIX</span></div>
-        <div class="casio-pro__lcd"><div class="label">DESCANSO</div><div id="restTime" class="time"></div><div class="casio-pro__next">SIGUIENTE · SERIE ${this.active.setIndex+1}/${e.sets}</div></div>
+        <span class="casio-pro__screw casio-pro__screw--tl" aria-hidden="true"></span>
+        <span class="casio-pro__screw casio-pro__screw--tr" aria-hidden="true"></span>
+        <span class="casio-pro__screw casio-pro__screw--bl" aria-hidden="true"></span>
+        <span class="casio-pro__screw casio-pro__screw--br" aria-hidden="true"></span>
+        <div class="casio-pro__brand"><span>CASIO</span><span>PHOENIX TIMER</span></div>
+        <div class="casio-pro__lcd">
+          <div class="casio-pro__lcd-top"><div class="label">REST</div><div class="casio-pro__series">SET ${this.active.setIndex+1}/${e.sets}</div></div>
+          <div id="restTime" class="time"></div>
+          <div class="casio-pro__next">SIGUIENTE · SERIE ${this.active.setIndex+1}/${e.sets}</div>
+        </div>
+        <div class="casio-pro__micro"><span>ADJUST</span><span>MODE</span><span>START/STOP</span></div>
         <div class="casio-pro__controls"><button onclick="App.adjustRest(-30)">−30</button><button id="restPauseButton" onclick="App.toggleRestPause()">${this.active.restPaused?"▶":"Ⅱ"}</button><button onclick="App.adjustRest(30)">+30</button></div>
       </div>
-      <button class="secondary" onclick="App.skipRest()">Saltar descanso</button>
+      <button class="rest-skip" onclick="App.skipRest()">Saltar descanso</button>
     </div>`;
     this.updateRestDisplay();
     this.show("rest","Ejercicio")
@@ -590,13 +673,41 @@ const App={
     clearInterval(this.timer);
     if(this.active){this.active.phase="summary";this.saveActive()}
     const e=this.currentExercise();
-    document.getElementById("exerciseSummary").innerHTML=`<div class="focus">
-      <div class="eyebrow">EJERCICIO COMPLETADO</div>
-      <div class="title">${e.name.toUpperCase()}</div>
-      <div class="card"><div class="inline-edit-note">Puedes corregir aquí reps y peso antes de continuar.</div>
-        ${this.active.currentSets.map((s,i)=>`<div class="summary-row"><strong>Serie ${i+1}</strong><input type="number" value="${s.reps}" onchange="App.editCurrentSet(${i},'reps',this.value)"><input type="number" step=".5" value="${s.weight}" onchange="App.editCurrentSet(${i},'weight',this.value)"></div>`).join("")}
-      </div>
-      <button class="king small-king" onclick="App.completeExercise()">SIGUIENTE EJERCICIO</button>
+    const sets=this.active?.currentSets||[];
+    const totalReps=sets.reduce((a,s)=>a+(Number(s.reps)||0),0);
+    const volume=sets.reduce((a,s)=>a+((Number(s.weight)||0)*(Number(s.reps)||0)),0);
+    const best=sets.reduce((top,s)=>((Number(s.weight)||0)>(Number(top?.weight)||0)?s:top),sets[0]||null);
+    document.getElementById("exerciseSummary").innerHTML=`<div class="focus exercise-complete-forged">
+      <section class="exercise-complete-hero">
+        <div>
+          <div class="eyebrow">EJERCICIO COMPLETADO</div>
+          <div class="exercise-complete-title">${e.name.toUpperCase()}</div>
+          ${e.originalName&&e.originalName!==e.name?`<div class="exercise-complete-alt">Sustituye a ${e.originalName}${e.alternativeReason?` · ${e.alternativeReason}`:""}</div>`:""}
+        </div>
+        <div class="exercise-complete-check">✓</div>
+      </section>
+
+      <section class="exercise-complete-metrics">
+        <div><strong>${sets.length}</strong><span>series</span></div>
+        <div><strong>${totalReps}</strong><span>${e.mode==="time"?"segundos":"reps"}</span></div>
+        <div><strong>${Math.round(volume)}</strong><span>kg volumen</span></div>
+      </section>
+
+      <section class="exercise-complete-card">
+        <div class="exercise-complete-card__head">
+          <span>REVISA ANTES DE CONTINUAR</span>
+          ${best?`<b>Mejor carga · ${Number(best.weight)||0} kg</b>`:""}
+        </div>
+        <div class="exercise-complete-list">
+          ${sets.map((s,i)=>`<div class="exercise-complete-row">
+            <span>Serie ${i+1}</span>
+            <label><input type="number" step=".5" value="${s.weight}" onchange="App.editCurrentSet(${i},'weight',this.value)"><small>kg</small></label>
+            <label><input type="number" value="${s.reps}" onchange="App.editCurrentSet(${i},'reps',this.value)"><small>${e.mode==="time"?"s":"reps"}</small></label>
+          </div>`).join("")}
+        </div>
+      </section>
+
+      <button class="exercise-complete-next" onclick="App.completeExercise()"><span>${this.active.exerciseIndex>=this.currentRoutine().items.length-1?"FINALIZAR ENTRENAMIENTO":"SIGUIENTE EJERCICIO"}</span><b>→</b></button>
     </div>`;
     this.show("exerciseSummary","Ejercicio")
   },
@@ -745,54 +856,90 @@ const App={
     };
 
     session.totalSets=exercises.reduce((total,e)=>total+e.sets.length,0);
-
-    // El volumen es una métrica independiente. Peso 0 nunca elimina la serie.
-    session.volume=exercises.reduce(
-      (total,e)=>total+e.sets.reduce(
-        (sum,s)=>sum+((Number(s.weight)||0)*(Number(s.reps)||0)),
-        0
-      ),
-      0
-    );
-
+    session.volume=exercises.reduce((total,e)=>total+e.sets.reduce((sum,s)=>sum+((Number(s.weight)||0)*(Number(s.reps)||0)),0),0);
     session.reportedExerciseCount=exercises.length;
+    session.durationMs=Math.max(0,session.endedAt-(Number(session.startedAt)||session.endedAt));
     this.data.sessions.push(session);
     this.save();
 
     this.active=null;
     this.saveActive();
 
-    const exerciseReport=exercises.map(e=>{
-      const series=e.sets.map(s=>{
-        const repsLabel=e.mode==="time"
-          ?`${s.reps} s`
-          :`${s.reps} reps`;
-        const weightLabel=(Number(s.weight)||0)>0
-          ?` · ${Number(s.weight)} kg`
-          :` · peso corporal / sin carga externa`;
-        return `${repsLabel}${weightLabel}`
-      }).join("<br>");
-
-      return `<div class="list-item"><strong>${e.name}</strong>${e.plannedName&&e.plannedName!==e.name?`<div class="alternative-history">Sustituye a ${e.plannedName}${e.alternativeReason?` · ${e.alternativeReason}`:""}</div>`:""}<br>${series}</div>`
+    const durationMin=Math.max(1,Math.round(session.durationMs/60000));
+    const alternatives=exercises.filter(e=>e.plannedName&&e.plannedName!==e.name).length;
+    const exerciseReport=exercises.map((e,idx)=>{
+      const series=e.sets.map((s,i)=>{
+        const repsLabel=e.mode==="time"?`${s.reps} s`:`${s.reps} reps`;
+        const weightLabel=(Number(s.weight)||0)>0?`${Number(s.weight)} kg`:`Peso corporal`;
+        return `<div class="workout-complete-set"><span>S${i+1}</span><b>${weightLabel}</b><em>${repsLabel}</em></div>`
+      }).join("");
+      return `<section class="workout-complete-exercise">
+        <div class="workout-complete-exercise__head"><span>${String(idx+1).padStart(2,"0")}</span><div><strong>${e.name}</strong>${e.plannedName&&e.plannedName!==e.name?`<small>Sustituye a ${e.plannedName}${e.alternativeReason?` · ${e.alternativeReason}`:""}</small>`:""}</div></div>
+        <div class="workout-complete-sets">${series}</div>
+      </section>`
     }).join("");
 
-    document.getElementById("workoutSummary").innerHTML=
-      `<div class="focus">
+    this.lastCompletedSession=session;
+    document.getElementById("workoutSummary").innerHTML=`<div class="focus workout-complete-forged">
+      <section class="workout-complete-hero">
+        <div class="workout-complete-phoenix"><img src="icon.svg" alt="" aria-hidden="true"></div>
         <div class="eyebrow">ENTRENAMIENTO COMPLETADO</div>
-        <div class="title">${r.name.toUpperCase()}</div>
-        <div class="grid">
-          <div class="card"><div class="title">${exercises.length}</div><div>ejercicios</div></div>
-          <div class="card"><div class="title">${session.totalSets}</div><div>series</div></div>
-          <div class="card"><div class="title">${Math.round(session.volume)}</div><div>kg volumen externo</div></div>
-        </div>
-        <div class="card">
-          <div class="eyebrow">INFORME COMPLETO</div>
-          <div class="list">${exerciseReport||'<div class="muted">No se registraron series.</div>'}</div>
-        </div>
-        <button class="king small-king" onclick="App.renderHome()">VOLVER AL INICIO</button>
-      </div>`;
+        <div class="workout-complete-title">${r.name.toUpperCase()}</div>
+        <div class="workout-complete-date">${new Date(session.endedAt).toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'})}</div>
+      </section>
+
+      <section class="workout-complete-metrics">
+        <div><strong>${exercises.length}</strong><span>ejercicios</span></div>
+        <div><strong>${session.totalSets}</strong><span>series</span></div>
+        <div><strong>${durationMin}</strong><span>minutos</span></div>
+        <div><strong>${Math.round(session.volume)}</strong><span>kg volumen</span></div>
+      </section>
+
+      ${alternatives?`<div class="workout-complete-note">${alternatives} ${alternatives===1?"ejercicio adaptado":"ejercicios adaptados"} durante la sesión</div>`:""}
+
+      <section class="workout-complete-report">
+        <div class="workout-complete-report__head"><span>INFORME COMPLETO</span><b>${session.totalSets} series guardadas</b></div>
+        <div class="workout-complete-list">${exerciseReport||'<div class="muted">No se registraron series.</div>'}</div>
+      </section>
+
+      <div class="workout-complete-actions">
+        <button class="workout-complete-copy" onclick="App.copyLastWorkoutReport()">COPIAR PARA ENTRENADOR</button>
+        <button class="workout-complete-home" onclick="App.renderHome()"><span>VOLVER AL INICIO</span><b>✓</b></button>
+      </div>
+    </div>`;
 
     this.show("workoutSummary","Inicio")
+  },
+
+  workoutReportText(session=this.lastCompletedSession){
+    if(!session)return"";
+    const mins=Math.max(1,Math.round((Number(session.durationMs)||0)/60000));
+    const lines=[
+      "GYMTRACKER PHOENIX",
+      `Entrenamiento: ${session.routineName}`,
+      `Fecha: ${new Date(session.endedAt||session.date).toLocaleString('es-ES')}`,
+      `Duración: ${mins} min`,
+      `Ejercicios: ${session.exercises.length} · Series: ${session.totalSets} · Volumen: ${Math.round(session.volume)} kg`,
+      ""
+    ];
+    session.exercises.forEach((e,idx)=>{
+      lines.push(`${idx+1}. ${e.name}`);
+      if(e.plannedName&&e.plannedName!==e.name){
+        lines.push(`   Sustituye a ${e.plannedName}${e.alternativeReason?` (${e.alternativeReason})`:""}`)
+      }
+      e.sets.forEach((s,i)=>{
+        const weight=(Number(s.weight)||0)>0?`${Number(s.weight)} kg`:"Peso corporal";
+        const unit=e.mode==="time"?" s":" reps";
+        lines.push(`   S${i+1}: ${weight} × ${Number(s.reps)||0}${unit}`)
+      })
+    });
+    return lines.join("\n")
+  },
+
+  async copyLastWorkoutReport(){
+    const text=this.workoutReportText();if(!text){this.toast("No hay informe disponible");return}
+    try{await navigator.clipboard.writeText(text);this.toast("Informe copiado")}
+    catch(_){const ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();this.toast("Informe copiado")}
   },
 
   pauseWorkout(){clearInterval(this.timer);this.saveActive();this.renderHome()},
@@ -828,44 +975,84 @@ const App={
   },
   restorePlannedExercise(){if(!this.active)return;delete this.active.exerciseOverrides[String(this.active.exerciseIndex)];this.saveActive();this.closeAlternatives();this.renderGym(false)},
 
+  setDataMetric(metric){
+    this.dataMetric=metric;
+    this.renderData(false)
+  },
+
   renderData(withHistory=true){
-    document.getElementById("data").innerHTML=`<div class="data-hub">
-      <div class="eyebrow">MODO</div>
-      <div class="title">DATOS</div>
-      <p class="data-hub-copy">Todo lo que no necesitas durante una serie vive aquí.</p>
+    const sessions=(this.data.sessions||[]).slice().sort((a,b)=>new Date(a.endedAt||a.date)-new Date(b.endedAt||b.date));
+    const now=Date.now(), weekAgo=now-(7*24*60*60*1000);
+    const weekSessions=sessions.filter(s=>new Date(s.endedAt||s.date).getTime()>=weekAgo);
+    const sessionSets=s=>Number(s.totalSets)||((s.exercises||[]).reduce((n,e)=>n+(e.sets||[]).length,0));
+    const maxLoad=s=>Math.max(0,...(s.exercises||[]).flatMap(e=>(e.sets||[]).map(x=>Number(x.weight)||0)));
+    const weekSets=weekSessions.reduce((sum,s)=>sum+sessionSets(s),0);
+    const weekVolume=weekSessions.reduce((sum,s)=>sum+(Number(s.volume)||0),0);
+    const weekMinutes=Math.round(weekSessions.reduce((sum,s)=>sum+(Number(s.durationMs)||0),0)/60000);
+    const bodyWeight=Number(this.data.profile?.bodyWeight)||0;
+    const allMax=Math.max(0,...sessions.map(maxLoad));
+    const relative=bodyWeight&&allMax?allMax/bodyWeight:0;
+    const latest=sessions[sessions.length-1];
+    const latestName=latest?.routineName||"Sin sesiones";
+    const latestDate=latest?new Date(latest.endedAt||latest.date).toLocaleDateString('es-ES',{day:'2-digit',month:'short'}):"—";
+    const metric=this.dataMetric||"volume";
+    const labels={volume:"Volumen",load:"Carga",relative:"Fuerza relativa",weight:"Peso corporal"};
+    let source=[];
+    if(metric==="weight") source=(this.data.weights||[]).map(x=>({date:new Date(x.date),value:Number(x.weight)||0}));
+    else source=sessions.map(s=>({
+      date:new Date(s.endedAt||s.date),
+      value:metric==="load"?maxLoad(s):metric==="relative"?(bodyWeight?maxLoad(s)/bodyWeight:0):(Number(s.volume)||0)
+    }));
+    source=source.filter(x=>Number.isFinite(x.value)&&x.value>0).slice(-8);
+    const values=source.map(x=>x.value);
+    const min=values.length?Math.min(...values):0,max=values.length?Math.max(...values):1,span=Math.max(1,max-min);
+    const points=values.map((v,i)=>`${10+(i*(80/Math.max(1,values.length-1)))},${82-((v-min)/span)*58}`).join(' ');
+    const endValue=values.length?values[values.length-1]:0;
+    const formatValue=v=>metric==="relative"?`${v.toFixed(2)}×`:metric==="weight"?`${v.toFixed(1)} kg`:metric==="load"?`${Math.round(v)} kg`:`${Math.round(v).toLocaleString('es-ES')} kg`;
+    const recent=sessions.slice(-3).reverse();
+    document.getElementById("data").innerHTML=`<div class="data-v2">
+      <section class="data-v2__head phx-card phx-card--highlight">
+        <div class="data-v2__brand"><span class="data-v2__plate"><img src="icon.svg" alt=""></span><div><small>GYMTRACKER</small><b>PHOENIX · DATA</b></div></div>
+        <div class="eyebrow">DATOS</div>
+        <h1>Tu progreso,<br><em>sin ruido.</em></h1>
+        <p>Lo que has hecho. Lo que estás mejorando.</p>
+        <div class="data-v2__latest"><span>ÚLTIMO</span><b>${latestName}</b><small>${latestDate}</small></div>
+      </section>
 
-      <div class="data-grid">
-        <button class="data-tile" onclick="App.renderRoutines()">
-          <span class="data-icon">R</span>
-          <span>Rutinas</span>
-          <small>Crear y planificar</small>
-        </button>
+      <section class="data-v2__metrics" aria-label="Últimos 7 días">
+        <div class="data-v2__metric"><span>SESIONES</span><strong>${weekSessions.length}</strong><small>últimos 7 días</small></div>
+        <div class="data-v2__metric"><span>SERIES</span><strong>${weekSets}</strong><small>completadas</small></div>
+        <div class="data-v2__metric data-v2__metric--gold"><span>VOLUMEN</span><strong>${Math.round(weekVolume).toLocaleString('es-ES')}</strong><small>kg · 7 días</small></div>
+        <div class="data-v2__metric"><span>TIEMPO</span><strong>${weekMinutes}</strong><small>minutos</small></div>
+      </section>
 
-        <button class="data-tile" onclick="App.renderHistory()">
-          <span class="data-icon">H</span>
-          <span>Historial</span>
-          <small>Sesiones guardadas</small>
-        </button>
+      <section class="data-v2__chart phx-card">
+        <div class="data-v2__chart-head"><div><span>PROGRESO</span><h2>${labels[metric]}</h2></div><strong>${endValue?formatValue(endValue):'—'}</strong></div>
+        <div class="data-v2__tabs" role="tablist">
+          <button class="${metric==='load'?'active':''}" onclick="App.setDataMetric('load')">CARGA</button>
+          <button class="${metric==='relative'?'active':''}" onclick="App.setDataMetric('relative')">RELATIVA</button>
+          <button class="${metric==='volume'?'active':''}" onclick="App.setDataMetric('volume')">VOLUMEN</button>
+          <button class="${metric==='weight'?'active':''}" onclick="App.setDataMetric('weight')">PESO</button>
+        </div>
+        <div class="data-v2__graph ${values.length?'':'is-empty'}">
+          ${values.length?`<svg viewBox="0 0 100 92" preserveAspectRatio="none" aria-label="Gráfica de ${labels[metric]}"><defs><linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d8b35e" stop-opacity=".32"/><stop offset="1" stop-color="#d8b35e" stop-opacity="0"/></linearGradient></defs><path d="M10 82 L ${points.replaceAll(' ',', L ')} L90 88 L10 88 Z" fill="url(#chartFill)"/><polyline points="${points}" fill="none" stroke="#f0cc78" stroke-width="2.2" vector-effect="non-scaling-stroke"/><circle cx="${points.split(' ').at(-1).split(',')[0]}" cy="${points.split(' ').at(-1).split(',')[1]}" r="2.7" fill="#fff0b8" stroke="#7a4c0e" stroke-width="1.2"/></svg>`:`<div><b>Aún no hay datos suficientes</b><span>Completa sesiones para ver la evolución.</span></div>`}
+        </div>
+        <div class="data-v2__range"><button class="active">4S</button><button>3M</button><button>6M</button><button>1A</button></div>
+      </section>
 
-        <button class="data-tile" onclick="App.renderLibrary()">
-          <span class="data-icon">B</span>
-          <span>Biblioteca</span>
-          <small>Ejercicios Phoenix</small>
-        </button>
+      <section class="data-v2__insights">
+        <button onclick="App.renderHistory()"><span>HISTORIAL</span><b>Sesiones y detalle</b><em>›</em></button>
+        <button onclick="App.setDataMetric('relative')"><span>FUERZA RELATIVA</span><b>${relative?relative.toFixed(2)+'×':'Sin peso corporal'}</b><em>›</em></button>
+        <button onclick="App.renderSettings()"><span>PESO CORPORAL</span><b>${bodyWeight?bodyWeight.toFixed(1)+' kg':'Registrar peso'}</b><em>›</em></button>
+        <button onclick="App.renderHistory()"><span>PR REALES</span><b>${allMax?Math.round(allMax)+' kg':'Sin registros'}</b><em>›</em></button>
+        <button onclick="App.renderRoutines()"><span>PLANIFICACIÓN</span><b>Semana y rutinas</b><em>›</em></button>
+        <button onclick="App.renderBackups()"><span>BACKUP</span><b>Tus datos contigo</b><em>›</em></button>
+      </section>
 
-        <button class="data-tile" onclick="App.renderBackups()">
-          <span class="data-icon">↥</span>
-          <span>Backups</span>
-          <small>Tus datos contigo</small>
-        </button>
-
-        <button class="data-tile" onclick="App.renderSettings()">
-          <span class="data-icon">⚙</span>
-          <span>Ajustes</span>
-          <small>Configurar Phoenix</small>
-        </button>
-      </div>
-
+      <section class="data-v2__recent">
+        <div class="data-v2__section-title"><div><span>HISTORIAL RECIENTE</span><h2>Últimas sesiones</h2></div><button onclick="App.renderHistory()">VER TODO</button></div>
+        ${recent.length?recent.map(s=>{const d=new Date(s.endedAt||s.date);const ex=(s.exercises||[]);const substitutions=ex.filter(e=>e.plannedName&&e.plannedName!==e.name).length;return `<button class="data-v2__session" onclick="App.renderHistory()"><time><b>${d.toLocaleDateString('es-ES',{day:'2-digit'})}</b><span>${d.toLocaleDateString('es-ES',{month:'short'}).replace('.','')}</span></time><div><strong>${s.routineName||'Entrenamiento'}</strong><small>${sessionSets(s)} series · ${Math.round((Number(s.durationMs)||0)/60000)} min${substitutions?` · ${substitutions} cambio${substitutions>1?'s':''}`:''}</small></div><em>${Math.round(Number(s.volume)||0).toLocaleString('es-ES')} kg</em></button>`}).join(''):`<div class="data-v2__empty">Tu historial aparecerá aquí después del primer entrenamiento.</div>`}
+      </section>
       <div class="data-footer-note">Offline · Sin publicidad · Datos exportables</div>
     </div>`;
     this.show("data","Inicio",{history:withHistory})
@@ -1115,12 +1302,33 @@ const App={
   },
 
   renderHistory(withHistory=true){
-    document.getElementById("history").innerHTML=`<div class="card"><div class="eyebrow">HISTORIAL</div></div>${this.data.sessions.slice().reverse().map(s=>`<details class="card"><summary><strong>${s.routineName}</strong> · ${new Date(s.date).toLocaleDateString()}</summary><p>${s.totalSets} series · ${Math.round(s.volume)} kg</p>${s.exercises.map(e=>`<div class="list-item"><strong>${e.name}</strong>${e.plannedName&&e.plannedName!==e.name?`<div class="alternative-history">Sustituye a ${e.plannedName}${e.alternativeReason?` · ${e.alternativeReason}`:""}</div>`:""}<br>${e.sets.map(x=>{
-  const w=(Number(x.weight)||0)>0?`${Number(x.weight)}kg`:"Peso corporal / 0kg";
-  const unit=e.mode==="time"?"s":"reps";
-  return `${w} × ${Number(x.reps)||0} ${unit}`
-}).join(" · ")}</div>`).join("")}</details>`).join("")||'<div class="card muted">Todavía no hay entrenamientos guardados.</div>'}`;
+    const sessions=(this.data.sessions||[]).slice().reverse();
+    const cards=sessions.map((s,index)=>{
+      const date=new Date(s.endedAt||s.date);
+      const mins=Math.max(1,Math.round((Number(s.durationMs)||0)/60000));
+      const exercises=s.exercises||[];
+      const substitutions=exercises.filter(e=>e.plannedName&&e.plannedName!==e.name).length;
+      const id=`history-session-${index}`;
+      return `<article class="history-session phx-card phx-card--base">
+        <button class="history-session-head" onclick="App.toggleHistorySession('${id}',this)" aria-expanded="false">
+          <div class="history-date"><span>${date.toLocaleDateString('es-ES',{weekday:'short'}).replace('.','').toUpperCase()}</span><strong>${String(date.getDate()).padStart(2,'0')}</strong><small>${date.toLocaleDateString('es-ES',{month:'short'}).replace('.','').toUpperCase()}</small></div>
+          <div class="history-main"><span class="eyebrow">ENTRENAMIENTO</span><h3>${s.routineName||'Sesión'}</h3><p>${exercises.length} ejercicios · ${mins} min${substitutions?` · ${substitutions} sustitución${substitutions>1?'es':''}`:''}</p></div>
+          <div class="history-chevron">⌄</div>
+        </button>
+        <div class="history-kpis"><div><span>SERIES</span><strong>${Number(s.totalSets)||0}</strong></div><div><span>VOLUMEN</span><strong>${Math.round(Number(s.volume)||0).toLocaleString('es-ES')}</strong><small>kg</small></div><div><span>DURACIÓN</span><strong>${mins}</strong><small>min</small></div></div>
+        <div id="${id}" class="history-detail" hidden>
+          ${exercises.map((e,ei)=>`<section class="history-exercise"><div class="history-exercise-title"><span>${ei+1}</span><div><strong>${e.name}</strong>${e.plannedName&&e.plannedName!==e.name?`<small>Sustituye a ${e.plannedName}${e.alternativeReason?` · ${e.alternativeReason}`:''}</small>`:''}</div></div><div class="history-sets">${(e.sets||[]).map((x,si)=>{const w=(Number(x.weight)||0)>0?`${Number(x.weight)} kg`:'Peso corporal';const unit=e.mode==='time'?'s':'reps';return `<div><span>S${si+1}</span><strong>${w}</strong><em>× ${Number(x.reps)||0} ${unit}</em></div>`}).join('')}</div></section>`).join('')}
+        </div>
+      </article>`
+    }).join('');
+    document.getElementById("history").innerHTML=`<section class="history-header"><div><div class="eyebrow">DATOS</div><h2>Historial</h2><p>${sessions.length?`${sessions.length} entrenamiento${sessions.length===1?'':'s'} guardado${sessions.length===1?'':'s'}`:'Tu progreso aparecerá aquí'}</p></div></section>${cards||'<div class="phx-card phx-card--base history-empty"><strong>Aún no hay entrenamientos</strong><span>Completa una sesión para empezar tu historial.</span></div>'}`;
     this.show("history","Datos",{history:withHistory})
+  },
+
+  toggleHistorySession(id,button){
+    const panel=document.getElementById(id);if(!panel)return;
+    const opening=panel.hidden;panel.hidden=!opening;button.setAttribute('aria-expanded',String(opening));
+    button.closest('.history-session')?.classList.toggle('is-open',opening)
   },
 
   renderSettings(withHistory=true){
