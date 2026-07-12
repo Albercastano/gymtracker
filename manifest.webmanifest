@@ -1,6 +1,6 @@
 {
-  "name": "GymTracker Phoenix v8.5.1 Urgent Hotfix",
-  "short_name": "GT Phoenix 8.5.1",
+  "name": "GymTracker Phoenix v8.5.2 Weight Button Fix",
+  "short_name": "GT Phoenix 8.5.2",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#050507",

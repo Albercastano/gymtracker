@@ -1,10 +1,9 @@
 # CHANGELOG
 
-## v8.5.1 Urgent Hotfix
-- Corregido el botón de bajar peso dentro de GYM.
-- Conversión numérica robusta del peso.
-- Respeta el incremento configurado, con mínimo de 0,5 kg.
-- Recuperado el importador de rutinas desde texto.
-- Previsualización antes de importar.
-- Detecta nombre, series, repeticiones, peso y descanso.
-- No modifica la estética aprobada.
+## v8.5.2 Weight Button Fix
+- El peso deja de depender del ajustador genérico.
+- Botones de subir y bajar peso usan funciones explícitas.
+- El botón inferior calcula internamente el paso negativo.
+- Paso mínimo garantizado de 0,5 kg.
+- Mantiene intacto el importador de rutinas desde texto.
+- No cambia la estética.

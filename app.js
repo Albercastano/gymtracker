@@ -302,7 +302,47 @@ const App={
   },
 
   controlBox(label,field,value,step,unit=""){
-    return `<div class="control-box"><div class="control-label">${label}</div><button class="arrow" onclick="App.adjustExercise('${field}',${step})">▲</button><div class="control-value">${value}${unit?`<small>${unit}</small>`:""}</div><button class="arrow" onclick="App.adjustExercise('${field}',${-step})">▼</button></div>`
+    if(field==="weight"){
+      return `<div class="control-box">
+        <div class="control-label">${label}</div>
+        <button type="button" class="arrow" aria-label="Subir peso" onclick="App.changeWeight(1)">▲</button>
+        <div class="control-value">${value}${unit?`<small>${unit}</small>`:""}</div>
+        <button type="button" class="arrow" aria-label="Bajar peso" onclick="App.changeWeight(-1)">▼</button>
+      </div>`
+    }
+
+    return `<div class="control-box">
+      <div class="control-label">${label}</div>
+      <button type="button" class="arrow" onclick="App.adjustExercise('${field}',${Number(step)||1})">▲</button>
+      <div class="control-value">${value}${unit?`<small>${unit}</small>`:""}</div>
+      <button type="button" class="arrow" onclick="App.adjustExercise('${field}',${-(Number(step)||1)})">▼</button>
+    </div>`
+  },
+
+  changeWeight(direction){
+    const e=this.currentExercise();
+    if(!e)return;
+
+    const dir=Number(direction)<0?-1:1;
+    let step=Number(this.data.settings?.weightStep);
+
+    if(!Number.isFinite(step)||step<=0){
+      step=0.5;
+    }
+
+    // Phoenix trabaja como mínimo en pasos de medio kilo.
+    step=Math.max(0.5,step);
+
+    const current=Number(e.weight);
+    const safeCurrent=Number.isFinite(current)?current:0;
+    const next=Math.max(0,safeCurrent+(dir*step));
+
+    e.weight=Number(next.toFixed(2));
+
+    this.save();
+    this.saveActive();
+    this.renderGym(false);
+    this.buzz(18)
   },
 
   adjustExercise(field,delta){
