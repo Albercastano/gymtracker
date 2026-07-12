@@ -1,10 +1,9 @@
 # CHANGELOG
 
-## v8.4.2 Home Restore
-- Recupera la composición original de Phoenix:
-  - tarjeta superior «Hoy toca»;
-  - botones GYM y DATOS en paralelo.
-- Corrige la regla móvil que apilaba ambos botones.
-- Añade duración estimada con protagonismo secundario.
-- Mantiene el hotfix del informe completo.
-- No modifica GYM, Casio, Biblioteca, Datos, navegación ni historial.
+## v8.5 Stable
+
+- Recuperada la estética DATOS del primer Phoenix.
+- Tarjetas oscuras FORGED, compactas y proporcionadas.
+- Mejor jerarquía visual y espacio entre elementos.
+- Se mantienen Home, GYM, Casio, navegación e informe sin cambios.
+- Incluidos PHOENIX_CONTEXT_v1.md y PHOENIX_CONSTITUTION.md.

@@ -660,7 +660,45 @@ const App={
   },
 
   renderData(withHistory=true){
-    document.getElementById("data").innerHTML=`<div class="focus"><div class="eyebrow">MODO</div><div class="title">DATOS</div><div class="grid"><button class="secondary" onclick="App.renderLibrary()">Biblioteca</button><button class="secondary" onclick="App.renderRoutines()">Rutinas</button><button class="secondary" onclick="App.renderHistory()">Historial</button><button class="secondary" onclick="App.renderSettings()">Ajustes</button><button class="secondary" onclick="App.renderBackups()">Backups</button></div></div>`;
+    document.getElementById("data").innerHTML=`<div class="data-hub">
+      <div class="eyebrow">MODO</div>
+      <div class="title">DATOS</div>
+      <p class="data-hub-copy">Todo lo que no necesitas durante una serie vive aquí.</p>
+
+      <div class="data-grid">
+        <button class="data-tile" onclick="App.renderRoutines()">
+          <span class="data-icon">R</span>
+          <span>Rutinas</span>
+          <small>Crear y planificar</small>
+        </button>
+
+        <button class="data-tile" onclick="App.renderHistory()">
+          <span class="data-icon">H</span>
+          <span>Historial</span>
+          <small>Sesiones guardadas</small>
+        </button>
+
+        <button class="data-tile" onclick="App.renderLibrary()">
+          <span class="data-icon">B</span>
+          <span>Biblioteca</span>
+          <small>Ejercicios Phoenix</small>
+        </button>
+
+        <button class="data-tile" onclick="App.renderBackups()">
+          <span class="data-icon">↥</span>
+          <span>Backups</span>
+          <small>Tus datos contigo</small>
+        </button>
+
+        <button class="data-tile" onclick="App.renderSettings()">
+          <span class="data-icon">⚙</span>
+          <span>Ajustes</span>
+          <small>Configurar Phoenix</small>
+        </button>
+      </div>
+
+      <div class="data-footer-note">Offline · Sin publicidad · Datos exportables</div>
+    </div>`;
     this.show("data","Inicio",{history:withHistory})
   },
 
