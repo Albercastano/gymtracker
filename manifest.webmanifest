@@ -1,15 +1,22 @@
 {
-  "name": "GymTracker Phoenix Lab 9.7.0 Datos Definitivo",
-  "short_name": "Phoenix 9.7.0",
+  "name": "GymTracker Phoenix Lab 9.7.1 UI Ampliada",
+  "short_name": "Phoenix 9.7.1",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#050507",
   "theme_color": "#d8b35e",
   "icons": [
     {
-      "src": "icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml"
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

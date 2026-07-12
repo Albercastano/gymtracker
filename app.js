@@ -275,7 +275,7 @@ const App={
 
     document.getElementById("home").innerHTML=`<div class="home-phoenix home-definitive">
       <section class="home-brand home-brand--forged" aria-label="GymTracker Phoenix">
-        <div class="home-brand__plate"><img src="icon.svg" alt="" aria-hidden="true"></div>
+        <div class="home-brand__plate"><img src="icon-512.png" alt="" aria-hidden="true"></div>
         <div><div class="home-brand__name">GYMTRACKER</div><div class="home-brand__sub">PHOENIX · FORGED</div></div>
       </section>
 
@@ -882,7 +882,7 @@ const App={
     this.lastCompletedSession=session;
     document.getElementById("workoutSummary").innerHTML=`<div class="focus workout-complete-forged">
       <section class="workout-complete-hero">
-        <div class="workout-complete-phoenix"><img src="icon.svg" alt="" aria-hidden="true"></div>
+        <div class="workout-complete-phoenix"><img src="icon-512.png" alt="" aria-hidden="true"></div>
         <div class="eyebrow">ENTRENAMIENTO COMPLETADO</div>
         <div class="workout-complete-title">${r.name.toUpperCase()}</div>
         <div class="workout-complete-date">${new Date(session.endedAt).toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'})}</div>
@@ -1012,7 +1012,7 @@ const App={
     const recent=sessions.slice(-3).reverse();
     document.getElementById("data").innerHTML=`<div class="data-v2">
       <section class="data-v2__head phx-card phx-card--highlight">
-        <div class="data-v2__brand"><span class="data-v2__plate"><img src="icon.svg" alt=""></span><div><small>GYMTRACKER</small><b>PHOENIX · DATA</b></div></div>
+        <div class="data-v2__brand"><span class="data-v2__plate"><img src="icon-512.png" alt=""></span><div><small>GYMTRACKER</small><b>PHOENIX · DATA</b></div></div>
         <div class="eyebrow">DATOS</div>
         <h1>Tu progreso,<br><em>sin ruido.</em></h1>
         <p>Lo que has hecho. Lo que estás mejorando.</p>

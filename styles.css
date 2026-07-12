@@ -812,3 +812,72 @@ main{
 .data-v2__insights{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.data-v2__insights button{min-width:0;min-height:92px;padding:13px 12px;border-radius:18px;text-align:left;display:grid;grid-template-columns:1fr auto;align-content:end;gap:6px;border:1px solid rgba(255,255,255,.1);background:linear-gradient(145deg,#1b1d22,#0c0d10);color:#f3f4f6;box-shadow:0 7px 0 rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.07)}.data-v2__insights button:active{transform:translateY(5px);box-shadow:0 2px 0 rgba(0,0,0,.48)}.data-v2__insights span{grid-column:1/-1;font-size:.52rem;letter-spacing:.11em;color:var(--mut);font-weight:1000}.data-v2__insights b{font-size:.74rem;line-height:1.12}.data-v2__insights em{font-style:normal;color:var(--gold2);font-size:1.1rem;line-height:.7}
 .data-v2__recent{display:grid;gap:9px}.data-v2__section-title{display:flex;justify-content:space-between;align-items:end;padding:4px 2px}.data-v2__section-title button{border:0;background:transparent;color:var(--gold2);font-size:.56rem;font-weight:1000;letter-spacing:.09em}.data-v2__session{display:grid;grid-template-columns:50px minmax(0,1fr) auto;gap:11px;align-items:center;padding:11px 12px;border-radius:17px;border:1px solid rgba(255,255,255,.09);background:linear-gradient(145deg,#17191e,#0a0b0e);color:#f4f5f6;text-align:left}.data-v2__session time{height:43px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid rgba(255,224,151,.2);background:#0b0c0f}.data-v2__session time b{font-size:1.05rem;line-height:.9;color:var(--gold2)}.data-v2__session time span{margin-top:4px;font-size:.5rem;font-weight:1000;text-transform:uppercase;color:var(--mut)}.data-v2__session>div{min-width:0;display:flex;flex-direction:column}.data-v2__session strong{font-size:.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.data-v2__session small{margin-top:5px;color:var(--mut);font-size:.58rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.data-v2__session>em{font-style:normal;color:var(--gold2);font-size:.66rem;font-weight:1000;white-space:nowrap}.data-v2__empty{padding:22px;border-radius:17px;text-align:center;color:var(--mut);font-size:.7rem;border:1px dashed rgba(255,255,255,.1)}
 @media(max-width:390px){.data-v2__head{min-height:226px}.data-v2__latest{max-width:95px}.data-v2__insights{grid-template-columns:1fr 1fr}.data-v2__session{grid-template-columns:46px minmax(0,1fr)}.data-v2__session>em{display:none}}
+
+
+/* LAB 9.7.1 · UI AMPLIADA PARA MÓVIL
+   ÚNICAMENTE tamaño, área táctil y aprovechamiento del viewport.
+   Paleta, composición visual y lógica permanecen sin cambios. */
+.phoenix-emblem img{
+  display:block;width:100%;height:auto;border-radius:26%;
+  box-shadow:0 18px 42px rgba(0,0,0,.55)
+}
+@media(max-width:520px){
+  .topbar{
+    min-height:60px;
+    padding:8px 8px 8px;
+    padding-top:max(8px,env(safe-area-inset-top));
+    gap:7px
+  }
+  .dest-button{min-width:94px;min-height:56px;padding:10px 16px;font-size:1rem}
+  .topbar-brand{gap:7px}.topbar-brand img{width:30px;height:30px}.topbar-brand strong{font-size:.70rem}.topbar-brand span{font-size:.50rem}
+  .version{font-size:.60rem;letter-spacing:.06em;white-space:nowrap}
+  main{padding:10px 8px calc(24px + env(safe-area-inset-bottom));max-width:none}
+  .screen{width:100%}
+
+  .home-phoenix{gap:10px;padding-bottom:2px}
+  .phx-brand-lockup{padding:2px 3px}
+  .phx-card--hero{padding:22px 18px 24px}
+  .two-actions{gap:9px}
+  .two-actions .king,.two-actions .data-king{min-height:138px;border-radius:25px}
+  .phx-card--compact{min-height:126px;padding:15px 11px}
+  .home-metrics{gap:7px}
+  .home-last-card{padding:18px 16px}
+
+  .gym-complete-screen{gap:10px}
+  .gym-status-strip{padding:13px 14px}
+  .exercise-stage{padding:17px}
+  .exercise-stage__alt{min-height:64px;min-width:76px}
+  .exercise-stage__progress span{width:42px;height:42px}
+  .gym-target-card{padding:16px}
+  .gym-target-grid>div{min-height:88px;padding:12px 7px}
+  .gym-context-card{min-height:66px;padding:12px 14px}
+  .gym-primary-action{min-height:78px;padding:0 20px;font-size:1.08rem}
+  .gym-primary-action b{width:42px;height:42px}
+  .gym-exit-action{min-height:52px}
+
+  .control-panel{gap:9px}.control-box{padding:11px 7px}.arrow{min-height:62px}.control-value{min-height:62px}
+  .small-king{min-height:108px}
+  .secondary,.danger{min-height:64px}
+  .series-box{min-height:198px}
+  .series-focus{gap:10px}
+
+  .casio-screen{gap:14px}.casio-pro{padding:18px 16px 16px}.casio-pro__keys button{min-height:64px}
+  .casio-pro+.secondary{min-height:66px}
+
+  .data-v2{gap:11px;padding-bottom:18px}
+  .data-v2__head{padding:20px 17px 19px;min-height:226px}
+  .data-v2__brand{margin-bottom:21px}
+  .data-v2__metric{min-height:112px;padding:16px 14px}
+  .data-v2__chart{padding:18px 15px 15px}
+  .data-v2__tabs button{min-height:42px}
+  .data-v2__range button{min-height:40px}
+  .data-v2__insights button{min-height:112px;padding:16px 14px}
+  .data-v2__session{min-height:82px;padding:13px 13px}
+  .data-v2__section-title button{min-height:48px;padding:0 8px}
+
+  .list-item{padding:16px}.exercise-card{padding:16px}.exercise-card button{min-height:56px}
+  .sheet-panel{padding-left:12px;padding-right:12px}
+}
+@media(min-width:521px) and (max-width:760px){
+  main{padding-left:10px;padding-right:10px}
+}
