@@ -120,6 +120,10 @@ const App={
     this.active.completedExercises=Array.isArray(this.active.completedExercises)?this.active.completedExercises:[];
     this.active.exerciseProgress=(this.active.exerciseProgress&&typeof this.active.exerciseProgress==="object")
       ?this.active.exerciseProgress:{};
+    this.active.exerciseOverrides=(this.active.exerciseOverrides&&typeof this.active.exerciseOverrides==="object")
+      ?this.active.exerciseOverrides:{};
+    this.active.restPaused=Boolean(this.active.restPaused);
+    this.active.restPausedLeft=Math.max(0,Number(this.active.restPausedLeft)||0);
     this.active.phase=["gym","series","rest","summary"].includes(this.active.phase)?this.active.phase:"gym";
 
     if(this.active.phase==="rest" && Number(this.active.restEndsAt)>0){
@@ -229,14 +233,41 @@ const App={
     const totalExercises=r?.items?.length||0;
     const totalSets=r?.items?.reduce((a,x)=>a+(Number(x.sets)||0),0)||0;
     const estimatedMinutes=this.estimateRoutineMinutes(r);
+    const sessions=this.data.sessions||[];
+    const lastSession=sessions.length?sessions[sessions.length-1]:null;
+    const now=Date.now();
+    const weekStart=now-(6*24*60*60*1000);
+    const weekSessions=sessions.filter(s=>new Date(s.date).getTime()>=weekStart);
+    const weekVolume=weekSessions.reduce((sum,s)=>sum+(Number(s.volume)||0),0);
+    const bodyWeight=Number(this.data.profile?.bodyWeight)||0;
 
-    document.getElementById("home").innerHTML=`<div class="focus">
-      ${active?`<div class="card"><div class="eyebrow">ENTRENAMIENTO EN CURSO</div><div class="title">${this.getRoutine(active.routineId)?.name||"Rutina"}</div><button class="king small-king" onclick="App.resumeWorkout()">CONTINUAR</button><button class="danger" onclick="App.discardWorkout()">Descartar</button></div>`:""}
+    const lastWorkoutCard=lastSession?`
+      <button class="phx-card phx-card--base phx-card--interactive home-last-card" onclick="App.renderHistory()" aria-label="Abrir historial del último entrenamiento">
+        <div class="phx-card__header">
+          <div>
+            <div class="phx-card__eyebrow">ÚLTIMO ENTRENAMIENTO</div>
+            <div class="phx-card__title">${lastSession.routineName||"Rutina"}</div>
+          </div>
+          <span class="phx-card__chevron" aria-hidden="true">›</span>
+        </div>
+        <div class="phx-card__meta">
+          <span>${new Date(lastSession.date).toLocaleDateString()}</span>
+          <span>${Number(lastSession.totalSets)||0} series</span>
+          <span>${Math.round(Number(lastSession.volume)||0)} kg</span>
+        </div>
+      </button>`:`
+      <div class="phx-card phx-card--base home-last-card">
+        <div class="phx-card__eyebrow">ÚLTIMO ENTRENAMIENTO</div>
+        <div class="phx-card__title">Aún no hay sesiones</div>
+        <div class="phx-card__copy">Completa tu primer entrenamiento para ver aquí el resumen.</div>
+      </div>`;
 
-      <div class="card home-today-card">
-        <div class="eyebrow">HOY TOCA</div>
-        <div class="title">${r?r.name:"DESCANSO"}</div>
+    document.getElementById("home").innerHTML=`<div class="home-phoenix">
+      ${active?`<div class="phx-card phx-card--highlight active-workout-card"><div class="phx-card__eyebrow">ENTRENAMIENTO EN CURSO</div><div class="phx-card__hero-title">${this.getRoutine(active.routineId)?.name||"Rutina"}</div><button class="king small-king" onclick="App.resumeWorkout()">CONTINUAR</button><button class="danger" onclick="App.discardWorkout()">Descartar</button></div>`:""}
 
+      <section class="phx-card phx-card--highlight home-today-card" aria-labelledby="today-title">
+        <div class="phx-card__eyebrow">HOY TOCA</div>
+        <div id="today-title" class="phx-card__hero-title">${r?r.name:"DESCANSO"}</div>
         <div class="home-summary">
           ${r?`
             <span>${totalExercises} ejercicios</span>
@@ -244,12 +275,31 @@ const App={
             <span class="estimated-time">~${estimatedMinutes} min</span>
           `:`<span>Sin rutina asignada</span>`}
         </div>
-
         <div class="two-actions">
           <button class="king" onclick="App.startWorkout('${r?.id||""}')">GYM</button>
           <button class="data-king" onclick="App.renderData()">DATOS</button>
         </div>
-      </div>
+      </section>
+
+      <section class="home-metrics" aria-label="Resumen rápido">
+        <button class="phx-card phx-card--compact phx-card--interactive" onclick="App.renderHistory()">
+          <span class="phx-card__eyebrow">7 DÍAS</span>
+          <strong class="phx-metric">${weekSessions.length}</strong>
+          <span class="phx-metric-label">entrenamientos</span>
+        </button>
+        <button class="phx-card phx-card--compact phx-card--interactive" onclick="App.renderHistory()">
+          <span class="phx-card__eyebrow">VOLUMEN</span>
+          <strong class="phx-metric">${Math.round(weekVolume)}</strong>
+          <span class="phx-metric-label">kg · 7 días</span>
+        </button>
+        <button class="phx-card phx-card--compact phx-card--interactive" onclick="App.renderSettings()">
+          <span class="phx-card__eyebrow">PESO</span>
+          <strong class="phx-metric">${bodyWeight?bodyWeight.toFixed(1):"—"}</strong>
+          <span class="phx-metric-label">${bodyWeight?"kg":"sin registrar"}</span>
+        </button>
+      </section>
+
+      ${lastWorkoutCard}
     </div>`;
 
     this.show("home","Inicio",{history:withHistory})
@@ -258,7 +308,7 @@ const App={
   startWorkout(routineId){
     const r=this.getRoutine(routineId);
     if(!r||!r.items.length){alert("No hay una rutina válida para hoy.");return}
-    this.active={id:"s"+Date.now(),routineId:r.id,date:new Date().toISOString(),exerciseIndex:0,setIndex:0,currentSets:[],completedExercises:[],exerciseProgress:{},startedAt:Date.now(),phase:"gym",restEndsAt:null,restLeft:0};
+    this.active={id:"s"+Date.now(),routineId:r.id,date:new Date().toISOString(),exerciseIndex:0,setIndex:0,currentSets:[],completedExercises:[],exerciseProgress:{},exerciseOverrides:{},startedAt:Date.now(),phase:"gym",restEndsAt:null,restLeft:0,restPaused:false,restPausedLeft:0};
     this.saveActive();
     this.renderGym()
   },
@@ -274,31 +324,52 @@ const App={
   discardWorkout(){if(confirm("¿Descartar el entrenamiento en curso?")){this.active=null;this.saveActive();this.renderHome()}},
 
   currentRoutine(){return this.active?this.getRoutine(this.active.routineId):null},
-  currentExercise(){return this.currentRoutine()?.items[this.active.exerciseIndex]},
+  currentPlannedExercise(){return this.currentRoutine()?.items[this.active.exerciseIndex]},
+  currentOverride(){return this.active?.exerciseOverrides?.[String(this.active.exerciseIndex)]||null},
+  currentExercise(){
+    const base=this.currentPlannedExercise();
+    if(!base)return null;
+    const override=this.currentOverride();
+    return override?{...base,name:override.name,originalName:base.name,alternativeReason:override.reason||"Alternativa"}:base
+  },
+  completedSeriesForCurrent(){return Math.min(Number(this.active?.setIndex)||0,Number(this.currentExercise()?.sets)||0)},
 
   renderGym(withHistory=true){
     if(!this.active){this.renderHome();return}
     this.normalizeActive();
-    const r=this.currentRoutine(),e=this.currentExercise();
-    document.getElementById("gym").innerHTML=`<div class="focus">
-      <div class="eyebrow">${r.name} · EJERCICIO ${this.active.exerciseIndex+1}/${r.items.length}</div>
-      <div class="title">${e.name.toUpperCase()}</div>
-      <button class="secondary" onclick="App.openAlternatives()">🔥 Alternativas</button>
+    const r=this.currentRoutine(),e=this.currentExercise(),override=this.currentOverride();
+    const completed=this.completedSeriesForCurrent();
+    document.getElementById("gym").innerHTML=`<div class="focus gym-forged">
+      <section class="exercise-header ${override?"is-alternative":""}">
+        <div class="exercise-header__top">
+          <div>
+            <div class="eyebrow">${r.name} · EJERCICIO ${this.active.exerciseIndex+1}/${r.items.length}</div>
+            <div class="exercise-header__name">${e.name.toUpperCase()}</div>
+            ${override?`<div class="alternative-note">Sustituye a ${e.originalName} · ${override.reason}</div>`:""}
+          </div>
+          <button class="exercise-alt-button" onclick="App.openAlternatives()" aria-label="Abrir alternativas"><span>${override?"CAMBIAR":"ALTERNATIVAS"}</span><b>⇄</b></button>
+        </div>
+        <div class="exercise-header__stats">
+          <span><b>${completed}/${e.sets}</b> series</span>
+          <span><b>${e.reps}</b> ${e.mode==="time"?"s":"reps"}</span>
+          <span><b>${this.formatDuration(e.rest)}</b> descanso</span>
+        </div>
+      </section>
       <div class="control-panel">
         ${this.controlBox("SERIES","sets",e.sets,1)}
         ${this.controlBox("REPS","reps",e.reps,1)}
         ${this.controlBox("PESO","weight",e.weight,this.data.settings.weightStep,"kg")}
       </div>
-      <div class="rest-dial">
-        <div class="control-label">DESCANSO</div>
-        <button onclick="App.adjustExercise('rest',5)">＋</button>
-        <div class="value">${e.rest}<small>s</small></div>
-        <button onclick="App.adjustExercise('rest',-5)">−</button>
-      </div>
-      <button class="king small-king" onclick="App.beginSet()">INICIAR SERIE</button>
+      <div class="rest-dial"><div class="control-label">DESCANSO</div><button onclick="App.adjustExercise('rest',5)">＋</button><div class="value">${e.rest}<small>s</small></div><button onclick="App.adjustExercise('rest',-5)">−</button></div>
+      <button class="king small-king" onclick="App.beginSet()">${completed?"CONTINUAR":"INICIAR"} SERIE</button>
       <button class="secondary" onclick="App.pauseWorkout()">Salir sin terminar</button>
     </div>`;
     this.show("gym","Inicio",{history:withHistory})
+  },
+
+  formatDuration(seconds){
+    const total=Math.max(0,Number(seconds)||0),m=Math.floor(total/60),sec=total%60;
+    return m?`${m}:${String(sec).padStart(2,"0")}`:`${sec}s`
   },
 
   controlBox(label,field,value,step,unit=""){
@@ -320,7 +391,7 @@ const App={
   },
 
   changeWeight(direction){
-    const e=this.currentExercise();
+    const e=this.currentPlannedExercise();
     if(!e)return;
 
     const dir=Number(direction)<0?-1:1;
@@ -346,7 +417,7 @@ const App={
   },
 
   adjustExercise(field,delta){
-    const e=this.currentExercise();
+    const e=this.currentPlannedExercise();
     if(!e)return;
 
     const current=Number(e[field])||0;
@@ -415,6 +486,7 @@ const App={
       name:e.name,
       exerciseId:e.libraryId||null,
       mode:e.mode||"reps",
+      alternativeReason:e.alternativeReason||null,
       sets:this.active.currentSets.map(x=>({...x}))
     };
 
@@ -434,6 +506,8 @@ const App={
     this.active.phase="rest";
     this.active.restLeft=safeSeconds;
     this.active.restEndsAt=Date.now()+(safeSeconds*1000);
+    this.active.restPaused=false;
+    this.active.restPausedLeft=0;
     this.saveActive();
     this.renderRest();
     this.runRestTimer()
@@ -441,6 +515,7 @@ const App={
 
   resumeRest(){
     clearInterval(this.timer);
+    if(this.active.restPaused){this.active.restLeft=this.active.restPausedLeft;this.renderRest();return}
     const remaining=Math.max(0,Math.ceil((Number(this.active.restEndsAt||Date.now())-Date.now())/1000));
     this.active.restLeft=remaining;
     if(remaining<=0){
@@ -457,6 +532,7 @@ const App={
     clearInterval(this.timer);
     this.timer=setInterval(()=>{
       if(!this.active){clearInterval(this.timer);return}
+      if(this.active.restPaused){clearInterval(this.timer);return}
       const remaining=Math.max(0,Math.ceil((Number(this.active.restEndsAt||Date.now())-Date.now())/1000));
       this.active.restLeft=remaining;
       this.updateRestDisplay();
@@ -467,7 +543,8 @@ const App={
         this.saveActive();
         this.beep();
         this.buzz([120,60,120]);
-        this.beginSet()
+        this.updateRestDisplay();
+        setTimeout(()=>this.beginSet(),650)
       }else if(remaining%5===0){
         this.saveActive()
       }
@@ -476,19 +553,38 @@ const App={
 
   renderRest(){
     const e=this.currentExercise();
-    document.getElementById("rest").innerHTML=`<div class="focus">
-      <div class="casio"><div class="lcd"><div class="label">DESCANSO</div><div id="restTime" class="time"></div><div>Siguiente: SERIE ${this.active.setIndex+1}/${e.sets}</div></div></div>
-      <button class="king small-king" onclick="App.skipRest()">SALTAR DESCANSO</button>
+    document.getElementById("rest").innerHTML=`<div class="focus casio-screen">
+      <div id="casioTimer" class="casio-pro">
+        <div class="casio-pro__brand"><span>CASIO</span><span>PHOENIX</span></div>
+        <div class="casio-pro__lcd"><div class="label">DESCANSO</div><div id="restTime" class="time"></div><div class="casio-pro__next">SIGUIENTE · SERIE ${this.active.setIndex+1}/${e.sets}</div></div>
+        <div class="casio-pro__controls"><button onclick="App.adjustRest(-30)">−30</button><button id="restPauseButton" onclick="App.toggleRestPause()">${this.active.restPaused?"▶":"Ⅱ"}</button><button onclick="App.adjustRest(30)">+30</button></div>
+      </div>
+      <button class="secondary" onclick="App.skipRest()">Saltar descanso</button>
     </div>`;
     this.updateRestDisplay();
     this.show("rest","Ejercicio")
   },
 
   updateRestDisplay(){
-    const t=Math.max(0,this.active?.restLeft||0),m=Math.floor(t/60),s=t%60;
-    const el=document.getElementById("restTime");if(el)el.textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`
+    const t=Math.max(0,this.active?.restLeft||0),m=Math.floor(t/60),sec=t%60;
+    const el=document.getElementById("restTime");if(el)el.textContent=`${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`;
+    const timer=document.getElementById("casioTimer");if(timer){timer.classList.toggle("is-warning",t>0&&t<=10);timer.classList.toggle("is-finished",t===0);timer.classList.toggle("is-paused",Boolean(this.active?.restPaused))}
   },
-  skipRest(){clearInterval(this.timer);this.active.phase="series";this.active.restEndsAt=null;this.active.restLeft=0;this.saveActive();this.beginSet()},
+
+  adjustRest(delta){
+    if(!this.active||this.active.phase!=="rest")return;
+    const next=Math.max(0,(Number(this.active.restLeft)||0)+(Number(delta)||0));
+    this.active.restLeft=next;
+    if(this.active.restPaused)this.active.restPausedLeft=next;else this.active.restEndsAt=Date.now()+(next*1000);
+    this.saveActive();this.updateRestDisplay();this.buzz(18)
+  },
+
+  toggleRestPause(){
+    if(!this.active||this.active.phase!=="rest")return;
+    if(this.active.restPaused){this.active.restPaused=false;this.active.restLeft=this.active.restPausedLeft;this.active.restEndsAt=Date.now()+(this.active.restLeft*1000);this.saveActive();this.renderRest();this.runRestTimer()}
+    else{clearInterval(this.timer);this.active.restPaused=true;this.active.restPausedLeft=Math.max(0,Number(this.active.restLeft)||0);this.saveActive();this.renderRest()}
+  },
+  skipRest(){clearInterval(this.timer);this.active.phase="series";this.active.restEndsAt=null;this.active.restLeft=0;this.active.restPaused=false;this.active.restPausedLeft=0;this.saveActive();this.beginSet()},
 
   renderExerciseSummary(){
     clearInterval(this.timer);
@@ -524,6 +620,7 @@ const App={
       name:e.name,
       exerciseId:e.libraryId||null,
       mode:e.mode||"reps",
+      alternativeReason:e.alternativeReason||null,
       sets:this.active.currentSets.map(x=>({...x}))
     };
 
@@ -614,6 +711,7 @@ const App={
         name:e?.name||"Ejercicio",
         exerciseId:e?.libraryId||null,
         mode:e?.mode||"reps",
+        alternativeReason:e?.alternativeReason||null,
         sets:this.active.currentSets.map(s=>({
           ...s,
           weight:Number(s.weight)||0,
@@ -675,7 +773,7 @@ const App={
         return `${repsLabel}${weightLabel}`
       }).join("<br>");
 
-      return `<div class="list-item"><strong>${e.name}</strong><br>${series}</div>`
+      return `<div class="list-item"><strong>${e.name}</strong>${e.plannedName&&e.plannedName!==e.name?`<div class="alternative-history">Sustituye a ${e.plannedName}${e.alternativeReason?` · ${e.alternativeReason}`:""}</div>`:""}<br>${series}</div>`
     }).join("");
 
     document.getElementById("workoutSummary").innerHTML=
@@ -699,21 +797,36 @@ const App={
 
   pauseWorkout(){clearInterval(this.timer);this.saveActive();this.renderHome()},
 
-  openAlternatives(){
-    const e=this.currentExercise();
-    document.getElementById("altCurrent").textContent=e.name;
-    const list=this.data.alternatives[e.name]||[];
-    document.getElementById("altList").innerHTML=list.length?list.map(name=>`<div class="list-item"><strong>${name}</strong><button class="secondary" onclick="App.useAlternative('${name.replaceAll("'","\\'")}')">Usar</button></div>`).join(""):`<div class="muted">Sin alternativas configuradas.</div>`;
+  alternativeOptions(reason="Máquina ocupada"){
+    const planned=this.currentPlannedExercise();if(!planned)return[];
+    const configured=this.data.alternatives[planned.name]||[];
+    const all=this.allExercises().filter(x=>x.name!==planned.name);
+    const group=this.data.library.find(x=>x.name===planned.name)?.group;
+    let names=[];
+    if(reason==="En casa"){
+      const preferred=["Flexiones","Fondos","Dominadas asistidas","Remo invertido","Plancha","L-Sit"];
+      names=[...configured.filter(x=>preferred.includes(x)),...preferred.filter(x=>all.some(e=>e.name===x))]
+    }else if(reason==="Otra zona")names=all.filter(x=>!group||x.group===group).map(x=>x.name);
+    else names=configured;
+    return [...new Set(names)].slice(0,3)
+  },
+
+  openAlternatives(reason="Máquina ocupada"){
+    const planned=this.currentPlannedExercise();this.altReason=reason;
+    document.getElementById("altCurrent").innerHTML=`<strong>${planned.name}</strong><span>${reason}</span>`;
+    document.querySelectorAll("[data-alt-reason]").forEach(btn=>btn.classList.toggle("active",btn.dataset.altReason===reason));
+    const list=this.alternativeOptions(reason);
+    document.getElementById("altList").innerHTML=list.length?list.map((name,i)=>`<button class="alt-option" onclick="App.useAlternative('${name.replaceAll("'","\'")}','${reason}')"><span><b>${name}</b><small>${reason==="En casa"?"Sin máquina":reason==="Otra zona"?"Mismo grupo muscular":"Mantiene el patrón"}</small></span><em>${i===0?"Recomendada":"Similar"}</em></button>`).join(""):`<div class="muted">Sin alternativas configuradas para este caso.</div>`;
     document.getElementById("alternativesSheet").classList.add("show")
   },
+  selectAlternativeReason(reason){this.openAlternatives(reason)},
   closeAlternatives(){document.getElementById("alternativesSheet").classList.remove("show")},
-  useAlternative(name){
-    const e=this.currentExercise();
-    if(!e)return;
-    if(!e.originalName)e.originalName=e.name;
-    e.name=name;
-    this.save();this.saveActive();this.closeAlternatives();this.renderGym()
+  useAlternative(name,reason){
+    const planned=this.currentPlannedExercise();if(!planned||!this.active)return;
+    this.active.exerciseOverrides[String(this.active.exerciseIndex)]={name,reason,originalName:planned.name,selectedAt:new Date().toISOString()};
+    this.saveActive();this.closeAlternatives();this.renderGym(false);this.toast(`${name} activo`)
   },
+  restorePlannedExercise(){if(!this.active)return;delete this.active.exerciseOverrides[String(this.active.exerciseIndex)];this.saveActive();this.closeAlternatives();this.renderGym(false)},
 
   renderData(withHistory=true){
     document.getElementById("data").innerHTML=`<div class="data-hub">
@@ -1002,7 +1115,7 @@ const App={
   },
 
   renderHistory(withHistory=true){
-    document.getElementById("history").innerHTML=`<div class="card"><div class="eyebrow">HISTORIAL</div></div>${this.data.sessions.slice().reverse().map(s=>`<details class="card"><summary><strong>${s.routineName}</strong> · ${new Date(s.date).toLocaleDateString()}</summary><p>${s.totalSets} series · ${Math.round(s.volume)} kg</p>${s.exercises.map(e=>`<div class="list-item"><strong>${e.name}</strong><br>${e.sets.map(x=>{
+    document.getElementById("history").innerHTML=`<div class="card"><div class="eyebrow">HISTORIAL</div></div>${this.data.sessions.slice().reverse().map(s=>`<details class="card"><summary><strong>${s.routineName}</strong> · ${new Date(s.date).toLocaleDateString()}</summary><p>${s.totalSets} series · ${Math.round(s.volume)} kg</p>${s.exercises.map(e=>`<div class="list-item"><strong>${e.name}</strong>${e.plannedName&&e.plannedName!==e.name?`<div class="alternative-history">Sustituye a ${e.plannedName}${e.alternativeReason?` · ${e.alternativeReason}`:""}</div>`:""}<br>${e.sets.map(x=>{
   const w=(Number(x.weight)||0)>0?`${Number(x.weight)}kg`:"Peso corporal / 0kg";
   const unit=e.mode==="time"?"s":"reps";
   return `${w} × ${Number(x.reps)||0} ${unit}`
@@ -1021,7 +1134,7 @@ const App={
     document.getElementById("backups").innerHTML=`<div class="focus"><div class="eyebrow">BACKUPS</div><div class="title">TUS DATOS</div><button class="secondary" onclick="App.exportBackup()">Exportar JSON</button><button class="secondary" onclick="document.getElementById('importFile').click()">Importar JSON</button></div>`;
     this.show("backups","Datos",{history:withHistory})
   },
-  exportBackup(){const blob=new Blob([JSON.stringify({version:7,exportedAt:new Date().toISOString(),data:this.data},null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`GymTracker_${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(a.href)},
+  exportBackup(){const blob=new Blob([JSON.stringify({version:9.6,exportedAt:new Date().toISOString(),data:this.data},null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`GymTracker_${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(a.href)},
   importBackupFile(file){if(!file)return;const r=new FileReader();r.onload=()=>{try{const obj=JSON.parse(r.result);const data=obj.data||obj;if(!Array.isArray(data.routines)||!Array.isArray(data.sessions))throw new Error("Backup no válido");localStorage.setItem(DB_KEY,JSON.stringify(data));this.load();alert("Backup restaurado");this.renderHome()}catch(e){alert(e.message)}};r.readAsText(file)},
 
   beep(){try{if(!this.data.settings.sound)return;const c=new (window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.frequency.value=880;g.gain.value=.08;o.connect(g);g.connect(c.destination);o.start();setTimeout(()=>{o.stop();c.close()},180)}catch(e){}},
