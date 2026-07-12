@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#050507">
-  <title>GymTracker Phoenix v8.5</title>
+  <title>GymTracker Phoenix v8.5.1</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -39,7 +39,7 @@
 
   <header class="topbar">
     <button id="destButton" class="dest-button" onclick="App.goDestination()">Inicio</button>
-    <div class="version">v8.5 · STABLE</div>
+    <div class="version">v8.5.1 · URGENT HOTFIX</div>
   </header>
 
   <main>
@@ -91,6 +91,27 @@
       <div class="next-label">SIGUIENTE</div>
       <div id="floatingNextName" class="next-name"></div>
       <div id="floatingNextMeta" class="next-meta"></div>
+    </div>
+  </div>
+
+
+  <div id="routineTextSheet" class="sheet">
+    <div class="sheet-backdrop" onclick="App.closeRoutineTextImporter()"></div>
+    <div class="sheet-panel routine-import-panel">
+      <div class="handle"></div>
+      <div class="eyebrow">IMPORTAR</div>
+      <h2>Rutina desde texto</h2>
+      <p class="muted">Pega una rutina. Phoenix detectará nombre, ejercicios, series, repeticiones, peso y descanso.</p>
+      <textarea id="routineTextInput" class="routine-textarea" placeholder="Ejemplo:
+
+Torso A
+Press banca 3x8 80kg 90s
+Dominadas 3x8 0kg 90s
+Remo con barra 3x10 60kg 90s"></textarea>
+      <div id="routineImportPreview" class="routine-import-preview"></div>
+      <button class="secondary" onclick="App.previewRoutineText()">Previsualizar</button>
+      <button class="king small-king" onclick="App.importRoutineText()">IMPORTAR RUTINA</button>
+      <button class="secondary" onclick="App.closeRoutineTextImporter()">Cancelar</button>
     </div>
   </div>
 

@@ -306,12 +306,28 @@ const App={
   },
 
   adjustExercise(field,delta){
-    const e=this.currentExercise(); if(!e)return;
-    if(field==="sets")e.sets=Math.max(1,e.sets+delta);
-    if(field==="reps")e.reps=Math.max(1,e.reps+delta);
-    if(field==="weight")e.weight=Math.max(0,Math.round((e.weight+delta)*2)/2);
-    if(field==="rest")e.rest=Math.max(0,e.rest+delta);
-    this.save();this.saveActive();this.renderGym();this.buzz(18)
+    const e=this.currentExercise();
+    if(!e)return;
+
+    const current=Number(e[field])||0;
+    const change=Number(delta)||0;
+
+    if(field==="sets")e.sets=Math.max(1,Math.round(current+change));
+    if(field==="reps")e.reps=Math.max(1,Math.round(current+change));
+
+    if(field==="weight"){
+      const step=Math.max(0.5,Number(this.data.settings.weightStep)||0.5);
+      const raw=Math.max(0,current+change);
+      e.weight=Math.round(raw/step)*step;
+      e.weight=Number(e.weight.toFixed(2));
+    }
+
+    if(field==="rest")e.rest=Math.max(0,Math.round(current+change));
+
+    this.save();
+    this.saveActive();
+    this.renderGym();
+    this.buzz(18)
   },
 
   beginSet(){
@@ -703,7 +719,7 @@ const App={
   },
 
   renderRoutines(withHistory=true){
-    document.getElementById("routines").innerHTML=`<div class="card"><div class="eyebrow">RUTINAS</div><button class="secondary" onclick="App.createRoutine()">＋ Nueva rutina</button></div>${this.data.routines.map(r=>`<div class="card"><input value="${r.name}" onchange="App.renameRoutine('${r.id}',this.value)"><div class="list">${r.items.map((e,i)=>`<div class="list-item"><strong>${i+1}. ${e.name}</strong><div class="grid"><input type="number" value="${e.sets}" onchange="App.editRoutineItem('${r.id}','${e.id}','sets',this.value)"><input type="number" value="${e.reps}" onchange="App.editRoutineItem('${r.id}','${e.id}','reps',this.value)"><input type="number" step=".5" value="${e.weight}" onchange="App.editRoutineItem('${r.id}','${e.id}','weight',this.value)"><input type="number" value="${e.rest}" onchange="App.editRoutineItem('${r.id}','${e.id}','rest',this.value)"></div></div>`).join("")}</div><button class="secondary" onclick="App.addExercise('${r.id}')">Añadir ejercicio</button><button class="secondary" onclick="App.assignToday('${r.id}')">Asignar a hoy</button></div>`).join("")}`;
+    document.getElementById("routines").innerHTML=`<div class="card"><div class="eyebrow">RUTINAS</div><div class="grid"><button class="secondary" onclick="App.createRoutine()">＋ Nueva rutina</button><button class="secondary" onclick="App.openRoutineTextImporter()">Importar texto</button></div></div>${this.data.routines.map(r=>`<div class="card"><input value="${r.name}" onchange="App.renameRoutine('${r.id}',this.value)"><div class="list">${r.items.map((e,i)=>`<div class="list-item"><strong>${i+1}. ${e.name}</strong><div class="grid"><input type="number" value="${e.sets}" onchange="App.editRoutineItem('${r.id}','${e.id}','sets',this.value)"><input type="number" value="${e.reps}" onchange="App.editRoutineItem('${r.id}','${e.id}','reps',this.value)"><input type="number" step=".5" value="${e.weight}" onchange="App.editRoutineItem('${r.id}','${e.id}','weight',this.value)"><input type="number" value="${e.rest}" onchange="App.editRoutineItem('${r.id}','${e.id}','rest',this.value)"></div></div>`).join("")}</div><button class="secondary" onclick="App.addExercise('${r.id}')">Añadir ejercicio</button><button class="secondary" onclick="App.assignToday('${r.id}')">Asignar a hoy</button></div>`).join("")}`;
     this.show("routines","Datos",{history:withHistory})
   },
 
@@ -713,6 +729,175 @@ const App={
   editRoutineItem(rid,iid,field,value){const r=this.getRoutine(rid),e=r?.items.find(x=>x.id===iid);if(e){e[field]=Number(value)||0;this.save()}},
   assignToday(rid){this.data.weekPlan[new Date().getDay()]=rid;this.save();alert("Rutina asignada a hoy");this.renderHome()},
 
+
+
+  openRoutineTextImporter(){
+    const sheet=document.getElementById("routineTextSheet");
+    const input=document.getElementById("routineTextInput");
+    const preview=document.getElementById("routineImportPreview");
+    if(preview){preview.classList.remove("show");preview.innerHTML=""}
+    if(input&&!input.value.trim())input.value="";
+    sheet?.classList.add("show")
+  },
+
+  closeRoutineTextImporter(){
+    document.getElementById("routineTextSheet")?.classList.remove("show")
+  },
+
+  parseRoutineText(rawText){
+    const text=String(rawText||"").replace(/\r/g,"").trim();
+    if(!text)throw new Error("Pega primero una rutina.");
+
+    const lines=text.split("\n")
+      .map(x=>x.trim())
+      .filter(Boolean)
+      .filter(x=>!/^[-=_]{3,}$/.test(x));
+
+    if(!lines.length)throw new Error("No se encontró contenido.");
+
+    const looksLikeExercise=line=>{
+      return /(\d+)\s*[x×]\s*(\d+)/i.test(line)
+        || /\b\d+\s*(?:series?|sets?)\b/i.test(line)
+        || /\b\d+\s*(?:reps?|repeticiones?)\b/i.test(line);
+    };
+
+    let routineName="Rutina importada";
+    let startIndex=0;
+
+    const first=lines[0]
+      .replace(/^(rutina|entrenamiento|plan)\s*[:\-]\s*/i,"")
+      .trim();
+
+    if(!looksLikeExercise(lines[0])){
+      routineName=first||routineName;
+      startIndex=1;
+    }
+
+    const items=[];
+
+    for(let i=startIndex;i<lines.length;i++){
+      let line=lines[i]
+        .replace(/^[•·*\-–—]\s*/,"")
+        .replace(/^\d+[\.\)]\s*/,"")
+        .trim();
+
+      if(!line)continue;
+
+      const compact=line.replace(/\s+/g," ");
+
+      let sets=null,reps=null,weight=null,rest=null,mode="reps";
+
+      const sr=compact.match(/(\d+)\s*[x×]\s*(\d+)/i);
+      if(sr){
+        sets=Number(sr[1]);
+        reps=Number(sr[2]);
+      }else{
+        const setsMatch=compact.match(/(\d+)\s*(?:series?|sets?)/i);
+        const repsMatch=compact.match(/(\d+)\s*(?:reps?|repeticiones?)/i);
+        if(setsMatch)sets=Number(setsMatch[1]);
+        if(repsMatch)reps=Number(repsMatch[1]);
+      }
+
+      const timeMatch=compact.match(/(\d+)\s*(?:segundos?|secs?|s)\b/i);
+      const restMatch=compact.match(/(?:descanso|rest)\s*[:\-]?\s*(\d+)\s*(?:segundos?|secs?|s)?/i);
+      const kgMatch=compact.match(/(-?\d+(?:[.,]\d+)?)\s*kg\b/i);
+
+      if(kgMatch)weight=Number(kgMatch[1].replace(",","."));
+      if(restMatch)rest=Number(restMatch[1]);
+
+      // Si hay más de una cifra con "s", la última suele ser el descanso.
+      const allSeconds=[...compact.matchAll(/(\d+)\s*(?:segundos?|secs?|s)\b/ig)];
+      if(rest===null&&allSeconds.length)rest=Number(allSeconds[allSeconds.length-1][1]);
+
+      if(/\b(al fallo|fallo|failure)\b/i.test(compact)){
+        mode="failure";
+        if(reps===null)reps=0;
+      }else if(/\b(tiempo|isométric|isometric|plancha|l-sit)\b/i.test(compact)&&!sr){
+        mode="time";
+        if(reps===null&&timeMatch)reps=Number(timeMatch[1]);
+      }
+
+      // Elimina parámetros para obtener el nombre del ejercicio.
+      let name=compact
+        .replace(/(\d+)\s*[x×]\s*(\d+)/ig,"")
+        .replace(/\b\d+\s*(?:series?|sets?)\b/ig,"")
+        .replace(/\b\d+\s*(?:reps?|repeticiones?)\b/ig,"")
+        .replace(/-?\d+(?:[.,]\d+)?\s*kg\b/ig,"")
+        .replace(/(?:descanso|rest)\s*[:\-]?\s*\d+\s*(?:segundos?|secs?|s)?/ig,"")
+        .replace(/\b\d+\s*(?:segundos?|secs?|s)\b/ig,"")
+        .replace(/\b(al fallo|fallo|failure|tiempo)\b/ig,"")
+        .replace(/[|;,]+/g," ")
+        .replace(/\s{2,}/g," ")
+        .replace(/^[\s\-:]+|[\s\-:]+$/g,"")
+        .trim();
+
+      if(!name)continue;
+
+      const libraryMatch=this.allExercises().find(
+        e=>e.name.toLowerCase()===name.toLowerCase()
+      );
+
+      const isSmall=libraryMatch?.size==="small";
+      const defaults={
+        sets:libraryMatch?.sets??(isSmall?4:3),
+        reps:libraryMatch?.reps??(isSmall?12:8),
+        rest:libraryMatch?.rest??(isSmall?60:90),
+        weight:0
+      };
+
+      items.push({
+        id:"i"+Date.now()+"_"+i,
+        libraryId:libraryMatch?.id||null,
+        name:libraryMatch?.name||name,
+        sets:Math.max(1,sets??defaults.sets),
+        reps:Math.max(0,reps??defaults.reps),
+        weight:Math.max(0,weight??defaults.weight),
+        rest:Math.max(0,rest??defaults.rest),
+        mode,
+        increment:libraryMatch?.increment??0.5
+      })
+    }
+
+    if(!items.length){
+      throw new Error("No he podido detectar ejercicios. Usa líneas como: Press banca 3x8 80kg 90s")
+    }
+
+    return {name:routineName,items}
+  },
+
+  previewRoutineText(){
+    const input=document.getElementById("routineTextInput");
+    const preview=document.getElementById("routineImportPreview");
+    try{
+      const parsed=this.parseRoutineText(input?.value);
+      preview.innerHTML=`<strong>${parsed.name}</strong><br>${parsed.items.map(
+        e=>`${e.name} · ${e.sets}×${e.reps} · ${e.weight} kg · ${e.rest}s`
+      ).join("<br>")}`;
+      preview.classList.add("show")
+    }catch(error){
+      preview.innerHTML=`<span class="muted">${error.message}</span>`;
+      preview.classList.add("show")
+    }
+  },
+
+  importRoutineText(){
+    const input=document.getElementById("routineTextInput");
+    try{
+      const parsed=this.parseRoutineText(input?.value);
+      this.data.routines.push({
+        id:"r"+Date.now(),
+        name:parsed.name,
+        items:parsed.items
+      });
+      this.save();
+      this.closeRoutineTextImporter();
+      if(input)input.value="";
+      this.toast("Rutina importada");
+      this.renderRoutines()
+    }catch(error){
+      alert(error.message)
+    }
+  },
 
   allExercises(){return [...this.data.library,...this.data.personalExercises]},
 

@@ -354,3 +354,31 @@ main{
 @media(min-width:620px){
   .data-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
+
+/* v8.5.1 · Importador de rutinas por texto */
+.routine-import-panel{max-height:88dvh;overflow:auto}
+.routine-textarea{
+  width:100%;
+  min-height:230px;
+  resize:vertical;
+  box-sizing:border-box;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.12);
+  background:#0b0c0f;
+  color:var(--ink);
+  padding:15px;
+  font:inherit;
+  line-height:1.45;
+  margin:12px 0;
+}
+.routine-import-preview{
+  display:none;
+  margin:10px 0 14px;
+  padding:12px;
+  border-radius:16px;
+  background:rgba(255,255,255,.035);
+  border:1px solid rgba(255,255,255,.09);
+  text-align:left;
+}
+.routine-import-preview.show{display:block}
+.routine-import-preview strong{color:var(--gold2)}

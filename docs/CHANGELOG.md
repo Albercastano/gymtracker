@@ -1,9 +1,10 @@
 # CHANGELOG
 
-## v8.5 Stable
-
-- Recuperada la estética DATOS del primer Phoenix.
-- Tarjetas oscuras FORGED, compactas y proporcionadas.
-- Mejor jerarquía visual y espacio entre elementos.
-- Se mantienen Home, GYM, Casio, navegación e informe sin cambios.
-- Incluidos PHOENIX_CONTEXT_v1.md y PHOENIX_CONSTITUTION.md.
+## v8.5.1 Urgent Hotfix
+- Corregido el botón de bajar peso dentro de GYM.
+- Conversión numérica robusta del peso.
+- Respeta el incremento configurado, con mínimo de 0,5 kg.
+- Recuperado el importador de rutinas desde texto.
+- Previsualización antes de importar.
+- Detecta nombre, series, repeticiones, peso y descanso.
+- No modifica la estética aprobada.
