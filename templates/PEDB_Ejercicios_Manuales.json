@@ -1,0 +1,16 @@
+[
+  {
+    "name_es": "Remo casero con garrafas",
+    "primary_muscle": "Espalda",
+    "target_zone": "Dorsal ancho",
+    "equipment": [
+      "Garrafas"
+    ],
+    "movement_pattern": "Tracción horizontal",
+    "exercise_type": "Compuesto",
+    "home_suitable": true,
+    "level": "Principiante",
+    "parent_exercise_id": null,
+    "notes": "Ejercicio personal"
+  }
+]

@@ -61,6 +61,16 @@ const PEDB_DB = {
     });
   },
 
+  deleteMany(store, keys) {
+    return new Promise((resolve, reject) => {
+      const tx = this.db.transaction(store, "readwrite");
+      const s = tx.objectStore(store);
+      keys.forEach(key => s.delete(key));
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  },
+
   getRelations(sourceId, category) {
     return new Promise((resolve, reject) => {
       const idx = this.tx("relations").index("source_category");

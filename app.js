@@ -15,7 +15,7 @@ const App={
   pedbReady:false,
   pedbManifest:null,
   pedbExercises:[],
-  pedbMeta:{muscles:new Map(),zones:new Map(),equipment:new Map(),types:new Map()},
+  pedbMeta:{muscles:new Map(),zones:new Map(),equipment:new Map(),patterns:new Map(),types:new Map()},
   pedbAltExpanded:false,
 
   safeAction(fn){
@@ -97,7 +97,7 @@ const App={
     this.data.routines.forEach(r=>{
       r.items=Array.isArray(r.items)?r.items:[];
       r.items.forEach(e=>{
-        if(!e.exercise_id&&e.libraryId?.startsWith("PEX-"))e.exercise_id=e.libraryId;
+        if(!e.exercise_id&&/^(PEX|USR-EX)-/.test(e.libraryId||""))e.exercise_id=e.libraryId;
         if(!e.exercise_name_snapshot)e.exercise_name_snapshot=e.name||"Ejercicio";
       })
     });
@@ -1032,10 +1032,8 @@ const App={
   async findPedbExerciseForItem(item){
     if(!this.pedbReady||!item)return null;
     const direct=item.exercise_id||item.libraryId;
-    if(direct?.startsWith("PEX-"))return this.pedbExercise(direct);
-    const target=(item.name||"").trim().toLocaleLowerCase("es");
-    return this.pedbExercises.find(e=>e.name_es.toLocaleLowerCase("es")===target||
-      (e.synonyms_es||[]).some(x=>x.toLocaleLowerCase("es")===target))||null
+    if(/^(PEX|USR-EX)-/.test(direct||""))return this.pedbExercise(direct);
+    return this.matchPedbByName(item.name||item.exercise_name_snapshot)||null
   },
 
   async alternativeOptions(reason="Máquina ocupada",expanded=false){
@@ -1184,11 +1182,16 @@ const App={
         </div>`:''}
       </section>`
     }).join("");
-    document.getElementById("routines").innerHTML=`<div class="card week-planner"><div class="eyebrow">PLANIFICACIÓN SEMANAL</div><div class="week-grid">${plan}</div><p class="routine-help">Toca un día para asignar una rutina o marcar descanso.</p></div><div class="card"><div class="eyebrow">RUTINAS</div><div class="grid"><button class="secondary" onclick="App.createRoutine()">＋ Nueva rutina</button><button class="secondary" onclick="App.openRoutineTextImporter()">Importar texto</button></div></div>${cards}`;
+    document.getElementById("routines").innerHTML=`<div class="card week-planner"><div class="eyebrow">PLANIFICACIÓN SEMANAL</div><div class="week-grid">${plan}</div><p class="routine-help">Toca un día para asignar una rutina o marcar descanso.</p></div><div class="card"><div class="eyebrow">RUTINAS</div><div class="grid"><button class="secondary" onclick="App.createRoutine()">＋ Nueva rutina</button><button class="secondary" onclick="App.openRoutineTextImporter()">Importar texto</button><button class="secondary" onclick="App.renderLibrary(false)">Biblioteca PEDB</button></div></div>${cards}`;
     this.show("routines","Datos",{history:withHistory})
   },
 
   toggleRoutine(id){this.openRoutineId=this.openRoutineId===id?null:id;this.renderRoutines(false)},
+  addExercise(rid){
+    const r=this.getRoutine(rid);if(!r)return;
+    this.pendingRoutineId=rid;
+    this.renderLibrary(true)
+  },
   createRoutine(){const name=prompt("Nombre de la rutina","Nueva rutina");if(!name)return;const id="r"+Date.now();this.data.routines.push({id,name,items:[]});this.openRoutineId=id;this.save();this.renderRoutines(false)},
   renameRoutine(id,name){const r=this.getRoutine(id);if(r&&name.trim()){r.name=name.trim();this.save();this.renderRoutines(false)}},
   editRoutineItem(rid,eid,field,value){const e=this.getRoutine(rid)?.items.find(x=>x.id===eid);if(!e)return;e[field]=Number(value);this.save()},
@@ -1385,7 +1388,52 @@ const App={
     }
   },
 
-  allExercises(){return [...(this.pedbReady?this.pedbExercises.map(e=>this.pedbToUi(e)):this.data.library),...this.data.personalExercises]},
+  allExercises(){
+    const pedb=this.pedbReady?this.pedbExercises.map(e=>this.pedbToUi(e)):this.data.library;
+    const ids=new Set(pedb.map(e=>e.id));
+    return [...pedb,...this.data.personalExercises.filter(e=>!ids.has(e.id))]
+  },
+
+  normalizeExerciseName(value){
+    return String(value||"")
+      .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+      .toLocaleLowerCase("es")
+      .replace(/\b(con|en|de|del|la|el|los|las|a|al)\b/g," ")
+      .replace(/[^a-z0-9]+/g," ")
+      .trim().replace(/\s+/g," ")
+  },
+
+  matchPedbByName(name){
+    if(!this.pedbReady||!name)return null;
+    const target=this.normalizeExerciseName(name);
+    if(!target)return null;
+    let exact=this.pedbExercises.find(e=>this.normalizeExerciseName(e.name_es)===target||
+      (e.synonyms_es||[]).some(x=>this.normalizeExerciseName(x)===target));
+    if(exact)return exact;
+    const tokens=target.split(" ").filter(x=>x.length>2);
+    if(tokens.length<2)return null;
+    const candidates=this.pedbExercises.filter(e=>{
+      const hay=[e.name_es,...(e.synonyms_es||[])].map(x=>this.normalizeExerciseName(x)).join(" ");
+      return tokens.every(t=>hay.includes(t));
+    });
+    return candidates.length===1?candidates[0]:null
+  },
+
+  linkExistingRoutinesToPEDB(){
+    let changed=false;
+    (this.data.routines||[]).forEach(r=>(r.items||[]).forEach(item=>{
+      if(/^(PEX|USR-EX)-/.test(item.exercise_id||""))return;
+      const match=this.matchPedbByName(item.name||item.exercise_name_snapshot);
+      if(match){
+        item.exercise_id=match.id;
+        item.libraryId=match.id;
+        item.exercise_name_snapshot=item.exercise_name_snapshot||item.name||match.name_es;
+        changed=true
+      }
+    }));
+    if(changed)this.save();
+    return changed
+  },
 
   pedbToUi(e){
     const muscle=this.pedbMeta.muscles.get(e.muscle_id)?.name_es||"Otros";
@@ -1397,20 +1445,21 @@ const App={
   async installPEDB(){
     try{
       this.pedbManifest=await PEDB_LOADER.install();
-      const [exercises,muscles,zones,equipment,types]=await Promise.all([
-        PEDB_DB.getAll("exercises"),PEDB_DB.getAll("muscles"),PEDB_DB.getAll("zones"),PEDB_DB.getAll("equipment"),PEDB_DB.getAll("exercise_types")
+      const [exercises,muscles,zones,equipment,patterns,types]=await Promise.all([
+        PEDB_DB.getAll("exercises"),PEDB_DB.getAll("muscles"),PEDB_DB.getAll("zones"),PEDB_DB.getAll("equipment"),PEDB_DB.getAll("patterns"),PEDB_DB.getAll("exercise_types")
       ]);
       this.pedbExercises=exercises;
-      this.pedbMeta={muscles:new Map(muscles.map(x=>[x.id,x])),zones:new Map(zones.map(x=>[x.id,x])),equipment:new Map(equipment.map(x=>[x.id,x])),types:new Map(types.map(x=>[x.id,x]))};
+      this.pedbMeta={muscles:new Map(muscles.map(x=>[x.id,x])),zones:new Map(zones.map(x=>[x.id,x])),equipment:new Map(equipment.map(x=>[x.id,x])),patterns:new Map(patterns.map(x=>[x.id,x])),types:new Map(types.map(x=>[x.id,x]))};
       this.pedbReady=true;
-      if(this.currentScreen==="library")this.updateLibraryView();
+      this.linkExistingRoutinesToPEDB();
+      if(this.currentScreen==="library"&&document.getElementById("libraryList"))this.updateLibraryView();
       this.toast(`PEDB · ${exercises.length} ejercicios`)
     }catch(error){console.warn("PEDB no disponible",error);this.pedbReady=false}
   },
 
   renderLibrary(selectMode=false){
     this.librarySelectMode=selectMode;
-    document.getElementById("library").innerHTML=`<div class="card"><div class="eyebrow">BIBLIOTECA ${this.pedbReady?`· PEDB ${this.pedbManifest?.version||""}`:""}</div><div class="title">EJERCICIOS</div><div class="library-toolbar"><input id="librarySearch" placeholder="Buscar por nombre, sinónimo o etiqueta…" oninput="App.updateLibraryView()"><button class="secondary" onclick="App.openPersonalExercise()">＋ Personal</button></div><div id="libraryTabs" class="library-tabs"></div><div id="libraryList" class="list"></div></div>`;
+    document.getElementById("library").innerHTML=`<div class="card"><div class="eyebrow">BIBLIOTECA ${this.pedbReady?`· PEDB ${this.pedbManifest?.version||""}`:"· CARGANDO PEDB"}</div><div class="title">EJERCICIOS</div><div class="library-toolbar"><input id="librarySearch" placeholder="Buscar por nombre, sinónimo o etiqueta…" oninput="App.updateLibraryView()"><button class="secondary" onclick="App.openPersonalExercise()">＋ Personal</button><button class="secondary" onclick="App.openPEDBCsvImporter()">Importar CSV</button></div><div id="libraryTabs" class="library-tabs"></div><div id="libraryList" class="list"></div></div>`;
     this.libraryGroup="Todos";
     this.updateLibraryView();
     this.show("library",selectMode?"Rutinas":"Datos")
@@ -1438,7 +1487,7 @@ const App={
   exerciseLibraryCard(e){
     const fav=this.data.favoriteExerciseIds.includes(e.id);
     const detail=e.pedb?`${e.group} · ${this.pedbMeta.types.get(e.pedb.type_id)?.name_es||"Ejercicio"}${e.pedb.home_suitable?" · Casa":""}`:`${e.group} · ${e.size==="large"?"Músculo grande":"Músculo pequeño"}`;
-    return `<div class="exercise-card"><div><strong>${e.name}</strong><small>${detail}</small><div class="exercise-badges"><span class="badge ${e.official?"official":"personal"}">${e.pedb?"PEDB":e.official?"Phoenix":"Personal"}</span><span class="badge">${e.sets}×${e.reps}</span><span class="badge">${e.rest}s</span></div><button class="secondary" style="margin-top:10px" onclick="App.toggleFavorite('${e.id}')">${fav?"★ Favorito":"☆ Favorito"}</button></div><button onclick="${this.librarySelectMode?`App.addLibraryExerciseToRoutine('${e.id}')`:`App.previewExercise('${e.id}')`}">${this.librarySelectMode?"Añadir":"Ver"}</button></div>`
+    return `<div class="exercise-card"><div><strong>${e.name}</strong><small>${detail}</small><div class="exercise-badges"><span class="badge ${e.official?"official":"personal"}">${e.id?.startsWith("USR-EX-")?"Personal PEDB":e.pedb?"PEDB":e.official?"Phoenix":"Personal"}</span><span class="badge">${e.sets}×${e.reps}</span><span class="badge">${e.rest}s</span></div><button class="secondary" style="margin-top:10px" onclick="App.toggleFavorite('${e.id}')">${fav?"★ Favorito":"☆ Favorito"}</button></div><button onclick="${this.librarySelectMode?`App.addLibraryExerciseToRoutine('${e.id}')`:`App.previewExercise('${e.id}')`}">${this.librarySelectMode?"Añadir":"Ver"}</button></div>`
   },
 
   toggleFavorite(id){
@@ -1457,7 +1506,7 @@ const App={
     const e=this.allExercises().find(x=>x.id===id);
     const r=this.getRoutine(this.pendingRoutineId);
     if(!e||!r)return;
-    r.items.push({id:"i"+Date.now(),libraryId:e.id,exercise_id:e.id.startsWith("PEX-")?e.id:null,exercise_name_snapshot:e.name,name:e.name,sets:e.sets,reps:e.reps,weight:0,rest:e.rest,mode:e.type,increment:e.increment});
+    r.items.push({id:"i"+Date.now(),libraryId:e.id,exercise_id:/^(PEX|USR-EX)-/.test(e.id)?e.id:null,exercise_name_snapshot:e.name,name:e.name,sets:e.sets,reps:e.reps,weight:0,rest:e.rest,mode:e.type,increment:e.increment});
     this.data.recentExerciseIds=[e.id,...this.data.recentExerciseIds.filter(x=>x!==e.id)].slice(0,12);
     this.save();this.renderRoutines()
   },
@@ -1473,6 +1522,153 @@ const App={
     const large=size==="large";
     this.data.personalExercises.push({id:"p"+Date.now(),name,group,size,type,sets:large?3:4,reps:type==="time"?(large?30:20):(large?8:12),rest:large?90:60,increment:large?2.5:.5,official:false});
     this.save();this.closePersonalExercise();document.getElementById("personalName").value="";this.updateLibraryView()
+  },
+
+  openPEDBCsvImporter(){
+    const input=document.getElementById("pedbCsvInput");
+    if(input){input.value="";input.click()}
+  },
+
+  parseCsv(text){
+    const rows=[];let row=[],field="",quoted=false;
+    for(let i=0;i<String(text||"").length;i++){
+      const c=text[i],n=text[i+1];
+      if(c==='"'&&quoted&&n==='"'){field+='"';i++;continue}
+      if(c==='"'){quoted=!quoted;continue}
+      if(c===','&&!quoted){row.push(field);field="";continue}
+      if((c==='\n'||c==='\r')&&!quoted){
+        if(c==='\r'&&n==='\n')i++;
+        row.push(field);field="";
+        if(row.some(x=>String(x).trim()))rows.push(row);
+        row=[];continue
+      }
+      field+=c
+    }
+    row.push(field);if(row.some(x=>String(x).trim()))rows.push(row);
+    if(rows.length<2)throw new Error("El CSV no contiene ejercicios");
+    const headers=rows[0].map(x=>String(x).trim().replace(/^\ufeff/,""));
+    return rows.slice(1).map(values=>Object.fromEntries(headers.map((h,i)=>[h,String(values[i]||"").trim()])))
+  },
+
+  catalogIdByName(map,name){
+    const target=this.normalizeExerciseName(name);
+    if(!target)return null;
+    for(const [id,item] of map.entries())if(this.normalizeExerciseName(item.name_es)===target)return id;
+    return null
+  },
+
+  boolValue(value){return /^(1|true|si|sí|yes)$/i.test(String(value||"").trim())},
+
+  nextUserExerciseId(offset=0){
+    const numbers=(this.pedbExercises||[]).map(e=>/^USR-EX-(\d+)$/.exec(e.id||"")).filter(Boolean).map(m=>Number(m[1]));
+    return `USR-EX-${String((numbers.length?Math.max(...numbers):0)+1+offset).padStart(6,"0")}`
+  },
+
+  personalCsvRowToPedb(row,id){
+    for(const key of ["name_es","primary_muscle","target_zone"])if(!row[key])throw new Error(`Falta ${key} en una fila`);
+    const muscleId=this.catalogIdByName(this.pedbMeta.muscles,row.primary_muscle);
+    const zoneId=this.catalogIdByName(this.pedbMeta.zones,row.target_zone);
+    if(!muscleId)throw new Error(`Músculo no reconocido: ${row.primary_muscle}`);
+    if(!zoneId)throw new Error(`Zona no reconocida: ${row.target_zone}`);
+    const equipmentIds=String(row.equipment||"").split("|").map(x=>x.trim()).filter(Boolean).map(name=>{
+      const found=this.catalogIdByName(this.pedbMeta.equipment,name);
+      if(!found)throw new Error(`Material no reconocido: ${name}`);
+      return found
+    });
+    const patternId=row.movement_pattern?this.catalogIdByName(this.pedbMeta.patterns,row.movement_pattern):null;
+    if(row.movement_pattern&&!patternId)throw new Error(`Patrón no reconocido: ${row.movement_pattern}`);
+    const typeId=row.exercise_type?this.catalogIdByName(this.pedbMeta.types,row.exercise_type):"PET-0002";
+    if(row.exercise_type&&!typeId)throw new Error(`Tipo no reconocido: ${row.exercise_type}`);
+    const equipmentNames=equipmentIds.map(x=>this.pedbMeta.equipment.get(x)?.name_es||"").join(" ");
+    return {
+      id,name_es:row.name_es,synonyms_es:[],muscle_id:muscleId,zone_id:zoneId,equipment_ids:equipmentIds,
+      pattern_id:patternId,type_id:typeId,home_suitable:this.boolValue(row.home_suitable),
+      bodyweight:/peso corporal/i.test(equipmentNames),machine_based:/máquina|maquina|polea/i.test(equipmentNames),
+      level:row.level||"",parent_exercise_id:row.parent_exercise_id||null,notes:row.notes||"",
+      source:"user",read_only:false,tags:[row.primary_muscle,row.target_zone,row.movement_pattern,row.exercise_type,row.level,"personal"].filter(Boolean).map(x=>String(x).toLocaleLowerCase("es"))
+    }
+  },
+
+  sameEquipment(a,b){
+    const aa=new Set(a.equipment_ids||[]),bb=new Set(b.equipment_ids||[]);
+    return aa.size===bb.size&&[...aa].every(x=>bb.has(x))
+  },
+
+  relationScore(source,target,category,rules){
+    let score=0;const w=rules.weights||{};
+    if(source.muscle_id&&source.muscle_id===target.muscle_id)score+=w.same_primary_muscle||20;
+    if(source.zone_id&&source.zone_id===target.zone_id)score+=w.same_target_zone||45;
+    if(source.pattern_id&&source.pattern_id===target.pattern_id)score+=w.same_movement_pattern||35;
+    if(source.type_id&&source.type_id===target.type_id)score+=w.same_exercise_type||8;
+    if(category==="home"&&target.home_suitable)score+=w.home_candidate||20;
+    if(!this.sameEquipment(source,target))score+=w.different_equipment||12;
+    if(source.parent_exercise_id===target.id||target.parent_exercise_id===source.id)score+=w.explicit_parent_link||100;
+    return score
+  },
+
+  relationReason(source,target,category){
+    if(category==="home")return target.home_suitable?"alternativa apta para casa":"alternativa compatible";
+    if(category==="different_zone")return `trabaja ${this.pedbMeta.zones.get(target.zone_id)?.name_es||"otra zona"}`;
+    return "mantiene músculo, patrón o zona con otro material"
+  },
+
+  buildUserRelations(userExercises,allExercises,rules){
+    const out=[];let seq=1;
+    const confidence=rules.confidence||{high_min:90,medium_min:55};
+    const add=(source,target,category,score)=>{
+      if(source.id===target.id)return;
+      const conf=score>=confidence.high_min?"high":score>=confidence.medium_min?"medium":"low";
+      out.push({id:`URR-${String(seq++).padStart(7,"0")}`,source_id:source.id,target_id:target.id,category,recommended:score>=confidence.high_min,score,confidence:conf,reason:this.relationReason(source,target,category),target_zone:this.pedbMeta.zones.get(target.zone_id)?.name_es||""})
+    };
+    const sources=userExercises;
+    for(const source of sources){
+      const buckets={occupied:[],home:[],different_zone:[]};
+      for(const target of allExercises){
+        if(source.id===target.id)continue;
+        const sameMuscle=source.muscle_id&&source.muscle_id===target.muscle_id;
+        const sameZone=source.zone_id&&source.zone_id===target.zone_id;
+        const samePattern=source.pattern_id&&source.pattern_id===target.pattern_id;
+        if((sameZone||samePattern||source.parent_exercise_id===target.id)&&!this.sameEquipment(source,target))buckets.occupied.push([target,this.relationScore(source,target,"occupied",rules)]);
+        if(target.home_suitable&&(sameMuscle||sameZone||samePattern||source.parent_exercise_id===target.id))buckets.home.push([target,this.relationScore(source,target,"home",rules)]);
+        if(sameMuscle&&source.zone_id!==target.zone_id)buckets.different_zone.push([target,this.relationScore(source,target,"different_zone",rules)]);
+      }
+      for(const [category,items] of Object.entries(buckets))items.sort((a,b)=>b[1]-a[1]).slice(0,40).forEach(([target,score])=>add(source,target,category,score));
+    }
+    if(rules.bidirectional_user_relations){
+      const forward=[...out];
+      for(const rel of forward){
+        const source=allExercises.find(e=>e.id===rel.source_id),target=allExercises.find(e=>e.id===rel.target_id);
+        if(!source||!target||!/^USR-EX-/.test(rel.source_id))continue;
+        if(!out.some(x=>x.source_id===target.id&&x.target_id===source.id&&x.category===rel.category)){
+          out.push({...rel,id:`URR-${String(seq++).padStart(7,"0")}`,source_id:target.id,target_id:source.id,reason:`relación bidireccional con ejercicio personal`})
+        }
+      }
+    }
+    return out
+  },
+
+  async importPersonalExercisesCsv(input){
+    const file=input?.files?.[0];if(!file)return;
+    try{
+      if(!this.pedbReady)throw new Error("PEDB todavía está cargando");
+      const rows=this.parseCsv(await file.text());
+      const userExercises=rows.map((row,i)=>this.personalCsvRowToPedb(row,this.nextUserExerciseId(i)));
+      const rules=await fetch("./data/user_relation_rules.json").then(r=>{if(!r.ok)throw new Error("No se pudieron cargar las reglas");return r.json()});
+      const existingExercises=await PEDB_DB.getAll("exercises");
+      const existingRelations=await PEDB_DB.getAll("relations");
+      const oldUserExercises=existingExercises.filter(e=>/^USR-EX-/.test(e.id));
+      const oldUserRelations=existingRelations.filter(r=>/^URR-/.test(r.id)||/^USR-EX-/.test(r.source_id)||/^USR-EX-/.test(r.target_id));
+      await PEDB_DB.deleteMany("relations",oldUserRelations.map(r=>r.id));
+      await PEDB_DB.deleteMany("exercises",oldUserExercises.map(e=>e.id));
+      await PEDB_DB.putMany("exercises",userExercises);
+      const official=existingExercises.filter(e=>!/^USR-EX-/.test(e.id));
+      const relations=this.buildUserRelations(userExercises,[...official,...userExercises],rules);
+      await PEDB_DB.putMany("relations",relations);
+      this.pedbExercises=[...official,...userExercises];
+      this.linkExistingRoutinesToPEDB();
+      this.updateLibraryView();
+      this.toast(`${userExercises.length} personales · ${relations.length} relaciones`)
+    }catch(error){this.reportError(error);alert(error.message||"No se pudo importar el CSV")}
   },
 
   renderHistory(withHistory=true){

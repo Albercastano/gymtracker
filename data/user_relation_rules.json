@@ -1,0 +1,19 @@
+{
+  "version": "1.0.0",
+  "weights": {
+    "same_primary_muscle": 20,
+    "same_target_zone": 45,
+    "same_movement_pattern": 35,
+    "same_exercise_type": 8,
+    "home_candidate": 20,
+    "different_equipment": 12,
+    "explicit_parent_link": 100
+  },
+  "confidence": {
+    "high_min": 90,
+    "medium_min": 55
+  },
+  "recalculate_after_pedb_update": true,
+  "bidirectional_user_relations": true,
+  "official_files_read_only": true
+}

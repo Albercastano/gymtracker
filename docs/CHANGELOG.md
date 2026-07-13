@@ -12,3 +12,9 @@
 - Integración PEDB 2.0.0 local.
 - Buscador y alternativas PEDB.
 - Progresión automática MVP confirmable.
+
+
+## 9.8.2 · PEDB 2.1
+- PEDB 2.1.0 integrado.
+- Importación CSV de ejercicios personales.
+- Generación local de relaciones USR-EX.

@@ -1,7 +1,7 @@
 {
   "project": "PEDB",
   "name": "Phoenix Exercise DataBase",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "schema_version": 1,
   "language": "es",
   "platform_stage": "html_pwa_first",
@@ -10,12 +10,12 @@
   "internet_required": false,
   "generated_at": "2026-07-13",
   "counts": {
-    "exercises": 425,
-    "relations": 27112,
-    "muscles": 12,
-    "zones": 65,
-    "equipment": 98,
-    "patterns": 63,
+    "exercises": 479,
+    "relations": 30771,
+    "muscles": 14,
+    "zones": 74,
+    "equipment": 102,
+    "patterns": 75,
     "exercise_types": 4
   },
   "files": [
@@ -41,5 +41,11 @@
     "media_imported": false,
     "instructions_imported": false,
     "pedb_names_and_relations": "curated_and_generated"
+  },
+  "user_exercises": {
+    "supported": true,
+    "id_prefix": "USR-EX-",
+    "official_data_read_only": true,
+    "automatic_relations": true
   }
 }

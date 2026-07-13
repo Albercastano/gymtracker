@@ -1,25 +1,14 @@
 {
   "passed": true,
   "issues": [],
+  "added_in_v2_1": 54,
   "counts": {
-    "exercises": 425,
-    "relations": 27112,
-    "muscles": 12,
-    "zones": 65,
-    "equipment": 98,
-    "patterns": 63,
+    "exercises": 479,
+    "relations": 30771,
+    "muscles": 14,
+    "zones": 74,
+    "equipment": 102,
+    "patterns": 75,
     "exercise_types": 4
-  },
-  "preserved_original_ids": true,
-  "sha256": {
-    "equipment.json": "347cca140e7ad5e32d643362d56e04b7e19c119fe30e89dabbaa7aebca44b673",
-    "exercise_types.json": "6cb86bd50d508df7fb719678e5a6c6af9b8336680ad9bdff13e5bf1dee26c082",
-    "exercises.json": "886b270e829ea78b4baa7e76c4f5177d34d490d2a3894b6537d58cbcb9c925a8",
-    "manifest.json": "6f323cd1f82cc291780e0e1b90f846f5f0c372e10888fed1432b8ecabd3ea683",
-    "muscles.json": "3a69c0895f58bd36b73385d419ebd01dd33a6f8c6abe931f2be559861a65e6d6",
-    "patterns.json": "55c76d8d4051de14cb84dc0d6db2fdd5d216cb23ab7b90eef0773c0673204d66",
-    "relations.json": "dfcf2b1387cd00444765e94c668aa55a50e185d93e938316efcb99d9cd6ebc47",
-    "search_index.json": "584c72d2d4ed0ccefb6fce62c5e0e63c65cb0cff28cd01456d3df118f023dcff",
-    "zones.json": "e87606d190cd69ba8d6f7145f4e6667722f5810553c2d1b0a564fad964b3ca38"
   }
 }
