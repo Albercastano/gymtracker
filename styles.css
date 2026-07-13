@@ -1074,5 +1074,89 @@ main{
 .planning-repeat-choices button em{grid-column:2;grid-row:1/4;align-self:center;color:var(--gold);font-size:1.25rem;font-style:normal}
 .planning-repeat-choices button.active{border-color:rgba(216,179,94,.62);box-shadow:inset 4px 0 0 var(--gold),0 12px 28px rgba(0,0,0,.34);background:linear-gradient(145deg,#211b11,#0b0a08)}
 .planning-repeat-choices button:active{transform:scale(.988)}
-\n\n/* 9.9.16 · UX-EGG-001 · El origen de Phoenix */\n.phoenix-origin{\n  position:fixed;inset:0;z-index:2400;display:grid;place-items:center;\n  padding:max(14px,env(safe-area-inset-top)) 12px max(14px,env(safe-area-inset-bottom));\n  visibility:hidden;opacity:0;pointer-events:none;transition:opacity .26s ease,visibility .26s ease;\n}\n.phoenix-origin.show{visibility:visible;opacity:1;pointer-events:auto}\n.phoenix-origin__backdrop{position:absolute;inset:0;background:radial-gradient(circle at 50% 12%,rgba(216,179,94,.15),transparent 38%),rgba(2,2,4,.94);backdrop-filter:blur(12px)}\n.phoenix-origin__panel{\n  position:relative;z-index:1;width:min(720px,100%);max-height:calc(100dvh - 28px);overflow:auto;overscroll-behavior:contain;\n  padding:clamp(26px,6vw,54px) clamp(18px,5vw,48px) 30px;border-radius:30px;\n  background:linear-gradient(155deg,rgba(25,25,29,.98),rgba(6,6,8,.995) 54%,rgba(16,13,8,.99));\n  border:1px solid rgba(216,179,94,.32);box-shadow:0 28px 90px rgba(0,0,0,.76),inset 0 1px 0 rgba(255,255,255,.06);\n  text-align:left;scrollbar-width:thin;scrollbar-color:rgba(216,179,94,.45) transparent;\n}\n.phoenix-origin__panel::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.05),transparent 25%,transparent 75%,rgba(216,179,94,.04));z-index:0}
-.phoenix-origin__panel::after{content:"";position:absolute;inset:6% 4% 6% 4%;border-radius:inherit;pointer-events:none;background:url("icon-512.png") center center / min(88%,620px) no-repeat;opacity:.085;filter:grayscale(0) brightness(1.08) saturate(1.1);z-index:0}\n.phoenix-origin__halo{position:absolute;top:-110px;left:50%;width:300px;height:230px;transform:translateX(-50%);background:radial-gradient(circle,rgba(216,179,94,.24),transparent 68%);filter:blur(10px);pointer-events:none;z-index:0}\n.phoenix-origin__emblem{position:relative;z-index:1;position:relative;width:92px;height:92px;margin:0 auto 18px;border-radius:24px;padding:8px;background:linear-gradient(145deg,#141418,#050506);border:1px solid rgba(216,179,94,.36);box-shadow:0 18px 38px rgba(0,0,0,.55),0 0 32px rgba(216,179,94,.08)}\n.phoenix-origin__emblem img{display:block;width:100%;height:100%;object-fit:contain}\n.phoenix-origin .eyebrow{position:relative;z-index:1;text-align:center;letter-spacing:.18em;color:#c9a85e}\n.phoenix-origin h1{position:relative;z-index:1;margin:10px auto 18px;text-align:center;font-size:clamp(2rem,8vw,4.2rem);line-height:.94;letter-spacing:-.045em;max-width:650px;color:#f6f2e8}\n.phoenix-origin h1 em{display:block;font-style:normal;color:#d8b35e;text-shadow:0 0 30px rgba(216,179,94,.16)}\n.phoenix-origin__intro{position:relative;z-index:1;margin:0 auto 10px;text-align:center;max-width:590px;font-size:clamp(1.05rem,3.5vw,1.35rem);line-height:1.45;font-weight:850;color:#fff9e8}\n.phoenix-origin__lead{position:relative;z-index:1;margin:0 auto 30px;text-align:center;max-width:620px;line-height:1.68;color:#aaa9a7}\n.phoenix-origin__principles{position:relative;z-index:1;display:grid;gap:10px;margin:0 0 22px}\n.phoenix-origin__principles article{display:grid;grid-template-columns:40px 1fr;gap:14px;padding:17px 15px;border-radius:18px;background:linear-gradient(145deg,rgba(255,255,255,.035),rgba(255,255,255,.012));border:1px solid rgba(255,255,255,.07)}\n.phoenix-origin__principles article>span{display:grid;place-items:center;align-self:start;width:34px;height:34px;border-radius:50%;border:1px solid rgba(216,179,94,.38);color:#d8b35e;font-size:.72rem;font-weight:950;letter-spacing:.06em}\n.phoenix-origin__principles h2{margin:0 0 5px;font-size:1rem;letter-spacing:.01em;color:#f4e5b5}\n.phoenix-origin__principles p{margin:0;color:#aaa9a7;line-height:1.5;font-size:.91rem}\n.phoenix-origin__core{position:relative;z-index:1;margin:24px 0;padding:20px 16px;text-align:center;border-block:1px solid rgba(216,179,94,.26);font-weight:950;line-height:1.5;color:#e5c978;letter-spacing:.025em}\n.phoenix-origin blockquote{position:relative;z-index:1;margin:28px 0 26px;padding:0;border:0;text-align:center}\n.phoenix-origin blockquote strong{display:block;font-size:clamp(1.18rem,4.8vw,1.8rem);line-height:1.22;color:#f8f5ed}\n.phoenix-origin blockquote strong:last-child{margin-top:5px;color:#d8b35e}\n.phoenix-origin__close{position:relative;z-index:1;width:100%;min-height:58px;margin:0}\nbody.phoenix-origin-open{overflow:hidden}\n.topbar-brand,.phoenix-emblem{-webkit-tap-highlight-color:transparent;user-select:none}\n@media (max-width:420px){\n  .phoenix-origin{padding:0}\n  .phoenix-origin__panel{max-height:100dvh;min-height:100dvh;border-radius:0;padding-top:max(30px,env(safe-area-inset-top));padding-bottom:max(26px,env(safe-area-inset-bottom))}\n  .phoenix-origin__emblem{width:78px;height:78px}\n  .phoenix-origin__principles article{grid-template-columns:34px 1fr;padding:15px 12px;gap:11px}\n}\n
+
+/* 9.9.18 · UX-EGG-001 · El origen de Phoenix · visibilidad corregida */
+.phoenix-origin[hidden]{display:none!important}
+.phoenix-origin{
+  position:fixed;
+  inset:0;
+  z-index:2400;
+  display:grid;
+  place-items:center;
+  padding:max(14px,env(safe-area-inset-top)) 12px max(14px,env(safe-area-inset-bottom));
+  visibility:hidden;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .26s ease,visibility .26s ease;
+  isolation:isolate;
+}
+.phoenix-origin.show{visibility:visible;opacity:1;pointer-events:auto}
+.phoenix-origin__backdrop{
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle at 50% 12%,rgba(216,179,94,.15),transparent 38%),rgba(2,2,4,.94);
+  backdrop-filter:blur(12px);
+}
+.phoenix-origin__panel{
+  position:relative;
+  z-index:1;
+  width:min(720px,100%);
+  max-height:calc(100dvh - 28px);
+  overflow:auto;
+  overscroll-behavior:contain;
+  padding:clamp(26px,6vw,54px) clamp(18px,5vw,48px) 30px;
+  border-radius:30px;
+  background:linear-gradient(155deg,rgba(25,25,29,.98),rgba(6,6,8,.995) 54%,rgba(16,13,8,.99));
+  border:1px solid rgba(216,179,94,.32);
+  box-shadow:0 28px 90px rgba(0,0,0,.76),inset 0 1px 0 rgba(255,255,255,.06);
+  text-align:left;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(216,179,94,.45) transparent;
+  isolation:isolate;
+}
+.phoenix-origin__panel::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  background:linear-gradient(135deg,rgba(255,255,255,.05),transparent 25%,transparent 75%,rgba(216,179,94,.04));
+  z-index:-1;
+}
+.phoenix-origin__panel::after{
+  content:"";
+  position:absolute;
+  inset:5% 2%;
+  border-radius:inherit;
+  pointer-events:none;
+  background:url("icon-512.png") center center / min(92%,680px) no-repeat;
+  opacity:.085;
+  filter:brightness(1.08) saturate(1.1);
+  z-index:-1;
+}
+.phoenix-origin__halo{position:absolute;top:-110px;left:50%;width:300px;height:230px;transform:translateX(-50%);background:radial-gradient(circle,rgba(216,179,94,.24),transparent 68%);filter:blur(10px);pointer-events:none;z-index:-1}
+.phoenix-origin__emblem{position:relative;width:92px;height:92px;margin:0 auto 18px;border-radius:24px;padding:8px;background:linear-gradient(145deg,#141418,#050506);border:1px solid rgba(216,179,94,.36);box-shadow:0 18px 38px rgba(0,0,0,.55),0 0 32px rgba(216,179,94,.08)}
+.phoenix-origin__emblem img{display:block;width:100%;height:100%;object-fit:contain}
+.phoenix-origin .eyebrow{text-align:center;letter-spacing:.18em;color:#c9a85e}
+.phoenix-origin h1{margin:10px auto 18px;text-align:center;font-size:clamp(2rem,8vw,4.2rem);line-height:.94;letter-spacing:-.045em;max-width:650px;color:#f6f2e8}
+.phoenix-origin h1 em{display:block;font-style:normal;color:#d8b35e;text-shadow:0 0 30px rgba(216,179,94,.16)}
+.phoenix-origin__intro{margin:0 auto 10px;text-align:center;max-width:590px;font-size:clamp(1.05rem,3.5vw,1.35rem);line-height:1.45;font-weight:850;color:#fff9e8}
+.phoenix-origin__lead{margin:0 auto 30px;text-align:center;max-width:620px;line-height:1.68;color:#aaa9a7}
+.phoenix-origin__principles{display:grid;gap:10px;margin:0 0 22px}
+.phoenix-origin__principles article{display:grid;grid-template-columns:40px 1fr;gap:14px;padding:17px 15px;border-radius:18px;background:linear-gradient(145deg,rgba(255,255,255,.035),rgba(255,255,255,.012));border:1px solid rgba(255,255,255,.07)}
+.phoenix-origin__principles article>span{display:grid;place-items:center;align-self:start;width:34px;height:34px;border-radius:50%;border:1px solid rgba(216,179,94,.38);color:#d8b35e;font-size:.72rem;font-weight:950;letter-spacing:.06em}
+.phoenix-origin__principles h2{margin:0 0 5px;font-size:1rem;letter-spacing:.01em;color:#f4e5b5}
+.phoenix-origin__principles p{margin:0;color:#aaa9a7;line-height:1.5;font-size:.91rem}
+.phoenix-origin__core{margin:24px 0;padding:20px 16px;text-align:center;border-block:1px solid rgba(216,179,94,.26);font-weight:950;line-height:1.5;color:#e5c978;letter-spacing:.025em}
+.phoenix-origin blockquote{margin:28px 0 26px;padding:0;border:0;text-align:center}
+.phoenix-origin blockquote strong{display:block;font-size:clamp(1.18rem,4.8vw,1.8rem);line-height:1.22;color:#f8f5ed}
+.phoenix-origin blockquote strong:last-child{margin-top:5px;color:#d8b35e}
+.phoenix-origin__close{width:100%;min-height:58px;margin:0}
+body.phoenix-origin-open{overflow:hidden}
+.topbar-brand,.phoenix-emblem{-webkit-tap-highlight-color:transparent;user-select:none}
+@media (max-width:420px){
+  .phoenix-origin{padding:0}
+  .phoenix-origin__panel{max-height:100dvh;min-height:100dvh;border-radius:0;padding-top:max(30px,env(safe-area-inset-top));padding-bottom:max(26px,env(safe-area-inset-bottom))}
+  .phoenix-origin__emblem{width:78px;height:78px}
+  .phoenix-origin__principles article{grid-template-columns:34px 1fr;padding:15px 12px;gap:11px}
+}

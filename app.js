@@ -32,6 +32,8 @@ const App={
 
 
   async init(){
+    const origin=document.getElementById("phoenixOrigin");
+    if(origin){origin.hidden=true;origin.classList.remove("show");origin.setAttribute("aria-hidden","true")}
     this.load();
     this.applyUiSettings();
     this.updateProfileChrome();
@@ -74,11 +76,12 @@ const App={
   openPhoenixOrigin(){
     const origin=document.getElementById("phoenixOrigin");
     if(!origin)return;
-    origin.classList.add("show");
+    origin.hidden=false;
     origin.setAttribute("aria-hidden","false");
     document.body.classList.add("phoenix-origin-open");
     const panel=origin.querySelector(".phoenix-origin__panel");
     if(panel)panel.scrollTop=0;
+    requestAnimationFrame(()=>origin.classList.add("show"));
     setTimeout(()=>origin.querySelector(".phoenix-origin__close")?.focus(),120);
   },
 
@@ -88,6 +91,7 @@ const App={
     origin.classList.remove("show");
     origin.setAttribute("aria-hidden","true");
     document.body.classList.remove("phoenix-origin-open");
+    setTimeout(()=>{if(!origin.classList.contains("show"))origin.hidden=true},280);
   },
 
   persistNow(){
