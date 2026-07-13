@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#050507">
-  <title>GymTracker Phoenix Lab 9.9.11 · Logo sin "Toca menos"</title>
+  <title>GymTracker Phoenix Lab 9.9.12 · Selector de perfil permanente</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
   <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
@@ -27,7 +27,15 @@
       <img src="icon-512.png" alt="" aria-hidden="true">
       <div><strong>GYMTRACKER</strong><span>PHOENIX</span></div>
     </div>
-    <button id="profileButton" class="profile-button" onclick="App.openProfileSheet()" aria-haspopup="dialog" aria-expanded="false"><span>PERFIL</span><b>Alberto</b><i aria-hidden="true">⌄</i></button>
+    <label id="profileButton" class="profile-button profile-select-wrap" aria-label="Seleccionar perfil activo">
+      <span>PERFIL</span>
+      <select id="profileSelect" onchange="App.profileSelectChanged(this.value)" aria-label="Perfil activo">
+        <option value="alberto">Alberto</option>
+        <option value="edy">Edy</option>
+        <option value="churri">Churri</option>
+      </select>
+      <i aria-hidden="true">⌄</i>
+    </label>
   </header>
 
   <main>

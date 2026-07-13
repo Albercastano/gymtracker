@@ -8,6 +8,7 @@ const App={
   profiles:[],
   activeProfileId:"alberto",
   pendingProfileId:null,
+  needsInitialProfileChoice:false,
   currentScreen:"home",
   destination:"Inicio",
   active:null,
@@ -35,7 +36,10 @@ const App={
     this.updateProfileChrome();
     history.replaceState({phoenix:true,screen:"home",destination:"Inicio"},"","#home");
     this.renderHome(false);
-    setTimeout(()=>document.getElementById("splash")?.remove(),1200);
+    setTimeout(()=>{
+      document.getElementById("splash")?.remove();
+      if(this.needsInitialProfileChoice)this.openProfileSheet();
+    },1200);
     window.addEventListener("popstate",()=>{
       const screen=(location.hash||"#home").slice(1);
       this.renderRoute(screen,false);
@@ -76,28 +80,34 @@ const App={
     if(!this.profiles.some(p=>p.id==="alberto"))this.profiles.unshift({id:"alberto",name:"Alberto",createdAt:new Date().toISOString()});
     if(!this.profiles.some(p=>p.id==="edy"))this.profiles.push({id:"edy",name:"Edy",createdAt:new Date().toISOString()});
     if(!this.profiles.some(p=>p.id==="churri"))this.profiles.push({id:"churri",name:"Churri",createdAt:new Date().toISOString()});
-    const requested=localStorage.getItem(ACTIVE_PROFILE_KEY)||"alberto";
+    const storedActive=localStorage.getItem(ACTIVE_PROFILE_KEY);
+    this.needsInitialProfileChoice=!storedActive;
+    const requested=storedActive||"alberto";
     this.activeProfileId=this.profiles.some(p=>p.id===requested)?requested:"alberto";
     localStorage.setItem(PROFILE_REGISTRY_KEY,JSON.stringify(this.profiles));
-    localStorage.setItem(ACTIVE_PROFILE_KEY,this.activeProfileId);
+    if(storedActive)localStorage.setItem(ACTIVE_PROFILE_KEY,this.activeProfileId);
   },
   updateProfileChrome(){
     const profile=this.activeProfile();
     const el=document.getElementById("profileButton");
-    if(el){el.innerHTML=`<span>PERFIL</span><b>${this.escape(profile?.name||"Alberto")}</b><i aria-hidden="true">⌄</i>`;el.setAttribute("aria-label",`Cambiar perfil. Perfil activo: ${profile?.name||"Alberto"}`);}
+    const select=document.getElementById("profileSelect");
+    if(select){
+      select.innerHTML=this.profiles.map(p=>`<option value="${p.id}">${this.escape(p.name)}</option>`).join("");
+      select.value=this.activeProfileId;
+      select.setAttribute("aria-label",`Perfil activo: ${profile?.name||"Alberto"}. Selecciona otro perfil para cambiar.`);
+    }
+    if(el)el.setAttribute("aria-label",`Seleccionar perfil. Perfil activo: ${profile?.name||"Alberto"}`);
     document.documentElement.dataset.profile=this.activeProfileId;
+  },
+  profileSelectChanged(id){
+    if(!id)return;
+    this.switchProfile(id);
   },
   openProfileSheet(){
     const sheet=document.getElementById("profileSheet");
     const list=document.getElementById("profileList");
     if(!sheet||!list)return;
-    list.innerHTML=this.profiles.map(p=>`<button type="button" class="profile-choice ${p.id===this.activeProfileId?'active':''}" data-profile-id="${p.id}"><span>${p.id===this.activeProfileId?'PERFIL ACTIVO':'CAMBIAR A'}</span><b>${this.escape(p.name)}</b><em>${p.id===this.activeProfileId?'✓':'ENTRAR'}</em></button>`).join("");
-    list.querySelectorAll('[data-profile-id]').forEach(btn=>{
-      btn.addEventListener('click',event=>{
-        event.preventDefault();event.stopPropagation();
-        this.switchProfile(btn.dataset.profileId);
-      },{once:false});
-    });
+    list.innerHTML=this.profiles.map(p=>`<button type="button" class="profile-choice ${p.id===this.activeProfileId?'active':''}" onclick="App.switchProfile('${p.id}')"><span>${p.id===this.activeProfileId?'PERFIL ACTIVO':'CAMBIAR A'}</span><b>${this.escape(p.name)}</b><em>${p.id===this.activeProfileId?'✓':'ENTRAR'}</em></button>`).join("");
     sheet.classList.add("show");
     document.body.classList.add("sheet-open");
     document.getElementById("profileButton")?.setAttribute("aria-expanded","true");
@@ -105,7 +115,14 @@ const App={
   closeProfileSheet(){document.getElementById("profileSheet")?.classList.remove("show");document.body.classList.remove("sheet-open");document.getElementById("profileButton")?.setAttribute("aria-expanded","false")},
   switchProfile(id){
     if(!id)return;
-    if(id===this.activeProfileId){this.closeProfileSheet();this.toast(`Ya estás en ${this.activeProfile()?.name||id}`);return}
+    if(id===this.activeProfileId){
+      localStorage.setItem(ACTIVE_PROFILE_KEY,id);
+      this.needsInitialProfileChoice=false;
+      this.updateProfileChrome();
+      this.closeProfileSheet();
+      this.toast(`Perfil activo: ${this.activeProfile()?.name||id}`);
+      return
+    }
     const target=this.profiles.find(p=>p.id===id);
     if(!target)return;
     // Siempre seleccionable. Si hay sesión en curso se guarda y queda pausada en su perfil.
@@ -121,6 +138,7 @@ const App={
     document.getElementById("profileConfirmSheet")?.classList.remove("show");
     document.body.classList.remove("sheet-open");
     this.activeProfileId=id;
+    this.needsInitialProfileChoice=false;
     localStorage.setItem(ACTIVE_PROFILE_KEY,id);
     this.loadProfileData();
     this.applyUiSettings();
