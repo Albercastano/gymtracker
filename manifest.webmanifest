@@ -1,6 +1,6 @@
 {
-  "name": "GymTracker Phoenix Lab 9.9.5 Selector de perfil",
-  "short_name": "Phoenix 9.9.5",
+  "name": "GymTracker Phoenix Lab 9.9.6 Selector de perfil",
+  "short_name": "Phoenix 9.9.6",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#050507",

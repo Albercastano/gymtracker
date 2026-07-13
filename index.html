@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#050507">
-  <title>GymTracker Phoenix Lab 9.9.5 · Selector de perfil</title>
+  <title>GymTracker Phoenix Lab 9.9.6 · Selector de perfil</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
   <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
@@ -72,6 +72,18 @@
       <p>Los datos de Alberto y Edy se guardan por separado en este dispositivo.</p>
       <div id="profileList" class="profile-list"></div>
       <button class="secondary" onclick="App.closeProfileSheet()">Cerrar</button>
+    </div>
+  </div>
+
+
+  <div id="profileConfirmSheet" class="sheet forged-sheet">
+    <div class="sheet-backdrop" onclick="App.closeProfileConfirm()"></div>
+    <div class="sheet-panel profile-confirm-panel">
+      <div class="handle"></div><div class="eyebrow">CAMBIO DE PERFIL</div><h2 id="profileConfirmTitle">Cambiar perfil</h2>
+      <p id="profileConfirmDescription"></p>
+      <div id="profileConfirmWarning" class="profile-switch-warning" hidden></div>
+      <button id="profileConfirmAction" class="primary" onclick="App.confirmProfileSwitch()">CAMBIAR PERFIL</button>
+      <button class="secondary" onclick="App.closeProfileConfirm()">Cancelar</button>
     </div>
   </div>
 
