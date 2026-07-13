@@ -1,6 +1,9 @@
 const PEDB_LOADER = {
   base: "./data/",
   async json(file) {
+    if (window.PEDB_BUNDLE && Object.prototype.hasOwnProperty.call(window.PEDB_BUNDLE, file)) {
+      return window.PEDB_BUNDLE[file];
+    }
     const response = await fetch(this.base + file);
     if (!response.ok) throw new Error(`No se pudo cargar ${file}`);
     return response.json();

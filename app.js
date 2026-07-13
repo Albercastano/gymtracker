@@ -70,11 +70,12 @@ const App={
   loadProfiles(){
     try{this.profiles=JSON.parse(localStorage.getItem(PROFILE_REGISTRY_KEY)||"null")||[]}catch(e){this.profiles=[]}
     if(!Array.isArray(this.profiles)||!this.profiles.length){
-      this.profiles=[{id:"alberto",name:"Alberto",createdAt:new Date().toISOString()},{id:"edy",name:"Edy",createdAt:new Date().toISOString()}];
+      this.profiles=[{id:"alberto",name:"Alberto",createdAt:new Date().toISOString()},{id:"edy",name:"Edy",createdAt:new Date().toISOString()},{id:"churri",name:"Churri",createdAt:new Date().toISOString()}];
       localStorage.setItem(PROFILE_REGISTRY_KEY,JSON.stringify(this.profiles));
     }
     if(!this.profiles.some(p=>p.id==="alberto"))this.profiles.unshift({id:"alberto",name:"Alberto",createdAt:new Date().toISOString()});
     if(!this.profiles.some(p=>p.id==="edy"))this.profiles.push({id:"edy",name:"Edy",createdAt:new Date().toISOString()});
+    if(!this.profiles.some(p=>p.id==="churri"))this.profiles.push({id:"churri",name:"Churri",createdAt:new Date().toISOString()});
     const requested=localStorage.getItem(ACTIVE_PROFILE_KEY)||"alberto";
     this.activeProfileId=this.profiles.some(p=>p.id===requested)?requested:"alberto";
     localStorage.setItem(PROFILE_REGISTRY_KEY,JSON.stringify(this.profiles));
@@ -90,30 +91,25 @@ const App={
     const sheet=document.getElementById("profileSheet");
     const list=document.getElementById("profileList");
     if(!sheet||!list)return;
-    list.innerHTML=this.profiles.map(p=>`<button type="button" class="profile-choice ${p.id===this.activeProfileId?'active':''}" data-profile-id="${p.id}" onclick="App.switchProfile('${p.id}')"><span>${p.id===this.activeProfileId?'ACTIVO':'TOCAR PARA ENTRAR'}</span><b>${this.escape(p.name)}</b><em>${p.id===this.activeProfileId?'✓':'ENTRAR'}</em></button>`).join("");
+    list.innerHTML=this.profiles.map(p=>`<button type="button" class="profile-choice ${p.id===this.activeProfileId?'active':''}" data-profile-id="${p.id}"><span>${p.id===this.activeProfileId?'PERFIL ACTIVO':'CAMBIAR A'}</span><b>${this.escape(p.name)}</b><em>${p.id===this.activeProfileId?'✓':'ENTRAR'}</em></button>`).join("");
+    list.querySelectorAll('[data-profile-id]').forEach(btn=>{
+      btn.addEventListener('click',event=>{
+        event.preventDefault();event.stopPropagation();
+        this.switchProfile(btn.dataset.profileId);
+      },{once:false});
+    });
     sheet.classList.add("show");
+    document.body.classList.add("sheet-open");
     document.getElementById("profileButton")?.setAttribute("aria-expanded","true");
   },
-  closeProfileSheet(){document.getElementById("profileSheet")?.classList.remove("show");document.getElementById("profileButton")?.setAttribute("aria-expanded","false")},
+  closeProfileSheet(){document.getElementById("profileSheet")?.classList.remove("show");document.body.classList.remove("sheet-open");document.getElementById("profileButton")?.setAttribute("aria-expanded","false")},
   switchProfile(id){
+    if(!id)return;
     if(id===this.activeProfileId){this.closeProfileSheet();this.toast(`Ya estás en ${this.activeProfile()?.name||id}`);return}
     const target=this.profiles.find(p=>p.id===id);
     if(!target)return;
-    // Cambio inmediato salvo que exista un entrenamiento en curso.
-    // Así el selector siempre funciona con un único toque.
-    if(!this.active){this.performProfileSwitch(id);return}
-    this.pendingProfileId=id;
-    const current=this.activeProfile()?.name||this.activeProfileId;
-    const title=document.getElementById("profileConfirmTitle");
-    const desc=document.getElementById("profileConfirmDescription");
-    const warning=document.getElementById("profileConfirmWarning");
-    const action=document.getElementById("profileConfirmAction");
-    if(title)title.textContent=`Entrar en ${target.name}`;
-    if(desc)desc.textContent=`Vas a salir del perfil de ${current} y entrar en ${target.name}. Cada perfil mantiene sus datos por separado.`;
-    if(warning){warning.hidden=false;warning.textContent=`Hay un entrenamiento en curso en ${current}. Se guardará y quedará pausado antes de cambiar de perfil.`}
-    if(action)action.textContent=`CAMBIAR A ${String(target.name).toUpperCase()}`;
-    this.closeProfileSheet();
-    document.getElementById("profileConfirmSheet")?.classList.add("show");
+    // Siempre seleccionable. Si hay sesión en curso se guarda y queda pausada en su perfil.
+    this.performProfileSwitch(id);
   },
   performProfileSwitch(id){
     if(!id||id===this.activeProfileId)return;
@@ -123,6 +119,7 @@ const App={
     if(this.timer){clearInterval(this.timer);this.timer=null}
     this.closeProfileSheet();
     document.getElementById("profileConfirmSheet")?.classList.remove("show");
+    document.body.classList.remove("sheet-open");
     this.activeProfileId=id;
     localStorage.setItem(ACTIVE_PROFILE_KEY,id);
     this.loadProfileData();
@@ -1464,6 +1461,7 @@ const App={
         <button onclick="App.renderHistory()"><span>PR REALES</span><b>${allMax?Math.round(allMax)+' kg':'Sin registros'}</b><em>›</em></button>
         <button onclick="App.renderRoutines()"><span>PLANIFICACIÓN</span><b>Semana y rutinas</b><em>›</em></button>
         <button onclick="App.renderBlocks()"><span>BLOQUES</span><b>Progresión por semanas</b><em>›</em></button>
+        <button onclick="App.renderLibrary(false)"><span>BIBLIOTECA PEDB</span><b>Ejercicios, búsqueda y favoritos</b><em>›</em></button>
         <button onclick="App.renderBackups()"><span>BACKUP</span><b>Tus datos contigo</b><em>›</em></button>
       </section>
 
@@ -1853,12 +1851,17 @@ const App={
       this.linkExistingRoutinesToPEDB();
       if(this.currentScreen==="library"&&document.getElementById("libraryList"))this.updateLibraryView();
       this.toast(`PEDB · ${exercises.length} ejercicios`)
-    }catch(error){console.warn("PEDB no disponible",error);this.pedbReady=false}
+    }catch(error){
+      console.warn("PEDB no disponible",error);
+      this.pedbReady=false;
+      this.pedbError=String(error?.message||error);
+      if(this.currentScreen==="library")this.renderLibrary(this.librarySelectMode);
+    }
   },
 
   renderLibrary(selectMode=false){
     this.librarySelectMode=selectMode;
-    document.getElementById("library").innerHTML=`<div class="card"><div class="eyebrow">BIBLIOTECA ${this.pedbReady?`· PEDB ${this.pedbManifest?.version||""}`:"· CARGANDO PEDB"}</div><div class="title">EJERCICIOS</div><div class="library-toolbar"><input id="librarySearch" placeholder="Buscar por nombre, sinónimo o etiqueta…" oninput="App.updateLibraryView()"><button class="secondary" onclick="App.openPersonalExercise()">＋ Personal</button><button class="secondary" onclick="App.openPEDBCsvImporter()">Importar CSV</button></div><div id="libraryTabs" class="library-tabs"></div><div id="libraryList" class="list"></div></div>`;
+    document.getElementById("library").innerHTML=`<div class="card"><div class="eyebrow">BIBLIOTECA ${this.pedbReady?`· PEDB ${this.pedbManifest?.version||""}`:this.pedbError?"· ERROR DE CARGA":"· CARGANDO PEDB"}</div><div class="title">EJERCICIOS</div><div class="library-toolbar"><input id="librarySearch" placeholder="Buscar por nombre, sinónimo o etiqueta…" oninput="App.updateLibraryView()"><button class="secondary" onclick="App.openPersonalExercise()">＋ Personal</button><button class="secondary" onclick="App.openPEDBCsvImporter()">Importar CSV</button></div><div id="libraryTabs" class="library-tabs"></div><div id="libraryList" class="list"></div></div>`;
     this.libraryGroup="Todos";
     this.updateLibraryView();
     this.show("library",selectMode?"Rutinas":"Datos")
@@ -2209,6 +2212,7 @@ const App={
       const mins=Math.max(1,Math.round((Number(s.durationMs)||0)/60000));
       const exercises=s.exercises||[];
       const substitutions=exercises.filter(e=>e.plannedName&&e.plannedName!==e.name).length;
+      const originalIndex=(this.data.sessions||[]).indexOf(s);
       const id=`history-session-${index}`;
       return `<article class="history-session phx-card phx-card--base">
         <button class="history-session-head" onclick="App.toggleHistorySession('${id}',this)" aria-expanded="false">
@@ -2219,10 +2223,12 @@ const App={
         <div class="history-kpis"><div><span>SERIES</span><strong>${Number(s.totalSets)||0}</strong></div><div><span>VOLUMEN</span><strong>${Math.round(Number(s.volume)||0).toLocaleString('es-ES')}</strong><small>kg</small></div><div><span>DURACIÓN</span><strong>${mins}</strong><small>min</small></div></div>
         <div id="${id}" class="history-detail" hidden>
           ${exercises.map((e,ei)=>`<section class="history-exercise"><div class="history-exercise-title"><span>${ei+1}</span><div><strong>${e.name}</strong>${e.plannedName&&e.plannedName!==e.name?`<small>Sustituye a ${e.plannedName}${e.alternativeReason?` · ${e.alternativeReason}`:''}</small>`:''}</div></div><div class="history-sets">${(e.sets||[]).map((x,si)=>{const w=(Number(x.weight)||0)>0?`${Number(x.weight)} kg`:'Peso corporal';const unit=e.mode==='time'?'s':'reps';return `<div><span>S${si+1}</span><strong>${w}</strong><em>× ${Number(x.reps)||0} ${unit}</em></div>`}).join('')}</div></section>`).join('')}
+          <button class="danger forged-danger history-delete-one" onclick="App.openHistoryDelete('single',${originalIndex})">Eliminar este entrenamiento</button>
         </div>
       </article>`
     }).join('');
-    document.getElementById("history").innerHTML=`<section class="history-header"><div><div class="eyebrow">DATOS</div><h2>Historial</h2><p>${sessions.length?`${sessions.length} entrenamiento${sessions.length===1?'':'s'} guardado${sessions.length===1?'':'s'}`:'Tu progreso aparecerá aquí'}</p></div></section>${cards||'<div class="phx-card phx-card--base history-empty"><strong>Aún no hay entrenamientos</strong><span>Completa una sesión para empezar tu historial.</span></div>'}`;
+    const actions=sessions.length?`<div class="history-manage-actions"><button class="secondary" onclick="App.openHistoryDelete('range')">Borrar por fechas</button><button class="danger forged-danger" onclick="App.openHistoryDelete('all')">Borrar todo el historial</button></div>`:'';
+    document.getElementById("history").innerHTML=`<section class="history-header"><div><div class="eyebrow">DATOS</div><h2>Historial</h2><p>${sessions.length?`${sessions.length} entrenamiento${sessions.length===1?'':'s'} guardado${sessions.length===1?'':'s'}`:'Tu progreso aparecerá aquí'}</p></div></section>${actions}${cards||'<div class="phx-card phx-card--base history-empty"><strong>Aún no hay entrenamientos</strong><span>Completa una sesión para empezar tu historial.</span></div>'}`;
     this.show("history","Datos",{history:withHistory})
   },
 
@@ -2230,6 +2236,53 @@ const App={
     const panel=document.getElementById(id);if(!panel)return;
     const opening=panel.hidden;panel.hidden=!opening;button.setAttribute('aria-expanded',String(opening));
     button.closest('.history-session')?.classList.toggle('is-open',opening)
+  },
+
+  openHistoryDelete(mode,index=null){
+    this.historyDeleteMode=mode;this.historyDeleteIndex=index;
+    const sheet=document.getElementById("historyDeleteSheet");
+    const title=document.getElementById("historyDeleteTitle");
+    const desc=document.getElementById("historyDeleteDescription");
+    const range=document.getElementById("historyDeleteRange");
+    const input=document.getElementById("historyDeleteConfirmInput");
+    if(!sheet)return;
+    range.hidden=mode!=="range";
+    if(mode==="single"){
+      const s=(this.data.sessions||[])[index];const d=new Date(s?.endedAt||s?.date||Date.now());
+      title.textContent="Eliminar entrenamiento";
+      desc.textContent=`Se eliminará la sesión del ${d.toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'})}.`;
+    }else if(mode==="range"){
+      title.textContent="Borrar parte del historial";
+      desc.textContent="Selecciona el intervalo de fechas que deseas eliminar. Las fechas están incluidas.";
+      const all=(this.data.sessions||[]).map(x=>this.isoDate(new Date(x.endedAt||x.date))).sort();
+      document.getElementById("historyDeleteFrom").value=all[0]||this.isoDate(new Date());
+      document.getElementById("historyDeleteTo").value=all[all.length-1]||this.isoDate(new Date());
+    }else{
+      title.textContent="Borrar todo el historial";
+      desc.textContent=`Se eliminarán todos los entrenamientos guardados de ${this.activeProfile()?.name||'este perfil'}.`;
+    }
+    input.value="";document.getElementById("historyDeleteExecute").disabled=true;
+    sheet.classList.add("show");document.body.classList.add("sheet-open");
+  },
+  closeHistoryDelete(){document.getElementById("historyDeleteSheet")?.classList.remove("show");document.body.classList.remove("sheet-open");this.historyDeleteMode=null;this.historyDeleteIndex=null},
+  validateHistoryDeletePhrase(){const ok=document.getElementById("historyDeleteConfirmInput")?.value.trim().toUpperCase()==="BORRAR";document.getElementById("historyDeleteExecute").disabled=!ok},
+  executeHistoryDelete(){
+    if(document.getElementById("historyDeleteConfirmInput")?.value.trim().toUpperCase()!=="BORRAR")return;
+    const sessions=this.data.sessions||[];
+    let removed=0;
+    if(this.historyDeleteMode==="single"){
+      const i=Number(this.historyDeleteIndex);if(Number.isInteger(i)&&i>=0&&i<sessions.length){sessions.splice(i,1);removed=1}
+    }else if(this.historyDeleteMode==="range"){
+      const from=document.getElementById("historyDeleteFrom")?.value;
+      const to=document.getElementById("historyDeleteTo")?.value;
+      if(!from||!to||from>to){this.toast("Revisa el intervalo de fechas");return}
+      const before=sessions.length;
+      this.data.sessions=sessions.filter(s=>{const d=this.isoDate(new Date(s.endedAt||s.date));return d<from||d>to});
+      removed=before-this.data.sessions.length;
+    }else if(this.historyDeleteMode==="all"){
+      removed=sessions.length;this.data.sessions=[];
+    }
+    this.save();this.closeHistoryDelete();this.renderHistory(false);this.toast(removed?`${removed} entrenamiento${removed===1?'':'s'} eliminado${removed===1?'':'s'}`:"No había entrenamientos en ese intervalo");
   },
 
   renderSettings(withHistory=true){
@@ -2253,7 +2306,8 @@ const App={
       </section>
       <div class="storage-status ${this.storageHealthy?'ok':'error'}"><span>ALMACENAMIENTO LOCAL</span><b>${this.storageHealthy?'Protegido':'Revisar espacio'}</b><small>${this.lastSaveAt?'Último guardado: '+new Date(this.lastSaveAt).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}):'Guardado automático activo'}</small></div>
       <div class="planning-mode-setting"><div class="eyebrow">PLANIFICACIÓN SEMANAL</div><label><input type="radio" name="planningMode" value="fixed" ${mode==="fixed"?'checked':''}> <span><b>Mantener planificación fija</b><small>La semana base se repite hasta que decidas cambiarla.</small></span></label><label><input type="radio" name="planningMode" value="clear" ${mode==="clear"?'checked':''}> <span><b>Vaciar al terminar la semana</b><small>Cada lunes empieza en descanso.</small></span></label></div>
-      <section class="settings-section danger-zone"><h3>Datos del perfil · ${this.escape(this.activeProfile()?.name||'Perfil')}</h3><p>Estas acciones solo afectan al perfil activo. Alberto y Edy permanecen completamente separados.</p><button class="danger forged-danger" onclick="App.openDataDelete('test')">Borrar datos de prueba</button><button class="danger forged-danger forged-danger--full" onclick="App.openDataDelete('full')">Restablecer este perfil</button></section>
+      <section class="settings-section profile-settings-zone"><h3>Cambiar perfil</h3><p>El perfil activo es <b>${this.escape(this.activeProfile()?.name||'Perfil')}</b>. Puedes cambiar en cualquier momento.</p><div class="settings-profile-grid">${this.profiles.map(p=>`<button type="button" class="profile-choice ${p.id===this.activeProfileId?'active':''}" onclick="App.switchProfile('${p.id}')"><span>${p.id===this.activeProfileId?'ACTIVO':'ENTRAR EN'}</span><b>${this.escape(p.name)}</b><em>${p.id===this.activeProfileId?'✓':'→'}</em></button>`).join('')}</div></section>
+      <section class="settings-section danger-zone"><h3>Datos del perfil · ${this.escape(this.activeProfile()?.name||'Perfil')}</h3><p>Estas acciones solo afectan al perfil activo. Alberto, Edy y Churri permanecen completamente separados.</p><button class="danger forged-danger" onclick="App.openDataDelete('test')">Borrar datos de prueba</button><button class="danger forged-danger forged-danger--full" onclick="App.openDataDelete('full')">Restablecer este perfil</button></section>
       <button class="primary" onclick="App.saveSettings()">Guardar ajustes</button></div>`;
     this.show("settings","Datos",{history:withHistory})
   },

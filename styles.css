@@ -1013,3 +1013,18 @@ main{
 .profile-choice.active em{font-size:1.15rem;letter-spacing:0}
 .profile-choice:not(.active){cursor:pointer}
 .profile-choice:not(.active):active{transform:scale(.985);border-color:rgba(216,179,94,.65)}
+
+/* 9.9.9 · selector de perfil robusto + gestión FORGED del historial */
+.sheet-open{overflow:hidden}
+.profile-button{position:relative;z-index:20;touch-action:manipulation}
+.profile-choice{position:relative;z-index:1;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.profile-choice:not(.active){outline:1px solid rgba(216,179,94,.16)}
+.profile-settings-zone p{margin:0 0 12px;color:var(--mut);font-size:.72rem;line-height:1.45}
+.settings-profile-grid{display:grid;gap:10px}
+.history-manage-actions{display:grid;grid-template-columns:1fr;gap:10px;margin:0 0 14px}
+.history-delete-one{width:100%;margin-top:14px}
+.history-delete-range{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.history-delete-range[hidden]{display:none}
+.history-delete-range label{display:grid;gap:7px;color:var(--mut);font-size:.68rem;font-weight:800;letter-spacing:.05em}
+.history-delete-range input{min-height:50px;color-scheme:dark}
+@media(min-width:520px){.history-manage-actions{grid-template-columns:1fr 1fr}}

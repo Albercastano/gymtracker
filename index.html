@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#050507">
-  <title>GymTracker Phoenix Lab 9.9.7 · Selector de perfil</title>
+  <title>GymTracker Phoenix Lab 9.9.10 · Tres perfiles locales</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
   <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
@@ -69,7 +69,7 @@
     <div class="sheet-backdrop" onclick="App.closeProfileSheet()"></div>
     <div class="sheet-panel profile-panel">
       <div class="handle"></div><div class="eyebrow">PERFILES LOCALES</div><h2>¿Quién entrena?</h2>
-      <p>Los datos de Alberto y Edy se guardan por separado en este dispositivo.</p>
+      <p>Los datos de Alberto, Edy y Churri se guardan por separado en este dispositivo.</p>
       <div id="profileList" class="profile-list"></div>
       <button class="secondary" onclick="App.closeProfileSheet()">Cerrar</button>
     </div>
@@ -84,6 +84,24 @@
       <div id="profileConfirmWarning" class="profile-switch-warning" hidden></div>
       <button id="profileConfirmAction" class="primary" onclick="App.confirmProfileSwitch()">CAMBIAR PERFIL</button>
       <button class="secondary" onclick="App.closeProfileConfirm()">Cancelar</button>
+    </div>
+  </div>
+
+
+  <div id="historyDeleteSheet" class="sheet forged-sheet">
+    <div class="sheet-backdrop" onclick="App.closeHistoryDelete()"></div>
+    <div class="sheet-panel delete-panel">
+      <div class="handle"></div><div class="eyebrow">HISTORIAL · ZONA DE SEGURIDAD</div><h2 id="historyDeleteTitle">Borrar historial</h2>
+      <p id="historyDeleteDescription"></p>
+      <div id="historyDeleteRange" class="history-delete-range" hidden>
+        <label>Desde<input id="historyDeleteFrom" type="date"></label>
+        <label>Hasta<input id="historyDeleteTo" type="date"></label>
+      </div>
+      <div class="delete-warning">Solo afecta al perfil activo. Esta acción no se puede deshacer sin una copia de seguridad.</div>
+      <button class="secondary" onclick="App.createFullBackup()">Crear copia antes de borrar</button>
+      <label class="delete-phrase">Escribe <b>BORRAR</b><input id="historyDeleteConfirmInput" autocomplete="off" oninput="App.validateHistoryDeletePhrase()" placeholder="BORRAR"></label>
+      <button id="historyDeleteExecute" class="danger forged-danger forged-danger--full" disabled onclick="App.executeHistoryDelete()">BORRAR HISTORIAL</button>
+      <button class="secondary" onclick="App.closeHistoryDelete()">Cancelar</button>
     </div>
   </div>
 
@@ -116,6 +134,7 @@
   </div>
 
   <input id="pedbCsvInput" type="file" accept=".csv,text/csv" hidden onchange="App.importPersonalExercisesCsv(this)">
+  <script src="js/pedb-bundle.js"></script>
   <script src="js/pedb-db.js"></script>
   <script src="js/pedb-loader.js"></script>
   <script src="app.js"></script>
