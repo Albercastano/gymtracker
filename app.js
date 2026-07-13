@@ -11,6 +11,12 @@ const App={
   backLock:false,
   navigationReady:false,
   dataMetric:"volume",
+  openRoutineId:null,
+  pedbReady:false,
+  pedbManifest:null,
+  pedbExercises:[],
+  pedbMeta:{muscles:new Map(),zones:new Map(),equipment:new Map(),types:new Map()},
+  pedbAltExpanded:false,
 
   safeAction(fn){
     if(this.actionLock)return;
@@ -88,6 +94,13 @@ const App={
     this.data.personalExercises=Array.isArray(this.data.personalExercises)?this.data.personalExercises:[];
     this.data.recentExerciseIds=Array.isArray(this.data.recentExerciseIds)?this.data.recentExerciseIds:[];
     this.data.favoriteExerciseIds=Array.isArray(this.data.favoriteExerciseIds)?this.data.favoriteExerciseIds:[];
+    this.data.routines.forEach(r=>{
+      r.items=Array.isArray(r.items)?r.items:[];
+      r.items.forEach(e=>{
+        if(!e.exercise_id&&e.libraryId?.startsWith("PEX-"))e.exercise_id=e.libraryId;
+        if(!e.exercise_name_snapshot)e.exercise_name_snapshot=e.name||"Ejercicio";
+      })
+    });
   },
 
   save(){localStorage.setItem(DB_KEY,JSON.stringify(this.data))},
@@ -136,8 +149,8 @@ const App={
 
   todayRoutine(){
     const day=new Date().getDay();
-    const id=this.data.weekPlan[day]||this.data.routines[0]?.id;
-    return this.getRoutine(id)
+    const id=this.data.weekPlan[day];
+    return id?this.getRoutine(id):null
   },
   getRoutine(id){return this.data.routines.find(r=>r.id===id)},
 
@@ -348,7 +361,7 @@ const App={
     const base=this.currentPlannedExercise();
     if(!base)return null;
     const override=this.currentOverride();
-    return override?{...base,name:override.name,originalName:base.name,alternativeReason:override.reason||"Alternativa"}:base
+    return override?{...base,name:override.name,libraryId:override.exerciseId||base.libraryId,exercise_id:override.exerciseId||base.exercise_id,exercise_name_snapshot:override.name,originalName:base.name,alternativeReason:override.reason||"Alternativa"}:base
   },
   completedSeriesForCurrent(){return Math.min(Number(this.active?.setIndex)||0,Number(this.currentExercise()?.sets)||0)},
 
@@ -486,6 +499,7 @@ const App={
   },
 
   beginSet(){
+    this.releaseTimerOrientation();
     this.normalizeActive();
     const e=this.currentExercise(),r=this.currentRoutine(),override=this.currentOverride();
     if(this.active.setIndex>=e.sets){this.renderExerciseSummary();return}
@@ -517,13 +531,13 @@ const App={
             <span>PESO</span>
             <div class="set-stepper">
               <button type="button" aria-label="Reducir peso" onclick="App.changeWeight(-1);App.beginSet()">−</button>
-              <strong>${Number(e.weight)||0}</strong>
+              <strong class="weight-number" data-digits="${String(Number(e.weight)||0).length}">${this.formatLoad(e.weight)}</strong>
               <button type="button" aria-label="Aumentar peso" onclick="App.changeWeight(1);App.beginSet()">＋</button>
             </div>
             <small>kg</small>
           </div>
         </div>
-        ${previous?`<div class="set-previous">Anterior · ${previous.reps} reps × ${previous.weight} kg</div>`:`<div class="set-previous">Objetivo · ${e.reps} ${e.mode==="time"?"s":"reps"} × ${Number(e.weight)||0} kg</div>`}
+        ${previous?`<div class="set-previous">Anterior · ${previous.reps} reps × ${previous.weight} kg</div>`:`<div class="set-previous">Objetivo · ${e.reps} ${e.mode==="time"?"s":"reps"} × ${this.formatLoad(e.weight)} kg</div>`}
       </section>
 
       <button class="set-finish" onclick="App.finishSet()"><span>TERMINAR SERIE</span><b>✓</b></button>
@@ -626,6 +640,7 @@ const App={
   },
 
   renderRest(){
+    this.requestTimerLandscape();
     const e=this.currentExercise();
     document.getElementById("rest").innerHTML=`<div class="focus casio-screen">
       <div id="casioTimer" class="casio-pro">
@@ -667,7 +682,25 @@ const App={
     if(this.active.restPaused){this.active.restPaused=false;this.active.restLeft=this.active.restPausedLeft;this.active.restEndsAt=Date.now()+(this.active.restLeft*1000);this.saveActive();this.renderRest();this.runRestTimer()}
     else{clearInterval(this.timer);this.active.restPaused=true;this.active.restPausedLeft=Math.max(0,Number(this.active.restLeft)||0);this.saveActive();this.renderRest()}
   },
-  skipRest(){clearInterval(this.timer);this.active.phase="series";this.active.restEndsAt=null;this.active.restLeft=0;this.active.restPaused=false;this.active.restPausedLeft=0;this.saveActive();this.beginSet()},
+  skipRest(){this.releaseTimerOrientation();clearInterval(this.timer);this.active.phase="series";this.active.restEndsAt=null;this.active.restLeft=0;this.active.restPaused=false;this.active.restPausedLeft=0;this.saveActive();this.beginSet()},
+
+  formatLoad(value){
+    const n=Number(value)||0;
+    return Number.isInteger(n)?String(n):String(Number(n.toFixed(2))).replace('.',',')
+  },
+
+  requestTimerLandscape(){
+    document.body.classList.add("timer-landscape");
+    try{
+      const lock=screen.orientation?.lock?.("landscape");
+      if(lock&&typeof lock.catch==="function")lock.catch(()=>{});
+    }catch(e){}
+  },
+
+  releaseTimerOrientation(){
+    document.body.classList.remove("timer-landscape");
+    try{screen.orientation?.unlock?.()}catch(e){}
+  },
 
   renderExerciseSummary(){
     clearInterval(this.timer);
@@ -840,6 +873,47 @@ const App={
       }))
   },
 
+  progressionSuggestionsFor(session,routine){
+    const previousSessions=(this.data.sessions||[]).slice().reverse();
+    return (session.exercises||[]).map((exercise,index)=>{
+      const item=routine?.items?.[exercise.exerciseIndex??index];if(!item)return null;
+      const sets=exercise.sets||[];if(!sets.length)return null;
+      const targetSets=Number(item.sets)||sets.length,targetReps=Number(item.reps)||0;
+      const allComplete=sets.length>=targetSets&&sets.every(x=>Number(x.reps)>=targetReps);
+      const maxWeight=Math.max(0,...sets.map(x=>Number(x.weight)||0));
+      const prior=previousSessions.flatMap(s=>s.exercises||[]).find(e=>(exercise.exerciseId&&e.exerciseId===exercise.exerciseId)||e.name===exercise.name);
+      const priorComplete=prior&&(prior.sets||[]).length>=targetSets&&(prior.sets||[]).every(x=>Number(x.reps)>=targetReps);
+      const failed=sets.filter(x=>Number(x.reps)<Math.max(1,targetReps-1)).length;
+      let action="maintain",title="Mantener",reason="Consolida el rendimiento antes de subir.",nextWeight=Number(item.weight)||maxWeight,nextReps=targetReps;
+      if(allComplete&&priorComplete){
+        const step=Number(item.increment)||Number(this.data.settings.weightStep)||.5;
+        if(step>0){action="weight";nextWeight=Math.round((Math.max(maxWeight,Number(item.weight)||0)+step)*100)/100;title=`Subir a ${nextWeight} kg`;reason="Completaste el objetivo en dos sesiones consecutivas."}
+        else{action="reps";nextReps=targetReps+1;title=`Subir a ${nextReps} reps`;reason="Completaste todas las series; progresa con repeticiones."}
+      }else if(allComplete){action="repeat";title="Repetir carga";reason="Primera sesión completada con este objetivo."}
+      else if(failed>=2&&prior){action="reduce";nextWeight=Math.max(0,Math.round(maxWeight*.95*2)/2);title=nextWeight?`Bajar a ${nextWeight} kg`:"Reducir dificultad";reason="Dos o más series quedaron por debajo del objetivo."}
+      return {id:`${session.id}-${index}`,routineId:routine.id,itemId:item.id,exerciseId:exercise.exerciseId||item.exercise_id||item.libraryId||null,name:exercise.name,action,title,reason,nextWeight,nextReps,status:"pending"}
+    }).filter(Boolean)
+  },
+
+  applyProgression(id){
+    const suggestion=this.lastCompletedSession?.progressionSuggestions?.find(x=>x.id===id);if(!suggestion)return;
+    const item=this.getRoutine(suggestion.routineId)?.items.find(x=>x.id===suggestion.itemId);if(!item)return;
+    if(["weight","reduce"].includes(suggestion.action))item.weight=suggestion.nextWeight;
+    if(suggestion.action==="reps")item.reps=suggestion.nextReps;
+    suggestion.status="accepted";this.save();this.toast("Progresión aplicada");this.renderProgressionSummary()
+  },
+
+  rejectProgression(id){
+    const suggestion=this.lastCompletedSession?.progressionSuggestions?.find(x=>x.id===id);if(!suggestion)return;
+    suggestion.status="rejected";this.save();this.toast("Se mantiene el objetivo anterior");this.renderProgressionSummary()
+  },
+
+  renderProgressionSummary(){
+    const host=document.getElementById("progressionSummary");if(!host||!this.lastCompletedSession)return;
+    const suggestions=this.lastCompletedSession.progressionSuggestions||[];
+    host.innerHTML=suggestions.length?`<section class="workout-complete-report progression-summary"><div class="workout-complete-report__head"><span>PRÓXIMA SESIÓN</span><b>Phoenix propone · Tú decides</b></div>${suggestions.map(x=>`<div class="progression-row ${x.status}"><div><strong>${x.name}</strong><span>${x.title}</span><small>${x.reason}</small></div>${x.status==="pending"?`<div class="progression-actions"><button class="secondary" onclick="App.rejectProgression('${x.id}')">Mantener</button><button onclick="App.applyProgression('${x.id}')">Aceptar</button></div>`:`<em>${x.status==="accepted"?"Aplicada":"Rechazada"}</em>`}</div>`).join("")}</section>`:""
+  },
+
   finishWorkout(){
     const r=this.currentRoutine();
     if(!r||!this.active)return;
@@ -859,6 +933,7 @@ const App={
     session.volume=exercises.reduce((total,e)=>total+e.sets.reduce((sum,s)=>sum+((Number(s.weight)||0)*(Number(s.reps)||0)),0),0);
     session.reportedExerciseCount=exercises.length;
     session.durationMs=Math.max(0,session.endedAt-(Number(session.startedAt)||session.endedAt));
+    session.progressionSuggestions=this.progressionSuggestionsFor(session,r);
     this.data.sessions.push(session);
     this.save();
 
@@ -902,12 +977,15 @@ const App={
         <div class="workout-complete-list">${exerciseReport||'<div class="muted">No se registraron series.</div>'}</div>
       </section>
 
+      <div id="progressionSummary"></div>
+
       <div class="workout-complete-actions">
         <button class="workout-complete-copy" onclick="App.copyLastWorkoutReport()">COPIAR PARA ENTRENADOR</button>
         <button class="workout-complete-home" onclick="App.renderHome()"><span>VOLVER AL INICIO</span><b>✓</b></button>
       </div>
     </div>`;
 
+    this.renderProgressionSummary();
     this.show("workoutSummary","Inicio")
   },
 
@@ -944,33 +1022,58 @@ const App={
 
   pauseWorkout(){clearInterval(this.timer);this.saveActive();this.renderHome()},
 
-  alternativeOptions(reason="Máquina ocupada"){
-    const planned=this.currentPlannedExercise();if(!planned)return[];
-    const configured=this.data.alternatives[planned.name]||[];
-    const all=this.allExercises().filter(x=>x.name!==planned.name);
-    const group=this.data.library.find(x=>x.name===planned.name)?.group;
-    let names=[];
-    if(reason==="En casa"){
-      const preferred=["Flexiones","Fondos","Dominadas asistidas","Remo invertido","Plancha","L-Sit"];
-      names=[...configured.filter(x=>preferred.includes(x)),...preferred.filter(x=>all.some(e=>e.name===x))]
-    }else if(reason==="Otra zona")names=all.filter(x=>!group||x.group===group).map(x=>x.name);
-    else names=configured;
-    return [...new Set(names)].slice(0,3)
+  pedbCategoryForReason(reason){return reason==="En casa"?"home":reason==="Otra zona"?"different_zone":"occupied"},
+
+  async pedbExercise(id){
+    if(!id||!this.pedbReady)return null;
+    return PEDB_DB.get("exercises",id)
   },
 
-  openAlternatives(reason="Máquina ocupada"){
-    const planned=this.currentPlannedExercise();this.altReason=reason;
-    document.getElementById("altCurrent").innerHTML=`<strong>${planned.name}</strong><span>${reason}</span>`;
-    document.querySelectorAll("[data-alt-reason]").forEach(btn=>btn.classList.toggle("active",btn.dataset.altReason===reason));
-    const list=this.alternativeOptions(reason);
-    document.getElementById("altList").innerHTML=list.length?list.map((name,i)=>`<button class="alt-option" onclick="App.useAlternative('${name.replaceAll("'","\'")}','${reason}')"><span><b>${name}</b><small>${reason==="En casa"?"Sin máquina":reason==="Otra zona"?"Mismo grupo muscular":"Mantiene el patrón"}</small></span><em>${i===0?"Recomendada":"Similar"}</em></button>`).join(""):`<div class="muted">Sin alternativas configuradas para este caso.</div>`;
-    document.getElementById("alternativesSheet").classList.add("show")
+  async findPedbExerciseForItem(item){
+    if(!this.pedbReady||!item)return null;
+    const direct=item.exercise_id||item.libraryId;
+    if(direct?.startsWith("PEX-"))return this.pedbExercise(direct);
+    const target=(item.name||"").trim().toLocaleLowerCase("es");
+    return this.pedbExercises.find(e=>e.name_es.toLocaleLowerCase("es")===target||
+      (e.synonyms_es||[]).some(x=>x.toLocaleLowerCase("es")===target))||null
   },
-  selectAlternativeReason(reason){this.openAlternatives(reason)},
+
+  async alternativeOptions(reason="Máquina ocupada",expanded=false){
+    const planned=this.currentPlannedExercise();if(!planned)return[];
+    if(this.pedbReady){
+      const source=await this.findPedbExerciseForItem(planned);
+      if(source){
+        const relations=await PEDB_DB.getRelations(source.id,this.pedbCategoryForReason(reason));
+        const chosen=expanded?relations:relations.filter(r=>r.recommended);
+        const limited=(chosen.length?chosen:relations).slice(0,expanded?12:3);
+        const rows=await Promise.all(limited.map(async rel=>({rel,exercise:await this.pedbExercise(rel.target_id)})));
+        return rows.filter(x=>x.exercise).map(({rel,exercise})=>({
+          id:exercise.id,name:exercise.name_es,reason:rel.reason,recommended:Boolean(rel.recommended),score:Number(rel.score)||0
+        }))
+      }
+    }
+    const configured=this.data.alternatives[planned.name]||[];
+    return configured.slice(0,expanded?12:3).map((name,i)=>({id:null,name,reason:"Mantiene el patrón",recommended:i===0,score:0}))
+  },
+
+  async openAlternatives(reason="Máquina ocupada",expanded=false){
+    const planned=this.currentPlannedExercise();if(!planned)return;
+    this.altReason=reason;this.pedbAltExpanded=expanded;
+    document.getElementById("altCurrent").innerHTML=`<strong>${planned.name}</strong><span>${reason}${this.pedbReady?" · PEDB":""}</span>`;
+    document.querySelectorAll("[data-alt-reason]").forEach(btn=>btn.classList.toggle("active",btn.dataset.altReason===reason));
+    document.getElementById("altList").innerHTML=`<div class="muted">Buscando alternativas…</div>`;
+    document.getElementById("alternativesSheet").classList.add("show");
+    try{
+      const list=await this.alternativeOptions(reason,expanded);
+      document.getElementById("altList").innerHTML=list.length?list.map((item,i)=>`<button class="alt-option" onclick="App.useAlternativeEncoded('${encodeURIComponent(item.name)}','${reason}','${item.id||""}')"><span><b>${item.name}</b><small>${item.reason||"Alternativa compatible"}</small></span><em>${item.recommended?"Recomendada":"Similar"}</em></button>`).join("")+(!expanded&&this.pedbReady?`<button class="secondary" onclick="App.openAlternatives('${reason}',true)">Ver más</button>`:""):`<div class="muted">Sin alternativas configuradas para este caso.</div>`
+    }catch(error){this.reportError(error);document.getElementById("altList").innerHTML=`<div class="muted">No se pudieron cargar las alternativas.</div>`}
+  },
+  selectAlternativeReason(reason){this.openAlternatives(reason,false)},
   closeAlternatives(){document.getElementById("alternativesSheet").classList.remove("show")},
-  useAlternative(name,reason){
+  useAlternativeEncoded(encodedName,reason,exerciseId=""){this.useAlternative(decodeURIComponent(encodedName),reason,exerciseId)},
+  useAlternative(name,reason,exerciseId=""){
     const planned=this.currentPlannedExercise();if(!planned||!this.active)return;
-    this.active.exerciseOverrides[String(this.active.exerciseIndex)]={name,reason,originalName:planned.name,selectedAt:new Date().toISOString()};
+    this.active.exerciseOverrides[String(this.active.exerciseIndex)]={name,reason,exerciseId:exerciseId||null,originalName:planned.name,selectedAt:new Date().toISOString()};
     this.saveActive();this.closeAlternatives();this.renderGym(false);this.toast(`${name} activo`)
   },
   restorePlannedExercise(){if(!this.active)return;delete this.active.exerciseOverrides[String(this.active.exerciseIndex)];this.saveActive();this.closeAlternatives();this.renderGym(false)},
@@ -1059,17 +1162,60 @@ const App={
   },
 
   renderRoutines(withHistory=true){
-    document.getElementById("routines").innerHTML=`<div class="card"><div class="eyebrow">RUTINAS</div><div class="grid"><button class="secondary" onclick="App.createRoutine()">＋ Nueva rutina</button><button class="secondary" onclick="App.openRoutineTextImporter()">Importar texto</button></div></div>${this.data.routines.map(r=>`<div class="card"><input value="${r.name}" onchange="App.renameRoutine('${r.id}',this.value)"><div class="list">${r.items.map((e,i)=>`<div class="list-item"><strong>${i+1}. ${e.name}</strong><div class="grid"><input type="number" value="${e.sets}" onchange="App.editRoutineItem('${r.id}','${e.id}','sets',this.value)"><input type="number" value="${e.reps}" onchange="App.editRoutineItem('${r.id}','${e.id}','reps',this.value)"><input type="number" step=".5" value="${e.weight}" onchange="App.editRoutineItem('${r.id}','${e.id}','weight',this.value)"><input type="number" value="${e.rest}" onchange="App.editRoutineItem('${r.id}','${e.id}','rest',this.value)"></div></div>`).join("")}</div><button class="secondary" onclick="App.addExercise('${r.id}')">Añadir ejercicio</button><button class="secondary" onclick="App.assignToday('${r.id}')">Asignar a hoy</button></div>`).join("")}`;
+    const days=["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+    if(!this.openRoutineId&&this.data.routines.length)this.openRoutineId=this.data.routines[0].id;
+    const plan=days.map((name,day)=>{
+      const rid=this.data.weekPlan[day];
+      const routine=rid?this.getRoutine(rid):null;
+      return `<button class="week-day ${routine?'assigned':'rest'}" onclick="App.chooseDayRoutine(${day})"><span>${name}</span><b>${routine?routine.name:'Descanso'}</b><small>${routine?`${this.estimateRoutineMinutes(routine)} min`:'Toca para asignar'}</small></button>`
+    }).join("");
+    const cards=this.data.routines.map(r=>{
+      const isOpen=this.openRoutineId===r.id;
+      const assigned=Object.entries(this.data.weekPlan).filter(([,id])=>id===r.id).map(([d])=>days[Number(d)]).join(', ');
+      const sets=r.items.reduce((sum,e)=>sum+(Number(e.sets)||0),0);
+      return `<section class="routine-accordion ${isOpen?'open':''}">
+        <button class="routine-summary" onclick="App.toggleRoutine('${r.id}')">
+          <div><strong>${r.name}</strong><small>${r.items.length} ejercicios · ${sets} series · ~${this.estimateRoutineMinutes(r)} min${assigned?` · ${assigned}`:''}</small></div><span>${isOpen?'⌃':'⌄'}</span>
+        </button>
+        ${isOpen?`<div class="routine-body">
+          <input class="routine-name" value="${r.name.replaceAll('"','&quot;')}" onchange="App.renameRoutine('${r.id}',this.value)">
+          <div class="list">${r.items.map((e,i)=>`<div class="list-item"><strong>${i+1}. ${e.name}</strong><div class="grid"><label><small>Series</small><input type="number" value="${e.sets}" onchange="App.editRoutineItem('${r.id}','${e.id}','sets',this.value)"></label><label><small>Reps</small><input type="number" value="${e.reps}" onchange="App.editRoutineItem('${r.id}','${e.id}','reps',this.value)"></label><label><small>Peso</small><input type="number" step=".5" value="${e.weight}" onchange="App.editRoutineItem('${r.id}','${e.id}','weight',this.value)"></label><label><small>Descanso</small><input type="number" value="${e.rest}" onchange="App.editRoutineItem('${r.id}','${e.id}','rest',this.value)"></label></div></div>`).join("")}</div>
+          <div class="routine-actions"><button class="secondary" onclick="App.addExercise('${r.id}')">Añadir ejercicio</button><button class="secondary" onclick="App.assignToday('${r.id}')">Asignar a hoy</button><button class="danger" onclick="App.deleteRoutine('${r.id}')">Eliminar rutina</button></div>
+        </div>`:''}
+      </section>`
+    }).join("");
+    document.getElementById("routines").innerHTML=`<div class="card week-planner"><div class="eyebrow">PLANIFICACIÓN SEMANAL</div><div class="week-grid">${plan}</div><p class="routine-help">Toca un día para asignar una rutina o marcar descanso.</p></div><div class="card"><div class="eyebrow">RUTINAS</div><div class="grid"><button class="secondary" onclick="App.createRoutine()">＋ Nueva rutina</button><button class="secondary" onclick="App.openRoutineTextImporter()">Importar texto</button></div></div>${cards}`;
     this.show("routines","Datos",{history:withHistory})
   },
 
-  createRoutine(){const name=prompt("Nombre de la rutina","Nueva rutina");if(!name)return;this.data.routines.push({id:"r"+Date.now(),name,items:[]});this.save();this.renderRoutines()},
-  renameRoutine(id,name){const r=this.getRoutine(id);if(r){r.name=name;this.save()}},
-  addExercise(rid){this.pendingRoutineId=rid;this.renderLibrary(true)},
-  editRoutineItem(rid,iid,field,value){const r=this.getRoutine(rid),e=r?.items.find(x=>x.id===iid);if(e){e[field]=Number(value)||0;this.save()}},
-  assignToday(rid){this.data.weekPlan[new Date().getDay()]=rid;this.save();alert("Rutina asignada a hoy");this.renderHome()},
-
-
+  toggleRoutine(id){this.openRoutineId=this.openRoutineId===id?null:id;this.renderRoutines(false)},
+  createRoutine(){const name=prompt("Nombre de la rutina","Nueva rutina");if(!name)return;const id="r"+Date.now();this.data.routines.push({id,name,items:[]});this.openRoutineId=id;this.save();this.renderRoutines(false)},
+  renameRoutine(id,name){const r=this.getRoutine(id);if(r&&name.trim()){r.name=name.trim();this.save();this.renderRoutines(false)}},
+  editRoutineItem(rid,eid,field,value){const e=this.getRoutine(rid)?.items.find(x=>x.id===eid);if(!e)return;e[field]=Number(value);this.save()},
+  assignToday(rid){const day=new Date().getDay();this.assignRoutineToDay(rid,day)},
+  assignRoutineToDay(rid,day){if(!this.getRoutine(rid))return;this.data.weekPlan[day]=rid;this.save();this.toast(`Rutina asignada a ${["domingo","lunes","martes","miércoles","jueves","viernes","sábado"][day]}`);this.renderRoutines(false)},
+  chooseDayRoutine(day){
+    const options=this.data.routines.map((r,i)=>`${i+1}. ${r.name}`).join('\n');
+    const current=this.data.weekPlan[day];
+    const currentIndex=this.data.routines.findIndex(r=>r.id===current)+1;
+    const answer=prompt(`Asignar ${["domingo","lunes","martes","miércoles","jueves","viernes","sábado"][day]}:\n0. Descanso\n${options}`,String(currentIndex>0?currentIndex:0));
+    if(answer===null)return;
+    const n=Number(answer);
+    if(n===0){delete this.data.weekPlan[day];this.save();this.renderRoutines(false);return}
+    const r=this.data.routines[n-1];
+    if(!r){alert('Opción no válida');return}
+    this.assignRoutineToDay(r.id,day)
+  },
+  deleteRoutine(id){
+    const r=this.getRoutine(id);if(!r)return;
+    const assignedDays=Object.entries(this.data.weekPlan).filter(([,rid])=>rid===id).map(([d])=>["domingo","lunes","martes","miércoles","jueves","viernes","sábado"][Number(d)]);
+    const extra=assignedDays.length?`\nTambién se quitará de: ${assignedDays.join(', ')}.`:'';
+    if(!confirm(`¿Eliminar ${r.name}?${extra}\nEl historial completado no se modificará.`))return;
+    this.data.routines=this.data.routines.filter(x=>x.id!==id);
+    Object.keys(this.data.weekPlan).forEach(day=>{if(this.data.weekPlan[day]===id)delete this.data.weekPlan[day]});
+    if(this.openRoutineId===id)this.openRoutineId=this.data.routines[0]?.id||null;
+    this.save();this.renderRoutines(false)
+  },
 
   openRoutineTextImporter(){
     const sheet=document.getElementById("routineTextSheet");
@@ -1239,25 +1385,51 @@ const App={
     }
   },
 
-  allExercises(){return [...this.data.library,...this.data.personalExercises]},
+  allExercises(){return [...(this.pedbReady?this.pedbExercises.map(e=>this.pedbToUi(e)):this.data.library),...this.data.personalExercises]},
+
+  pedbToUi(e){
+    const muscle=this.pedbMeta.muscles.get(e.muscle_id)?.name_es||"Otros";
+    const typeName=this.pedbMeta.types.get(e.type_id)?.name_es||"Repeticiones";
+    const isControl=/control/i.test(typeName);
+    return {id:e.id,name:e.name_es,group:muscle,size:e.type_id==="PET-0002"?"large":"small",type:isControl?"time":"reps",sets:e.type_id==="PET-0002"?3:4,reps:isControl?30:(e.type_id==="PET-0002"?8:12),rest:e.type_id==="PET-0002"?90:60,increment:e.bodyweight?0:(e.type_id==="PET-0002"?2.5:.5),official:true,pedb:e}
+  },
+
+  async installPEDB(){
+    try{
+      this.pedbManifest=await PEDB_LOADER.install();
+      const [exercises,muscles,zones,equipment,types]=await Promise.all([
+        PEDB_DB.getAll("exercises"),PEDB_DB.getAll("muscles"),PEDB_DB.getAll("zones"),PEDB_DB.getAll("equipment"),PEDB_DB.getAll("exercise_types")
+      ]);
+      this.pedbExercises=exercises;
+      this.pedbMeta={muscles:new Map(muscles.map(x=>[x.id,x])),zones:new Map(zones.map(x=>[x.id,x])),equipment:new Map(equipment.map(x=>[x.id,x])),types:new Map(types.map(x=>[x.id,x]))};
+      this.pedbReady=true;
+      if(this.currentScreen==="library")this.updateLibraryView();
+      this.toast(`PEDB · ${exercises.length} ejercicios`)
+    }catch(error){console.warn("PEDB no disponible",error);this.pedbReady=false}
+  },
 
   renderLibrary(selectMode=false){
     this.librarySelectMode=selectMode;
-    document.getElementById("library").innerHTML=`<div class="card"><div class="eyebrow">BIBLIOTECA</div><div class="title">EJERCICIOS</div><div class="library-toolbar"><input id="librarySearch" placeholder="Buscar..." oninput="App.updateLibraryView()"><button class="secondary" onclick="App.openPersonalExercise()">＋ Personal</button></div><div id="libraryTabs" class="library-tabs"></div><div id="libraryList" class="list"></div></div>`;
+    document.getElementById("library").innerHTML=`<div class="card"><div class="eyebrow">BIBLIOTECA ${this.pedbReady?`· PEDB ${this.pedbManifest?.version||""}`:""}</div><div class="title">EJERCICIOS</div><div class="library-toolbar"><input id="librarySearch" placeholder="Buscar por nombre, sinónimo o etiqueta…" oninput="App.updateLibraryView()"><button class="secondary" onclick="App.openPersonalExercise()">＋ Personal</button></div><div id="libraryTabs" class="library-tabs"></div><div id="libraryList" class="list"></div></div>`;
     this.libraryGroup="Todos";
     this.updateLibraryView();
     this.show("library",selectMode?"Rutinas":"Datos")
   },
 
   updateLibraryView(){
-    const search=(document.getElementById("librarySearch")?.value||"").toLowerCase();
-    const groups=["Todos","Favoritos","Recientes",...new Set(this.allExercises().map(e=>e.group))];
-    document.getElementById("libraryTabs").innerHTML=groups.map(g=>`<button class="${g===this.libraryGroup?"active":""}" onclick="App.setLibraryGroup('${g}')">${g}</button>`).join("");
-    let list=this.allExercises();
+    const input=(document.getElementById("librarySearch")?.value||"").trim().toLocaleLowerCase("es");
+    const all=this.allExercises();
+    const groups=["Todos","Favoritos","Recientes",...new Set(all.map(e=>e.group))];
+    document.getElementById("libraryTabs").innerHTML=groups.map(g=>`<button class="${g===this.libraryGroup?"active":""}" onclick="App.setLibraryGroup('${g.replaceAll("'","\'")}')">${g}</button>`).join("");
+    let list=all;
     if(this.libraryGroup==="Favoritos")list=list.filter(e=>this.data.favoriteExerciseIds.includes(e.id));
-    else if(this.libraryGroup==="Recientes")list=this.data.recentExerciseIds.map(id=>list.find(e=>e.id===id)).filter(Boolean);
+    else if(this.libraryGroup==="Recientes")list=this.data.recentExerciseIds.map(id=>all.find(e=>e.id===id)).filter(Boolean);
     else if(this.libraryGroup!=="Todos")list=list.filter(e=>e.group===this.libraryGroup);
-    if(search)list=list.filter(e=>e.name.toLowerCase().includes(search)||e.group.toLowerCase().includes(search));
+    if(input)list=list.filter(e=>{
+      const p=e.pedb;return e.name.toLocaleLowerCase("es").includes(input)||e.group.toLocaleLowerCase("es").includes(input)||
+      (p?.synonyms_es||[]).some(x=>x.toLocaleLowerCase("es").includes(input))||(p?.tags||[]).some(x=>x.toLocaleLowerCase("es").includes(input))
+    });
+    list=list.slice(0,80);
     document.getElementById("libraryList").innerHTML=list.length?list.map(e=>this.exerciseLibraryCard(e)).join(""):`<div class="muted">Sin resultados.</div>`
   },
 
@@ -1265,7 +1437,8 @@ const App={
 
   exerciseLibraryCard(e){
     const fav=this.data.favoriteExerciseIds.includes(e.id);
-    return `<div class="exercise-card"><div><strong>${e.name}</strong><small>${e.group} · ${e.size==="large"?"Músculo grande":"Músculo pequeño"} · ${e.type==="time"?"Tiempo":e.type==="failure"?"Al fallo":"Repeticiones"}</small><div class="exercise-badges"><span class="badge ${e.official?"official":"personal"}">${e.official?"Phoenix":"Personal"}</span><span class="badge">${e.sets}×${e.reps}</span><span class="badge">${e.rest}s</span><span class="badge">+${e.increment}kg</span></div><button class="secondary" style="margin-top:10px" onclick="App.toggleFavorite('${e.id}')">${fav?"★ Favorito":"☆ Favorito"}</button></div><button onclick="${this.librarySelectMode?`App.addLibraryExerciseToRoutine('${e.id}')`:`App.previewExercise('${e.id}')`}">${this.librarySelectMode?"Añadir":"Ver"}</button></div>`
+    const detail=e.pedb?`${e.group} · ${this.pedbMeta.types.get(e.pedb.type_id)?.name_es||"Ejercicio"}${e.pedb.home_suitable?" · Casa":""}`:`${e.group} · ${e.size==="large"?"Músculo grande":"Músculo pequeño"}`;
+    return `<div class="exercise-card"><div><strong>${e.name}</strong><small>${detail}</small><div class="exercise-badges"><span class="badge ${e.official?"official":"personal"}">${e.pedb?"PEDB":e.official?"Phoenix":"Personal"}</span><span class="badge">${e.sets}×${e.reps}</span><span class="badge">${e.rest}s</span></div><button class="secondary" style="margin-top:10px" onclick="App.toggleFavorite('${e.id}')">${fav?"★ Favorito":"☆ Favorito"}</button></div><button onclick="${this.librarySelectMode?`App.addLibraryExerciseToRoutine('${e.id}')`:`App.previewExercise('${e.id}')`}">${this.librarySelectMode?"Añadir":"Ver"}</button></div>`
   },
 
   toggleFavorite(id){
@@ -1276,14 +1449,15 @@ const App={
 
   previewExercise(id){
     const e=this.allExercises().find(x=>x.id===id);if(!e)return;
-    alert(`${e.name}\n${e.sets}×${e.reps}\nDescanso ${e.rest}s\nIncremento ${e.increment}kg`)
+    const meta=e.pedb?`\n${(e.pedb.tags||[]).slice(0,6).join(" · ")}`:"";
+    alert(`${e.name}\n${e.sets}×${e.reps}\nDescanso ${e.rest}s${meta}`)
   },
 
   addLibraryExerciseToRoutine(id){
     const e=this.allExercises().find(x=>x.id===id);
     const r=this.getRoutine(this.pendingRoutineId);
     if(!e||!r)return;
-    r.items.push({id:"i"+Date.now(),libraryId:e.id,name:e.name,sets:e.sets,reps:e.reps,weight:0,rest:e.rest,mode:e.type,increment:e.increment});
+    r.items.push({id:"i"+Date.now(),libraryId:e.id,exercise_id:e.id.startsWith("PEX-")?e.id:null,exercise_name_snapshot:e.name,name:e.name,sets:e.sets,reps:e.reps,weight:0,rest:e.rest,mode:e.type,increment:e.increment});
     this.data.recentExerciseIds=[e.id,...this.data.recentExerciseIds.filter(x=>x!==e.id)].slice(0,12);
     this.save();this.renderRoutines()
   },
@@ -1350,6 +1524,7 @@ const App={
 
   init(){
     this.load();
+    this.installPEDB();
 
     history.replaceState(
       {phoenix:true,screen:"home",destination:"Inicio"},

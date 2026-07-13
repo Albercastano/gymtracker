@@ -1,6 +1,6 @@
 {
-  "name": "GymTracker Phoenix Lab 9.7.1 UI Ampliada",
-  "short_name": "Phoenix 9.7.1",
+  "name": "GymTracker Phoenix Lab 9.8.0 PEDB",
+  "short_name": "Phoenix 9.8.0",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#050507",

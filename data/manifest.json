@@ -1,0 +1,45 @@
+{
+  "project": "PEDB",
+  "name": "Phoenix Exercise DataBase",
+  "version": "2.0.0",
+  "schema_version": 1,
+  "language": "es",
+  "platform_stage": "html_pwa_first",
+  "future_platform": "flutter",
+  "offline_first": true,
+  "internet_required": false,
+  "generated_at": "2026-07-13",
+  "counts": {
+    "exercises": 425,
+    "relations": 27112,
+    "muscles": 12,
+    "zones": 65,
+    "equipment": 98,
+    "patterns": 63,
+    "exercise_types": 4
+  },
+  "files": [
+    "exercises.json",
+    "relations.json",
+    "muscles.json",
+    "zones.json",
+    "equipment.json",
+    "patterns.json",
+    "exercise_types.json"
+  ],
+  "compatibility_contract": {
+    "canonical_ids": true,
+    "ids_must_never_change": true,
+    "html_storage": "IndexedDB",
+    "flutter_storage": "Isar_or_SQLite",
+    "master_format": "modular_JSON"
+  },
+  "catalog_expansion": "strength_calisthenics_kettlebell_olympic_strongman",
+  "source_policy": {
+    "primary_open_reference": "yuhonas/free-exercise-db",
+    "license": "Unlicense / public domain",
+    "media_imported": false,
+    "instructions_imported": false,
+    "pedb_names_and_relations": "curated_and_generated"
+  }
+}
