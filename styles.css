@@ -907,3 +907,20 @@ main{
 .workout-notes-card{display:grid;gap:10px}.workout-notes-input{width:100%;min-height:96px;resize:vertical;padding:13px 14px;border-radius:16px;border:1px solid rgba(255,255,255,.1);background:#090a0d;color:var(--ink);font:inherit;line-height:1.45;outline:none}.workout-notes-input:focus{border-color:rgba(255,240,184,.45);box-shadow:0 0 0 3px rgba(216,179,94,.08)}.workout-notes-input::placeholder{color:#6f737c}.workout-notes-save{min-height:44px;border-radius:14px;border:1px solid rgba(255,240,184,.25);background:linear-gradient(150deg,#191b20,#0d0e11);color:var(--gold2);font-weight:1000;letter-spacing:.05em}
 .workout-share-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.workout-share-grid .workout-complete-copy{min-height:52px;padding:8px;font-size:.72rem}
 @media(max-width:430px){.workout-pr-row{grid-template-columns:38px minmax(0,1fr) auto;gap:8px;padding:9px}.workout-pr-row>span{width:32px;height:32px}.workout-share-grid{grid-template-columns:1fr}.workout-share-grid .workout-complete-copy{min-height:48px}.workout-notes-input{min-height:88px}}
+
+
+/* LAB 9.8.5 · FULLSCREEN PHOENIX TIMER */
+#rest.active{min-height:calc(100dvh - 92px);display:grid;place-items:center}
+#rest .focus.casio-screen{width:min(96vw,980px);margin:0 auto}
+#rest .casio-pro{padding:clamp(18px,3vw,34px)}
+#rest .casio-pro .time{font-size:clamp(5.6rem,22vw,10.5rem);line-height:.9;letter-spacing:.02em}
+#rest .casio-pro__brand span:first-child{font-size:1rem;letter-spacing:.18em}
+#rest .casio-pro__brand span:last-child{font-size:1rem;letter-spacing:.14em}
+#rest .casio-pro__controls button{min-height:78px;font-size:clamp(1.35rem,5vw,2rem)}
+#rest .rest-skip{min-height:72px;font-size:1.25rem}
+@media (orientation:landscape){
+  body.timer-landscape #rest .focus.casio-screen{width:98vw;grid-template-columns:minmax(0,1fr) 260px;gap:18px}
+  body.timer-landscape #rest .casio-pro .time{font-size:clamp(7rem,30vh,13rem)}
+  body.timer-landscape #rest .casio-pro__controls button{min-height:86px;font-size:1.7rem}
+  body.timer-landscape #rest .rest-skip{min-height:180px;font-size:1.3rem}
+}

@@ -18,6 +18,19 @@ const App={
   pedbMeta:{muscles:new Map(),zones:new Map(),equipment:new Map(),patterns:new Map(),types:new Map()},
   pedbAltExpanded:false,
 
+
+  async init(){
+    this.load();
+    history.replaceState({phoenix:true,screen:"home",destination:"Inicio"},"","#home");
+    this.renderHome(false);
+    setTimeout(()=>document.getElementById("splash")?.remove(),1200);
+    window.addEventListener("popstate",()=>{
+      const screen=(location.hash||"#home").slice(1);
+      this.renderRoute(screen,false);
+    });
+    this.installPEDB();
+  },
+
   safeAction(fn){
     if(this.actionLock)return;
     this.actionLock=true;
@@ -650,7 +663,7 @@ const App={
         <span class="casio-pro__screw casio-pro__screw--tr" aria-hidden="true"></span>
         <span class="casio-pro__screw casio-pro__screw--bl" aria-hidden="true"></span>
         <span class="casio-pro__screw casio-pro__screw--br" aria-hidden="true"></span>
-        <div class="casio-pro__brand"><span>CASIO</span><span>PHOENIX TIMER</span></div>
+        <div class="casio-pro__brand"><span>PHOENIX</span><span>FORGED TIMER</span></div>
         <div class="casio-pro__lcd">
           <div class="casio-pro__lcd-top"><div class="label">REST</div><div class="casio-pro__series">SET ${this.active.setIndex+1}/${e.sets}</div></div>
           <div id="restTime" class="time"></div>
