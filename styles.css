@@ -1190,3 +1190,22 @@ button.topbar-brand{background:transparent;padding:0;text-align:left}
 button.phoenix-emblem{cursor:pointer}
 .phoenix-easter-trigger.phoenix-tap-pulse{animation:phoenixTapPulse .22s ease-out}
 @keyframes phoenixTapPulse{0%{filter:brightness(1)}50%{filter:brightness(1.38) drop-shadow(0 0 10px rgba(216,179,94,.38))}100%{filter:brightness(1)}}
+
+
+/* 9.9.21 · Biblioteca y peso corporal FORGED */
+#libraryList{display:grid;gap:14px}
+.pedb-forged-card{position:relative;overflow:hidden;border:1px solid rgba(216,179,94,.24);border-radius:24px;padding:15px;background:linear-gradient(150deg,#1a1c21 0%,#0b0c0f 58%,#161108 100%);box-shadow:0 10px 0 rgba(0,0,0,.45),0 20px 40px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.07)}
+.pedb-forged-card__metal{position:absolute;inset:0;pointer-events:none;background:linear-gradient(120deg,rgba(255,255,255,.045),transparent 22%,transparent 74%,rgba(216,179,94,.055))}
+.pedb-forged-card header,.pedb-forged-card section,.pedb-forged-card footer,.pedb-forged-card__chips{position:relative;z-index:1}
+.pedb-forged-card header{display:flex;align-items:start;justify-content:space-between;gap:12px}
+.pedb-forged-card header>div{display:grid;gap:2px}.pedb-forged-card header span{font-size:.55rem;letter-spacing:.2em;color:var(--gold);font-weight:1000}.pedb-forged-card header small{font-size:.66rem;color:#777b84;font-weight:900;letter-spacing:.08em}
+.pedb-forged-card section{padding:14px 0 10px}.pedb-forged-card h3{margin:0;color:#f6f2e8;font-size:1.14rem;line-height:1.1;letter-spacing:-.02em}.pedb-forged-card p{margin:7px 0 0;color:var(--mut);font-size:.72rem;line-height:1.4}
+.pedb-fav{width:42px;height:42px;border-radius:14px;border:1px solid rgba(255,255,255,.1);background:linear-gradient(145deg,#22252b,#0b0c0f);color:#8a8d94;font-size:1.25rem;box-shadow:0 5px 0 #050506}.pedb-fav.active{color:#ffe29a;border-color:rgba(216,179,94,.38);background:linear-gradient(145deg,#3a2a12,#120e08)}
+.pedb-forged-card__chips{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 13px}.pedb-forged-card__chips span{padding:5px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.025);color:#a9a7a2;font-size:.58rem;font-weight:950;letter-spacing:.07em}
+.pedb-forged-card footer{display:grid;grid-template-columns:.82fr 1.18fr;gap:9px}.pedb-btn{min-height:48px;border-radius:15px;font-weight:1000;letter-spacing:.05em}.pedb-btn--graphite{border:1px solid rgba(255,255,255,.11);background:linear-gradient(145deg,#25282f,#0c0d10);color:#ebe8df;box-shadow:0 6px 0 #07080a}.pedb-btn--gold{border:0;background:linear-gradient(145deg,#7c5415,#d9b35e 46%,#fff0b8 58%,#94651a);color:#111;box-shadow:0 6px 0 #4b330e}
+.pedb-btn:active,.pedb-fav:active{transform:translateY(3px);box-shadow:0 2px 0 #050506}
+.weight-forged-panel{padding-bottom:calc(24px + env(safe-area-inset-bottom));background:linear-gradient(155deg,#1c1e23,#08090b 58%,#171107);border-color:rgba(216,179,94,.34)}
+.weight-forged-panel>p{font-size:.74rem;line-height:1.45}.weight-forged-current{display:grid;gap:3px;margin:14px 0 16px;padding:16px;border-radius:18px;border:1px solid rgba(216,179,94,.25);background:linear-gradient(145deg,rgba(216,179,94,.08),rgba(255,255,255,.018));box-shadow:inset 3px 0 0 var(--gold)}
+.weight-forged-current span,.weight-forged-form label>span{color:var(--gold);font-size:.58rem;font-weight:1000;letter-spacing:.14em}.weight-forged-current b{font-size:1.25rem;color:#f6f2e8}.weight-forged-current small{color:var(--mut)}
+.weight-forged-form{display:grid;gap:12px;margin-bottom:16px}.weight-forged-form label{display:grid;gap:7px}.weight-forged-form input,.weight-forged-form textarea{width:100%;border-radius:16px;border:1px solid rgba(255,255,255,.1);background:#090a0d;color:#f5f1e7;padding:13px 14px;font:inherit;outline:none}.weight-forged-form input:focus,.weight-forged-form textarea:focus{border-color:rgba(216,179,94,.55);box-shadow:0 0 0 3px rgba(216,179,94,.08)}
+.weight-input-wrap{position:relative}.weight-input-wrap input{padding-right:48px;font-size:1.45rem;font-weight:1000;color:var(--gold2)}.weight-input-wrap em{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-style:normal;color:#8b8e95;font-weight:900}.forged-weight-launch{border-color:rgba(216,179,94,.25);color:var(--gold2)}

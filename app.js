@@ -1573,7 +1573,7 @@ const App={
       <section class="data-v2__insights">
         <button onclick="App.renderHistory()"><span>HISTORIAL</span><b>Sesiones y detalle</b><em>›</em></button>
         <button onclick="App.setDataMetric('relative')"><span>FUERZA RELATIVA</span><b>${relative?relative.toFixed(2)+'×':'Sin peso corporal'}</b><em>›</em></button>
-        <button onclick="App.renderSettings()"><span>PESO CORPORAL</span><b>${bodyWeight?bodyWeight.toFixed(1)+' kg':'Registrar peso'}</b><em>›</em></button>
+        <button onclick="App.openWeightSheet()"><span>PESO CORPORAL</span><b>${bodyWeight?bodyWeight.toFixed(1)+' kg':'Registrar peso'}</b><em>›</em></button>
         <button onclick="App.renderHistory()"><span>PR REALES</span><b>${allMax?Math.round(allMax)+' kg':'Sin registros'}</b><em>›</em></button>
         <button onclick="App.renderRoutines()"><span>PLANIFICACIÓN</span><b>Semana y rutinas</b><em>›</em></button>
         <button onclick="App.renderBlocks()"><span>BLOQUES</span><b>Progresión por semanas</b><em>›</em></button>
@@ -2014,8 +2014,18 @@ const App={
 
   exerciseLibraryCard(e){
     const fav=this.data.favoriteExerciseIds.includes(e.id);
-    const detail=e.pedb?`${e.group} · ${this.pedbMeta.types.get(e.pedb.type_id)?.name_es||"Ejercicio"}${e.pedb.home_suitable?" · Casa":""}`:`${e.group} · ${e.size==="large"?"Músculo grande":"Músculo pequeño"}`;
-    return `<div class="exercise-card"><div><strong>${e.name}</strong><small>${detail}</small><div class="exercise-badges"><span class="badge ${e.official?"official":"personal"}">${e.id?.startsWith("USR-EX-")?"Personal PEDB":e.pedb?"PEDB":e.official?"Phoenix":"Personal"}</span><span class="badge">${e.sets}×${e.reps}</span><span class="badge">${e.rest}s</span></div><button class="secondary" style="margin-top:10px" onclick="App.toggleFavorite('${e.id}')">${fav?"★ Favorito":"☆ Favorito"}</button></div><button onclick="${this.librarySelectMode?`App.addLibraryExerciseToRoutine('${e.id}')`:`App.previewExercise('${e.id}')`}">${this.librarySelectMode?"Añadir":"Ver"}</button></div>`
+    const typeName=e.pedb?this.pedbMeta.types.get(e.pedb.type_id)?.name_es||"Ejercicio":e.size==="large"?"Músculo grande":"Músculo pequeño";
+    const detail=e.pedb?`${e.group} · ${typeName}${e.pedb.home_suitable?" · Casa":""}`:`${e.group} · ${typeName}`;
+    const code=e.id||"PHX-EX";
+    const primaryAction=this.librarySelectMode?`App.addLibraryExerciseToRoutine('${e.id}')`:`App.previewExercise('${e.id}')`;
+    const primaryText=this.librarySelectMode?"AÑADIR":"VER FICHA";
+    return `<article class="pedb-forged-card">
+      <div class="pedb-forged-card__metal" aria-hidden="true"></div>
+      <header><div><span>PEDB</span><small>${this.escape(code)}</small></div><button class="pedb-fav ${fav?'active':''}" onclick="App.toggleFavorite('${e.id}')" aria-label="${fav?'Quitar de favoritos':'Añadir a favoritos'}">${fav?'★':'☆'}</button></header>
+      <section><h3>${this.escape(e.name)}</h3><p>${this.escape(detail)}</p></section>
+      <div class="pedb-forged-card__chips"><span>${e.official?'OFICIAL':'PERSONAL'}</span><span>${e.sets}×${e.reps}</span><span>${e.rest}s</span></div>
+      <footer><button class="pedb-btn pedb-btn--graphite" onclick="App.previewExercise('${e.id}')">VER</button><button class="pedb-btn pedb-btn--gold" onclick="${primaryAction}">${primaryText}</button></footer>
+    </article>`
   },
 
   toggleFavorite(id){
@@ -2464,6 +2474,35 @@ const App={
     this.toast(mode==="fixed"?"Planificación fija activada":"Reinicio semanal activado");
   },
 
+  openWeightSheet(){
+    const sheet=document.getElementById("weightSheet");if(!sheet)return;
+    const today=new Date();const local=new Date(today.getTime()-today.getTimezoneOffset()*60000).toISOString().slice(0,10);
+    document.getElementById("weightDateInput").value=local;
+    document.getElementById("weightValueInput").value=this.data.profile?.bodyWeight||"";
+    document.getElementById("weightNoteInput").value="";
+    document.getElementById("weightProfileName").textContent=this.activeProfile()?.name||"Perfil";
+    const current=Number(this.data.profile?.bodyWeight)||0;
+    document.getElementById("weightCurrentValue").textContent=current?`Último registro: ${current.toFixed(1)} kg`:"Sin peso registrado";
+    sheet.classList.add("show");sheet.setAttribute("aria-hidden","false");document.body.classList.add("sheet-open");
+    setTimeout(()=>document.getElementById("weightValueInput")?.focus(),180)
+  },
+  closeWeightSheet(){
+    const sheet=document.getElementById("weightSheet");sheet?.classList.remove("show");sheet?.setAttribute("aria-hidden","true");document.body.classList.remove("sheet-open")
+  },
+  saveWeightEntry(){
+    const raw=String(document.getElementById("weightValueInput")?.value||"").replace(",",".");
+    const weight=Number(raw);const date=document.getElementById("weightDateInput")?.value;const note=(document.getElementById("weightNoteInput")?.value||"").trim();
+    if(!(weight>=20&&weight<=400)){this.toast("Introduce un peso válido");return}
+    if(!date){this.toast("Selecciona una fecha");return}
+    this.data.profile=this.data.profile||{};this.data.weights=Array.isArray(this.data.weights)?this.data.weights:[];
+    this.data.profile.bodyWeight=Number(weight.toFixed(1));
+    const iso=new Date(`${date}T12:00:00`).toISOString();
+    this.data.weights.push({id:`w_${Date.now()}`,date:iso,weight:Number(weight.toFixed(1)),note,profileId:this.activeProfileId});
+    this.data.weights.sort((x,y)=>new Date(x.date)-new Date(y.date));
+    this.save();this.closeWeightSheet();this.toast(`Peso guardado · ${weight.toFixed(1)} kg`);
+    if(this.currentScreen==="data")this.renderData(false);else if(this.currentScreen==="settings")this.renderSettings(false)
+  },
+
   renderSettings(withHistory=true){
     const mode=this.data.settings.planningMode||"fixed";
     const fontScale=this.data.settings.fontScale||"normal";
@@ -2481,7 +2520,7 @@ const App={
       </section>
       <section class="settings-section"><h3>Peso corporal</h3>
         <label>Peso actual<input id="bodyWeight" type="number" min="1" step=".1" value="${this.data.profile.bodyWeight||''}"></label>
-        <button class="secondary" onclick="App.saveBodyWeight()">Guardar peso</button>
+        <button class="secondary forged-weight-launch" onclick="App.openWeightSheet()">ABRIR REGISTRO FORGED</button>
       </section>
       <div class="storage-status ${this.storageHealthy?'ok':'error'}"><span>ALMACENAMIENTO LOCAL</span><b>${this.storageHealthy?'Protegido':'Revisar espacio'}</b><small>${this.lastSaveAt?'Último guardado: '+new Date(this.lastSaveAt).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}):'Guardado automático activo'}</small></div>
       <div class="planning-mode-setting"><div class="eyebrow">PLANIFICACIÓN SEMANAL</div><label><input type="radio" name="planningMode" value="fixed" ${mode==="fixed"?'checked':''}> <span><b>Mantener planificación fija</b><small>La semana base se repite hasta que decidas cambiarla.</small></span></label><label><input type="radio" name="planningMode" value="clear" ${mode==="clear"?'checked':''}> <span><b>Vaciar al terminar la semana</b><small>Cada lunes empieza en descanso.</small></span></label></div>

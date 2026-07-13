@@ -224,6 +224,24 @@
     </div>
   </div>
 
+  <div id="weightSheet" class="sheet forged-sheet" aria-hidden="true">
+    <div class="sheet-backdrop" onclick="App.closeWeightSheet()"></div>
+    <div class="sheet-panel weight-forged-panel" role="dialog" aria-modal="true" aria-labelledby="weightSheetTitle">
+      <div class="handle"></div>
+      <div class="eyebrow">PESO CORPORAL</div>
+      <h2 id="weightSheetTitle">Registrar peso</h2>
+      <p class="muted">El registro se guarda únicamente en el perfil activo.</p>
+      <div class="weight-forged-current"><span>PERFIL ACTIVO</span><b id="weightProfileName">Perfil</b><small id="weightCurrentValue">Sin peso registrado</small></div>
+      <div class="weight-forged-form">
+        <label><span>FECHA</span><input id="weightDateInput" type="date"></label>
+        <label><span>PESO</span><div class="weight-input-wrap"><input id="weightValueInput" type="number" min="20" max="400" step="0.1" inputmode="decimal" placeholder="80,0"><em>kg</em></div></label>
+        <label><span>NOTA OPCIONAL</span><textarea id="weightNoteInput" rows="3" maxlength="180" placeholder="Ej. En ayunas, después de entrenar…"></textarea></label>
+      </div>
+      <button type="button" class="king small-king" onclick="App.saveWeightEntry()">GUARDAR PESO</button>
+      <button type="button" class="secondary" onclick="App.closeWeightSheet()">Cancelar</button>
+    </div>
+  </div>
+
   <input id="importFile" type="file" accept=".gtb,.json,application/json" hidden onchange="App.importBackupFile(this.files[0])">
   <div id="personalExerciseSheet" class="sheet">
     <div class="sheet-backdrop" onclick="App.closePersonalExercise()"></div>
