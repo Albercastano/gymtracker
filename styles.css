@@ -1007,3 +1007,9 @@ main{
 .profile-switch-warning{margin:14px 0;padding:13px;border-radius:15px;border:1px solid rgba(216,179,94,.38);background:linear-gradient(145deg,rgba(67,49,17,.48),rgba(13,11,7,.92));color:#f5dfaa;font-size:.7rem;line-height:1.45}
 .profile-switch-warning[hidden]{display:none}
 .profile-confirm-panel .primary{margin-top:14px}
+
+
+/* 9.9.7 · selector directo, siempre disponible */
+.profile-choice{cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.profile-choice:active{transform:translateY(1px);border-color:rgba(216,179,94,.72)}
+.profile-choice:not(.active) em{font-size:1.45rem}
