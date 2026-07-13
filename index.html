@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#050507">
-  <title>GymTracker Phoenix Lab 9.9.13 · Selector de perfil reforzado</title>
+  <title>GymTracker Phoenix Lab 9.9.17 · Origen Phoenix fondo gigante</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
   <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
@@ -14,16 +14,45 @@
 <body>
   <section id="splash" class="splash">
     <div class="splash-card forged">
-      <div class="phoenix-emblem" aria-hidden="true"><img src="icon-512.png" alt=""></div>
+      <div class="phoenix-emblem" aria-hidden="true" onclick="App.registerPhoenixTap(event)"><img src="icon-512.png" alt=""></div>
       <h1><span>GYM</span><span>TRACKER</span></h1>
       <div class="sub">PHOENIX · FORGED</div>
       <p>Entrena más. Progresa siempre.</p>
     </div>
   </section>
 
+  <div id="phoenixOrigin" class="phoenix-origin" aria-hidden="true">
+    <div class="phoenix-origin__backdrop" onclick="App.closePhoenixOrigin()"></div>
+    <section class="phoenix-origin__panel forged" role="dialog" aria-modal="true" aria-labelledby="phoenixOriginTitle">
+      <div class="phoenix-origin__halo" aria-hidden="true"></div>
+      <div class="phoenix-origin__emblem"><img src="icon-512.png" alt=""></div>
+      <div class="eyebrow">UX-EGG-001 · EL ORIGEN</div>
+      <h1 id="phoenixOriginTitle">POR QUÉ EXISTE <em>PHOENIX</em></h1>
+      <p class="phoenix-origin__intro">GymTracker Phoenix nació para acompañar el entrenamiento, no para interrumpirlo.</p>
+      <p class="phoenix-origin__lead">No pretende decirte cómo debes entrenar ni convertir cada sesión en una competición. Su función es ayudarte a registrar, comprender y mejorar tu propio proceso.</p>
+
+      <div class="phoenix-origin__principles">
+        <article><span>01</span><div><h2>Personal First</h2><p>La aplicación se adapta a la persona. No al contrario.</p></div></article>
+        <article><span>02</span><div><h2>Offline First</h2><p>Debe funcionar en el gimnasio, en casa o donde entrenes, incluso sin conexión.</p></div></article>
+        <article><span>03</span><div><h2>Tus datos son tuyos</h2><p>Tu historial, tus rutinas y tu progreso deben poder consultarse, exportarse y conservarse sin depender de una plataforma.</p></div></article>
+        <article><span>04</span><div><h2>Menos acciones, más entrenamiento</h2><p>Cada pantalla y cada botón deben reducir distracciones y evitar pasos innecesarios.</p></div></article>
+        <article><span>05</span><div><h2>Claridad bajo esfuerzo</h2><p>La información importante debe entenderse rápidamente, incluso durante una serie exigente.</p></div></article>
+        <article><span>06</span><div><h2>Progresión con criterio</h2><p>Phoenix puede analizar, recordar y proponer. La decisión final siempre pertenece al usuario.</p></div></article>
+        <article><span>07</span><div><h2>Belleza funcional</h2><p>El diseño no existe para presumir. Existe para hacer el entrenamiento más cómodo, rápido y claro.</p></div></article>
+      </div>
+
+      <div class="phoenix-origin__core">Ligera por diseño. Robusta por arquitectura. Útil por encima de todo.</div>
+      <blockquote>
+        <strong>No nació para distraerte.</strong>
+        <strong>Nació para ayudarte a progresar.</strong>
+      </blockquote>
+      <button type="button" class="king phoenix-origin__close" onclick="App.closePhoenixOrigin()">VOLVER A ENTRENAR</button>
+    </section>
+  </div>
+
   <header class="topbar">
     <button id="destButton" class="dest-button" onclick="App.goDestination()">Inicio</button>
-    <div class="topbar-brand" aria-label="GymTracker Phoenix">
+    <div class="topbar-brand" aria-label="GymTracker Phoenix" onclick="App.registerPhoenixTap(event)">
       <img src="icon-512.png" alt="" aria-hidden="true">
       <div><strong>GYMTRACKER</strong><span>PHOENIX</span></div>
     </div>
@@ -81,6 +110,7 @@
         <button type="button" data-profile="alberto" onclick="App.selectProfileAndReload('alberto')"><span>ENTRAR COMO</span><b>Alberto</b><em>→</em></button>
         <button type="button" data-profile="edy" onclick="App.selectProfileAndReload('edy')"><span>ENTRAR COMO</span><b>Edy</b><em>→</em></button>
         <button type="button" data-profile="churri" onclick="App.selectProfileAndReload('churri')"><span>ENTRAR COMO</span><b>Churri</b><em>→</em></button>
+        <button type="button" data-profile="chino" onclick="App.selectProfileAndReload('chino')"><span>ENTRAR COMO</span><b>Chino</b><em>→</em></button>
       </div>
       <button type="button" class="secondary profile-gate__close" onclick="App.closeProfileGate()">Cancelar</button>
     </section>
@@ -90,7 +120,7 @@
     <div class="sheet-backdrop" onclick="App.closeProfileSheet()"></div>
     <div class="sheet-panel profile-panel">
       <div class="handle"></div><div class="eyebrow">PERFILES LOCALES</div><h2>¿Quién entrena?</h2>
-      <p>Los datos de Alberto, Edy y Churri se guardan por separado en este dispositivo.</p>
+      <p>Los datos de Alberto, Edy, Churri y Chino se guardan por separado en este dispositivo.</p>
       <div id="profileList" class="profile-list"></div>
       <button class="secondary" onclick="App.closeProfileSheet()">Cerrar</button>
     </div>
@@ -136,6 +166,27 @@
       <label class="delete-phrase">Escribe <b>BORRAR</b><input id="deleteConfirmInput" autocomplete="off" oninput="App.validateDeletePhrase()" placeholder="BORRAR"></label>
       <button id="deleteExecute" class="danger forged-danger forged-danger--full" disabled onclick="App.executeDataDelete()">BORRAR DEFINITIVAMENTE</button>
       <button class="secondary" onclick="App.closeDataDelete()">Cancelar</button>
+    </div>
+  </div>
+
+
+  <div id="planningRepeatSheet" class="sheet forged-sheet" aria-hidden="true">
+    <div class="sheet-backdrop" onclick="App.closePlanningRepeatSheet()"></div>
+    <div class="sheet-panel planning-repeat-panel" role="dialog" aria-modal="true" aria-labelledby="planningRepeatTitle">
+      <div class="handle"></div>
+      <div class="eyebrow">PLANIFICACIÓN SEMANAL</div>
+      <h2 id="planningRepeatTitle">Configurar repetición</h2>
+      <p>Elige cómo debe comportarse la planificación al comenzar cada lunes.</p>
+      <div class="planning-repeat-choices">
+        <button type="button" data-planning-mode="fixed" onclick="App.selectPlanningRepeatMode('fixed')" aria-pressed="false">
+          <span>RECOMENDADO</span><b>Mantener planificación fija</b><small>La semana base se repite hasta que tú la modifiques.</small><em>→</em>
+        </button>
+        <button type="button" data-planning-mode="clear" onclick="App.selectPlanningRepeatMode('clear')" aria-pressed="false">
+          <span>SEMANA INDEPENDIENTE</span><b>Vaciar al terminar la semana</b><small>Cada lunes empieza con todos los días en descanso.</small><em>→</em>
+        </button>
+      </div>
+      <button type="button" class="primary" onclick="App.savePlanningRepeatMode()">GUARDAR CONFIGURACIÓN</button>
+      <button type="button" class="secondary" onclick="App.closePlanningRepeatSheet()">Cancelar</button>
     </div>
   </div>
 

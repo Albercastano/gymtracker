@@ -28,6 +28,7 @@ const App={
   pedbAltExpanded:false,
   storageHealthy:true,
   lastSaveAt:null,
+  phoenixTapTimes:[],
 
 
   async init(){
@@ -44,12 +45,49 @@ const App={
       const screen=(location.hash||"#home").slice(1);
       this.renderRoute(screen,false);
     });
+    document.addEventListener("keydown",event=>{
+      if(event.key==="Escape")this.closePhoenixOrigin();
+    });
     this.installPEDB();
     document.addEventListener("visibilitychange",()=>{
       if(document.visibilityState==="hidden")this.persistNow();
     });
     window.addEventListener("pagehide",()=>this.persistNow());
     window.addEventListener("beforeunload",()=>this.persistNow());
+  },
+
+
+  registerPhoenixTap(event){
+    if(event){
+      event.preventDefault?.();
+      event.stopPropagation?.();
+    }
+    const now=(typeof performance!=="undefined"&&performance.now)?performance.now():Date.now();
+    this.phoenixTapTimes=(this.phoenixTapTimes||[]).filter(time=>now-time<=1500);
+    this.phoenixTapTimes.push(now);
+    if(this.phoenixTapTimes.length<3)return;
+    this.phoenixTapTimes=[];
+    try{navigator.vibrate?.([35,45,70])}catch(e){}
+    this.openPhoenixOrigin();
+  },
+
+  openPhoenixOrigin(){
+    const origin=document.getElementById("phoenixOrigin");
+    if(!origin)return;
+    origin.classList.add("show");
+    origin.setAttribute("aria-hidden","false");
+    document.body.classList.add("phoenix-origin-open");
+    const panel=origin.querySelector(".phoenix-origin__panel");
+    if(panel)panel.scrollTop=0;
+    setTimeout(()=>origin.querySelector(".phoenix-origin__close")?.focus(),120);
+  },
+
+  closePhoenixOrigin(){
+    const origin=document.getElementById("phoenixOrigin");
+    if(!origin)return;
+    origin.classList.remove("show");
+    origin.setAttribute("aria-hidden","true");
+    document.body.classList.remove("phoenix-origin-open");
   },
 
   persistNow(){
@@ -74,11 +112,12 @@ const App={
   loadProfiles(){
     try{this.profiles=JSON.parse(localStorage.getItem(PROFILE_REGISTRY_KEY)||"null")||[]}catch(e){this.profiles=[]}
     if(!Array.isArray(this.profiles)||!this.profiles.length){
-      this.profiles=[{id:"alberto",name:"Alberto",createdAt:new Date().toISOString()},{id:"edy",name:"Edy",createdAt:new Date().toISOString()},{id:"churri",name:"Churri",createdAt:new Date().toISOString()}];
+      this.profiles=[{id:"alberto",name:"Alberto",createdAt:new Date().toISOString()},{id:"edy",name:"Edy",createdAt:new Date().toISOString()},{id:"churri",name:"Churri",createdAt:new Date().toISOString()},{id:"chino",name:"Chino",createdAt:new Date().toISOString()}];
     }
     if(!this.profiles.some(p=>p.id==="alberto"))this.profiles.unshift({id:"alberto",name:"Alberto",createdAt:new Date().toISOString()});
     if(!this.profiles.some(p=>p.id==="edy"))this.profiles.push({id:"edy",name:"Edy",createdAt:new Date().toISOString()});
     if(!this.profiles.some(p=>p.id==="churri"))this.profiles.push({id:"churri",name:"Churri",createdAt:new Date().toISOString()});
+    if(!this.profiles.some(p=>p.id==="chino"))this.profiles.push({id:"chino",name:"Chino",createdAt:new Date().toISOString()});
     const storedActive=localStorage.getItem(ACTIVE_PROFILE_KEY);
     let urlProfile=null;
     try{urlProfile=new URLSearchParams(location.search).get("profile")}catch(e){}
@@ -1577,7 +1616,7 @@ const App={
     }).join("");
 
     const range=`${monday.getDate()} ${monday.toLocaleDateString('es-ES',{month:'short'}).replace('.','').toUpperCase()} – ${sunday.getDate()} ${sunday.toLocaleDateString('es-ES',{month:'short'}).replace('.','').toUpperCase()}`;
-    document.getElementById("routines").innerHTML=`<div class="card week-planner"><div class="eyebrow">PLANIFICACIÓN SEMANAL · ${this.data.settings.planningMode==='fixed'?'PLAN FIJO':'SEMANA INDEPENDIENTE'}</div><div class="week-nav"><button onclick="App.shiftPlanningWeek(-1)">‹</button><strong>${range}</strong><button onclick="App.shiftPlanningWeek(1)">›</button></div><div class="week-summary"><span><b>${plannedCount}</b> sesiones</span><span><b>${estimatedMinutes}</b> min</span><span><b>${completedCount}</b> completadas</span></div><div class="week-grid">${plan}</div><div class="week-actions"><button class="secondary" onclick="App.goCurrentWeek()">Semana actual</button><button class="secondary" onclick="App.renderSettings()">Configurar repetición</button></div><p class="routine-help">Semana de lunes a domingo. ${this.data.settings.planningMode==='fixed'?'La base se repite automáticamente; puedes crear excepciones puntuales.':'Cada lunes comienza en descanso y solo muestra lo que asignes.'}</p></div><div class="card"><div class="eyebrow">RUTINAS</div><div class="grid"><button class="secondary" onclick="App.createRoutine()">＋ Nueva rutina</button><button class="secondary" onclick="App.openRoutineTextImporter()">Importar texto</button><button class="secondary" onclick="App.renderLibrary(false)">Biblioteca PEDB</button><button class="secondary" onclick="App.renderBlocks()">Bloques</button></div></div>${cards}`;
+    document.getElementById("routines").innerHTML=`<div class="card week-planner"><div class="eyebrow">PLANIFICACIÓN SEMANAL · ${this.data.settings.planningMode==='fixed'?'PLAN FIJO':'SEMANA INDEPENDIENTE'}</div><div class="week-nav"><button onclick="App.shiftPlanningWeek(-1)">‹</button><strong>${range}</strong><button onclick="App.shiftPlanningWeek(1)">›</button></div><div class="week-summary"><span><b>${plannedCount}</b> sesiones</span><span><b>${estimatedMinutes}</b> min</span><span><b>${completedCount}</b> completadas</span></div><div class="week-grid">${plan}</div><div class="week-actions"><button class="secondary" onclick="App.goCurrentWeek()">Semana actual</button><button class="secondary" onclick="App.openPlanningRepeatSheet()">Configurar repetición</button></div><p class="routine-help">Semana de lunes a domingo. ${this.data.settings.planningMode==='fixed'?'La base se repite automáticamente; puedes crear excepciones puntuales.':'Cada lunes comienza en descanso y solo muestra lo que asignes.'}</p></div><div class="card"><div class="eyebrow">RUTINAS</div><div class="grid"><button class="secondary" onclick="App.createRoutine()">＋ Nueva rutina</button><button class="secondary" onclick="App.openRoutineTextImporter()">Importar texto</button><button class="secondary" onclick="App.renderLibrary(false)">Biblioteca PEDB</button><button class="secondary" onclick="App.renderBlocks()">Bloques</button></div></div>${cards}`;
     this.show("routines","Datos",{history:withHistory})
   },
 
@@ -2341,6 +2380,45 @@ const App={
     this.save();this.closeHistoryDelete();this.renderHistory(false);this.toast(removed?`${removed} entrenamiento${removed===1?'':'s'} eliminado${removed===1?'':'s'}`:"No había entrenamientos en ese intervalo");
   },
 
+  openPlanningRepeatSheet(){
+    const sheet=document.getElementById("planningRepeatSheet");
+    if(!sheet)return;
+    this.pendingPlanningMode=this.data.settings.planningMode||"fixed";
+    this.updatePlanningRepeatSheet();
+    sheet.classList.add("show");
+    sheet.setAttribute("aria-hidden","false");
+    document.body.classList.add("sheet-open");
+  },
+  closePlanningRepeatSheet(){
+    const sheet=document.getElementById("planningRepeatSheet");
+    if(sheet){sheet.classList.remove("show");sheet.setAttribute("aria-hidden","true")}
+    document.body.classList.remove("sheet-open");
+    this.pendingPlanningMode=null;
+  },
+  selectPlanningRepeatMode(mode){
+    if(!["fixed","clear"].includes(mode))return;
+    this.pendingPlanningMode=mode;
+    this.updatePlanningRepeatSheet();
+  },
+  updatePlanningRepeatSheet(){
+    const mode=this.pendingPlanningMode||this.data.settings.planningMode||"fixed";
+    document.querySelectorAll("#planningRepeatSheet [data-planning-mode]").forEach(button=>{
+      const active=button.dataset.planningMode===mode;
+      button.classList.toggle("active",active);
+      button.setAttribute("aria-pressed",active?"true":"false");
+      const mark=button.querySelector("em");
+      if(mark)mark.textContent=active?"✓":"→";
+    });
+  },
+  savePlanningRepeatMode(){
+    const mode=this.pendingPlanningMode||this.data.settings.planningMode||"fixed";
+    this.data.settings.planningMode=mode;
+    this.save();
+    this.closePlanningRepeatSheet();
+    this.renderRoutines(false);
+    this.toast(mode==="fixed"?"Planificación fija activada":"Reinicio semanal activado");
+  },
+
   renderSettings(withHistory=true){
     const mode=this.data.settings.planningMode||"fixed";
     const fontScale=this.data.settings.fontScale||"normal";
@@ -2363,7 +2441,7 @@ const App={
       <div class="storage-status ${this.storageHealthy?'ok':'error'}"><span>ALMACENAMIENTO LOCAL</span><b>${this.storageHealthy?'Protegido':'Revisar espacio'}</b><small>${this.lastSaveAt?'Último guardado: '+new Date(this.lastSaveAt).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}):'Guardado automático activo'}</small></div>
       <div class="planning-mode-setting"><div class="eyebrow">PLANIFICACIÓN SEMANAL</div><label><input type="radio" name="planningMode" value="fixed" ${mode==="fixed"?'checked':''}> <span><b>Mantener planificación fija</b><small>La semana base se repite hasta que decidas cambiarla.</small></span></label><label><input type="radio" name="planningMode" value="clear" ${mode==="clear"?'checked':''}> <span><b>Vaciar al terminar la semana</b><small>Cada lunes empieza en descanso.</small></span></label></div>
       <section class="settings-section profile-settings-zone"><h3>Cambiar perfil</h3><p>El perfil activo es <b>${this.escape(this.activeProfile()?.name||'Perfil')}</b>. Puedes cambiar en cualquier momento.</p><div class="settings-profile-grid">${this.profiles.map(p=>`<button type="button" class="profile-choice ${p.id===this.activeProfileId?'active':''}" onclick="App.selectProfileAndReload('${p.id}')"><span>${p.id===this.activeProfileId?'ACTIVO':'ENTRAR EN'}</span><b>${this.escape(p.name)}</b><em>${p.id===this.activeProfileId?'✓':'→'}</em></button>`).join('')}</div></section>
-      <section class="settings-section danger-zone"><h3>Datos del perfil · ${this.escape(this.activeProfile()?.name||'Perfil')}</h3><p>Estas acciones solo afectan al perfil activo. Alberto, Edy y Churri permanecen completamente separados.</p><button class="danger forged-danger" onclick="App.openDataDelete('test')">Borrar datos de prueba</button><button class="danger forged-danger forged-danger--full" onclick="App.openDataDelete('full')">Restablecer este perfil</button></section>
+      <section class="settings-section danger-zone"><h3>Datos del perfil · ${this.escape(this.activeProfile()?.name||'Perfil')}</h3><p>Estas acciones solo afectan al perfil activo. Alberto, Edy, Churri y Chino permanecen completamente separados.</p><button class="danger forged-danger" onclick="App.openDataDelete('test')">Borrar datos de prueba</button><button class="danger forged-danger forged-danger--full" onclick="App.openDataDelete('full')">Restablecer este perfil</button></section>
       <button class="primary" onclick="App.saveSettings()">Guardar ajustes</button></div>`;
     this.show("settings","Datos",{history:withHistory})
   },
@@ -2398,7 +2476,7 @@ const App={
       summary.innerHTML="<li>Entrenamientos e historial</li><li>Peso corporal</li><li>Progresiones y estadísticas derivadas</li><li>Sesión activa</li>";
     }else{
       title.textContent="Restablecer este perfil";
-      desc.textContent=`${profile} volverá al estado inicial. El otro perfil no se modificará.`;
+      desc.textContent=`${profile} volverá al estado inicial. Los demás perfiles no se modificarán.`;
       summary.innerHTML="<li>Rutinas, planificación y bloques</li><li>Entrenamientos, pesos y progresiones</li><li>Ejercicios personales y ajustes</li><li>Sesión activa</li>";
     }
     input.value="";document.getElementById("deleteExecute").disabled=true;
@@ -2452,7 +2530,7 @@ const App={
     const payload={
       format:"GymTracker Phoenix Backup",
       schema_version:1,
-      app_version:"9.9.7",
+      app_version:"9.9.16",
       profile:{id:this.activeProfileId,name:this.activeProfile()?.name||this.activeProfileId},
       exportedAt:new Date().toISOString(),
       counts:{

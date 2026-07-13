@@ -1,6 +1,6 @@
 {
-  "name": "GymTracker Phoenix Lab 9.9.13 Perfiles reforzados",
-  "short_name": "Phoenix 9.9.13",
+  "name": "GymTracker Phoenix Lab 9.9.16 El origen de Phoenix",
+  "short_name": "Phoenix 9.9.16",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#050507",
