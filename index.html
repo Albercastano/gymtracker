@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#050507">
-  <title>GymTracker Phoenix Lab 9.9.3 · UX rutinas y bloques</title>
+  <title>GymTracker Phoenix Lab 9.9.4 · Perfiles y datos</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
   <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
@@ -27,7 +27,7 @@
       <img src="icon-512.png" alt="" aria-hidden="true">
       <div><strong>GYMTRACKER</strong><span>PHOENIX</span></div>
     </div>
-    <div class="version">LAB 9.9.3 · UX</div>
+    <button id="profileButton" class="profile-button" onclick="App.openProfileSheet()"><span>PERFIL</span><b>Alberto</b></button>
   </header>
 
   <main>
@@ -61,6 +61,30 @@
       <div id="altList" class="list alt-list"></div>
       <button class="secondary" onclick="App.restorePlannedExercise()">Restaurar ejercicio original</button>
       <button class="secondary" onclick="App.closeAlternatives()">Cerrar</button>
+    </div>
+  </div>
+
+
+  <div id="profileSheet" class="sheet forged-sheet">
+    <div class="sheet-backdrop" onclick="App.closeProfileSheet()"></div>
+    <div class="sheet-panel profile-panel">
+      <div class="handle"></div><div class="eyebrow">PERFILES LOCALES</div><h2>¿Quién entrena?</h2>
+      <p>Los datos de Alberto y Edy se guardan por separado en este dispositivo.</p>
+      <div id="profileList" class="profile-list"></div>
+      <button class="secondary" onclick="App.closeProfileSheet()">Cerrar</button>
+    </div>
+  </div>
+
+  <div id="deleteDataSheet" class="sheet forged-sheet">
+    <div class="sheet-backdrop" onclick="App.closeDataDelete()"></div>
+    <div class="sheet-panel delete-panel">
+      <div class="handle"></div><div class="eyebrow">ZONA DE SEGURIDAD</div><h2 id="deleteTitle">Borrar datos</h2>
+      <p id="deleteDescription"></p><ul id="deleteSummary" class="delete-summary"></ul>
+      <div class="delete-warning">Esta acción no se puede deshacer sin una copia de seguridad.</div>
+      <button class="secondary" onclick="App.createFullBackup()">Crear copia antes de borrar</button>
+      <label class="delete-phrase">Escribe <b>BORRAR</b><input id="deleteConfirmInput" autocomplete="off" oninput="App.validateDeletePhrase()" placeholder="BORRAR"></label>
+      <button id="deleteExecute" class="danger forged-danger forged-danger--full" disabled onclick="App.executeDataDelete()">BORRAR DEFINITIVAMENTE</button>
+      <button class="secondary" onclick="App.closeDataDelete()">Cancelar</button>
     </div>
   </div>
 

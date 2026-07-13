@@ -1,8 +1,12 @@
 const DB_KEY="gymtracker_phoenix_v8";
 const ACTIVE_KEY="gymtracker_phoenix_v8_active";
+const PROFILE_REGISTRY_KEY="gymtracker_phoenix_profiles_v1";
+const ACTIVE_PROFILE_KEY="gymtracker_phoenix_active_profile_v1";
 
 const App={
   data:null,
+  profiles:[],
+  activeProfileId:"alberto",
   currentScreen:"home",
   destination:"Inicio",
   active:null,
@@ -27,6 +31,7 @@ const App={
   async init(){
     this.load();
     this.applyUiSettings();
+    this.updateProfileChrome();
     history.replaceState({phoenix:true,screen:"home",destination:"Inicio"},"","#home");
     this.renderHome(false);
     setTimeout(()=>document.getElementById("splash")?.remove(),1200);
@@ -55,6 +60,53 @@ const App={
   reportError(error){
     console.error(error);
     try{this.toast("Ha ocurrido un error. Tus datos siguen guardados.")}catch(e){}
+  },
+
+
+  profileDbKey(id){return id==="alberto"?DB_KEY:`${DB_KEY}_profile_${id}`},
+  profileActiveKey(id){return id==="alberto"?ACTIVE_KEY:`${ACTIVE_KEY}_profile_${id}`},
+  activeProfile(){return this.profiles.find(p=>p.id===this.activeProfileId)||this.profiles[0]},
+  loadProfiles(){
+    try{this.profiles=JSON.parse(localStorage.getItem(PROFILE_REGISTRY_KEY)||"null")||[]}catch(e){this.profiles=[]}
+    if(!Array.isArray(this.profiles)||!this.profiles.length){
+      this.profiles=[{id:"alberto",name:"Alberto",createdAt:new Date().toISOString()},{id:"edy",name:"Edy",createdAt:new Date().toISOString()}];
+      localStorage.setItem(PROFILE_REGISTRY_KEY,JSON.stringify(this.profiles));
+    }
+    if(!this.profiles.some(p=>p.id==="alberto"))this.profiles.unshift({id:"alberto",name:"Alberto",createdAt:new Date().toISOString()});
+    if(!this.profiles.some(p=>p.id==="edy"))this.profiles.push({id:"edy",name:"Edy",createdAt:new Date().toISOString()});
+    const requested=localStorage.getItem(ACTIVE_PROFILE_KEY)||"alberto";
+    this.activeProfileId=this.profiles.some(p=>p.id===requested)?requested:"alberto";
+    localStorage.setItem(PROFILE_REGISTRY_KEY,JSON.stringify(this.profiles));
+    localStorage.setItem(ACTIVE_PROFILE_KEY,this.activeProfileId);
+  },
+  updateProfileChrome(){
+    const profile=this.activeProfile();
+    const el=document.getElementById("profileButton");
+    if(el)el.innerHTML=`<span>PERFIL</span><b>${this.escape(profile?.name||"Alberto")}</b>`;
+    document.documentElement.dataset.profile=this.activeProfileId;
+  },
+  openProfileSheet(){
+    const sheet=document.getElementById("profileSheet");
+    const list=document.getElementById("profileList");
+    if(!sheet||!list)return;
+    list.innerHTML=this.profiles.map(p=>`<button class="profile-choice ${p.id===this.activeProfileId?'active':''}" onclick="App.switchProfile('${p.id}')"><span>${p.id===this.activeProfileId?'ACTIVO':'PERFIL LOCAL'}</span><b>${this.escape(p.name)}</b><em>${p.id===this.activeProfileId?'✓':'›'}</em></button>`).join("");
+    sheet.classList.add("open");
+  },
+  closeProfileSheet(){document.getElementById("profileSheet")?.classList.remove("open")},
+  switchProfile(id){
+    if(id===this.activeProfileId){this.closeProfileSheet();return}
+    this.persistNow();
+    if(this.timer){clearInterval(this.timer);this.timer=null}
+    this.activeProfileId=id;localStorage.setItem(ACTIVE_PROFILE_KEY,id);
+    this.loadProfileData();this.applyUiSettings();this.updateProfileChrome();this.closeProfileSheet();
+    this.renderHome(false);this.toast(`Perfil activo: ${this.activeProfile()?.name||id}`);
+  },
+  loadProfileData(){
+    try{this.data=JSON.parse(localStorage.getItem(this.profileDbKey(this.activeProfileId)))}catch(e){this.data=null}
+    if(!this.data)this.data=this.defaults();
+    this.normalize();this.save();
+    try{this.active=JSON.parse(localStorage.getItem(this.profileActiveKey(this.activeProfileId))||"null")}catch(e){this.active=null}
+    if(this.active)this.normalizeActive();
   },
 
   defaults(){
@@ -105,12 +157,8 @@ const App={
   },
 
   load(){
-    try{this.data=JSON.parse(localStorage.getItem(DB_KEY))}catch(e){this.data=null}
-    if(!this.data)this.data=this.defaults();
-    this.normalize();
-    this.save();
-    try{this.active=JSON.parse(localStorage.getItem(ACTIVE_KEY)||"null")}catch(e){this.active=null}
-    if(this.active)this.normalizeActive();
+    this.loadProfiles();
+    this.loadProfileData();
   },
 
   normalize(){
@@ -154,7 +202,7 @@ const App={
 
   save(){
     try{
-      localStorage.setItem(DB_KEY,JSON.stringify(this.data));
+      localStorage.setItem(this.profileDbKey(this.activeProfileId),JSON.stringify(this.data));
       this.storageHealthy=true;this.lastSaveAt=Date.now();return true
     }catch(error){
       this.storageHealthy=false;console.error("Phoenix save error",error);
@@ -164,7 +212,7 @@ const App={
   },
   saveActive(){
     try{
-      this.active?localStorage.setItem(ACTIVE_KEY,JSON.stringify(this.active)):localStorage.removeItem(ACTIVE_KEY);
+      this.active?localStorage.setItem(this.profileActiveKey(this.activeProfileId),JSON.stringify(this.active)):localStorage.removeItem(this.profileActiveKey(this.activeProfileId));
       this.storageHealthy=true;this.lastSaveAt=Date.now();return true
     }catch(error){
       this.storageHealthy=false;console.error("Phoenix active save error",error);
@@ -2165,6 +2213,7 @@ const App={
       </section>
       <div class="storage-status ${this.storageHealthy?'ok':'error'}"><span>ALMACENAMIENTO LOCAL</span><b>${this.storageHealthy?'Protegido':'Revisar espacio'}</b><small>${this.lastSaveAt?'Último guardado: '+new Date(this.lastSaveAt).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}):'Guardado automático activo'}</small></div>
       <div class="planning-mode-setting"><div class="eyebrow">PLANIFICACIÓN SEMANAL</div><label><input type="radio" name="planningMode" value="fixed" ${mode==="fixed"?'checked':''}> <span><b>Mantener planificación fija</b><small>La semana base se repite hasta que decidas cambiarla.</small></span></label><label><input type="radio" name="planningMode" value="clear" ${mode==="clear"?'checked':''}> <span><b>Vaciar al terminar la semana</b><small>Cada lunes empieza en descanso.</small></span></label></div>
+      <section class="settings-section danger-zone"><h3>Datos del perfil · ${this.escape(this.activeProfile()?.name||'Perfil')}</h3><p>Estas acciones solo afectan al perfil activo. Alberto y Edy permanecen completamente separados.</p><button class="danger forged-danger" onclick="App.openDataDelete('test')">Borrar datos de prueba</button><button class="danger forged-danger forged-danger--full" onclick="App.openDataDelete('full')">Restablecer este perfil</button></section>
       <button class="primary" onclick="App.saveSettings()">Guardar ajustes</button></div>`;
     this.show("settings","Datos",{history:withHistory})
   },
@@ -2186,6 +2235,34 @@ const App={
     this.data.settings.timerOrientation=document.getElementById("timerOrientation")?.value||"auto";
     this.data.settings.planningMode=document.querySelector('input[name="planningMode"]:checked')?.value||"fixed";
     this.applyUiSettings();this.save();this.toast("Ajustes guardados")
+  },
+
+
+  openDataDelete(mode){
+    this.deleteMode=mode;
+    const profile=this.activeProfile()?.name||"Perfil";
+    const title=document.getElementById("deleteTitle"),desc=document.getElementById("deleteDescription"),summary=document.getElementById("deleteSummary"),input=document.getElementById("deleteConfirmInput");
+    if(mode==="test"){
+      title.textContent="Borrar datos de prueba";
+      desc.textContent=`Se eliminarán los datos registrados de ${profile}, sin tocar sus rutinas ni planificación.`;
+      summary.innerHTML="<li>Entrenamientos e historial</li><li>Peso corporal</li><li>Progresiones y estadísticas derivadas</li><li>Sesión activa</li>";
+    }else{
+      title.textContent="Restablecer este perfil";
+      desc.textContent=`${profile} volverá al estado inicial. El otro perfil no se modificará.`;
+      summary.innerHTML="<li>Rutinas, planificación y bloques</li><li>Entrenamientos, pesos y progresiones</li><li>Ejercicios personales y ajustes</li><li>Sesión activa</li>";
+    }
+    input.value="";document.getElementById("deleteExecute").disabled=true;
+    document.getElementById("deleteDataSheet")?.classList.add("open");
+  },
+  closeDataDelete(){document.getElementById("deleteDataSheet")?.classList.remove("open")},
+  validateDeletePhrase(){const ok=document.getElementById("deleteConfirmInput")?.value.trim().toUpperCase()==="BORRAR";document.getElementById("deleteExecute").disabled=!ok},
+  executeDataDelete(){
+    const typed=document.getElementById("deleteConfirmInput")?.value.trim().toUpperCase();if(typed!=="BORRAR")return;
+    if(this.deleteMode==="test"){
+      this.data.sessions=[];this.data.weights=[];this.data.profile.bodyWeight=null;this.data.backupLog=[];this.data.archiveIndex=[];
+      this.data.routines.forEach(r=>r.items.forEach(i=>{delete i.progression;delete i.lastSuggestion}));
+    }else{this.data=this.defaults()}
+    this.active=null;localStorage.removeItem(this.profileActiveKey(this.activeProfileId));this.save();this.closeDataDelete();this.applyUiSettings();this.renderHome(false);this.toast(this.deleteMode==="test"?"Datos de prueba eliminados":"Perfil restablecido");
   },
 
   archiveChecksum(text){
@@ -2225,7 +2302,8 @@ const App={
     const payload={
       format:"GymTracker Phoenix Backup",
       schema_version:1,
-      app_version:"9.9.3",
+      app_version:"9.9.4",
+      profile:{id:this.activeProfileId,name:this.activeProfile()?.name||this.activeProfileId},
       exportedAt:new Date().toISOString(),
       counts:{
         sessions:(this.data.sessions||[]).length,
@@ -2245,7 +2323,7 @@ const App={
       const payload=this.buildBackupPayload();
       const text=JSON.stringify(payload,null,2);
       const date=new Date().toISOString().slice(0,10);
-      this.downloadFile(`GymTracker_Phoenix_Backup_${date}.gtb`,text,"application/json");
+      this.downloadFile(`GymTracker_${this.activeProfile()?.name||this.activeProfileId}_Backup_${date}.gtb`,text,"application/json");
       this.data.backupLog.unshift({createdAt:new Date().toISOString(),checksum:payload.verification.checksum,counts:payload.counts});
       this.data.backupLog=this.data.backupLog.slice(0,12);this.save();this.renderBackups(false);this.toast("Copia creada y verificada")
     }catch(error){this.reportError(error)}
@@ -2262,7 +2340,7 @@ const App={
       });
       const esc=v=>`"${String(v??"").replaceAll('"','""')}"`;
       const csv="\uFEFF"+rows.map(r=>r.map(esc).join(",")).join("\n");
-      this.downloadFile(`GymTracker_Historial_${new Date().toISOString().slice(0,10)}.csv`,csv,"text/csv;charset=utf-8");
+      this.downloadFile(`GymTracker_${this.activeProfile()?.name||this.activeProfileId}_Historial_${new Date().toISOString().slice(0,10)}.csv`,csv,"text/csv;charset=utf-8");
       this.toast("CSV exportado")
     }catch(error){this.reportError(error)}
   },
@@ -2315,7 +2393,7 @@ const App={
         const incoming=parsed.data||parsed;
         if(!incoming||!Array.isArray(incoming.routines)||!Array.isArray(incoming.sessions))throw new Error("Formato incompatible");
         const safety=this.buildBackupPayload();
-        localStorage.setItem(`${DB_KEY}_pre_restore_${Date.now()}`,JSON.stringify(safety));
+        localStorage.setItem(`${this.profileDbKey(this.activeProfileId)}_pre_restore_${Date.now()}`,JSON.stringify(safety));
         this.data=incoming;this.normalize();this.save();this.toast("Copia restaurada. Se guardó un punto de seguridad.");this.renderBackups(false)
       }catch(error){console.error(error);this.toast("No se pudo restaurar: archivo incompatible o dañado") }
     };reader.readAsText(file)
