@@ -38,7 +38,7 @@ const App={
     this.renderHome(false);
     setTimeout(()=>{
       document.getElementById("splash")?.remove();
-      if(this.needsInitialProfileChoice)this.openProfileSheet();
+      if(this.needsInitialProfileChoice)this.openProfileGate();
     },1200);
     window.addEventListener("popstate",()=>{
       const screen=(location.hash||"#home").slice(1);
@@ -75,39 +75,76 @@ const App={
     try{this.profiles=JSON.parse(localStorage.getItem(PROFILE_REGISTRY_KEY)||"null")||[]}catch(e){this.profiles=[]}
     if(!Array.isArray(this.profiles)||!this.profiles.length){
       this.profiles=[{id:"alberto",name:"Alberto",createdAt:new Date().toISOString()},{id:"edy",name:"Edy",createdAt:new Date().toISOString()},{id:"churri",name:"Churri",createdAt:new Date().toISOString()}];
-      localStorage.setItem(PROFILE_REGISTRY_KEY,JSON.stringify(this.profiles));
     }
     if(!this.profiles.some(p=>p.id==="alberto"))this.profiles.unshift({id:"alberto",name:"Alberto",createdAt:new Date().toISOString()});
     if(!this.profiles.some(p=>p.id==="edy"))this.profiles.push({id:"edy",name:"Edy",createdAt:new Date().toISOString()});
     if(!this.profiles.some(p=>p.id==="churri"))this.profiles.push({id:"churri",name:"Churri",createdAt:new Date().toISOString()});
     const storedActive=localStorage.getItem(ACTIVE_PROFILE_KEY);
-    this.needsInitialProfileChoice=!storedActive;
-    const requested=storedActive||"alberto";
-    this.activeProfileId=this.profiles.some(p=>p.id===requested)?requested:"alberto";
+    let urlProfile=null;
+    try{urlProfile=new URLSearchParams(location.search).get("profile")}catch(e){}
+    const requested=this.profiles.some(p=>p.id===urlProfile)?urlProfile:(this.profiles.some(p=>p.id===storedActive)?storedActive:"alberto");
+    this.needsInitialProfileChoice=!storedActive&&!urlProfile;
+    this.activeProfileId=requested;
     localStorage.setItem(PROFILE_REGISTRY_KEY,JSON.stringify(this.profiles));
-    if(storedActive)localStorage.setItem(ACTIVE_PROFILE_KEY,this.activeProfileId);
+    localStorage.setItem(ACTIVE_PROFILE_KEY,this.activeProfileId);
   },
   updateProfileChrome(){
     const profile=this.activeProfile();
     const el=document.getElementById("profileButton");
-    const select=document.getElementById("profileSelect");
-    if(select){
-      select.innerHTML=this.profiles.map(p=>`<option value="${p.id}">${this.escape(p.name)}</option>`).join("");
-      select.value=this.activeProfileId;
-      select.setAttribute("aria-label",`Perfil activo: ${profile?.name||"Alberto"}. Selecciona otro perfil para cambiar.`);
-    }
-    if(el)el.setAttribute("aria-label",`Seleccionar perfil. Perfil activo: ${profile?.name||"Alberto"}`);
+    const name=document.getElementById("profileButtonName");
+    if(name)name.textContent=profile?.name||"Alberto";
+    if(el)el.setAttribute("aria-label",`Cambiar perfil. Perfil activo: ${profile?.name||"Alberto"}`);
+    document.querySelectorAll("[data-profile]").forEach(btn=>{
+      const active=btn.getAttribute("data-profile")===this.activeProfileId;
+      btn.classList.toggle("active",active);
+      btn.setAttribute("aria-current",active?"true":"false");
+      const label=btn.querySelector("span");
+      const arrow=btn.querySelector("em");
+      if(label)label.textContent=active?"PERFIL ACTIVO":"ENTRAR COMO";
+      if(arrow)arrow.textContent=active?"✓":"→";
+    });
     document.documentElement.dataset.profile=this.activeProfileId;
   },
-  profileSelectChanged(id){
-    if(!id)return;
-    this.switchProfile(id);
+  openProfileGate(){
+    const gate=document.getElementById("profileGate");
+    if(!gate)return;
+    this.updateProfileChrome();
+    gate.classList.add("show");
+    gate.setAttribute("aria-hidden","false");
+    document.body.classList.add("profile-gate-open");
+    document.getElementById("profileButton")?.setAttribute("aria-expanded","true");
   },
+  closeProfileGate(){
+    const gate=document.getElementById("profileGate");
+    if(!gate)return;
+    gate.classList.remove("show");
+    gate.setAttribute("aria-hidden","true");
+    document.body.classList.remove("profile-gate-open");
+    document.getElementById("profileButton")?.setAttribute("aria-expanded","false");
+  },
+  selectProfileAndReload(id){
+    if(!this.profiles.some(p=>p.id===id))return;
+    try{this.persistNow()}catch(e){}
+    try{localStorage.setItem(ACTIVE_PROFILE_KEY,id)}catch(e){}
+    const current=this.activeProfileId;
+    if(id===current){
+      this.closeProfileGate();
+      this.toast(`Perfil activo: ${this.activeProfile()?.name||id}`);
+      return;
+    }
+    try{
+      location.reload();
+    }catch(e){
+      this.performProfileSwitch(id);
+      this.closeProfileGate();
+    }
+  },
+  profileSelectChanged(id){this.selectProfileAndReload(id)},
   openProfileSheet(){
     const sheet=document.getElementById("profileSheet");
     const list=document.getElementById("profileList");
     if(!sheet||!list)return;
-    list.innerHTML=this.profiles.map(p=>`<button type="button" class="profile-choice ${p.id===this.activeProfileId?'active':''}" onclick="App.switchProfile('${p.id}')"><span>${p.id===this.activeProfileId?'PERFIL ACTIVO':'CAMBIAR A'}</span><b>${this.escape(p.name)}</b><em>${p.id===this.activeProfileId?'✓':'ENTRAR'}</em></button>`).join("");
+    list.innerHTML=this.profiles.map(p=>`<button type="button" class="profile-choice ${p.id===this.activeProfileId?'active':''}" onclick="App.selectProfileAndReload('${p.id}')"><span>${p.id===this.activeProfileId?'PERFIL ACTIVO':'CAMBIAR A'}</span><b>${this.escape(p.name)}</b><em>${p.id===this.activeProfileId?'✓':'ENTRAR'}</em></button>`).join("");
     sheet.classList.add("show");
     document.body.classList.add("sheet-open");
     document.getElementById("profileButton")?.setAttribute("aria-expanded","true");
@@ -135,6 +172,7 @@ const App={
     this.persistNow();
     if(this.timer){clearInterval(this.timer);this.timer=null}
     this.closeProfileSheet();
+    this.closeProfileGate();
     document.getElementById("profileConfirmSheet")?.classList.remove("show");
     document.body.classList.remove("sheet-open");
     this.activeProfileId=id;
@@ -2324,7 +2362,7 @@ const App={
       </section>
       <div class="storage-status ${this.storageHealthy?'ok':'error'}"><span>ALMACENAMIENTO LOCAL</span><b>${this.storageHealthy?'Protegido':'Revisar espacio'}</b><small>${this.lastSaveAt?'Último guardado: '+new Date(this.lastSaveAt).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}):'Guardado automático activo'}</small></div>
       <div class="planning-mode-setting"><div class="eyebrow">PLANIFICACIÓN SEMANAL</div><label><input type="radio" name="planningMode" value="fixed" ${mode==="fixed"?'checked':''}> <span><b>Mantener planificación fija</b><small>La semana base se repite hasta que decidas cambiarla.</small></span></label><label><input type="radio" name="planningMode" value="clear" ${mode==="clear"?'checked':''}> <span><b>Vaciar al terminar la semana</b><small>Cada lunes empieza en descanso.</small></span></label></div>
-      <section class="settings-section profile-settings-zone"><h3>Cambiar perfil</h3><p>El perfil activo es <b>${this.escape(this.activeProfile()?.name||'Perfil')}</b>. Puedes cambiar en cualquier momento.</p><div class="settings-profile-grid">${this.profiles.map(p=>`<button type="button" class="profile-choice ${p.id===this.activeProfileId?'active':''}" onclick="App.switchProfile('${p.id}')"><span>${p.id===this.activeProfileId?'ACTIVO':'ENTRAR EN'}</span><b>${this.escape(p.name)}</b><em>${p.id===this.activeProfileId?'✓':'→'}</em></button>`).join('')}</div></section>
+      <section class="settings-section profile-settings-zone"><h3>Cambiar perfil</h3><p>El perfil activo es <b>${this.escape(this.activeProfile()?.name||'Perfil')}</b>. Puedes cambiar en cualquier momento.</p><div class="settings-profile-grid">${this.profiles.map(p=>`<button type="button" class="profile-choice ${p.id===this.activeProfileId?'active':''}" onclick="App.selectProfileAndReload('${p.id}')"><span>${p.id===this.activeProfileId?'ACTIVO':'ENTRAR EN'}</span><b>${this.escape(p.name)}</b><em>${p.id===this.activeProfileId?'✓':'→'}</em></button>`).join('')}</div></section>
       <section class="settings-section danger-zone"><h3>Datos del perfil · ${this.escape(this.activeProfile()?.name||'Perfil')}</h3><p>Estas acciones solo afectan al perfil activo. Alberto, Edy y Churri permanecen completamente separados.</p><button class="danger forged-danger" onclick="App.openDataDelete('test')">Borrar datos de prueba</button><button class="danger forged-danger forged-danger--full" onclick="App.openDataDelete('full')">Restablecer este perfil</button></section>
       <button class="primary" onclick="App.saveSettings()">Guardar ajustes</button></div>`;
     this.show("settings","Datos",{history:withHistory})

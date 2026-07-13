@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#050507">
-  <title>GymTracker Phoenix Lab 9.9.12 · Selector de perfil permanente</title>
+  <title>GymTracker Phoenix Lab 9.9.13 · Selector de perfil reforzado</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
   <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
@@ -27,15 +27,11 @@
       <img src="icon-512.png" alt="" aria-hidden="true">
       <div><strong>GYMTRACKER</strong><span>PHOENIX</span></div>
     </div>
-    <label id="profileButton" class="profile-button profile-select-wrap" aria-label="Seleccionar perfil activo">
-      <span>PERFIL</span>
-      <select id="profileSelect" onchange="App.profileSelectChanged(this.value)" aria-label="Perfil activo">
-        <option value="alberto">Alberto</option>
-        <option value="edy">Edy</option>
-        <option value="churri">Churri</option>
-      </select>
+    <button id="profileButton" class="profile-button profile-trigger" type="button" onclick="App.openProfileGate()" aria-haspopup="dialog" aria-expanded="false" aria-controls="profileGate">
+      <span>PERFIL ACTIVO</span>
+      <b id="profileButtonName">Alberto</b>
       <i aria-hidden="true">⌄</i>
-    </label>
+    </button>
   </header>
 
   <main>
@@ -72,6 +68,23 @@
     </div>
   </div>
 
+
+
+  <div id="profileGate" class="profile-gate" aria-hidden="true">
+    <div class="profile-gate__backdrop" onclick="App.closeProfileGate()"></div>
+    <section class="profile-gate__panel forged" role="dialog" aria-modal="true" aria-labelledby="profileGateTitle">
+      <div class="profile-gate__emblem"><img src="icon-512.png" alt=""></div>
+      <div class="eyebrow">PERFILES LOCALES</div>
+      <h2 id="profileGateTitle">¿Quién va a entrenar?</h2>
+      <p>Elige un perfil. Cada uno conserva sus rutinas, historial, peso, bloques y ajustes por separado.</p>
+      <div class="profile-gate__choices">
+        <button type="button" data-profile="alberto" onclick="App.selectProfileAndReload('alberto')"><span>ENTRAR COMO</span><b>Alberto</b><em>→</em></button>
+        <button type="button" data-profile="edy" onclick="App.selectProfileAndReload('edy')"><span>ENTRAR COMO</span><b>Edy</b><em>→</em></button>
+        <button type="button" data-profile="churri" onclick="App.selectProfileAndReload('churri')"><span>ENTRAR COMO</span><b>Churri</b><em>→</em></button>
+      </div>
+      <button type="button" class="secondary profile-gate__close" onclick="App.closeProfileGate()">Cancelar</button>
+    </section>
+  </div>
 
   <div id="profileSheet" class="sheet forged-sheet">
     <div class="sheet-backdrop" onclick="App.closeProfileSheet()"></div>
