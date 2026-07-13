@@ -1,8 +1,8 @@
 {
   "project": "PEDB",
   "name": "Phoenix Exercise DataBase",
-  "version": "2.1.0",
-  "schema_version": 1,
+  "version": "3.0.0",
+  "schema_version": 2,
   "language": "es",
   "platform_stage": "html_pwa_first",
   "future_platform": "flutter",
@@ -10,12 +10,13 @@
   "internet_required": false,
   "generated_at": "2026-07-13",
   "counts": {
-    "exercises": 479,
-    "relations": 30771,
+    "exercises": 677,
+    "relations": 23811,
+    "families": 22,
     "muscles": 14,
-    "zones": 74,
-    "equipment": 102,
-    "patterns": 75,
+    "zones": 79,
+    "equipment": 138,
+    "patterns": 88,
     "exercise_types": 4
   },
   "files": [
@@ -25,7 +26,8 @@
     "zones.json",
     "equipment.json",
     "patterns.json",
-    "exercise_types.json"
+    "exercise_types.json",
+    "families.json"
   ],
   "compatibility_contract": {
     "canonical_ids": true,
@@ -34,7 +36,15 @@
     "flutter_storage": "Isar_or_SQLite",
     "master_format": "modular_JSON"
   },
-  "catalog_expansion": "strength_calisthenics_kettlebell_olympic_strongman",
+  "catalog_expansion": [
+    "machines",
+    "landmine",
+    "bands",
+    "suspension",
+    "calisthenics_progressions",
+    "power",
+    "unilateral"
+  ],
   "source_policy": {
     "primary_open_reference": "yuhonas/free-exercise-db",
     "license": "Unlicense / public domain",
@@ -47,5 +57,12 @@
     "id_prefix": "USR-EX-",
     "official_data_read_only": true,
     "automatic_relations": true
+  },
+  "lightweight_policy": {
+    "max_relations_per_category": 12,
+    "compact_relation_keys": true,
+    "exercise_dna_encoding": "[technical,stability,fatigue,objective_mask]",
+    "multimedia": false,
+    "lazy_loading": true
   }
 }

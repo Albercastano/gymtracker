@@ -1,6 +1,6 @@
 const PEDB_DB = {
   name: "pedb_html_v1",
-  version: 1,
+  version: 2,
   db: null,
 
   open() {
@@ -22,7 +22,7 @@ const PEDB_DB = {
           s.createIndex("category", "category");
           s.createIndex("source_category", ["source_id", "category"]);
         }
-        for (const store of ["muscles", "zones", "equipment", "patterns", "exercise_types"]) {
+        for (const store of ["muscles", "zones", "equipment", "patterns", "exercise_types", "families"]) {
           if (!db.objectStoreNames.contains(store)) db.createObjectStore(store, { keyPath: "id" });
         }
       };
@@ -53,11 +53,12 @@ const PEDB_DB = {
     });
   },
 
-  get(store, key) {
+  clear(store) {
     return new Promise((resolve, reject) => {
-      const req = this.tx(store).get(key);
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => reject(req.error);
+      const tx = this.db.transaction(store, "readwrite");
+      tx.objectStore(store).clear();
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
     });
   },
 
@@ -68,6 +69,14 @@ const PEDB_DB = {
       keys.forEach(key => s.delete(key));
       tx.oncomplete = () => resolve();
       tx.onerror = () => reject(tx.error);
+    });
+  },
+
+  get(store, key) {
+    return new Promise((resolve, reject) => {
+      const req = this.tx(store).get(key);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
     });
   },
 

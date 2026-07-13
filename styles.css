@@ -924,3 +924,26 @@ main{
   body.timer-landscape #rest .casio-pro__controls button{min-height:86px;font-size:1.7rem}
   body.timer-landscape #rest .rest-skip{min-height:180px;font-size:1.3rem}
 }
+
+
+/* LAB 9.8.6 · SPLASH FIT + PEDB 3.0
+   Ajuste exclusivamente responsivo para evitar cortes del nombre y centrar el emblema. */
+.splash{padding:max(14px,env(safe-area-inset-top)) 12px max(14px,env(safe-area-inset-bottom))}
+.splash-card{box-sizing:border-box;width:min(94vw,520px);max-height:calc(100dvh - 28px);padding:clamp(18px,4vw,28px) clamp(12px,4vw,24px) clamp(20px,4vw,32px);overflow:hidden}
+.splash-card .phoenix-emblem{width:min(42vw,210px);margin-bottom:10px}
+.splash-card h1{display:flex;justify-content:center;align-items:baseline;gap:.16em;width:100%;max-width:100%;margin:0;font-size:clamp(1.9rem,9.4vw,4.6rem);line-height:.92;letter-spacing:.035em;white-space:nowrap;text-align:center}
+.splash-card h1 span{display:block;min-width:0}
+.splash-card .sub{margin-top:10px;font-size:clamp(.62rem,2.6vw,.82rem);letter-spacing:clamp(.12em,1.8vw,.24em);white-space:nowrap}
+.splash-card p{margin:16px auto 0;max-width:30ch;font-size:clamp(.7rem,2.7vw,.9rem);line-height:1.35}
+@media(max-width:390px){
+  .splash-card{width:calc(100vw - 20px);padding:18px 10px 22px;border-radius:26px}
+  .splash-card .phoenix-emblem{width:min(39vw,165px)}
+  .splash-card h1{font-size:clamp(1.55rem,8.3vw,2.15rem);gap:.12em;letter-spacing:.02em}
+  .splash-card .sub{font-size:.61rem;letter-spacing:.12em}
+  .splash-card p{font-size:.68rem;margin-top:12px}
+}
+@media(max-height:650px){
+  .splash-card .phoenix-emblem{width:min(30vh,155px)}
+  .splash-card{padding-top:14px;padding-bottom:16px}
+  .splash-card p{margin-top:10px}
+}

@@ -1,14 +1,34 @@
 {
   "passed": true,
   "issues": [],
-  "added_in_v2_1": 54,
+  "added_in_v3": 76,
   "counts": {
-    "exercises": 479,
-    "relations": 30771,
+    "exercises": 677,
+    "relations": 23811,
+    "families": 22,
     "muscles": 14,
-    "zones": 74,
-    "equipment": 102,
-    "patterns": 75,
+    "zones": 79,
+    "equipment": 138,
+    "patterns": 88,
     "exercise_types": 4
+  },
+  "compatibility": {
+    "previous_exercise_ids_preserved": true,
+    "user_exercises_supported": true,
+    "html_first": true,
+    "flutter_ready": true
+  },
+  "size_bytes": {
+    "equipment.json": 6474,
+    "exercise_types.json": 169,
+    "exercises.json": 288596,
+    "families.json": 987,
+    "manifest.json": 1651,
+    "muscles.json": 560,
+    "patterns.json": 4422,
+    "relations.json": 2346425,
+    "search_index.json": 105498,
+    "user_relation_rules.json": 435,
+    "zones.json": 3791
   }
 }
