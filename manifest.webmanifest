@@ -1,6 +1,6 @@
 {
-  "name": "GymTracker Phoenix Lab 9.8.2 PEDB 2.1",
-  "short_name": "Phoenix 9.8.2",
+  "name": "GymTracker Phoenix Lab 9.8.4 Final de entrenamiento",
+  "short_name": "Phoenix 9.8.4",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#050507",

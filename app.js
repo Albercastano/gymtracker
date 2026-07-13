@@ -94,6 +94,8 @@ const App={
     this.data.personalExercises=Array.isArray(this.data.personalExercises)?this.data.personalExercises:[];
     this.data.recentExerciseIds=Array.isArray(this.data.recentExerciseIds)?this.data.recentExerciseIds:[];
     this.data.favoriteExerciseIds=Array.isArray(this.data.favoriteExerciseIds)?this.data.favoriteExerciseIds:[];
+    this.data.archiveIndex=Array.isArray(this.data.archiveIndex)?this.data.archiveIndex:[];
+    this.data.backupLog=Array.isArray(this.data.backupLog)?this.data.backupLog:[];
     this.data.routines.forEach(r=>{
       r.items=Array.isArray(r.items)?r.items:[];
       r.items.forEach(e=>{
@@ -914,6 +916,64 @@ const App={
     host.innerHTML=suggestions.length?`<section class="workout-complete-report progression-summary"><div class="workout-complete-report__head"><span>PRÓXIMA SESIÓN</span><b>Phoenix propone · Tú decides</b></div>${suggestions.map(x=>`<div class="progression-row ${x.status}"><div><strong>${x.name}</strong><span>${x.title}</span><small>${x.reason}</small></div>${x.status==="pending"?`<div class="progression-actions"><button class="secondary" onclick="App.rejectProgression('${x.id}')">Mantener</button><button onclick="App.applyProgression('${x.id}')">Aceptar</button></div>`:`<em>${x.status==="accepted"?"Aplicada":"Rechazada"}</em>`}</div>`).join("")}</section>`:""
   },
 
+  detectSessionPRs(session){
+    const previous=(this.data.sessions||[]).flatMap(s=>s.exercises||[]);
+    const prs=[];
+    (session.exercises||[]).forEach((exercise,index)=>{
+      const matches=previous.filter(e=>(exercise.exerciseId&&e.exerciseId===exercise.exerciseId)||String(e.name||"").toLowerCase()===String(exercise.name||"").toLowerCase());
+      if(!matches.length)return;
+      const currentSets=exercise.sets||[];
+      const previousSets=matches.flatMap(e=>e.sets||[]);
+      if(!currentSets.length||!previousSets.length)return;
+      if(exercise.mode==="time"){
+        const currentBest=Math.max(0,...currentSets.map(x=>Number(x.reps)||0));
+        const previousBest=Math.max(0,...previousSets.map(x=>Number(x.reps)||0));
+        if(currentBest>previousBest)prs.push({exerciseIndex:exercise.exerciseIndex??index,name:exercise.name,type:"time",label:`${currentBest} s`,detail:`Nuevo récord de tiempo · antes ${previousBest} s`});
+        return;
+      }
+      const currentMaxWeight=Math.max(0,...currentSets.map(x=>Number(x.weight)||0));
+      const previousMaxWeight=Math.max(0,...previousSets.map(x=>Number(x.weight)||0));
+      if(currentMaxWeight>previousMaxWeight&&currentMaxWeight>0){
+        prs.push({exerciseIndex:exercise.exerciseIndex??index,name:exercise.name,type:"weight",label:`${currentMaxWeight} kg`,detail:`Nueva carga máxima · antes ${previousMaxWeight} kg`});
+        return;
+      }
+      if(currentMaxWeight===0&&previousMaxWeight===0){
+        const currentReps=Math.max(0,...currentSets.map(x=>Number(x.reps)||0));
+        const previousReps=Math.max(0,...previousSets.map(x=>Number(x.reps)||0));
+        if(currentReps>previousReps){
+          prs.push({exerciseIndex:exercise.exerciseIndex??index,name:exercise.name,type:"reps",label:`${currentReps} reps`,detail:`Nuevo récord de repeticiones · antes ${previousReps}`});
+          return;
+        }
+      }
+      const currentBestVolume=Math.max(0,...currentSets.map(x=>(Number(x.weight)||0)*(Number(x.reps)||0)));
+      const previousBestVolume=Math.max(0,...previousSets.map(x=>(Number(x.weight)||0)*(Number(x.reps)||0)));
+      if(currentBestVolume>previousBestVolume&&currentBestVolume>0){
+        prs.push({exerciseIndex:exercise.exerciseIndex??index,name:exercise.name,type:"set-volume",label:`${Math.round(currentBestVolume)} kg`,detail:`Nuevo récord de volumen en una serie · antes ${Math.round(previousBestVolume)} kg`});
+      }
+    });
+    return prs;
+  },
+
+  saveWorkoutNotes(){
+    const session=this.lastCompletedSession;if(!session)return;
+    const input=document.getElementById("workoutNotes");
+    session.notes=String(input?.value||"").trim();
+    const stored=(this.data.sessions||[]).find(x=>x.id===session.id);
+    if(stored)stored.notes=session.notes;
+    this.save();
+    const state=document.getElementById("workoutNotesState");
+    if(state)state.textContent=session.notes?"Nota guardada":"Sin nota";
+    this.toast(session.notes?"Nota guardada":"Nota eliminada")
+  },
+
+  async shareLastWorkoutReport(){
+    const text=this.workoutReportText();if(!text){this.toast("No hay informe disponible");return}
+    if(navigator.share){
+      try{await navigator.share({title:`GymTracker Phoenix · ${this.lastCompletedSession?.routineName||"Entrenamiento"}`,text});return}catch(error){if(error?.name==="AbortError")return}
+    }
+    await this.copyLastWorkoutReport();
+  },
+
   finishWorkout(){
     const r=this.currentRoutine();
     if(!r||!this.active)return;
@@ -933,6 +993,8 @@ const App={
     session.volume=exercises.reduce((total,e)=>total+e.sets.reduce((sum,s)=>sum+((Number(s.weight)||0)*(Number(s.reps)||0)),0),0);
     session.reportedExerciseCount=exercises.length;
     session.durationMs=Math.max(0,session.endedAt-(Number(session.startedAt)||session.endedAt));
+    session.prs=this.detectSessionPRs(session);
+    session.notes="";
     session.progressionSuggestions=this.progressionSuggestionsFor(session,r);
     this.data.sessions.push(session);
     this.save();
@@ -942,6 +1004,7 @@ const App={
 
     const durationMin=Math.max(1,Math.round(session.durationMs/60000));
     const alternatives=exercises.filter(e=>e.plannedName&&e.plannedName!==e.name).length;
+    const prReport=(session.prs||[]).map(pr=>`<div class="workout-pr-row"><span>PR</span><div><strong>${pr.name}</strong><small>${pr.detail}</small></div><b>${pr.label}</b></div>`).join("");
     const exerciseReport=exercises.map((e,idx)=>{
       const series=e.sets.map((s,i)=>{
         const repsLabel=e.mode==="time"?`${s.reps} s`:`${s.reps} reps`;
@@ -961,6 +1024,7 @@ const App={
         <div class="eyebrow">ENTRENAMIENTO COMPLETADO</div>
         <div class="workout-complete-title">${r.name.toUpperCase()}</div>
         <div class="workout-complete-date">${new Date(session.endedAt).toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'})}</div>
+        <div class="workout-saved-state">✓ SESIÓN GUARDADA</div>
       </section>
 
       <section class="workout-complete-metrics">
@@ -972,6 +1036,8 @@ const App={
 
       ${alternatives?`<div class="workout-complete-note">${alternatives} ${alternatives===1?"ejercicio adaptado":"ejercicios adaptados"} durante la sesión</div>`:""}
 
+      ${prReport?`<section class="workout-complete-report workout-pr-report"><div class="workout-complete-report__head"><span>NUEVOS RÉCORDS</span><b>${session.prs.length} PR real${session.prs.length===1?"":"es"}</b></div><div class="workout-pr-list">${prReport}</div></section>`:""}
+
       <section class="workout-complete-report">
         <div class="workout-complete-report__head"><span>INFORME COMPLETO</span><b>${session.totalSets} series guardadas</b></div>
         <div class="workout-complete-list">${exerciseReport||'<div class="muted">No se registraron series.</div>'}</div>
@@ -979,9 +1045,18 @@ const App={
 
       <div id="progressionSummary"></div>
 
+      <section class="workout-complete-report workout-notes-card">
+        <div class="workout-complete-report__head"><span>NOTAS DE LA SESIÓN</span><b id="workoutNotesState">Sin nota</b></div>
+        <textarea id="workoutNotes" class="workout-notes-input" maxlength="500" placeholder="Sensaciones, molestias, técnica, cambios para la próxima sesión..."></textarea>
+        <button class="workout-notes-save" onclick="App.saveWorkoutNotes()">GUARDAR NOTA</button>
+      </section>
+
       <div class="workout-complete-actions">
-        <button class="workout-complete-copy" onclick="App.copyLastWorkoutReport()">COPIAR PARA ENTRENADOR</button>
-        <button class="workout-complete-home" onclick="App.renderHome()"><span>VOLVER AL INICIO</span><b>✓</b></button>
+        <div class="workout-share-grid">
+          <button class="workout-complete-copy" onclick="App.copyLastWorkoutReport()">COPIAR PARA ENTRENADOR</button>
+          <button class="workout-complete-copy" onclick="App.shareLastWorkoutReport()">COMPARTIR RESUMEN</button>
+        </div>
+        <button class="workout-complete-home" onclick="App.renderHome()"><span>FINALIZAR Y VOLVER</span><b>✓</b></button>
       </div>
     </div>`;
 
@@ -1011,6 +1086,10 @@ const App={
         lines.push(`   S${i+1}: ${weight} × ${Number(s.reps)||0}${unit}`)
       })
     });
+    if((session.prs||[]).length){
+      lines.push("",`PR: ${(session.prs||[]).map(x=>`${x.name} · ${x.label}`).join(" | ")}`)
+    }
+    if(session.notes)lines.push("",`Notas: ${session.notes}`);
     return lines.join("\n")
   },
 
@@ -1708,63 +1787,137 @@ const App={
   saveBodyWeight(){const w=Number(document.getElementById("bodyWeight").value);if(w>0){this.data.profile.bodyWeight=w;this.data.weights.push({date:new Date().toISOString(),weight:w});this.save();alert("Peso guardado")}},
   saveSettings(){const x=Number(document.getElementById("weightStep").value);if(x>0)this.data.settings.weightStep=x;this.save();alert("Ajustes guardados")},
 
+  archiveChecksum(text){
+    let hash=2166136261;
+    for(let i=0;i<text.length;i++){hash^=text.charCodeAt(i);hash=Math.imul(hash,16777619)}
+    return (hash>>>0).toString(16).padStart(8,"0")
+  },
+
+  downloadFile(name,text,type="application/json"){
+    const blob=new Blob([text],{type});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),800)
+  },
+
+  sessionDate(session){return new Date(session.endedAt||session.date||Date.now())},
+
+  monthKey(date){
+    const d=new Date(date);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`
+  },
+
+  monthLabel(key){
+    const [y,m]=key.split("-").map(Number);
+    return new Date(y,m-1,1).toLocaleDateString("es-ES",{month:"long",year:"numeric"}).replace(/^./,c=>c.toUpperCase())
+  },
+
+  archiveMonths(){
+    const map=new Map();
+    (this.data.sessions||[]).forEach(s=>{
+      const key=this.monthKey(this.sessionDate(s));
+      if(!map.has(key))map.set(key,[]);map.get(key).push(s)
+    });
+    return [...map.entries()].sort((a,b)=>b[0].localeCompare(a[0]))
+  },
+
+  buildBackupPayload(){
+    const payload={
+      format:"GymTracker Phoenix Backup",
+      schema_version:1,
+      app_version:"9.8.3",
+      exportedAt:new Date().toISOString(),
+      counts:{
+        sessions:(this.data.sessions||[]).length,
+        routines:(this.data.routines||[]).length,
+        weights:(this.data.weights||[]).length,
+        personalExercises:(this.data.personalExercises||[]).length
+      },
+      data:this.data
+    };
+    const canonical=JSON.stringify(payload);
+    payload.verification={algorithm:"FNV-1a",checksum:this.archiveChecksum(canonical)};
+    return payload
+  },
+
+  createFullBackup(){
+    try{
+      const payload=this.buildBackupPayload();
+      const text=JSON.stringify(payload,null,2);
+      const date=new Date().toISOString().slice(0,10);
+      this.downloadFile(`GymTracker_Phoenix_Backup_${date}.gtb`,text,"application/json");
+      this.data.backupLog.unshift({createdAt:new Date().toISOString(),checksum:payload.verification.checksum,counts:payload.counts});
+      this.data.backupLog=this.data.backupLog.slice(0,12);this.save();this.renderBackups(false);this.toast("Copia creada y verificada")
+    }catch(error){this.reportError(error)}
+  },
+
+  exportSessionsCsv(){
+    try{
+      const rows=[["fecha","rutina","ejercicio","serie","repeticiones","peso_kg","volumen_kg","duracion_min"]];
+      (this.data.sessions||[]).forEach(session=>{
+        const date=this.sessionDate(session).toISOString();
+        (session.exercises||[]).forEach(ex=>{
+          (ex.sets||[]).forEach((set,i)=>rows.push([date,session.routineName||"Entrenamiento",ex.name||"Ejercicio",i+1,Number(set.reps)||0,Number(set.weight)||0,(Number(set.reps)||0)*(Number(set.weight)||0),Math.round((Number(session.durationMs)||0)/60000)]))
+        })
+      });
+      const esc=v=>`"${String(v??"").replaceAll('"','""')}"`;
+      const csv="\uFEFF"+rows.map(r=>r.map(esc).join(",")).join("\n");
+      this.downloadFile(`GymTracker_Historial_${new Date().toISOString().slice(0,10)}.csv`,csv,"text/csv;charset=utf-8");
+      this.toast("CSV exportado")
+    }catch(error){this.reportError(error)}
+  },
+
+  exportMonthArchive(key){
+    try{
+      const sessions=(this.data.sessions||[]).filter(s=>this.monthKey(this.sessionDate(s))===key);
+      const setCount=sessions.reduce((n,s)=>n+(s.totalSets||((s.exercises||[]).reduce((a,e)=>a+(e.sets||[]).length,0))),0);
+      const payload={format:"GymTracker Phoenix Monthly Archive",schema_version:1,month:key,createdAt:new Date().toISOString(),counts:{sessions:sessions.length,sets:setCount},sessions};
+      const canonical=JSON.stringify(payload);payload.verification={algorithm:"FNV-1a",checksum:this.archiveChecksum(canonical)};
+      this.downloadFile(`GymTracker_${key}.json`,JSON.stringify(payload,null,2));
+      const entry={month:key,sessions:sessions.length,sets:setCount,checksum:payload.verification.checksum,verifiedAt:new Date().toISOString()};
+      this.data.archiveIndex=[entry,...(this.data.archiveIndex||[]).filter(x=>x.month!==key)];this.save();this.renderBackups(false);this.toast(`${this.monthLabel(key)} guardado y verificado`)
+    }catch(error){this.reportError(error)}
+  },
+
   renderBackups(withHistory=true){
-    document.getElementById("backups").innerHTML=`<div class="focus"><div class="eyebrow">BACKUPS</div><div class="title">TUS DATOS</div><button class="secondary" onclick="App.exportBackup()">Exportar JSON</button><button class="secondary" onclick="document.getElementById('importFile').click()">Importar JSON</button></div>`;
+    const months=this.archiveMonths();
+    const latest=this.data.backupLog?.[0];
+    const activeLimit=new Date(Date.now()-60*86400000);
+    const activeSessions=(this.data.sessions||[]).filter(s=>this.sessionDate(s)>=activeLimit).length;
+    const archived=(this.data.archiveIndex||[]);
+    const totalSets=(this.data.sessions||[]).reduce((n,s)=>n+(Number(s.totalSets)||((s.exercises||[]).reduce((a,e)=>a+(e.sets||[]).length,0))),0);
+    document.getElementById("backups").innerHTML=`<div class="archive-phoenix">
+      <section class="archive-hero phx-card phx-card--highlight">
+        <div class="eyebrow">ARCHIVO PHOENIX</div><h1>Tus datos.<br><em>Siempre contigo.</em></h1>
+        <p>Copias locales, verificadas y bajo tu control.</p>
+        <div class="archive-last"><span>ÚLTIMA COPIA</span><b>${latest?new Date(latest.createdAt).toLocaleString("es-ES",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}):"Aún no creada"}</b><small>${latest?`${latest.counts.sessions} sesiones · Verificada ${latest.checksum}`:"Crea tu primera copia completa"}</small></div>
+        <button class="king archive-primary" onclick="App.createFullBackup()">CREAR COPIA AHORA</button>
+      </section>
+      <section class="archive-actions">
+        <button onclick="document.getElementById('importFile').click()"><span>RESTAURAR</span><b>Abrir copia .gtb o JSON</b><em>›</em></button>
+        <button onclick="App.exportSessionsCsv()"><span>EXPORTAR</span><b>Historial CSV</b><em>›</em></button>
+      </section>
+      <section class="archive-status phx-card"><div><span>BASE ACTIVA</span><strong>60 días</strong><small>${activeSessions} sesiones visibles</small></div><div><span>ARCHIVADOS</span><strong>${archived.length}</strong><small>meses verificados</small></div><div><span>TOTAL</span><strong>${(this.data.sessions||[]).length}</strong><small>${totalSets} series</small></div></section>
+      <section class="archive-months"><div class="data-v2__section-title"><div><span>ARCHIVO MENSUAL</span><h2>Meses disponibles</h2></div></div>
+      ${months.length?months.map(([key,sessions])=>{const sets=sessions.reduce((n,s)=>n+(Number(s.totalSets)||((s.exercises||[]).reduce((a,e)=>a+(e.sets||[]).length,0))),0);const saved=archived.find(x=>x.month===key);return `<div class="archive-month ${saved?'verified':''}"><div><strong>${this.monthLabel(key)}</strong><small>${sessions.length} sesiones · ${sets} series</small></div><span>${saved?'VERIFICADO':'PENDIENTE'}</span><button onclick="App.exportMonthArchive('${key}')">${saved?'GUARDAR DE NUEVO':'GUARDAR'}</button></div>`}).join(""):`<div class="data-v2__empty">Los meses aparecerán después de tus primeros entrenamientos.</div>`}
+      </section>
+      <p class="archive-note">Phoenix no elimina datos mientras una copia no pueda verificarse correctamente.</p>
+    </div>`;
     this.show("backups","Datos",{history:withHistory})
   },
-  exportBackup(){const blob=new Blob([JSON.stringify({version:9.6,exportedAt:new Date().toISOString(),data:this.data},null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`GymTracker_${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(a.href)},
-  importBackupFile(file){if(!file)return;const r=new FileReader();r.onload=()=>{try{const obj=JSON.parse(r.result);const data=obj.data||obj;if(!Array.isArray(data.routines)||!Array.isArray(data.sessions))throw new Error("Backup no válido");localStorage.setItem(DB_KEY,JSON.stringify(data));this.load();alert("Backup restaurado");this.renderHome()}catch(e){alert(e.message)}};r.readAsText(file)},
 
-  beep(){try{if(!this.data.settings.sound)return;const c=new (window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.frequency.value=880;g.gain.value=.08;o.connect(g);g.connect(c.destination);o.start();setTimeout(()=>{o.stop();c.close()},180)}catch(e){}},
-  buzz(v){try{if(this.data.settings.vibration&&navigator.vibrate)navigator.vibrate(v)}catch(e){}},
-
-  init(){
-    this.load();
-    this.installPEDB();
-
-    history.replaceState(
-      {phoenix:true,screen:"home",destination:"Inicio"},
-      "",
-      "#home"
-    );
-
-    window.addEventListener("popstate",event=>{
-      if(!this.navigationReady||this.backLock)return;
-      this.backLock=true;
-
-      const parent=this.getParentRoute();
-      if(parent.screen){
-        this.renderRoute(parent.screen,false);
-      }else{
-        // En Inicio evitamos volver accidentalmente a la web anterior.
-        history.replaceState(
-          {phoenix:true,screen:"home",destination:"Inicio"},
-          "",
-          "#home"
-        );
-        this.toast("Inicio")
-      }
-
-      setTimeout(()=>{this.backLock=false},80)
-    });
-
-    window.addEventListener("pagehide",()=>this.saveActive());
-    window.addEventListener("beforeunload",()=>this.saveActive());
-
-    window.addEventListener("error",event=>this.reportError(event.error||event.message));
-    window.addEventListener("unhandledrejection",event=>this.reportError(event.reason));
-
-    document.addEventListener("visibilitychange",()=>{
-      if(document.hidden){
-        this.saveActive()
-      }else if(this.active?.phase==="rest"){
-        this.resumeRest()
-      }
-    });
-
-    this.renderHome(false);
-    this.navigationReady=true;
-    setTimeout(()=>document.getElementById("splash")?.remove(),2100)
+  importBackupFile(file){
+    if(!file)return;
+    const reader=new FileReader();
+    reader.onload=()=>{
+      try{
+        const parsed=JSON.parse(reader.result);
+        const incoming=parsed.data||parsed;
+        if(!incoming||!Array.isArray(incoming.routines)||!Array.isArray(incoming.sessions))throw new Error("Formato incompatible");
+        const safety=this.buildBackupPayload();
+        localStorage.setItem(`${DB_KEY}_pre_restore_${Date.now()}`,JSON.stringify(safety));
+        this.data=incoming;this.normalize();this.save();this.toast("Copia restaurada. Se guardó un punto de seguridad.");this.renderBackups(false)
+      }catch(error){console.error(error);this.toast("No se pudo restaurar: archivo incompatible o dañado") }
+    };reader.readAsText(file)
   },
 
   toast(message){
