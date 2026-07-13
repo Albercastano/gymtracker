@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#050507">
-  <title>GymTracker Phoenix Lab 9.9.18 · Easter egg corregido</title>
+  <title>GymTracker Phoenix Lab 9.9.20 · Easter egg robusto</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
   <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
@@ -14,7 +14,7 @@
 <body>
   <section id="splash" class="splash">
     <div class="splash-card forged">
-      <div class="phoenix-emblem" aria-hidden="true" onclick="App.registerPhoenixTap(event)"><img src="icon-512.png" alt=""></div>
+      <button type="button" class="phoenix-emblem phoenix-easter-trigger" data-phoenix-easter aria-label="Logo Phoenix"><img src="icon-512.png" alt=""></button>
       <h1><span>GYM</span><span>TRACKER</span></h1>
       <div class="sub">PHOENIX · FORGED</div>
       <p>Entrena más. Progresa siempre.</p>
@@ -52,10 +52,10 @@
 
   <header class="topbar">
     <button id="destButton" class="dest-button" onclick="App.goDestination()">Inicio</button>
-    <div class="topbar-brand" aria-label="GymTracker Phoenix" onclick="App.registerPhoenixTap(event)">
+    <button type="button" class="topbar-brand phoenix-easter-trigger" data-phoenix-easter aria-label="GymTracker Phoenix">
       <img src="icon-512.png" alt="" aria-hidden="true">
       <div><strong>GYMTRACKER</strong><span>PHOENIX</span></div>
-    </div>
+    </button>
     <button id="profileButton" class="profile-button profile-trigger" type="button" onclick="App.openProfileGate()" aria-haspopup="dialog" aria-expanded="false" aria-controls="profileGate">
       <span>PERFIL ACTIVO</span>
       <b id="profileButtonName">Alberto</b>
@@ -187,6 +187,40 @@
       </div>
       <button type="button" class="primary" onclick="App.savePlanningRepeatMode()">GUARDAR CONFIGURACIÓN</button>
       <button type="button" class="secondary" onclick="App.closePlanningRepeatSheet()">Cancelar</button>
+    </div>
+  </div>
+
+
+  <div id="planningAssignSheet" class="sheet forged-sheet" aria-hidden="true">
+    <div class="sheet-backdrop" onclick="App.closePlanningAssignSheet()"></div>
+    <div class="sheet-panel planning-assign-panel" role="dialog" aria-modal="true" aria-labelledby="planningAssignTitle">
+      <div class="handle"></div>
+      <div class="eyebrow">PLANIFICACIÓN SEMANAL</div>
+      <h2 id="planningAssignTitle">Asignar rutina</h2>
+      <p id="planningAssignSubtitle" class="muted"></p>
+      <div id="planningAssignOptions" class="planning-assign-options"></div>
+      <div id="planningAssignScopes" class="planning-assign-scopes" hidden>
+        <div class="eyebrow">APLICAR CAMBIO</div>
+        <button type="button" data-scope="week" onclick="App.selectPlanningAssignScope('week')"><b>Solo esta semana</b><small>No cambia la semana base.</small><em>→</em></button>
+        <button type="button" data-scope="forward" onclick="App.selectPlanningAssignScope('forward')"><b>Desde esta semana</b><small>Se aplica a esta semana y las siguientes.</small><em>→</em></button>
+        <button type="button" data-scope="base" onclick="App.selectPlanningAssignScope('base')"><b>Cambiar semana base</b><small>Modifica la planificación fija.</small><em>→</em></button>
+      </div>
+      <button type="button" id="planningAssignSave" class="king small-king" onclick="App.savePlanningAssignment()">GUARDAR ASIGNACIÓN</button>
+      <button type="button" class="secondary" onclick="App.closePlanningAssignSheet()">Cancelar</button>
+    </div>
+  </div>
+
+  <div id="exercisePreviewSheet" class="sheet forged-sheet" aria-hidden="true">
+    <div class="sheet-backdrop" onclick="App.closeExercisePreview()"></div>
+    <div class="sheet-panel exercise-preview-panel" role="dialog" aria-modal="true" aria-labelledby="exercisePreviewTitle">
+      <div class="handle"></div>
+      <div class="eyebrow">BIBLIOTECA PEDB</div>
+      <div class="exercise-preview-emblem"><img src="icon-512.png" alt=""></div>
+      <h2 id="exercisePreviewTitle">Ejercicio</h2>
+      <p id="exercisePreviewMeta" class="muted"></p>
+      <div id="exercisePreviewStats" class="exercise-preview-stats"></div>
+      <div id="exercisePreviewTags" class="exercise-preview-tags"></div>
+      <button type="button" class="king small-king" onclick="App.closeExercisePreview()">CERRAR FICHA</button>
     </div>
   </div>
 

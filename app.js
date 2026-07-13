@@ -37,6 +37,7 @@ const App={
     this.load();
     this.applyUiSettings();
     this.updateProfileChrome();
+    this.bindPhoenixEasterEgg();
     history.replaceState({phoenix:true,screen:"home",destination:"Inicio"},"","#home");
     this.renderHome(false);
     setTimeout(()=>{
@@ -59,14 +60,30 @@ const App={
   },
 
 
+  bindPhoenixEasterEgg(){
+    document.querySelectorAll("[data-phoenix-easter]").forEach(trigger=>{
+      if(trigger.dataset.easterBound==="1")return;
+      trigger.dataset.easterBound="1";
+      trigger.addEventListener("click",event=>this.registerPhoenixTap(event),{passive:false});
+      trigger.addEventListener("keydown",event=>{
+        if(event.key==="Enter"||event.key===" ")this.registerPhoenixTap(event);
+      });
+    });
+  },
+
   registerPhoenixTap(event){
-    if(event){
-      event.preventDefault?.();
-      event.stopPropagation?.();
-    }
-    const now=(typeof performance!=="undefined"&&performance.now)?performance.now():Date.now();
-    this.phoenixTapTimes=(this.phoenixTapTimes||[]).filter(time=>now-time<=1500);
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
+    const now=Date.now();
+    const previous=this.phoenixTapTimes||[];
+    this.phoenixTapTimes=previous.filter(time=>now-time<=2400);
     this.phoenixTapTimes.push(now);
+    const trigger=event?.currentTarget;
+    if(trigger){
+      trigger.classList.remove("phoenix-tap-pulse");
+      void trigger.offsetWidth;
+      trigger.classList.add("phoenix-tap-pulse");
+    }
     if(this.phoenixTapTimes.length<3)return;
     this.phoenixTapTimes=[];
     try{navigator.vibrate?.([35,45,70])}catch(e){}
@@ -1672,36 +1689,46 @@ const App={
   },
   assignRoutineToDay(rid,day){
     if(!this.getRoutine(rid))return;
-    let scope="week";
-    if(this.data.settings.planningMode==="fixed"){
-      const answer=prompt("¿Cómo aplicar el cambio?\n1. Solo esta semana\n2. Desde esta semana en adelante\n3. Cambiar la semana base", "2");
-      if(answer===null)return;
-      scope=answer==="1"?"week":answer==="3"?"base":"forward";
-    }
-    this.setPlanningDay(day,rid,scope);
-    this.toast(`Rutina asignada a ${["lunes","martes","miércoles","jueves","viernes","sábado","domingo"][day]}`);this.renderRoutines(false)
+    this.openPlanningAssignSheet(day,rid)
   },
   chooseDayRoutine(day){
+    this.openPlanningAssignSheet(day)
+  },
+  openPlanningAssignSheet(day,selectedId){
     const monday=this.mondayOf(new Date((this.planningWeekStart||this.weekKey(new Date()))+"T12:00:00"));
     const plan=this.getWeekPlan(monday,true);
-    const options=this.data.routines.map((r,i)=>`${i+1}. ${r.name}`).join('\n');
-    const current=plan[day];
-    const currentIndex=this.data.routines.findIndex(r=>r.id===current)+1;
-    const answer=prompt(`Asignar ${["lunes","martes","miércoles","jueves","viernes","sábado","domingo"][day]}:\n0. Descanso\n${options}`,String(currentIndex>0?currentIndex:0));
-    if(answer===null)return;
-    const n=Number(answer);
-    if(n===0){
-      let scope="week";
-      if(this.data.settings.planningMode==="fixed"){
-        const apply=prompt("¿Cómo aplicar el descanso?\n1. Solo esta semana\n2. Desde esta semana en adelante\n3. Cambiar la semana base", "2");
-        if(apply===null)return;
-        scope=apply==="1"?"week":apply==="3"?"base":"forward";
-      }
-      this.setPlanningDay(day,null,scope);this.renderRoutines(false);this.toast("Día marcado como descanso.");return
-    }
-    const r=this.data.routines[n-1];
-    if(!r){alert('Opción no válida');return}
-    this.assignRoutineToDay(r.id,day)
+    this.pendingPlanningDay=Number(day);
+    this.pendingPlanningRoutine=selectedId!==undefined?selectedId:(plan[day]||null);
+    this.pendingPlanningScope=this.data.settings.planningMode==="fixed"?"forward":"week";
+    const names=["lunes","martes","miércoles","jueves","viernes","sábado","domingo"];
+    const date=new Date(monday);date.setDate(date.getDate()+Number(day));
+    const subtitle=document.getElementById("planningAssignSubtitle");
+    if(subtitle)subtitle.textContent=`${names[day][0].toUpperCase()+names[day].slice(1)} · ${date.toLocaleDateString('es-ES',{day:'2-digit',month:'long'})}`;
+    const options=[{id:null,name:"Descanso",meta:"Sin entrenamiento asignado"},...this.data.routines.map(r=>({id:r.id,name:r.name,meta:`${this.estimateRoutineMinutes(r)} min estimados`}))];
+    document.getElementById("planningAssignOptions").innerHTML=options.map(o=>`<button type="button" class="${this.pendingPlanningRoutine===o.id?'selected':''}" data-routine-id="${o.id||''}" onclick="App.selectPlanningRoutine('${o.id||''}')"><span>${o.id?'RUTINA':'DESCANSO'}</span><b>${o.name}</b><small>${o.meta}</small><em>${this.pendingPlanningRoutine===o.id?'✓':'→'}</em></button>`).join('');
+    const scopes=document.getElementById("planningAssignScopes");
+    if(scopes){scopes.hidden=this.data.settings.planningMode!=="fixed";scopes.querySelectorAll('[data-scope]').forEach(b=>b.classList.toggle('selected',b.dataset.scope===this.pendingPlanningScope))}
+    const sheet=document.getElementById("planningAssignSheet");sheet?.classList.add("show");sheet?.setAttribute("aria-hidden","false")
+  },
+  selectPlanningRoutine(id){
+    this.pendingPlanningRoutine=id||null;
+    document.querySelectorAll('#planningAssignOptions [data-routine-id]').forEach(b=>{const active=(b.dataset.routineId||null)===this.pendingPlanningRoutine;b.classList.toggle('selected',active);const em=b.querySelector('em');if(em)em.textContent=active?'✓':'→'})
+  },
+  selectPlanningAssignScope(scope){
+    this.pendingPlanningScope=scope;
+    document.querySelectorAll('#planningAssignScopes [data-scope]').forEach(b=>b.classList.toggle('selected',b.dataset.scope===scope))
+  },
+  savePlanningAssignment(){
+    const day=Number(this.pendingPlanningDay);if(!Number.isInteger(day)||day<0||day>6)return;
+    const scope=this.data.settings.planningMode==="fixed"?(this.pendingPlanningScope||"forward"):"week";
+    const rid=this.pendingPlanningRoutine||null;
+    this.setPlanningDay(day,rid,scope);
+    this.closePlanningAssignSheet();
+    this.renderRoutines(false);
+    this.toast(rid?`Rutina asignada al ${["lunes","martes","miércoles","jueves","viernes","sábado","domingo"][day]}`:"Día marcado como descanso.")
+  },
+  closePlanningAssignSheet(){
+    const sheet=document.getElementById("planningAssignSheet");sheet?.classList.remove("show");sheet?.setAttribute("aria-hidden","true")
   },
   deleteRoutine(id){
     const r=this.getRoutine(id);if(!r)return;
@@ -1999,8 +2026,22 @@ const App={
 
   previewExercise(id){
     const e=this.allExercises().find(x=>x.id===id);if(!e)return;
-    const meta=e.pedb?`\n${(e.pedb.tags||[]).slice(0,6).join(" · ")}`:"";
-    alert(`${e.name}\n${e.sets}×${e.reps}\nDescanso ${e.rest}s${meta}`)
+    const pedb=e.pedb||{};
+    const type=this.pedbMeta?.types?.get?.(pedb.type_id)?.name_es||pedb.exercise_type||"Ejercicio";
+    const equipment=(pedb.equipment_ids||pedb.equipment||[]);const equipmentText=Array.isArray(equipment)?equipment.join(" · "):String(equipment||"");
+    document.getElementById("exercisePreviewTitle").textContent=e.name;
+    document.getElementById("exercisePreviewMeta").textContent=`${e.group||"Sin grupo"} · ${type}`;
+    document.getElementById("exercisePreviewStats").innerHTML=`
+      <article><span>SERIES</span><b>${e.sets||'—'}</b></article>
+      <article><span>REPETICIONES</span><b>${e.reps||'—'}</b></article>
+      <article><span>DESCANSO</span><b>${e.rest||0}s</b></article>
+      <article><span>ENTORNO</span><b>${pedb.home_suitable?'Casa / Gym':'Gym'}</b></article>`;
+    const tags=[...(pedb.tags||[]),...(equipmentText?[equipmentText]:[])].filter(Boolean).slice(0,10);
+    document.getElementById("exercisePreviewTags").innerHTML=tags.length?tags.map(t=>`<span>${t}</span>`).join(''):`<span>Ficha oficial Phoenix</span>`;
+    const sheet=document.getElementById("exercisePreviewSheet");sheet?.classList.add("show");sheet?.setAttribute("aria-hidden","false")
+  },
+  closeExercisePreview(){
+    const sheet=document.getElementById("exercisePreviewSheet");sheet?.classList.remove("show");sheet?.setAttribute("aria-hidden","true")
   },
 
   addLibraryExerciseToRoutine(id){
