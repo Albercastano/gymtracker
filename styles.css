@@ -958,3 +958,33 @@ main{
 
 /* 9.8.9 · Editor de rutinas definitivo */
 .routine-editor-list{display:grid;gap:12px}.routine-item-card{padding:14px}.routine-item-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}.routine-item-head small{display:block;color:var(--mut);font-size:.58rem;letter-spacing:.12em}.routine-item-head strong{display:block;margin-top:4px;color:var(--gold2);font-size:1rem}.routine-item-head em{display:inline-block;margin-top:6px;padding:3px 7px;border:1px solid rgba(214,169,78,.28);border-radius:999px;color:var(--gold);font-size:.55rem;font-style:normal}.routine-item-order{display:flex;gap:6px}.mini{min-width:42px;min-height:42px;padding:0;border-radius:13px}.mini:disabled{opacity:.28}.routine-fields{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.routine-fields select,.routine-fields input{min-width:0;width:100%}.routine-item-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.compact{min-height:44px;padding:8px 10px;font-size:.68rem}.routine-empty{padding:22px 14px;text-align:center;color:var(--mut);border:1px dashed rgba(255,255,255,.12);border-radius:18px}.routine-actions{grid-template-columns:1fr 1fr}.routine-actions .danger:last-child{grid-column:1/-1}@media(max-width:370px){.routine-fields{grid-template-columns:1fr}.routine-item-actions,.routine-actions{grid-template-columns:1fr}.routine-actions .danger:last-child{grid-column:auto}}
+
+/* 9.9.0 · Configuración de planificación */
+.planning-mode-setting{margin-top:20px;padding-top:18px;border-top:1px solid rgba(216,179,94,.22)}
+.planning-mode-setting>label{display:flex;gap:12px;align-items:flex-start;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.07)}
+.planning-mode-setting input[type="radio"]{width:20px;height:20px;accent-color:#d8b35e;flex:0 0 auto;margin-top:2px}
+.planning-mode-setting span{display:grid;gap:4px}
+.planning-mode-setting b{font-size:.98rem}
+.planning-mode-setting small{color:var(--muted,#a7a7aa);line-height:1.35}
+
+
+/* 9.9.1 · Estabilidad y recuperación */
+.system-alert{margin:0 0 14px;padding:14px 16px;border-radius:18px;border:1px solid rgba(221,93,77,.5);background:linear-gradient(145deg,rgba(81,25,20,.92),rgba(24,10,9,.96));display:grid;gap:5px}.system-alert strong{color:#ffb4a9;font-size:.66rem;letter-spacing:.14em}.system-alert span{color:#f2d3ce;font-size:.72rem;line-height:1.4}.storage-status{margin:16px 0 4px;padding:14px;border-radius:16px;border:1px solid rgba(255,255,255,.08);background:#0c0e11;display:grid;gap:4px}.storage-status span{font-size:.56rem;letter-spacing:.14em;color:var(--gold)}.storage-status b{font-size:.92rem}.storage-status small{color:var(--mut);font-size:.62rem}.storage-status.ok{border-color:rgba(115,190,130,.28)}.storage-status.error{border-color:rgba(221,93,77,.45)}
+
+
+/* 9.9.2 · Ajustes definitivos */
+.settings-definitive{display:grid;gap:18px}.settings-section{display:grid;gap:12px;padding:16px;border:1px solid rgba(255,255,255,.08);border-radius:18px;background:rgba(7,8,10,.62)}.settings-section h3{margin:0;color:var(--gold);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase}.settings-section label{display:grid;gap:7px}.settings-section label>small,.setting-switch small{color:var(--mut,#a7a7aa);font-size:.65rem;line-height:1.35}.setting-switch{grid-template-columns:1fr auto!important;align-items:center}.setting-switch span{display:grid;gap:4px}.setting-switch input{width:22px;height:22px;accent-color:#d8b35e}.settings-section select{width:100%;min-height:46px;border-radius:13px;background:#0c0e11;color:#fff;border:1px solid rgba(216,179,94,.24);padding:0 12px}html[data-font-scale="large"]{font-size:18px}html[data-font-scale="xl"]{font-size:20px}@media(max-width:380px){html[data-font-scale="xl"]{font-size:18px}.settings-section{padding:14px}}
+
+
+/* 9.9.3 · UX rutinas y bloques */
+.block-create-panel{padding-bottom:calc(24px + env(safe-area-inset-bottom));}
+.block-create-panel h2{margin:4px 0 18px;}
+.block-create-form{display:grid;gap:14px;margin-bottom:18px;}
+.block-create-form label{display:grid;gap:7px;}
+.block-create-form label>small{color:var(--muted);font-size:.78rem;letter-spacing:.04em;}
+.block-create-form input,.block-create-form select{width:100%;min-height:56px;border-radius:18px;border:1px solid var(--line);background:linear-gradient(180deg,#24252b,#1b1c21);color:var(--text);padding:0 16px;font:inherit;}
+.block-create-form input[type=date]{color-scheme:dark;}
+.block-date-hint{display:block;color:var(--gold);font-style:normal;font-size:.82rem;line-height:1.35;padding:0 4px;}
+.block-copy-option{display:flex!important;align-items:center;grid-template-columns:auto 1fr!important;gap:12px!important;padding:12px 4px;}
+.block-copy-option input{width:22px!important;min-height:22px!important;accent-color:var(--gold);}
+.block-copy-option span{line-height:1.3;}

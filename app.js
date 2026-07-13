@@ -12,6 +12,7 @@ const App={
   navigationReady:false,
   dataMetric:"volume",
   openRoutineId:null,
+  routineAccordionInitialized:false,
   planningWeekStart:null,
   openBlockId:null,
   pedbReady:false,
@@ -19,10 +20,13 @@ const App={
   pedbExercises:[],
   pedbMeta:{muscles:new Map(),zones:new Map(),equipment:new Map(),patterns:new Map(),types:new Map()},
   pedbAltExpanded:false,
+  storageHealthy:true,
+  lastSaveAt:null,
 
 
   async init(){
     this.load();
+    this.applyUiSettings();
     history.replaceState({phoenix:true,screen:"home",destination:"Inicio"},"","#home");
     this.renderHome(false);
     setTimeout(()=>document.getElementById("splash")?.remove(),1200);
@@ -31,6 +35,15 @@ const App={
       this.renderRoute(screen,false);
     });
     this.installPEDB();
+    document.addEventListener("visibilitychange",()=>{
+      if(document.visibilityState==="hidden")this.persistNow();
+    });
+    window.addEventListener("pagehide",()=>this.persistNow());
+    window.addEventListener("beforeunload",()=>this.persistNow());
+  },
+
+  persistNow(){
+    try{this.save();this.saveActive()}catch(error){this.reportError(error)}
   },
 
   safeAction(fn){
@@ -46,7 +59,7 @@ const App={
 
   defaults(){
     return{
-      settings:{weightStep:.5,defaultRest:90,sound:true,vibration:true},
+      settings:{weightStep:.5,defaultRest:90,sound:true,vibration:true,planningMode:"fixed",fontScale:"normal",timerOrientation:"auto"},
       profile:{bodyWeight:null},
       routines:[
         {id:"r1",name:"Torso A",day:1,items:[
@@ -56,6 +69,7 @@ const App={
         ]}
       ],
       weekPlan:{1:"r1"},
+      baseWeekPlan:{0:"r1"},
       weeklyPlans:{},
       trainingBlocks:[],
       sessions:[],
@@ -100,11 +114,25 @@ const App={
   },
 
   normalize(){
-    this.data.settings=this.data.settings||{weightStep:.5,defaultRest:90,sound:true,vibration:true};
+    this.data.settings=this.data.settings||{weightStep:.5,defaultRest:90,sound:true,vibration:true,planningMode:"fixed",fontScale:"normal",timerOrientation:"auto"};
+    if(!["fixed","clear"].includes(this.data.settings.planningMode))this.data.settings.planningMode="fixed";
+    if(!["normal","large","xl"].includes(this.data.settings.fontScale))this.data.settings.fontScale="normal";
+    if(!["auto","portrait","landscape"].includes(this.data.settings.timerOrientation))this.data.settings.timerOrientation="auto";
+    this.data.settings.defaultRest=Math.max(0,Number(this.data.settings.defaultRest)||90);
+    this.data.settings.sound=this.data.settings.sound!==false;
+    this.data.settings.vibration=this.data.settings.vibration!==false;
     this.data.profile=this.data.profile||{bodyWeight:null};
     this.data.routines=Array.isArray(this.data.routines)?this.data.routines:[];
     this.data.weekPlan=this.data.weekPlan||{};
     this.data.weeklyPlans=(this.data.weeklyPlans&&typeof this.data.weeklyPlans==="object")?this.data.weeklyPlans:{};
+    if(!this.data.baseWeekPlan||typeof this.data.baseWeekPlan!=="object"){
+      const legacy={};
+      Object.entries(this.data.weekPlan||{}).forEach(([jsDay,rid])=>{
+        const n=Number(jsDay),mondayIndex=n===0?6:n-1;if(rid)legacy[mondayIndex]=rid
+      });
+      const current=this.data.weeklyPlans[this.weekKey(new Date())]||{};
+      this.data.baseWeekPlan=Object.keys(current).length?{...current}:{...legacy};
+    }
     this.data.trainingBlocks=Array.isArray(this.data.trainingBlocks)?this.data.trainingBlocks:[];
     this.data.sessions=Array.isArray(this.data.sessions)?this.data.sessions:[];
     this.data.weights=Array.isArray(this.data.weights)?this.data.weights:[];
@@ -124,8 +152,26 @@ const App={
     });
   },
 
-  save(){localStorage.setItem(DB_KEY,JSON.stringify(this.data))},
-  saveActive(){this.active?localStorage.setItem(ACTIVE_KEY,JSON.stringify(this.active)):localStorage.removeItem(ACTIVE_KEY)},
+  save(){
+    try{
+      localStorage.setItem(DB_KEY,JSON.stringify(this.data));
+      this.storageHealthy=true;this.lastSaveAt=Date.now();return true
+    }catch(error){
+      this.storageHealthy=false;console.error("Phoenix save error",error);
+      try{this.toast("No se pudo guardar. Libera espacio y no cierres la app.")}catch(e){}
+      return false
+    }
+  },
+  saveActive(){
+    try{
+      this.active?localStorage.setItem(ACTIVE_KEY,JSON.stringify(this.active)):localStorage.removeItem(ACTIVE_KEY);
+      this.storageHealthy=true;this.lastSaveAt=Date.now();return true
+    }catch(error){
+      this.storageHealthy=false;console.error("Phoenix active save error",error);
+      try{this.toast("La sesión sigue abierta, pero no pudo guardarse.")}catch(e){}
+      return false
+    }
+  },
 
   normalizeActive(){
     if(!this.active||typeof this.active!=="object"){this.active=null;this.saveActive();return}
@@ -187,16 +233,34 @@ const App={
 
   getWeekPlan(date=new Date(),create=false){
     const key=this.weekKey(date);
-    if(!this.data.weeklyPlans[key]&&create){
-      const legacy={};
-      Object.entries(this.data.weekPlan||{}).forEach(([jsDay,rid])=>{
-        const n=Number(jsDay);
-        const mondayIndex=n===0?6:n-1;
-        if(rid)legacy[mondayIndex]=rid;
-      });
-      this.data.weeklyPlans[key]=legacy;
+    if(this.data.settings.planningMode==="clear"){
+      if(create&&!this.data.weeklyPlans[key])this.data.weeklyPlans[key]={};
+      return {...(this.data.weeklyPlans[key]||{})}
     }
-    return this.data.weeklyPlans[key]||{}
+    const result={...(this.data.baseWeekPlan||{})};
+    const overrides=this.data.weeklyPlans[key]||{};
+    Object.entries(overrides).forEach(([day,rid])=>{
+      if(rid===null||rid==="")delete result[day];else result[day]=rid
+    });
+    return result
+  },
+
+  setPlanningDay(day,rid,scope="week"){
+    const monday=this.mondayOf(new Date((this.planningWeekStart||this.weekKey(new Date()))+"T12:00:00"));
+    const key=this.weekKey(monday);
+    if(this.data.settings.planningMode==="clear")scope="week";
+    if(scope==="base"){
+      if(rid)this.data.baseWeekPlan[day]=rid;else delete this.data.baseWeekPlan[day];
+    }else if(scope==="forward"){
+      if(rid)this.data.baseWeekPlan[day]=rid;else delete this.data.baseWeekPlan[day];
+      Object.keys(this.data.weeklyPlans).filter(k=>k>=key).forEach(k=>{
+        if(this.data.weeklyPlans[k])delete this.data.weeklyPlans[k][day]
+      });
+    }else{
+      this.data.weeklyPlans[key]=this.data.weeklyPlans[key]||{};
+      this.data.weeklyPlans[key][day]=rid||null;
+    }
+    this.save()
   },
 
   todayRoutine(){
@@ -343,7 +407,8 @@ const App={
         ? `<span>${totalExercises} ejercicios</span><span>${totalSets} series</span><span class="estimated-time">~${estimatedMinutes} min</span>`
         : `<span>Sin rutina asignada</span>`;
 
-    document.getElementById("home").innerHTML=`<div class="home-phoenix home-definitive">
+    const storageNotice=this.storageHealthy?"":`<section class="system-alert" role="alert"><strong>GUARDADO EN PAUSA</strong><span>El dispositivo no permite guardar ahora. Libera espacio antes de cerrar GymTracker.</span></section>`;
+    document.getElementById("home").innerHTML=`<div class="home-phoenix home-definitive">${storageNotice}
       <section class="home-brand home-brand--forged" aria-label="GymTracker Phoenix">
         <div class="home-brand__plate"><img src="icon-512.png" alt="" aria-hidden="true"></div>
         <div><div class="home-brand__name">GYMTRACKER</div><div class="home-brand__sub">PHOENIX · FORGED</div></div>
@@ -746,8 +811,37 @@ const App={
     return Number.isInteger(n)?String(n):String(Number(n.toFixed(2))).replace('.',',')
   },
 
+  buzz(pattern=18){
+    if(!this.data?.settings?.vibration)return;
+    try{navigator.vibrate?.(pattern)}catch(e){}
+  },
+
+  beep(){
+    if(!this.data?.settings?.sound)return;
+    try{
+      const AudioCtx=window.AudioContext||window.webkitAudioContext;
+      if(!AudioCtx)return;
+      const ctx=new AudioCtx();
+      const osc=ctx.createOscillator();
+      const gain=ctx.createGain();
+      osc.type="sine";osc.frequency.setValueAtTime(880,ctx.currentTime);
+      gain.gain.setValueAtTime(.0001,ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(.16,ctx.currentTime+.015);
+      gain.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+.24);
+      osc.connect(gain);gain.connect(ctx.destination);osc.start();osc.stop(ctx.currentTime+.26);
+      osc.onended=()=>ctx.close?.()
+    }catch(e){}
+  },
+
+  applyUiSettings(){
+    const scale=this.data?.settings?.fontScale||"normal";
+    document.documentElement.dataset.fontScale=scale;
+  },
+
   requestTimerLandscape(){
-    document.body.classList.add("timer-landscape");
+    const mode=this.data?.settings?.timerOrientation||"auto";
+    document.body.classList.toggle("timer-landscape",mode!=="portrait");
+    if(mode==="portrait")return;
     try{
       const lock=screen.orientation?.lock?.("landscape");
       if(lock&&typeof lock.catch==="function")lock.catch(()=>{});
@@ -1301,7 +1395,10 @@ const App={
     const monday=this.mondayOf(new Date(this.planningWeekStart+"T12:00:00"));
     const sunday=new Date(monday);sunday.setDate(monday.getDate()+6);
     const planData=this.getWeekPlan(monday,true);
-    if(!this.openRoutineId&&this.data.routines.length)this.openRoutineId=this.data.routines[0].id;
+    if(!this.routineAccordionInitialized){
+      this.openRoutineId=this.data.routines[0]?.id||null;
+      this.routineAccordionInitialized=true;
+    }
 
     const sessionForDay=(date)=>this.data.sessions.find(s=>this.isoDate(new Date(s.endedAt||s.date))===this.isoDate(date));
     let plannedCount=0,estimatedMinutes=0,completedCount=0;
@@ -1338,7 +1435,7 @@ const App={
     }).join("");
 
     const range=`${monday.getDate()} ${monday.toLocaleDateString('es-ES',{month:'short'}).replace('.','').toUpperCase()} – ${sunday.getDate()} ${sunday.toLocaleDateString('es-ES',{month:'short'}).replace('.','').toUpperCase()}`;
-    document.getElementById("routines").innerHTML=`<div class="card week-planner"><div class="eyebrow">PLANIFICACIÓN SEMANAL</div><div class="week-nav"><button onclick="App.shiftPlanningWeek(-1)">‹</button><strong>${range}</strong><button onclick="App.shiftPlanningWeek(1)">›</button></div><div class="week-summary"><span><b>${plannedCount}</b> sesiones</span><span><b>${estimatedMinutes}</b> min</span><span><b>${completedCount}</b> completadas</span></div><div class="week-grid">${plan}</div><div class="week-actions"><button class="secondary" onclick="App.copyPreviousWeek()">Copiar semana anterior</button><button class="secondary" onclick="App.goCurrentWeek()">Semana actual</button></div><p class="routine-help">Semana de lunes a domingo. Toca un día para asignar una rutina o marcar descanso.</p></div><div class="card"><div class="eyebrow">RUTINAS</div><div class="grid"><button class="secondary" onclick="App.createRoutine()">＋ Nueva rutina</button><button class="secondary" onclick="App.openRoutineTextImporter()">Importar texto</button><button class="secondary" onclick="App.renderLibrary(false)">Biblioteca PEDB</button><button class="secondary" onclick="App.renderBlocks()">Bloques</button></div></div>${cards}`;
+    document.getElementById("routines").innerHTML=`<div class="card week-planner"><div class="eyebrow">PLANIFICACIÓN SEMANAL · ${this.data.settings.planningMode==='fixed'?'PLAN FIJO':'SEMANA INDEPENDIENTE'}</div><div class="week-nav"><button onclick="App.shiftPlanningWeek(-1)">‹</button><strong>${range}</strong><button onclick="App.shiftPlanningWeek(1)">›</button></div><div class="week-summary"><span><b>${plannedCount}</b> sesiones</span><span><b>${estimatedMinutes}</b> min</span><span><b>${completedCount}</b> completadas</span></div><div class="week-grid">${plan}</div><div class="week-actions"><button class="secondary" onclick="App.goCurrentWeek()">Semana actual</button><button class="secondary" onclick="App.renderSettings()">Configurar repetición</button></div><p class="routine-help">Semana de lunes a domingo. ${this.data.settings.planningMode==='fixed'?'La base se repite automáticamente; puedes crear excepciones puntuales.':'Cada lunes comienza en descanso y solo muestra lo que asignes.'}</p></div><div class="card"><div class="eyebrow">RUTINAS</div><div class="grid"><button class="secondary" onclick="App.createRoutine()">＋ Nueva rutina</button><button class="secondary" onclick="App.openRoutineTextImporter()">Importar texto</button><button class="secondary" onclick="App.renderLibrary(false)">Biblioteca PEDB</button><button class="secondary" onclick="App.renderBlocks()">Bloques</button></div></div>${cards}`;
     this.show("routines","Datos",{history:withHistory})
   },
 
@@ -1346,14 +1443,7 @@ const App={
     const d=this.mondayOf(new Date(this.planningWeekStart+"T12:00:00"));d.setDate(d.getDate()+delta*7);this.planningWeekStart=this.weekKey(d);this.renderRoutines(false)
   },
   goCurrentWeek(){this.planningWeekStart=this.weekKey(new Date());this.renderRoutines(false)},
-  copyPreviousWeek(){
-    const current=this.mondayOf(new Date(this.planningWeekStart+"T12:00:00"));
-    const prev=new Date(current);prev.setDate(prev.getDate()-7);
-    const src={...this.getWeekPlan(prev,false)};
-    if(!Object.keys(src).length){this.toast("La semana anterior está vacía.");return}
-    if(!confirm("¿Copiar la planificación de la semana anterior?"))return;
-    this.data.weeklyPlans[this.weekKey(current)]={...src};this.save();this.renderRoutines(false);this.toast("Semana copiada.")
-  },
+  copyPreviousWeek(){this.toast("La planificación ya no necesita copiarse.")},
 
   toggleRoutine(id){this.openRoutineId=this.openRoutineId===id?null:id;this.renderRoutines(false)},
   addExercise(rid){
@@ -1397,9 +1487,13 @@ const App={
   },
   assignRoutineToDay(rid,day){
     if(!this.getRoutine(rid))return;
-    const monday=this.mondayOf(new Date((this.planningWeekStart||this.weekKey(new Date()))+"T12:00:00"));
-    const plan=this.getWeekPlan(monday,true);plan[day]=rid;
-    this.data.weeklyPlans[this.weekKey(monday)]=plan;this.save();
+    let scope="week";
+    if(this.data.settings.planningMode==="fixed"){
+      const answer=prompt("¿Cómo aplicar el cambio?\n1. Solo esta semana\n2. Desde esta semana en adelante\n3. Cambiar la semana base", "2");
+      if(answer===null)return;
+      scope=answer==="1"?"week":answer==="3"?"base":"forward";
+    }
+    this.setPlanningDay(day,rid,scope);
     this.toast(`Rutina asignada a ${["lunes","martes","miércoles","jueves","viernes","sábado","domingo"][day]}`);this.renderRoutines(false)
   },
   chooseDayRoutine(day){
@@ -1411,7 +1505,15 @@ const App={
     const answer=prompt(`Asignar ${["lunes","martes","miércoles","jueves","viernes","sábado","domingo"][day]}:\n0. Descanso\n${options}`,String(currentIndex>0?currentIndex:0));
     if(answer===null)return;
     const n=Number(answer);
-    if(n===0){delete plan[day];this.data.weeklyPlans[this.weekKey(monday)]=plan;this.save();this.renderRoutines(false);return}
+    if(n===0){
+      let scope="week";
+      if(this.data.settings.planningMode==="fixed"){
+        const apply=prompt("¿Cómo aplicar el descanso?\n1. Solo esta semana\n2. Desde esta semana en adelante\n3. Cambiar la semana base", "2");
+        if(apply===null)return;
+        scope=apply==="1"?"week":apply==="3"?"base":"forward";
+      }
+      this.setPlanningDay(day,null,scope);this.renderRoutines(false);this.toast("Día marcado como descanso.");return
+    }
     const r=this.data.routines[n-1];
     if(!r){alert('Opción no válida');return}
     this.assignRoutineToDay(r.id,day)
@@ -1897,24 +1999,58 @@ const App={
 
   createTrainingBlock(){
     if(!this.data.routines.length){this.toast("Crea primero una rutina.");return}
-    const name=prompt("Nombre del bloque","Bloque de fuerza");if(!name)return;
-    const goals=["Fuerza","Hipertrofia","Técnica","Resistencia","Descarga","Personalizado"];
-    const g=Number(prompt("Objetivo:\n1. Fuerza\n2. Hipertrofia\n3. Técnica\n4. Resistencia\n5. Descarga\n6. Personalizado","1"));
-    if(!goals[g-1]){alert("Objetivo no válido");return}
-    const weeks=Number(prompt("Duración en semanas (4, 6, 8 o 12)","8"));
-    if(![4,6,8,12].includes(weeks)){alert("Usa una duración de 4, 6, 8 o 12 semanas.");return}
-    const startInput=prompt("Fecha de inicio (se ajustará al lunes)",this.weekKey(new Date()));
-    if(!startInput)return;
-    const start=this.weekKey(new Date(startInput+"T12:00:00"));
-    const copy=confirm("¿Usar la planificación de la semana actual como base para todo el bloque?");
+    const sheet=document.getElementById("trainingBlockSheet");
+    if(!sheet)return;
+    document.getElementById("blockNameInput").value="Bloque de fuerza";
+    document.getElementById("blockGoalInput").value="Fuerza";
+    document.getElementById("blockWeeksInput").value="8";
+    document.getElementById("blockStartInput").value=this.isoDate(this.mondayOf(new Date()));
+    document.getElementById("blockCopyPlanInput").checked=true;
+    this.updateBlockStartHint();
+    sheet.classList.add("show");
+    sheet.setAttribute("aria-hidden","false");
+    setTimeout(()=>document.getElementById("blockNameInput")?.focus(),80)
+  },
+
+  closeTrainingBlockCreator(){
+    const sheet=document.getElementById("trainingBlockSheet");
+    if(sheet){sheet.classList.remove("show");sheet.setAttribute("aria-hidden","true")}
+  },
+
+  updateBlockStartHint(){
+    const input=document.getElementById("blockStartInput"),hint=document.getElementById("blockStartHint");
+    if(!input||!hint||!input.value)return;
+    const chosen=new Date(input.value+"T12:00:00");
+    if(Number.isNaN(chosen.getTime()))return;
+    const monday=this.mondayOf(chosen);
+    hint.textContent=`El bloque comenzará el lunes ${monday.toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'})}.`
+  },
+
+  saveTrainingBlock(){
+    const name=document.getElementById("blockNameInput")?.value.trim();
+    const goal=document.getElementById("blockGoalInput")?.value;
+    const weeks=Number(document.getElementById("blockWeeksInput")?.value);
+    const dateValue=document.getElementById("blockStartInput")?.value;
+    const copy=Boolean(document.getElementById("blockCopyPlanInput")?.checked);
+    if(!name){this.toast("Escribe un nombre para el bloque.");return}
+    if(!["Fuerza","Hipertrofia","Técnica","Resistencia","Descarga","Personalizado"].includes(goal)){this.toast("Selecciona un objetivo.");return}
+    if(![4,6,8,12].includes(weeks)){this.toast("Selecciona una duración válida.");return}
+    if(!dateValue){this.toast("Selecciona una fecha de inicio.");return}
+    const chosen=new Date(dateValue+"T12:00:00");
+    if(Number.isNaN(chosen.getTime())){this.toast("La fecha no es válida.");return}
+    const start=this.weekKey(this.mondayOf(chosen));
     const base={...this.getWeekPlan(new Date(),false)};
     const id="b"+Date.now();
-    const block={id,name:name.trim(),goal:goals[g-1],durationWeeks:weeks,startWeek:start,deloadWeek:weeks,status:"active",createdAt:new Date().toISOString()};
+    const block={id,name,goal,durationWeeks:weeks,startWeek:start,deloadWeek:weeks,status:"active",createdAt:new Date().toISOString()};
     this.data.trainingBlocks.unshift(block);
     if(copy&&Object.keys(base).length){
       for(let i=0;i<weeks;i++)this.data.weeklyPlans[this.weekKey(this.blockWeekDate(block,i))]={...base};
     }
-    this.openBlockId=id;this.save();this.renderBlocks(false);this.toast("Bloque creado")
+    this.openBlockId=id;
+    this.save();
+    this.closeTrainingBlockCreator();
+    this.renderBlocks(false);
+    this.toast("Bloque creado")
   },
 
   renderBlocks(withHistory=true){
@@ -2009,11 +2145,48 @@ const App={
   },
 
   renderSettings(withHistory=true){
-    document.getElementById("settings").innerHTML=`<div class="card"><div class="eyebrow">AJUSTES</div><label>Peso corporal<input id="bodyWeight" type="number" step=".1" value="${this.data.profile.bodyWeight||""}"></label><button class="secondary" onclick="App.saveBodyWeight()">Guardar peso</button><label>Incremento de peso<input id="weightStep" type="number" step=".5" value="${this.data.settings.weightStep}"></label><button class="secondary" onclick="App.saveSettings()">Guardar ajustes</button></div>`;
+    const mode=this.data.settings.planningMode||"fixed";
+    const fontScale=this.data.settings.fontScale||"normal";
+    const timerOrientation=this.data.settings.timerOrientation||"auto";
+    document.getElementById("settings").innerHTML=`<div class="card settings-definitive"><div class="eyebrow">AJUSTES</div>
+      <section class="settings-section"><h3>Entrenamiento</h3>
+        <label>Descanso predeterminado<input id="defaultRest" type="number" min="0" step="5" value="${this.data.settings.defaultRest}"><small>Segundos usados al crear nuevos ejercicios.</small></label>
+        <label>Incremento de peso<input id="weightStep" type="number" min="0.1" step="0.1" value="${this.data.settings.weightStep}"><small>Salto aplicado por los controles rápidos.</small></label>
+        <label class="setting-switch"><span><b>Sonido del temporizador</b><small>Aviso al terminar el descanso.</small></span><input id="soundSetting" type="checkbox" ${this.data.settings.sound?'checked':''}></label>
+        <label class="setting-switch"><span><b>Vibración</b><small>Confirmaciones y fin del descanso.</small></span><input id="vibrationSetting" type="checkbox" ${this.data.settings.vibration?'checked':''}></label>
+      </section>
+      <section class="settings-section"><h3>Pantalla</h3>
+        <label>Tamaño del texto<select id="fontScale"><option value="normal" ${fontScale==='normal'?'selected':''}>Normal</option><option value="large" ${fontScale==='large'?'selected':''}>Grande</option><option value="xl" ${fontScale==='xl'?'selected':''}>Muy grande</option></select></label>
+        <label>Temporizador<select id="timerOrientation"><option value="auto" ${timerOrientation==='auto'?'selected':''}>Automático / apaisado</option><option value="portrait" ${timerOrientation==='portrait'?'selected':''}>Mantener vertical</option><option value="landscape" ${timerOrientation==='landscape'?'selected':''}>Forzar apaisado</option></select></label>
+      </section>
+      <section class="settings-section"><h3>Peso corporal</h3>
+        <label>Peso actual<input id="bodyWeight" type="number" min="1" step=".1" value="${this.data.profile.bodyWeight||''}"></label>
+        <button class="secondary" onclick="App.saveBodyWeight()">Guardar peso</button>
+      </section>
+      <div class="storage-status ${this.storageHealthy?'ok':'error'}"><span>ALMACENAMIENTO LOCAL</span><b>${this.storageHealthy?'Protegido':'Revisar espacio'}</b><small>${this.lastSaveAt?'Último guardado: '+new Date(this.lastSaveAt).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}):'Guardado automático activo'}</small></div>
+      <div class="planning-mode-setting"><div class="eyebrow">PLANIFICACIÓN SEMANAL</div><label><input type="radio" name="planningMode" value="fixed" ${mode==="fixed"?'checked':''}> <span><b>Mantener planificación fija</b><small>La semana base se repite hasta que decidas cambiarla.</small></span></label><label><input type="radio" name="planningMode" value="clear" ${mode==="clear"?'checked':''}> <span><b>Vaciar al terminar la semana</b><small>Cada lunes empieza en descanso.</small></span></label></div>
+      <button class="primary" onclick="App.saveSettings()">Guardar ajustes</button></div>`;
     this.show("settings","Datos",{history:withHistory})
   },
-  saveBodyWeight(){const w=Number(document.getElementById("bodyWeight").value);if(w>0){this.data.profile.bodyWeight=w;this.data.weights.push({date:new Date().toISOString(),weight:w});this.save();alert("Peso guardado")}},
-  saveSettings(){const x=Number(document.getElementById("weightStep").value);if(x>0)this.data.settings.weightStep=x;this.save();alert("Ajustes guardados")},
+  saveBodyWeight(){
+    const w=Number(document.getElementById("bodyWeight")?.value);
+    if(!(w>0)){this.toast("Introduce un peso válido");return}
+    this.data.profile.bodyWeight=w;
+    this.data.weights.push({date:new Date().toISOString(),weight:w});
+    this.save();this.toast("Peso guardado")
+  },
+  saveSettings(){
+    const step=Number(document.getElementById("weightStep")?.value);
+    const rest=Number(document.getElementById("defaultRest")?.value);
+    if(step>0)this.data.settings.weightStep=Number(step.toFixed(2));
+    if(rest>=0)this.data.settings.defaultRest=Math.round(rest);
+    this.data.settings.sound=Boolean(document.getElementById("soundSetting")?.checked);
+    this.data.settings.vibration=Boolean(document.getElementById("vibrationSetting")?.checked);
+    this.data.settings.fontScale=document.getElementById("fontScale")?.value||"normal";
+    this.data.settings.timerOrientation=document.getElementById("timerOrientation")?.value||"auto";
+    this.data.settings.planningMode=document.querySelector('input[name="planningMode"]:checked')?.value||"fixed";
+    this.applyUiSettings();this.save();this.toast("Ajustes guardados")
+  },
 
   archiveChecksum(text){
     let hash=2166136261;
@@ -2052,7 +2225,7 @@ const App={
     const payload={
       format:"GymTracker Phoenix Backup",
       schema_version:1,
-      app_version:"9.8.3",
+      app_version:"9.9.3",
       exportedAt:new Date().toISOString(),
       counts:{
         sessions:(this.data.sessions||[]).length,

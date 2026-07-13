@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#050507">
-  <title>GymTracker Phoenix Lab 9.8.9 · Editor de rutinas</title>
+  <title>GymTracker Phoenix Lab 9.9.3 · UX rutinas y bloques</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
   <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
@@ -27,7 +27,7 @@
       <img src="icon-512.png" alt="" aria-hidden="true">
       <div><strong>GYMTRACKER</strong><span>PHOENIX</span></div>
     </div>
-    <div class="version">LAB 9.8.9 · RUTINAS</div>
+    <div class="version">LAB 9.9.3 · UX</div>
   </header>
 
   <main>
@@ -112,6 +112,24 @@ Remo con barra 3x10 60kg 90s"></textarea>
       <button class="secondary" onclick="App.previewRoutineText()">Previsualizar</button>
       <button class="king small-king" onclick="App.importRoutineText()">IMPORTAR RUTINA</button>
       <button class="secondary" onclick="App.closeRoutineTextImporter()">Cancelar</button>
+    </div>
+  </div>
+
+  <div id="trainingBlockSheet" class="sheet" aria-hidden="true">
+    <div class="sheet-backdrop" onclick="App.closeTrainingBlockCreator()"></div>
+    <div class="sheet-panel block-create-panel" role="dialog" aria-modal="true" aria-labelledby="blockCreateTitle">
+      <div class="handle"></div>
+      <div class="eyebrow">NUEVO BLOQUE</div>
+      <h2 id="blockCreateTitle">Configura el bloque</h2>
+      <div class="block-create-form">
+        <label><small>Nombre</small><input id="blockNameInput" type="text" maxlength="60" autocomplete="off"></label>
+        <label><small>Objetivo</small><select id="blockGoalInput"><option>Fuerza</option><option>Hipertrofia</option><option>Técnica</option><option>Resistencia</option><option>Descarga</option><option>Personalizado</option></select></label>
+        <label><small>Duración</small><select id="blockWeeksInput"><option value="4">4 semanas</option><option value="6">6 semanas</option><option value="8" selected>8 semanas</option><option value="12">12 semanas</option></select></label>
+        <label><small>Fecha de inicio</small><input id="blockStartInput" type="date" onchange="App.updateBlockStartHint()"><em id="blockStartHint" class="block-date-hint"></em></label>
+        <label class="block-copy-option"><input id="blockCopyPlanInput" type="checkbox" checked><span>Usar la planificación actual como base</span></label>
+      </div>
+      <button class="king small-king" onclick="App.saveTrainingBlock()">CREAR BLOQUE</button>
+      <button class="secondary" onclick="App.closeTrainingBlockCreator()">Cancelar</button>
     </div>
   </div>
 

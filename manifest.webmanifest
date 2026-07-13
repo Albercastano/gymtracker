@@ -1,6 +1,6 @@
 {
-  "name": "GymTracker Phoenix Lab 9.8.9 Editor de rutinas",
-  "short_name": "Phoenix 9.8.9",
+  "name": "GymTracker Phoenix Lab 9.9.3 UX rutinas y bloques",
+  "short_name": "Phoenix 9.9.3",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#050507",
