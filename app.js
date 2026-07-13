@@ -90,47 +90,56 @@ const App={
     const sheet=document.getElementById("profileSheet");
     const list=document.getElementById("profileList");
     if(!sheet||!list)return;
-    list.innerHTML=this.profiles.map(p=>`<button type="button" class="profile-choice ${p.id===this.activeProfileId?'active':''}" data-profile-id="${this.escape(p.id)}"><span>${p.id===this.activeProfileId?'ACTIVO':'CAMBIAR A'}</span><b>${this.escape(p.name)}</b><em>${p.id===this.activeProfileId?'✓':'›'}</em></button>`).join("");
-    list.querySelectorAll("[data-profile-id]").forEach(button=>{
-      button.addEventListener("click",()=>this.switchProfile(button.dataset.profileId));
-    });
+    list.innerHTML=this.profiles.map(p=>`<button type="button" class="profile-choice ${p.id===this.activeProfileId?'active':''}" data-profile-id="${p.id}" onclick="App.switchProfile('${p.id}')"><span>${p.id===this.activeProfileId?'ACTIVO':'TOCAR PARA ENTRAR'}</span><b>${this.escape(p.name)}</b><em>${p.id===this.activeProfileId?'✓':'ENTRAR'}</em></button>`).join("");
     sheet.classList.add("show");
     document.getElementById("profileButton")?.setAttribute("aria-expanded","true");
   },
-  closeProfileSheet(){
-    document.getElementById("profileSheet")?.classList.remove("show");
-    document.getElementById("profileButton")?.setAttribute("aria-expanded","false");
-  },
+  closeProfileSheet(){document.getElementById("profileSheet")?.classList.remove("show");document.getElementById("profileButton")?.setAttribute("aria-expanded","false")},
   switchProfile(id){
-    if(!id)return;
-    if(id===this.activeProfileId){
-      this.closeProfileSheet();
-      this.toast(`Ya estás en ${this.activeProfile()?.name||id}`);
-      return;
-    }
+    if(id===this.activeProfileId){this.closeProfileSheet();this.toast(`Ya estás en ${this.activeProfile()?.name||id}`);return}
     const target=this.profiles.find(p=>p.id===id);
     if(!target)return;
-    const previous=this.activeProfile()?.name||this.activeProfileId;
+    // Cambio inmediato salvo que exista un entrenamiento en curso.
+    // Así el selector siempre funciona con un único toque.
+    if(!this.active){this.performProfileSwitch(id);return}
+    this.pendingProfileId=id;
+    const current=this.activeProfile()?.name||this.activeProfileId;
+    const title=document.getElementById("profileConfirmTitle");
+    const desc=document.getElementById("profileConfirmDescription");
+    const warning=document.getElementById("profileConfirmWarning");
+    const action=document.getElementById("profileConfirmAction");
+    if(title)title.textContent=`Entrar en ${target.name}`;
+    if(desc)desc.textContent=`Vas a salir del perfil de ${current} y entrar en ${target.name}. Cada perfil mantiene sus datos por separado.`;
+    if(warning){warning.hidden=false;warning.textContent=`Hay un entrenamiento en curso en ${current}. Se guardará y quedará pausado antes de cambiar de perfil.`}
+    if(action)action.textContent=`CAMBIAR A ${String(target.name).toUpperCase()}`;
+    this.closeProfileSheet();
+    document.getElementById("profileConfirmSheet")?.classList.add("show");
+  },
+  performProfileSwitch(id){
+    if(!id||id===this.activeProfileId)return;
+    const target=this.profiles.find(p=>p.id===id);
+    if(!target)return;
     this.persistNow();
     if(this.timer){clearInterval(this.timer);this.timer=null}
+    this.closeProfileSheet();
+    document.getElementById("profileConfirmSheet")?.classList.remove("show");
     this.activeProfileId=id;
     localStorage.setItem(ACTIVE_PROFILE_KEY,id);
     this.loadProfileData();
     this.applyUiSettings();
     this.updateProfileChrome();
-    this.closeProfileSheet();
-    document.getElementById("profileConfirmSheet")?.classList.remove("show");
     this.pendingProfileId=null;
     this.renderHome(false);
-    this.toast(`${previous} → ${target.name}`);
+    this.toast(`Perfil activo: ${target.name}`);
   },
   closeProfileConfirm(){
     document.getElementById("profileConfirmSheet")?.classList.remove("show");
     this.pendingProfileId=null;
   },
   confirmProfileSwitch(){
-    if(this.pendingProfileId)this.switchProfile(this.pendingProfileId);
-    else this.closeProfileConfirm();
+    const id=this.pendingProfileId;
+    if(!id||id===this.activeProfileId){this.closeProfileConfirm();return}
+    this.performProfileSwitch(id);
   },
   loadProfileData(){
     try{this.data=JSON.parse(localStorage.getItem(this.profileDbKey(this.activeProfileId)))}catch(e){this.data=null}
@@ -2333,7 +2342,7 @@ const App={
     const payload={
       format:"GymTracker Phoenix Backup",
       schema_version:1,
-      app_version:"9.9.6",
+      app_version:"9.9.7",
       profile:{id:this.activeProfileId,name:this.activeProfile()?.name||this.activeProfileId},
       exportedAt:new Date().toISOString(),
       counts:{

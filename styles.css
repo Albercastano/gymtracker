@@ -1008,8 +1008,8 @@ main{
 .profile-switch-warning[hidden]{display:none}
 .profile-confirm-panel .primary{margin-top:14px}
 
-
-/* 9.9.7 · selector directo, siempre disponible */
-.profile-choice{cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-.profile-choice:active{transform:translateY(1px);border-color:rgba(216,179,94,.72)}
-.profile-choice:not(.active) em{font-size:1.45rem}
+/* 9.9.7 · selector directo y siempre operativo */
+.profile-choice em{font-size:.62rem;letter-spacing:.08em;font-weight:1000}
+.profile-choice.active em{font-size:1.15rem;letter-spacing:0}
+.profile-choice:not(.active){cursor:pointer}
+.profile-choice:not(.active):active{transform:scale(.985);border-color:rgba(216,179,94,.65)}
