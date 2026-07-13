@@ -12,6 +12,8 @@ const App={
   navigationReady:false,
   dataMetric:"volume",
   openRoutineId:null,
+  planningWeekStart:null,
+  openBlockId:null,
   pedbReady:false,
   pedbManifest:null,
   pedbExercises:[],
@@ -54,6 +56,8 @@ const App={
         ]}
       ],
       weekPlan:{1:"r1"},
+      weeklyPlans:{},
+      trainingBlocks:[],
       sessions:[],
       weights:[],
       alternatives:{
@@ -100,6 +104,8 @@ const App={
     this.data.profile=this.data.profile||{bodyWeight:null};
     this.data.routines=Array.isArray(this.data.routines)?this.data.routines:[];
     this.data.weekPlan=this.data.weekPlan||{};
+    this.data.weeklyPlans=(this.data.weeklyPlans&&typeof this.data.weeklyPlans==="object")?this.data.weeklyPlans:{};
+    this.data.trainingBlocks=Array.isArray(this.data.trainingBlocks)?this.data.trainingBlocks:[];
     this.data.sessions=Array.isArray(this.data.sessions)?this.data.sessions:[];
     this.data.weights=Array.isArray(this.data.weights)?this.data.weights:[];
     this.data.alternatives=this.data.alternatives||{};
@@ -162,9 +168,43 @@ const App={
     this.saveActive();
   },
 
+  isoDate(date){
+    const d=new Date(date);
+    const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0");
+    return `${y}-${m}-${day}`
+  },
+
+  mondayOf(date=new Date()){
+    const d=new Date(date);
+    d.setHours(12,0,0,0);
+    const jsDay=d.getDay();
+    const delta=jsDay===0?-6:1-jsDay;
+    d.setDate(d.getDate()+delta);
+    return d
+  },
+
+  weekKey(date=new Date()){return this.isoDate(this.mondayOf(date))},
+
+  getWeekPlan(date=new Date(),create=false){
+    const key=this.weekKey(date);
+    if(!this.data.weeklyPlans[key]&&create){
+      const legacy={};
+      Object.entries(this.data.weekPlan||{}).forEach(([jsDay,rid])=>{
+        const n=Number(jsDay);
+        const mondayIndex=n===0?6:n-1;
+        if(rid)legacy[mondayIndex]=rid;
+      });
+      this.data.weeklyPlans[key]=legacy;
+    }
+    return this.data.weeklyPlans[key]||{}
+  },
+
   todayRoutine(){
-    const day=new Date().getDay();
-    const id=this.data.weekPlan[day];
+    const now=new Date();
+    const jsDay=now.getDay();
+    const mondayIndex=jsDay===0?6:jsDay-1;
+    const plan=this.getWeekPlan(now,true);
+    const id=plan[mondayIndex];
     return id?this.getRoutine(id):null
   },
   getRoutine(id){return this.data.routines.find(r=>r.id===id)},
@@ -198,6 +238,7 @@ const App={
       data:{screen:"home",destination:"Inicio"},
       library:{screen:this.librarySelectMode?"routines":"data",destination:this.librarySelectMode?"Rutinas":"Datos"},
       routines:{screen:"data",destination:"Datos"},
+      blocks:{screen:"routines",destination:"Planificación"},
       history:{screen:"data",destination:"Datos"},
       settings:{screen:"data",destination:"Datos"},
       backups:{screen:"data",destination:"Datos"},
@@ -221,6 +262,7 @@ const App={
     if(target==="data"){this.renderData(withHistory);return}
     if(target==="library"){this.renderLibrary(this.librarySelectMode);return}
     if(target==="routines"){this.renderRoutines(withHistory);return}
+    if(target==="blocks"){this.renderBlocks(withHistory);return}
     if(target==="history"){this.renderHistory(withHistory);return}
     if(target==="settings"){this.renderSettings(withHistory);return}
     if(target==="backups"){this.renderBackups(withHistory);return}
@@ -1239,6 +1281,7 @@ const App={
         <button onclick="App.renderSettings()"><span>PESO CORPORAL</span><b>${bodyWeight?bodyWeight.toFixed(1)+' kg':'Registrar peso'}</b><em>›</em></button>
         <button onclick="App.renderHistory()"><span>PR REALES</span><b>${allMax?Math.round(allMax)+' kg':'Sin registros'}</b><em>›</em></button>
         <button onclick="App.renderRoutines()"><span>PLANIFICACIÓN</span><b>Semana y rutinas</b><em>›</em></button>
+        <button onclick="App.renderBlocks()"><span>BLOQUES</span><b>Progresión por semanas</b><em>›</em></button>
         <button onclick="App.renderBackups()"><span>BACKUP</span><b>Tus datos contigo</b><em>›</em></button>
       </section>
 
@@ -1252,16 +1295,31 @@ const App={
   },
 
   renderRoutines(withHistory=true){
-    const days=["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+    const dayNames=["LUN","MAR","MIÉ","JUE","VIE","SÁB","DOM"];
+    const fullDayNames=["lunes","martes","miércoles","jueves","viernes","sábado","domingo"];
+    if(!this.planningWeekStart)this.planningWeekStart=this.weekKey(new Date());
+    const monday=this.mondayOf(new Date(this.planningWeekStart+"T12:00:00"));
+    const sunday=new Date(monday);sunday.setDate(monday.getDate()+6);
+    const planData=this.getWeekPlan(monday,true);
     if(!this.openRoutineId&&this.data.routines.length)this.openRoutineId=this.data.routines[0].id;
-    const plan=days.map((name,day)=>{
-      const rid=this.data.weekPlan[day];
+
+    const sessionForDay=(date)=>this.data.sessions.find(s=>this.isoDate(new Date(s.endedAt||s.date))===this.isoDate(date));
+    let plannedCount=0,estimatedMinutes=0,completedCount=0;
+    const plan=dayNames.map((name,day)=>{
+      const date=new Date(monday);date.setDate(monday.getDate()+day);
+      const rid=planData[day];
       const routine=rid?this.getRoutine(rid):null;
-      return `<button class="week-day ${routine?'assigned':'rest'}" onclick="App.chooseDayRoutine(${day})"><span>${name}</span><b>${routine?routine.name:'Descanso'}</b><small>${routine?`${this.estimateRoutineMinutes(routine)} min`:'Toca para asignar'}</small></button>`
+      const session=sessionForDay(date);
+      if(routine){plannedCount++;estimatedMinutes+=this.estimateRoutineMinutes(routine)}
+      if(session)completedCount++;
+      const today=this.isoDate(date)===this.isoDate(new Date());
+      const state=session?'Completado':today?'Hoy':routine?'Pendiente':'Descanso';
+      return `<button class="week-day ${routine?'assigned':'rest'} ${today?'today':''} ${session?'completed':''}" onclick="App.chooseDayRoutine(${day})"><span>${name} · ${date.getDate()}</span><b>${routine?routine.name:'Descanso'}</b><small>${routine?`${this.estimateRoutineMinutes(routine)} min · ${state}`:state}</small></button>`
     }).join("");
+
     const cards=this.data.routines.map(r=>{
       const isOpen=this.openRoutineId===r.id;
-      const assigned=Object.entries(this.data.weekPlan).filter(([,id])=>id===r.id).map(([d])=>days[Number(d)]).join(', ');
+      const assigned=Object.entries(planData).filter(([,id])=>id===r.id).map(([d])=>dayNames[Number(d)]).join(', ');
       const sets=r.items.reduce((sum,e)=>sum+(Number(e.sets)||0),0);
       return `<section class="routine-accordion ${isOpen?'open':''}">
         <button class="routine-summary" onclick="App.toggleRoutine('${r.id}')">
@@ -1269,13 +1327,32 @@ const App={
         </button>
         ${isOpen?`<div class="routine-body">
           <input class="routine-name" value="${r.name.replaceAll('"','&quot;')}" onchange="App.renameRoutine('${r.id}',this.value)">
-          <div class="list">${r.items.map((e,i)=>`<div class="list-item"><strong>${i+1}. ${e.name}</strong><div class="grid"><label><small>Series</small><input type="number" value="${e.sets}" onchange="App.editRoutineItem('${r.id}','${e.id}','sets',this.value)"></label><label><small>Reps</small><input type="number" value="${e.reps}" onchange="App.editRoutineItem('${r.id}','${e.id}','reps',this.value)"></label><label><small>Peso</small><input type="number" step=".5" value="${e.weight}" onchange="App.editRoutineItem('${r.id}','${e.id}','weight',this.value)"></label><label><small>Descanso</small><input type="number" value="${e.rest}" onchange="App.editRoutineItem('${r.id}','${e.id}','rest',this.value)"></label></div></div>`).join("")}</div>
-          <div class="routine-actions"><button class="secondary" onclick="App.addExercise('${r.id}')">Añadir ejercicio</button><button class="secondary" onclick="App.assignToday('${r.id}')">Asignar a hoy</button><button class="danger" onclick="App.deleteRoutine('${r.id}')">Eliminar rutina</button></div>
+          <div class="list routine-editor-list">${r.items.map((e,i)=>`<div class="list-item routine-item-card">
+            <div class="routine-item-head"><div><small>EJERCICIO ${i+1}</small><strong>${e.name}</strong>${e.exercise_id?`<em>${e.exercise_id.startsWith('USR-EX-')?'Personal PEDB':'PEDB'}</em>`:''}</div><div class="routine-item-order"><button class="mini" onclick="App.moveRoutineItem('${r.id}','${e.id}',-1)" ${i===0?'disabled':''}>↑</button><button class="mini" onclick="App.moveRoutineItem('${r.id}','${e.id}',1)" ${i===r.items.length-1?'disabled':''}>↓</button></div></div>
+            <div class="grid routine-fields"><label><small>Modo</small><select onchange="App.editRoutineItem('${r.id}','${e.id}','mode',this.value)"><option value="reps" ${(e.mode||'reps')==='reps'?'selected':''}>Repeticiones</option><option value="time" ${e.mode==='time'?'selected':''}>Tiempo</option></select></label><label><small>Series</small><input type="number" min="1" value="${e.sets}" onchange="App.editRoutineItem('${r.id}','${e.id}','sets',this.value)"></label><label><small>${e.mode==='time'?'Segundos':'Reps'}</small><input type="number" min="1" value="${e.reps}" onchange="App.editRoutineItem('${r.id}','${e.id}','reps',this.value)"></label><label><small>Peso kg</small><input type="number" step=".5" min="0" value="${e.weight}" onchange="App.editRoutineItem('${r.id}','${e.id}','weight',this.value)"></label><label><small>Descanso s</small><input type="number" min="0" step="5" value="${e.rest}" onchange="App.editRoutineItem('${r.id}','${e.id}','rest',this.value)"></label><label><small>Superserie</small><select onchange="App.editRoutineItem('${r.id}','${e.id}','superset',this.value)"><option value="" ${!e.superset?'selected':''}>No</option><option value="A" ${e.superset==='A'?'selected':''}>Grupo A</option><option value="B" ${e.superset==='B'?'selected':''}>Grupo B</option><option value="C" ${e.superset==='C'?'selected':''}>Grupo C</option></select></label></div>
+            <div class="routine-item-actions"><button class="secondary compact" onclick="App.duplicateRoutineItem('${r.id}','${e.id}')">Duplicar</button><button class="danger compact" onclick="App.deleteRoutineItem('${r.id}','${e.id}')">Eliminar ejercicio</button></div>
+          </div>`).join("")||`<div class="routine-empty">Todavía no hay ejercicios en esta rutina.</div>`}</div>
+          <div class="routine-actions"><button class="secondary" onclick="App.addExercise('${r.id}')">Añadir ejercicio</button><button class="secondary" onclick="App.assignToday('${r.id}')">Asignar a hoy</button><button class="secondary" onclick="App.duplicateRoutine('${r.id}')">Duplicar rutina</button><button class="danger" onclick="App.deleteRoutine('${r.id}')">Eliminar rutina</button></div>
         </div>`:''}
       </section>`
     }).join("");
-    document.getElementById("routines").innerHTML=`<div class="card week-planner"><div class="eyebrow">PLANIFICACIÓN SEMANAL</div><div class="week-grid">${plan}</div><p class="routine-help">Toca un día para asignar una rutina o marcar descanso.</p></div><div class="card"><div class="eyebrow">RUTINAS</div><div class="grid"><button class="secondary" onclick="App.createRoutine()">＋ Nueva rutina</button><button class="secondary" onclick="App.openRoutineTextImporter()">Importar texto</button><button class="secondary" onclick="App.renderLibrary(false)">Biblioteca PEDB</button></div></div>${cards}`;
+
+    const range=`${monday.getDate()} ${monday.toLocaleDateString('es-ES',{month:'short'}).replace('.','').toUpperCase()} – ${sunday.getDate()} ${sunday.toLocaleDateString('es-ES',{month:'short'}).replace('.','').toUpperCase()}`;
+    document.getElementById("routines").innerHTML=`<div class="card week-planner"><div class="eyebrow">PLANIFICACIÓN SEMANAL</div><div class="week-nav"><button onclick="App.shiftPlanningWeek(-1)">‹</button><strong>${range}</strong><button onclick="App.shiftPlanningWeek(1)">›</button></div><div class="week-summary"><span><b>${plannedCount}</b> sesiones</span><span><b>${estimatedMinutes}</b> min</span><span><b>${completedCount}</b> completadas</span></div><div class="week-grid">${plan}</div><div class="week-actions"><button class="secondary" onclick="App.copyPreviousWeek()">Copiar semana anterior</button><button class="secondary" onclick="App.goCurrentWeek()">Semana actual</button></div><p class="routine-help">Semana de lunes a domingo. Toca un día para asignar una rutina o marcar descanso.</p></div><div class="card"><div class="eyebrow">RUTINAS</div><div class="grid"><button class="secondary" onclick="App.createRoutine()">＋ Nueva rutina</button><button class="secondary" onclick="App.openRoutineTextImporter()">Importar texto</button><button class="secondary" onclick="App.renderLibrary(false)">Biblioteca PEDB</button><button class="secondary" onclick="App.renderBlocks()">Bloques</button></div></div>${cards}`;
     this.show("routines","Datos",{history:withHistory})
+  },
+
+  shiftPlanningWeek(delta){
+    const d=this.mondayOf(new Date(this.planningWeekStart+"T12:00:00"));d.setDate(d.getDate()+delta*7);this.planningWeekStart=this.weekKey(d);this.renderRoutines(false)
+  },
+  goCurrentWeek(){this.planningWeekStart=this.weekKey(new Date());this.renderRoutines(false)},
+  copyPreviousWeek(){
+    const current=this.mondayOf(new Date(this.planningWeekStart+"T12:00:00"));
+    const prev=new Date(current);prev.setDate(prev.getDate()-7);
+    const src={...this.getWeekPlan(prev,false)};
+    if(!Object.keys(src).length){this.toast("La semana anterior está vacía.");return}
+    if(!confirm("¿Copiar la planificación de la semana anterior?"))return;
+    this.data.weeklyPlans[this.weekKey(current)]={...src};this.save();this.renderRoutines(false);this.toast("Semana copiada.")
   },
 
   toggleRoutine(id){this.openRoutineId=this.openRoutineId===id?null:id;this.renderRoutines(false)},
@@ -1286,28 +1363,68 @@ const App={
   },
   createRoutine(){const name=prompt("Nombre de la rutina","Nueva rutina");if(!name)return;const id="r"+Date.now();this.data.routines.push({id,name,items:[]});this.openRoutineId=id;this.save();this.renderRoutines(false)},
   renameRoutine(id,name){const r=this.getRoutine(id);if(r&&name.trim()){r.name=name.trim();this.save();this.renderRoutines(false)}},
-  editRoutineItem(rid,eid,field,value){const e=this.getRoutine(rid)?.items.find(x=>x.id===eid);if(!e)return;e[field]=Number(value);this.save()},
-  assignToday(rid){const day=new Date().getDay();this.assignRoutineToDay(rid,day)},
-  assignRoutineToDay(rid,day){if(!this.getRoutine(rid))return;this.data.weekPlan[day]=rid;this.save();this.toast(`Rutina asignada a ${["domingo","lunes","martes","miércoles","jueves","viernes","sábado"][day]}`);this.renderRoutines(false)},
+  editRoutineItem(rid,eid,field,value){
+    const e=this.getRoutine(rid)?.items.find(x=>x.id===eid);if(!e)return;
+    if(["mode","superset"].includes(field))e[field]=String(value||"");
+    else e[field]=Number(value);
+    this.save();
+    if(field==="mode")this.renderRoutines(false)
+  },
+  moveRoutineItem(rid,eid,delta){
+    const r=this.getRoutine(rid);if(!r)return;
+    const index=r.items.findIndex(x=>x.id===eid);const next=index+Number(delta);
+    if(index<0||next<0||next>=r.items.length)return;
+    const [item]=r.items.splice(index,1);r.items.splice(next,0,item);this.save();this.renderRoutines(false)
+  },
+  duplicateRoutineItem(rid,eid){
+    const r=this.getRoutine(rid);const index=r?.items.findIndex(x=>x.id===eid);if(!r||index<0)return;
+    const copy={...r.items[index],id:"e"+Date.now(),name:r.items[index].name+" · copia"};
+    r.items.splice(index+1,0,copy);this.save();this.renderRoutines(false);this.toast("Ejercicio duplicado.")
+  },
+  deleteRoutineItem(rid,eid){
+    const r=this.getRoutine(rid);const item=r?.items.find(x=>x.id===eid);if(!r||!item)return;
+    if(!confirm(`¿Eliminar ${item.name} de esta rutina?`))return;
+    r.items=r.items.filter(x=>x.id!==eid);this.save();this.renderRoutines(false)
+  },
+  duplicateRoutine(id){
+    const r=this.getRoutine(id);if(!r)return;
+    const now=Date.now();const copy={...r,id:"r"+now,name:r.name+" · copia",items:(r.items||[]).map((item,i)=>({...item,id:`e${now}${i}`}))};
+    this.data.routines.push(copy);this.openRoutineId=copy.id;this.save();this.renderRoutines(false);this.toast("Rutina duplicada.")
+  },
+  assignToday(rid){
+    const now=new Date();const jsDay=now.getDay();const day=jsDay===0?6:jsDay-1;
+    this.planningWeekStart=this.weekKey(now);this.assignRoutineToDay(rid,day)
+  },
+  assignRoutineToDay(rid,day){
+    if(!this.getRoutine(rid))return;
+    const monday=this.mondayOf(new Date((this.planningWeekStart||this.weekKey(new Date()))+"T12:00:00"));
+    const plan=this.getWeekPlan(monday,true);plan[day]=rid;
+    this.data.weeklyPlans[this.weekKey(monday)]=plan;this.save();
+    this.toast(`Rutina asignada a ${["lunes","martes","miércoles","jueves","viernes","sábado","domingo"][day]}`);this.renderRoutines(false)
+  },
   chooseDayRoutine(day){
+    const monday=this.mondayOf(new Date((this.planningWeekStart||this.weekKey(new Date()))+"T12:00:00"));
+    const plan=this.getWeekPlan(monday,true);
     const options=this.data.routines.map((r,i)=>`${i+1}. ${r.name}`).join('\n');
-    const current=this.data.weekPlan[day];
+    const current=plan[day];
     const currentIndex=this.data.routines.findIndex(r=>r.id===current)+1;
-    const answer=prompt(`Asignar ${["domingo","lunes","martes","miércoles","jueves","viernes","sábado"][day]}:\n0. Descanso\n${options}`,String(currentIndex>0?currentIndex:0));
+    const answer=prompt(`Asignar ${["lunes","martes","miércoles","jueves","viernes","sábado","domingo"][day]}:\n0. Descanso\n${options}`,String(currentIndex>0?currentIndex:0));
     if(answer===null)return;
     const n=Number(answer);
-    if(n===0){delete this.data.weekPlan[day];this.save();this.renderRoutines(false);return}
+    if(n===0){delete plan[day];this.data.weeklyPlans[this.weekKey(monday)]=plan;this.save();this.renderRoutines(false);return}
     const r=this.data.routines[n-1];
     if(!r){alert('Opción no válida');return}
     this.assignRoutineToDay(r.id,day)
   },
   deleteRoutine(id){
     const r=this.getRoutine(id);if(!r)return;
-    const assignedDays=Object.entries(this.data.weekPlan).filter(([,rid])=>rid===id).map(([d])=>["domingo","lunes","martes","miércoles","jueves","viernes","sábado"][Number(d)]);
-    const extra=assignedDays.length?`\nTambién se quitará de: ${assignedDays.join(', ')}.`:'';
+    const affected=[];
+    Object.entries(this.data.weeklyPlans||{}).forEach(([week,plan])=>Object.entries(plan||{}).forEach(([d,rid])=>{if(rid===id)affected.push(`${week} · ${["L","M","X","J","V","S","D"][Number(d)]}`)}));
+    const extra=affected.length?`\nTambién se quitará de ${affected.length} asignación${affected.length>1?'es':''} futura${affected.length>1?'s':''}.`:'';
     if(!confirm(`¿Eliminar ${r.name}?${extra}\nEl historial completado no se modificará.`))return;
     this.data.routines=this.data.routines.filter(x=>x.id!==id);
-    Object.keys(this.data.weekPlan).forEach(day=>{if(this.data.weekPlan[day]===id)delete this.data.weekPlan[day]});
+    Object.values(this.data.weeklyPlans||{}).forEach(plan=>Object.keys(plan||{}).forEach(day=>{if(plan[day]===id)delete plan[day]}));
+    Object.keys(this.data.weekPlan||{}).forEach(day=>{if(this.data.weekPlan[day]===id)delete this.data.weekPlan[day]});
     if(this.openRoutineId===id)this.openRoutineId=this.data.routines[0]?.id||null;
     this.save();this.renderRoutines(false)
   },
@@ -1761,6 +1878,104 @@ const App={
       this.updateLibraryView();
       this.toast(`${userExercises.length} personales · ${relations.length} relaciones`)
     }catch(error){this.reportError(error);alert(error.message||"No se pudo importar el CSV")}
+  },
+
+
+  blockWeekDate(block,index){
+    const d=this.mondayOf(new Date(block.startWeek+"T12:00:00"));
+    d.setDate(d.getDate()+(index*7));
+    return d
+  },
+
+  blockProgress(block){
+    const today=this.mondayOf(new Date());
+    const start=this.mondayOf(new Date(block.startWeek+"T12:00:00"));
+    const weeks=Math.max(1,Number(block.durationWeeks)||8);
+    const current=Math.floor((today-start)/(7*86400000))+1;
+    return {weeks,current:Math.max(1,Math.min(weeks,current)),raw:current,percent:Math.max(0,Math.min(100,Math.round((current-1)/weeks*100)))}
+  },
+
+  createTrainingBlock(){
+    if(!this.data.routines.length){this.toast("Crea primero una rutina.");return}
+    const name=prompt("Nombre del bloque","Bloque de fuerza");if(!name)return;
+    const goals=["Fuerza","Hipertrofia","Técnica","Resistencia","Descarga","Personalizado"];
+    const g=Number(prompt("Objetivo:\n1. Fuerza\n2. Hipertrofia\n3. Técnica\n4. Resistencia\n5. Descarga\n6. Personalizado","1"));
+    if(!goals[g-1]){alert("Objetivo no válido");return}
+    const weeks=Number(prompt("Duración en semanas (4, 6, 8 o 12)","8"));
+    if(![4,6,8,12].includes(weeks)){alert("Usa una duración de 4, 6, 8 o 12 semanas.");return}
+    const startInput=prompt("Fecha de inicio (se ajustará al lunes)",this.weekKey(new Date()));
+    if(!startInput)return;
+    const start=this.weekKey(new Date(startInput+"T12:00:00"));
+    const copy=confirm("¿Usar la planificación de la semana actual como base para todo el bloque?");
+    const base={...this.getWeekPlan(new Date(),false)};
+    const id="b"+Date.now();
+    const block={id,name:name.trim(),goal:goals[g-1],durationWeeks:weeks,startWeek:start,deloadWeek:weeks,status:"active",createdAt:new Date().toISOString()};
+    this.data.trainingBlocks.unshift(block);
+    if(copy&&Object.keys(base).length){
+      for(let i=0;i<weeks;i++)this.data.weeklyPlans[this.weekKey(this.blockWeekDate(block,i))]={...base};
+    }
+    this.openBlockId=id;this.save();this.renderBlocks(false);this.toast("Bloque creado")
+  },
+
+  renderBlocks(withHistory=true){
+    const blocks=this.data.trainingBlocks||[];
+    const active=blocks.filter(b=>b.status!=="completed");
+    const previous=blocks.filter(b=>b.status==="completed");
+    if(!this.openBlockId&&blocks.length)this.openBlockId=blocks[0].id;
+    const card=(b)=>{
+      const prog=this.blockProgress(b),open=this.openBlockId===b.id;
+      const start=this.mondayOf(new Date(b.startWeek+"T12:00:00"));
+      const end=this.blockWeekDate(b,(Number(b.durationWeeks)||8)-1);end.setDate(end.getDate()+6);
+      const weeks=Array.from({length:Number(b.durationWeeks)||8},(_,i)=>{
+        const monday=this.blockWeekDate(b,i),plan=this.getWeekPlan(monday,false);
+        const planned=Object.values(plan).filter(Boolean).length;
+        const sunday=new Date(monday);sunday.setDate(sunday.getDate()+6);
+        const completed=this.data.sessions.filter(x=>{const d=new Date(x.endedAt||x.date);return d>=monday&&d<=new Date(sunday.getFullYear(),sunday.getMonth(),sunday.getDate(),23,59,59)}).length;
+        const nowKey=this.weekKey(new Date()),key=this.weekKey(monday);
+        const state=key===nowKey?"En curso":key<nowKey?"Completada":"Pendiente";
+        const deload=Number(b.deloadWeek)===i+1;
+        return `<div class="block-week ${key===nowKey?'current':''} ${deload?'deload':''}"><button onclick="App.openBlockWeek('${b.id}',${i})"><span>SEMANA ${i+1}${deload?' · DELOAD':''}</span><strong>${monday.getDate()} ${monday.toLocaleDateString('es-ES',{month:'short'}).replace('.','').toUpperCase()} – ${sunday.getDate()} ${sunday.toLocaleDateString('es-ES',{month:'short'}).replace('.','').toUpperCase()}</strong><small>${planned} sesiones · ${completed} completadas · ${state}</small></button><div><button onclick="App.copyBlockWeek('${b.id}',${i})" title="Copiar semana anterior">COPIAR</button><button onclick="App.toggleDeloadWeek('${b.id}',${i+1})">${deload?'QUITAR DELOAD':'DELOAD'}</button></div></div>`
+      }).join('');
+      return `<section class="block-card ${open?'open':''} ${b.status==='completed'?'completed':''}"><button class="block-head" onclick="App.toggleBlock('${b.id}')"><div><span>${b.status==='completed'?'BLOQUE COMPLETADO':'BLOQUE ACTIVO'}</span><strong>${b.name}</strong><small>${b.goal} · ${b.durationWeeks} semanas · ${start.toLocaleDateString('es-ES',{day:'2-digit',month:'short'})} – ${end.toLocaleDateString('es-ES',{day:'2-digit',month:'short'})}</small></div><em>${open?'⌃':'⌄'}</em></button>${open?`<div class="block-body"><div class="block-progress"><div><b>${b.status==='completed'?'100':prog.percent}%</b><span>Semana ${Math.min(prog.current,prog.weeks)} de ${prog.weeks}</span></div><i style="--p:${b.status==='completed'?100:prog.percent}%"></i></div><div class="block-weeks">${weeks}</div><div class="block-actions"><button class="secondary" onclick="App.openBlockWeek('${b.id}',${Math.max(0,prog.current-1)})">Ver semana actual</button>${b.status==='completed'?`<button class="secondary" onclick="App.repeatBlock('${b.id}')">Repetir bloque</button>`:`<button class="secondary" onclick="App.finishBlock('${b.id}')">Finalizar bloque</button>`}<button class="danger" onclick="App.deleteBlock('${b.id}')">Eliminar</button></div></div>`:''}</section>`
+    };
+    document.getElementById("blocks").innerHTML=`<div class="card block-intro"><div class="eyebrow">BLOQUES DE ENTRENAMIENTO</div><h2>Organiza tu progresión</h2><p>Varias semanas, un objetivo. Siempre de lunes a domingo.</p><button class="primary" onclick="App.createTrainingBlock()">＋ NUEVO BLOQUE</button></div>${active.length?`<div class="section-label">ACTIVO</div>${active.map(card).join('')}`:`<div class="card empty-block">No hay un bloque activo.</div>`}${previous.length?`<div class="section-label">ANTERIORES</div>${previous.map(card).join('')}`:''}`;
+    this.show("blocks","Planificación",{history:withHistory})
+  },
+
+  toggleBlock(id){this.openBlockId=this.openBlockId===id?null:id;this.renderBlocks(false)},
+  openBlockWeek(id,index){
+    const b=this.data.trainingBlocks.find(x=>x.id===id);if(!b)return;
+    this.planningWeekStart=this.weekKey(this.blockWeekDate(b,index));this.renderRoutines(true)
+  },
+  copyBlockWeek(id,index){
+    if(index<=0){this.toast("La primera semana no tiene anterior.");return}
+    const b=this.data.trainingBlocks.find(x=>x.id===id);if(!b)return;
+    const src=this.getWeekPlan(this.blockWeekDate(b,index-1),false);
+    if(!Object.keys(src).length){this.toast("La semana anterior está vacía.");return}
+    if(!confirm(`¿Copiar la semana ${index} en la semana ${index+1}?`))return;
+    this.data.weeklyPlans[this.weekKey(this.blockWeekDate(b,index))]={...src};this.save();this.renderBlocks(false);this.toast("Semana copiada")
+  },
+  toggleDeloadWeek(id,week){
+    const b=this.data.trainingBlocks.find(x=>x.id===id);if(!b)return;
+    b.deloadWeek=Number(b.deloadWeek)===week?null:week;this.save();this.renderBlocks(false)
+  },
+  finishBlock(id){
+    const b=this.data.trainingBlocks.find(x=>x.id===id);if(!b||!confirm(`¿Finalizar ${b.name}? Las semanas y entrenamientos se conservarán.`))return;
+    b.status="completed";b.completedAt=new Date().toISOString();this.save();this.renderBlocks(false);this.toast("Bloque finalizado")
+  },
+  repeatBlock(id){
+    const b=this.data.trainingBlocks.find(x=>x.id===id);if(!b)return;
+    const copy={...b,id:"b"+Date.now(),name:b.name+" · Repetición",startWeek:this.weekKey(new Date()),status:"active",createdAt:new Date().toISOString(),completedAt:null};
+    this.data.trainingBlocks.unshift(copy);
+    for(let i=0;i<copy.durationWeeks;i++){
+      const source=this.getWeekPlan(this.blockWeekDate(b,i),false);
+      if(Object.keys(source).length)this.data.weeklyPlans[this.weekKey(this.blockWeekDate(copy,i))]={...source}
+    }
+    this.openBlockId=copy.id;this.save();this.renderBlocks(false);this.toast("Bloque repetido")
+  },
+  deleteBlock(id){
+    const b=this.data.trainingBlocks.find(x=>x.id===id);if(!b||!confirm(`¿Eliminar ${b.name}? La planificación semanal y el historial no se borrarán.`))return;
+    this.data.trainingBlocks=this.data.trainingBlocks.filter(x=>x.id!==id);this.openBlockId=this.data.trainingBlocks[0]?.id||null;this.save();this.renderBlocks(false)
   },
 
   renderHistory(withHistory=true){
