@@ -82,7 +82,7 @@ const App={
   updateProfileChrome(){
     const profile=this.activeProfile();
     const el=document.getElementById("profileButton");
-    if(el)el.innerHTML=`<span>PERFIL</span><b>${this.escape(profile?.name||"Alberto")}</b>`;
+    if(el){el.innerHTML=`<span>PERFIL</span><b>${this.escape(profile?.name||"Alberto")}</b><i aria-hidden="true">⌄</i>`;el.setAttribute("aria-label",`Cambiar perfil. Perfil activo: ${profile?.name||"Alberto"}`);}
     document.documentElement.dataset.profile=this.activeProfileId;
   },
   openProfileSheet(){
@@ -90,9 +90,10 @@ const App={
     const list=document.getElementById("profileList");
     if(!sheet||!list)return;
     list.innerHTML=this.profiles.map(p=>`<button class="profile-choice ${p.id===this.activeProfileId?'active':''}" onclick="App.switchProfile('${p.id}')"><span>${p.id===this.activeProfileId?'ACTIVO':'PERFIL LOCAL'}</span><b>${this.escape(p.name)}</b><em>${p.id===this.activeProfileId?'✓':'›'}</em></button>`).join("");
-    sheet.classList.add("open");
+    sheet.classList.add("show");
+    document.getElementById("profileButton")?.setAttribute("aria-expanded","true");
   },
-  closeProfileSheet(){document.getElementById("profileSheet")?.classList.remove("open")},
+  closeProfileSheet(){document.getElementById("profileSheet")?.classList.remove("show");document.getElementById("profileButton")?.setAttribute("aria-expanded","false")},
   switchProfile(id){
     if(id===this.activeProfileId){this.closeProfileSheet();return}
     this.persistNow();
@@ -2252,9 +2253,9 @@ const App={
       summary.innerHTML="<li>Rutinas, planificación y bloques</li><li>Entrenamientos, pesos y progresiones</li><li>Ejercicios personales y ajustes</li><li>Sesión activa</li>";
     }
     input.value="";document.getElementById("deleteExecute").disabled=true;
-    document.getElementById("deleteDataSheet")?.classList.add("open");
+    document.getElementById("deleteDataSheet")?.classList.add("show");
   },
-  closeDataDelete(){document.getElementById("deleteDataSheet")?.classList.remove("open")},
+  closeDataDelete(){document.getElementById("deleteDataSheet")?.classList.remove("show")},
   validateDeletePhrase(){const ok=document.getElementById("deleteConfirmInput")?.value.trim().toUpperCase()==="BORRAR";document.getElementById("deleteExecute").disabled=!ok},
   executeDataDelete(){
     const typed=document.getElementById("deleteConfirmInput")?.value.trim().toUpperCase();if(typed!=="BORRAR")return;
@@ -2302,7 +2303,7 @@ const App={
     const payload={
       format:"GymTracker Phoenix Backup",
       schema_version:1,
-      app_version:"9.9.4",
+      app_version:"9.9.5",
       profile:{id:this.activeProfileId,name:this.activeProfile()?.name||this.activeProfileId},
       exportedAt:new Date().toISOString(),
       counts:{
