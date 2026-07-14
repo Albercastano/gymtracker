@@ -1371,3 +1371,12 @@ button.phoenix-emblem{cursor:pointer}
   body.timer-landscape #rest .forged-rest-timer .time{font-size:clamp(7rem,29vh,13rem)!important}
   body.timer-landscape #rest .forged-rest-skip{height:100%;min-width:0!important;min-height:180px!important}
 }
+
+
+/* 10.0 RC3 · Peso corporal robusto */
+.weight-save-primary{width:100%;min-height:62px;margin:2px 0 8px;position:sticky;bottom:0;z-index:3;box-shadow:0 -12px 28px rgba(5,5,7,.78),0 8px 0 #5b3d10}
+.weight-quick-adjust{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:-3px}
+.weight-quick-adjust button{min-height:46px;border-radius:14px;border:1px solid rgba(216,179,94,.3);background:linear-gradient(145deg,#1a1c21,#090a0d);color:#e5c978;font-weight:1000;letter-spacing:.06em;box-shadow:0 5px 0 rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.05)}
+.weight-quick-adjust button:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.42)}
+#weightValueInput{font-size:1.45rem;font-weight:1000;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+@media(max-width:420px){.weight-forged-panel{max-height:94dvh}.weight-save-primary{bottom:calc(-1px + env(safe-area-inset-bottom))}}

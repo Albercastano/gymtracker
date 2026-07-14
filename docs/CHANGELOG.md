@@ -1,3 +1,13 @@
+# 10.0 RC3 · Peso corporal robusto
+
+- Registro de peso reconstruido para móviles con teclado decimal español.
+- Acepta coma o punto decimal.
+- Botón Guardar visible y fijo antes del historial.
+- Confirmación clara y cierre del panel tras guardar.
+- Edición y borrado por perfil conservados.
+- Ajustes rápidos de ±0,1 kg.
+- Peso actual y estadísticas se actualizan inmediatamente.
+
 # 10.0 RC2 · Primer entreno
 
 - Temporizador de descanso FORGED.

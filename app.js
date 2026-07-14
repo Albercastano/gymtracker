@@ -1071,6 +1071,40 @@ const App={
     return Number.isInteger(n)?String(n):String(Number(n.toFixed(2))).replace('.',',')
   },
 
+  parseDecimal(value){
+    const raw=String(value??"").trim().replace(/\s+/g,"");
+    if(!raw)return NaN;
+    const normalized=raw.includes(",")?raw.replace(/\./g,"").replace(",","."):raw;
+    const n=Number(normalized);
+    return Number.isFinite(n)?n:NaN
+  },
+
+  escape(value){
+    return String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]))
+  },
+
+
+  cleanWeightInput(input){
+    if(!input)return;
+    let value=String(input.value||"").replace(/[^0-9,.]/g,"");
+    const firstSeparator=value.search(/[,.]/);
+    if(firstSeparator>=0){
+      const head=value.slice(0,firstSeparator+1);
+      const tail=value.slice(firstSeparator+1).replace(/[,.]/g,"").slice(0,1);
+      value=head+tail
+    }
+    input.value=value.slice(0,6)
+  },
+
+  adjustBodyWeight(delta){
+    const input=document.getElementById("weightValueInput");if(!input)return;
+    let current=this.parseDecimal(input.value);
+    if(!Number.isFinite(current))current=Number(this.data.profile?.bodyWeight)||80;
+    const next=Math.min(400,Math.max(20,Math.round((current+Number(delta||0))*10)/10));
+    input.value=next.toFixed(1).replace(".",",");
+    input.focus();input.select()
+  },
+
   buzz(pattern=18){
     if(!this.data?.settings?.vibration)return;
     try{navigator.vibrate?.(pattern)}catch(e){}
@@ -2647,7 +2681,9 @@ const App={
     const today=new Date();const local=new Date(today.getTime()-today.getTimezoneOffset()*60000).toISOString().slice(0,10);
     document.getElementById("weightEntryId").value=entry?.id||"";
     document.getElementById("weightDateInput").value=entry?this.isoDate(entry.date):local;
-    document.getElementById("weightValueInput").value=entry?Number(entry.weight).toFixed(1):(this.data.profile?.bodyWeight||"");
+    const weightInput=document.getElementById("weightValueInput");
+    const initialWeight=entry?Number(entry.weight):(Number(this.data.profile?.bodyWeight)||null);
+    if(weightInput)weightInput.value=initialWeight?initialWeight.toFixed(1).replace(".",","):"";
     document.getElementById("weightNoteInput").value=entry?.note||"";
     document.getElementById("weightSheetTitle").textContent=entry?"Editar peso":"Registrar peso";
     document.getElementById("weightSaveButton").textContent=entry?"GUARDAR CAMBIOS":"GUARDAR PESO";
@@ -2656,7 +2692,8 @@ const App={
     document.getElementById("weightCurrentValue").textContent=current?`Último registro: ${current.toFixed(1)} kg`:"Sin peso registrado";
     this.renderWeightHistorySheet();
     sheet.classList.add("show");sheet.setAttribute("aria-hidden","false");document.body.classList.add("sheet-open");
-    setTimeout(()=>document.getElementById("weightValueInput")?.focus(),180)
+    const panel=sheet.querySelector(".sheet-panel");if(panel)panel.scrollTop=0;
+    setTimeout(()=>{const input=document.getElementById("weightValueInput");input?.focus();input?.select()},180)
   },
   resetWeightEditor(){this.openWeightSheet(null)},
   renderWeightHistorySheet(){
@@ -2677,24 +2714,37 @@ const App={
     const sheet=document.getElementById("weightSheet");sheet?.classList.remove("show");sheet?.setAttribute("aria-hidden","true");document.body.classList.remove("sheet-open");this.editingWeightId=null
   },
   saveWeightEntry(){
-    const raw=String(document.getElementById("weightValueInput")?.value||"").replace(",",".");
-    const weight=Number(raw);const date=document.getElementById("weightDateInput")?.value;const note=(document.getElementById("weightNoteInput")?.value||"").trim();
-    if(!(weight>=20&&weight<=400)){this.toast("Introduce un peso válido");return}
-    if(!date){this.toast("Selecciona una fecha");return}
-    this.data.profile=this.data.profile||{};this.data.weights=Array.isArray(this.data.weights)?this.data.weights:[];
+    const input=document.getElementById("weightValueInput");
+    const weight=this.parseDecimal(input?.value);
+    const date=document.getElementById("weightDateInput")?.value;
+    const note=(document.getElementById("weightNoteInput")?.value||"").trim();
+    if(!Number.isFinite(weight)||weight<20||weight>400){
+      this.toast("Introduce un peso entre 20 y 400 kg");input?.focus();input?.select();return
+    }
+    if(!date){this.toast("Selecciona una fecha");document.getElementById("weightDateInput")?.focus();return}
+    this.data.profile=this.data.profile||{};
+    this.data.weights=Array.isArray(this.data.weights)?this.data.weights:[];
     const iso=new Date(`${date}T12:00:00`).toISOString();
+    const rounded=Number(weight.toFixed(1));
     const id=document.getElementById("weightEntryId")?.value||this.editingWeightId;
     if(id){
       const entry=this.data.weights.find(x=>x.id===id);
-      if(entry){entry.date=iso;entry.weight=Number(weight.toFixed(1));entry.note=note;entry.profileId=this.activeProfileId}
+      if(entry){entry.date=iso;entry.weight=rounded;entry.note=note;entry.profileId=this.activeProfileId}
     }else{
       const sameDay=this.data.weights.find(x=>this.isoDate(x.date)===date);
-      if(sameDay){sameDay.date=iso;sameDay.weight=Number(weight.toFixed(1));sameDay.note=note;sameDay.profileId=this.activeProfileId}
-      else this.data.weights.push({id:`w_${Date.now()}`,date:iso,weight:Number(weight.toFixed(1)),note,profileId:this.activeProfileId});
+      if(sameDay){sameDay.date=iso;sameDay.weight=rounded;sameDay.note=note;sameDay.profileId=this.activeProfileId}
+      else this.data.weights.push({id:`w_${Date.now()}`,date:iso,weight:rounded,note,profileId:this.activeProfileId})
     }
     this.data.weights.sort((x,y)=>new Date(x.date)-new Date(y.date));
-    this.syncBodyWeightFromHistory();this.save();this.editingWeightId=null;this.openWeightSheet(null);this.toast(`Peso guardado · ${weight.toFixed(1)} kg`);
-    if(this.currentScreen==="data")this.renderData(false);else if(this.currentScreen==="settings")this.renderSettings(false);else if(this.currentScreen==="home")this.renderHome(false)
+    this.syncBodyWeightFromHistory();
+    if(!this.save()){this.toast("No se pudo guardar el peso");return}
+    const screen=this.currentScreen;
+    this.editingWeightId=null;
+    this.closeWeightSheet();
+    if(screen==="data")this.renderData(false);
+    else if(screen==="settings")this.renderSettings(false);
+    else this.renderHome(false);
+    this.toast(`Peso guardado · ${rounded.toFixed(1).replace(".",",")} kg`)
   },
 
   renderSettings(withHistory=true){
@@ -2713,7 +2763,7 @@ const App={
         <label>Temporizador<select id="timerOrientation"><option value="auto" ${timerOrientation==='auto'?'selected':''}>Automático / apaisado</option><option value="portrait" ${timerOrientation==='portrait'?'selected':''}>Mantener vertical</option><option value="landscape" ${timerOrientation==='landscape'?'selected':''}>Forzar apaisado</option></select></label>
       </section>
       <section class="settings-section"><h3>Peso corporal</h3>
-        <label>Peso actual<input id="bodyWeight" type="number" min="20" step=".1" value="${this.data.profile.bodyWeight||''}"></label>
+        <label>Peso actual<input id="bodyWeight" type="text" inputmode="decimal" autocomplete="off" value="${this.data.profile.bodyWeight?Number(this.data.profile.bodyWeight).toFixed(1).replace('.',','):''}" oninput="App.cleanWeightInput(this)"></label>
         <button class="secondary forged-weight-launch" onclick="App.openWeightSheet()">REGISTRAR O EDITAR PESO</button>
       </section>
       <div class="storage-status ${this.storageHealthy?'ok':'error'}"><span>ALMACENAMIENTO LOCAL</span><b>${this.storageHealthy?'Protegido':'Revisar espacio'}</b><small>${this.lastSaveAt?'Último guardado: '+new Date(this.lastSaveAt).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}):'Guardado automático activo'}</small></div>
@@ -2724,7 +2774,7 @@ const App={
     this.show("settings","Datos",{history:withHistory})
   },
   saveBodyWeight(){
-    const w=Number(document.getElementById("bodyWeight")?.value);
+    const w=this.parseDecimal(document.getElementById("bodyWeight")?.value);
     if(!(w>=20&&w<=400)){this.toast("Introduce un peso válido");return}
     const date=this.isoDate(new Date());
     const existing=(this.data.weights||[]).find(x=>this.isoDate(x.date)===date);
@@ -2742,7 +2792,7 @@ const App={
     this.data.settings.fontScale=document.getElementById("fontScale")?.value||"normal";
     this.data.settings.timerOrientation=document.getElementById("timerOrientation")?.value||"auto";
     this.data.settings.planningMode=document.querySelector('input[name="planningMode"]:checked')?.value||"fixed";
-    const bodyWeight=Number(document.getElementById("bodyWeight")?.value);
+    const bodyWeight=this.parseDecimal(document.getElementById("bodyWeight")?.value);
     if(bodyWeight>=20&&bodyWeight<=400&&Number(bodyWeight.toFixed(1))!==Number(this.data.profile?.bodyWeight||0)){
       const date=this.isoDate(new Date());const existing=(this.data.weights||[]).find(x=>this.isoDate(x.date)===date);
       if(existing){existing.weight=Number(bodyWeight.toFixed(1));existing.date=new Date().toISOString()}
