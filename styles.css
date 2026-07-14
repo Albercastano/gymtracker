@@ -1598,3 +1598,179 @@ html[data-material="foundry"] .timer-control{border-radius:8px!important}
 html[data-material="foundry"] .material-option.foundry.active{outline:2px solid rgba(184,138,50,.38);outline-offset:2px}
 
 @media(prefers-reduced-motion:reduce){.material-option{transition:none}}
+
+
+/* =========================================================
+   GYMTRACKER PHOENIX 10.2 · FORGED FOUNDRY PHASE 2
+   Phoenix Timer completo y responsive. Solo capa visual.
+   ========================================================= */
+html[data-material="foundry"] .phoenix-timer{
+  --phx-gold:#b88a32;
+  --phx-gold-hi:#f1d28a;
+  --phx-gold-deep:#5f3c0d;
+  gap:clamp(10px,2.2vh,16px);
+}
+html[data-material="foundry"] .phoenix-timer__header{
+  gap:clamp(8px,1.8vh,13px);
+}
+html[data-material="foundry"] .phoenix-timer__brand img{
+  filter:drop-shadow(0 6px 8px rgba(0,0,0,.78)) drop-shadow(0 0 10px rgba(184,138,50,.16));
+}
+html[data-material="foundry"] .phoenix-timer__title span{
+  color:#c99b45;
+  text-shadow:0 2px 0 #332105,0 0 15px rgba(184,138,50,.14);
+}
+html[data-material="foundry"] .phoenix-timer__series{
+  border-radius:7px;
+  border:1px solid #4a4842;
+  outline:1px solid #050505;
+  background:
+    radial-gradient(circle at 11px 11px,#b39458 0 1.5px,#282116 2.5px 4px,transparent 5px),
+    radial-gradient(circle at calc(100% - 11px) 11px,#b39458 0 1.5px,#282116 2.5px 4px,transparent 5px),
+    repeating-linear-gradient(102deg,rgba(255,255,255,.017) 0 1px,transparent 1px 8px),
+    linear-gradient(180deg,#2b2c2c,#111212);
+  box-shadow:0 6px 0 #030303,0 14px 26px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.08);
+}
+html[data-material="foundry"] .phoenix-timer__instrument{
+  padding:clamp(42px,7vw,58px) clamp(8px,2.4vw,18px) clamp(14px,3vw,22px);
+  border-radius:10px;
+  border:2px solid #4b4942;
+  outline:2px solid #030303;
+  background:
+    radial-gradient(circle at 18px 18px,#c0a36a 0 2px,#2e271a 3px 6px,transparent 7px),
+    radial-gradient(circle at calc(100% - 18px) 18px,#c0a36a 0 2px,#2e271a 3px 6px,transparent 7px),
+    radial-gradient(circle at 18px calc(100% - 18px),#c0a36a 0 2px,#2e271a 3px 6px,transparent 7px),
+    radial-gradient(circle at calc(100% - 18px) calc(100% - 18px),#c0a36a 0 2px,#2e271a 3px 6px,transparent 7px),
+    repeating-linear-gradient(104deg,rgba(255,255,255,.018) 0 1px,transparent 1px 8px),
+    linear-gradient(150deg,#3a3b3b,#111212 52%,#272828);
+  box-shadow:0 11px 0 #020202,0 30px 62px rgba(0,0,0,.74),inset 0 1px 0 rgba(255,255,255,.12),inset 0 -2px 0 rgba(0,0,0,.85);
+}
+html[data-material="foundry"] .phoenix-timer__instrument::before{
+  inset:9px;
+  border-radius:6px;
+  border:1px solid #1f2020;
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.035),transparent 22%,transparent 78%,rgba(0,0,0,.2)),
+    repeating-linear-gradient(103deg,rgba(255,255,255,.014) 0 1px,transparent 1px 7px);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.035);
+}
+html[data-material="foundry"] .phoenix-timer__plate{
+  min-width:min(230px,68vw);
+  padding:9px 16px;
+  border-radius:4px;
+  border:1px solid #5b564a;
+  outline:1px solid #050505;
+  background:linear-gradient(180deg,#303131,#101111);
+  box-shadow:0 5px 0 #030303,inset 0 1px 0 rgba(255,255,255,.1);
+  color:#c99b45;
+  text-shadow:0 1px 0 #000;
+}
+html[data-material="foundry"] .phoenix-timer__screw{
+  width:15px;height:15px;
+  background:radial-gradient(circle at 35% 28%,#d6c39e 0 1px,#8a7349 2px,#2b2519 5px,#080808 72%);
+  border:1px solid #050505;
+  box-shadow:0 2px 0 #000,inset 0 1px 0 rgba(255,255,255,.2);
+}
+html[data-material="foundry"] .phoenix-timer__ring{
+  width:min(80vw,470px);
+  padding:clamp(12px,2.8vw,18px);
+  background:
+    conic-gradient(from -90deg,#efd080 0turn,#b27b22 calc(var(--progress)*1turn),rgba(112,83,35,.28) calc(var(--progress)*1turn),rgba(47,43,35,.5) 1turn);
+  box-shadow:
+    0 0 0 2px #070707,
+    0 0 0 7px #393733,
+    0 0 0 10px #111,
+    0 0 0 12px rgba(184,138,50,.35),
+    0 18px 40px rgba(0,0,0,.75),
+    inset 0 1px 0 rgba(255,255,255,.16);
+}
+html[data-material="foundry"] .phoenix-timer__ring::before{
+  inset:12px;
+  background:
+    radial-gradient(circle at 36% 27%,#2a2b2b 0%,#0c0d0d 49%,#020202 100%);
+  border:1px solid #4b4942;
+  box-shadow:inset 0 0 45px #000,inset 0 1px 0 rgba(255,255,255,.08);
+}
+html[data-material="foundry"] .phoenix-timer__ticks{opacity:.7}
+html[data-material="foundry"] .phoenix-timer__time{
+  font-family:Impact,"Arial Narrow",system-ui,sans-serif;
+  font-size:clamp(4.8rem,21vw,9.8rem);
+  letter-spacing:-.055em;
+  background:linear-gradient(180deg,#f9e1a5 0%,#c49337 28%,#75500f 63%,#e0b85f 100%);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-stroke:1px rgba(255,232,177,.2);
+  filter:drop-shadow(0 4px 0 #382406) drop-shadow(0 14px 18px rgba(0,0,0,.78));
+}
+html[data-material="foundry"] .phoenix-timer__status{
+  border-radius:5px;
+  border:1px solid #4f4b42;
+  outline:1px solid #050505;
+  background:linear-gradient(180deg,#282929,#101111);
+  box-shadow:0 5px 0 #020202,inset 0 1px 0 rgba(255,255,255,.08);
+}
+html[data-material="foundry"] .phoenix-timer__controls button,
+html[data-material="foundry"] .phoenix-timer__skip,
+html[data-material="foundry"] .phoenix-timer__footer{
+  border-radius:6px;
+}
+html[data-material="foundry"] .phoenix-timer__controls button{
+  min-height:clamp(74px,11vh,94px);
+  border:1px solid #5a5549;
+  outline:1px solid #030303;
+  background:
+    radial-gradient(circle at 10px 10px,#c1a36a 0 1.5px,#2c2519 2.5px 4px,transparent 5px),
+    radial-gradient(circle at calc(100% - 10px) 10px,#c1a36a 0 1.5px,#2c2519 2.5px 4px,transparent 5px),
+    linear-gradient(180deg,#303131,#121313);
+  box-shadow:0 7px 0 #020202,0 15px 24px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.1);
+}
+html[data-material="foundry"] .phoenix-timer__controls .phoenix-timer__pause{
+  border-color:#9a7634;
+  background:linear-gradient(180deg,#51401b,#1a1307);
+}
+html[data-material="foundry"] .phoenix-timer__skip{
+  border:1px solid #5e594e;
+  outline:1px solid #030303;
+  background:linear-gradient(180deg,#2e2f2f,#111212);
+  box-shadow:0 7px 0 #020202,inset 0 1px 0 rgba(255,255,255,.1);
+}
+html[data-material="foundry"] .phoenix-timer__footer{
+  border:1px solid #4e4b44;
+  outline:1px solid #030303;
+  background:linear-gradient(180deg,#252626,#101111);
+  box-shadow:0 6px 0 #020202,inset 0 1px 0 rgba(255,255,255,.08);
+}
+html[data-material="foundry"] .phoenix-timer.is-warning .phoenix-timer__ring{
+  animation:phxFoundryPulse 1s ease-in-out infinite;
+}
+html[data-material="foundry"] .phoenix-timer.is-finished .phoenix-timer__instrument{
+  animation:phxFoundryFinish .65s ease-out;
+}
+@keyframes phxFoundryPulse{50%{box-shadow:0 0 0 2px #070707,0 0 0 7px #4b4437,0 0 0 10px #111,0 0 0 13px rgba(232,174,72,.65),0 18px 40px rgba(0,0,0,.75),0 0 58px rgba(232,174,72,.38)}}
+@keyframes phxFoundryFinish{0%{filter:brightness(1)}32%{filter:brightness(1.72) saturate(1.18)}100%{filter:brightness(1)}}
+
+/* Adaptación automática: móvil estrecho, móvil alto y apaisado */
+@media(max-width:390px){
+  html[data-material="foundry"] #rest .phoenix-timer-screen{padding-inline:6px!important}
+  html[data-material="foundry"] .phoenix-timer__brand img{width:38px;height:38px}
+  html[data-material="foundry"] .phoenix-timer__title span{font-size:1.02rem;letter-spacing:.28em}
+  html[data-material="foundry"] .phoenix-timer__series{padding:8px 10px;grid-template-columns:1fr 24px 1fr}
+  html[data-material="foundry"] .phoenix-timer__instrument{padding-top:40px}
+  html[data-material="foundry"] .phoenix-timer__ring{width:min(83vw,355px)}
+  html[data-material="foundry"] .phoenix-timer__time{font-size:clamp(4.35rem,22vw,6.8rem)}
+  html[data-material="foundry"] .phoenix-timer__controls{gap:7px}
+  html[data-material="foundry"] .phoenix-timer__controls b{font-size:1.55rem}
+  html[data-material="foundry"] .phoenix-timer__skip{font-size:.72rem;letter-spacing:.12em}
+}
+@media(max-height:740px) and (orientation:portrait){
+  html[data-material="foundry"] .phoenix-timer__brand{display:none}
+  html[data-material="foundry"] .phoenix-timer__header{gap:7px}
+  html[data-material="foundry"] .phoenix-timer__ring{width:min(66vh,78vw,420px)}
+  html[data-material="foundry"] .phoenix-timer__controls button{min-height:68px}
+  html[data-material="foundry"] .phoenix-timer__footer button{min-height:54px}
+}
+@media(orientation:landscape){
+  html[data-material="foundry"] body.timer-landscape #rest .phoenix-timer-screen{max-width:1180px!important}
+  html[data-material="foundry"] .phoenix-timer{grid-template-columns:minmax(360px,1fr) minmax(230px,300px)}
+  html[data-material="foundry"] .phoenix-timer__ring{width:min(60vh,470px)}
+  html[data-material="foundry"] .phoenix-timer__time{font-size:clamp(4.8rem,17vh,8.8rem)}
+}
