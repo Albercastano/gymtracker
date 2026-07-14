@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "precision",
+  "name": "FORGED Precision",
+  "author": "Phoenix Forge",
+  "version": "1.0.0",
+  "engine": "0.1.x",
+  "status": "stable",
+  "fallback": true,
+  "styles": [
+    "tokens.css",
+    "components.css",
+    "timer.css"
+  ],
+  "assetsBudgetKb": 24,
+  "capabilities": [
+    "visual-tokens",
+    "components",
+    "timer"
+  ],
+  "network": "forbidden",
+  "scripts": "forbidden"
+}

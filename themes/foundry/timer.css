@@ -1,0 +1,4 @@
+/* Foundry timer contract extension. Kept separate for future Forge packages. */
+html[data-phx-material="foundry"] .phoenix-timer__instrument{
+  isolation:isolate;
+}

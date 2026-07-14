@@ -1,0 +1,3 @@
+/* FORGED Precision · safe fallback material.
+   Base component rules live in styles.css; this file is intentionally small. */
+html[data-phx-material="precision"] body{background-color:var(--phx-surface-screen)}

@@ -364,7 +364,8 @@ const App={
     if(!["fixed","clear"].includes(this.data.settings.planningMode))this.data.settings.planningMode="fixed";
     if(!["normal","large","xl"].includes(this.data.settings.fontScale))this.data.settings.fontScale="normal";
     if(!["auto","portrait","landscape"].includes(this.data.settings.timerOrientation))this.data.settings.timerOrientation="auto";
-    if(!["precision","foundry"].includes(this.data.settings.uiMaterial))this.data.settings.uiMaterial="precision";
+    if(window.PhoenixMaterialEngine&&!window.PhoenixMaterialEngine.isSupported(this.data.settings.uiMaterial))this.data.settings.uiMaterial=window.PhoenixMaterialEngine.fallback;
+    else if(!window.PhoenixMaterialEngine&&!["precision","foundry"].includes(this.data.settings.uiMaterial))this.data.settings.uiMaterial="precision";
     this.data.settings.defaultRest=Math.max(0,Number(this.data.settings.defaultRest)||90);
     this.data.settings.sound=this.data.settings.sound!==false;
     this.data.settings.vibration=this.data.settings.vibration!==false;
@@ -1218,16 +1219,21 @@ const App={
 
   applyUiSettings(){
     const scale=this.data?.settings?.fontScale||"normal";
-    const material=this.data?.settings?.uiMaterial||"precision";
+    const requested=this.data?.settings?.uiMaterial||"precision";
+    const engine=window.PhoenixMaterialEngine;
+    const material=engine?.isSupported?.(requested)?requested:(engine?.fallback||"precision");
+    this.data.settings.uiMaterial=material;
     document.documentElement.dataset.fontScale=scale;
-    document.documentElement.dataset.material=material;
-    document.body.dataset.material=material;
+    if(engine)engine.apply(material,{source:"app"});
+    else{document.documentElement.dataset.phxMaterial=material;document.documentElement.dataset.material=material;document.body.dataset.material=material}
   },
 
   setUiMaterial(material){
-    if(!["precision","foundry"].includes(material))return;
+    const engine=window.PhoenixMaterialEngine;
+    if(engine&&!engine.isSupported(material)){this.toast("Material no compatible");return}
+    if(!engine&&!["precision","foundry"].includes(material))return;
     this.data.settings.uiMaterial=material;
-    this.applyUiSettings();
+    if(engine)engine.apply(material,{source:"settings"});else this.applyUiSettings();
     this.save();
     document.querySelectorAll('[data-ui-material]').forEach(button=>{
       const active=button.dataset.uiMaterial===material;
@@ -2860,26 +2866,28 @@ const App={
     const timerOrientation=this.data.settings.timerOrientation||"auto";
     const uiMaterial=this.data.settings.uiMaterial||"precision";
     document.getElementById("settings").innerHTML=`<div class="card settings-definitive"><div class="eyebrow">AJUSTES</div>
+      <section class="settings-section material-settings material-settings--alpha"><div class="engine-badge"><span>PHX SKIN ENGINE</span><b>0.1 ALPHA</b></div><h3>Apariencia y materiales</h3>
+        <p class="material-intro">Elige el material visual. No cambia datos, rutinas ni funcionamiento.</p>
+        <div class="material-selector" role="group" aria-label="Material de la interfaz">
+          <button type="button" class="material-option precision ${uiMaterial==='precision'?'active':''}" data-ui-material="precision" aria-pressed="${uiMaterial==='precision'}" onclick="App.setUiMaterial('precision')">
+            <span class="material-swatch" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="material-copy"><b>FORGED Precision</b><small>Minimalista · técnica · material seguro</small><em class="material-state">${uiMaterial==='precision'?'MATERIAL ACTIVO':'APLICAR MATERIAL'}</em></span>
+          </button>
+          <button type="button" class="material-option foundry ${uiMaterial==='foundry'?'active':''}" data-ui-material="foundry" aria-pressed="${uiMaterial==='foundry'}" onclick="App.setUiMaterial('foundry')">
+            <span class="material-swatch" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="material-copy"><b>FORGED Foundry <mark>ALPHA</mark></b><small>Acero mecanizado · industrial · robusta</small><em class="material-state">${uiMaterial==='foundry'?'MATERIAL ACTIVO':'APLICAR MATERIAL'}</em></span>
+          </button>
+        </div>
+        <div class="alpha-security-strip"><span>RED</span><b>LOCAL ONLY</b><span>NUBE</span><b>DESACTIVADA</b></div>
+        <small class="material-footnote">Las creaciones visuales no ejecutan JavaScript ni pueden leer o transmitir tus datos.</small>
+      </section>
       <section class="settings-section"><h3>Entrenamiento</h3>
         <label>Descanso predeterminado<input id="defaultRest" type="number" min="0" step="5" value="${this.data.settings.defaultRest}"><small>Segundos usados al crear nuevos ejercicios.</small></label>
         <label>Incremento de peso<input id="weightStep" type="number" min="0.1" step="0.1" value="${this.data.settings.weightStep}"><small>Salto aplicado por los controles rápidos.</small></label>
         <label class="setting-switch"><span><b>Sonido del temporizador</b><small>Aviso al terminar el descanso.</small></span><input id="soundSetting" type="checkbox" ${this.data.settings.sound?'checked':''}></label>
         <label class="setting-switch"><span><b>Vibración</b><small>Confirmaciones y fin del descanso.</small></span><input id="vibrationSetting" type="checkbox" ${this.data.settings.vibration?'checked':''}></label>
       </section>
-      <section class="settings-section material-settings"><h3>Material de la interfaz</h3>
-        <p class="material-intro">Phoenix no cambia de aplicación: cambia el material con el que parece construida.</p>
-        <div class="material-selector" role="group" aria-label="Material de la interfaz">
-          <button type="button" class="material-option precision ${uiMaterial==='precision'?'active':''}" data-ui-material="precision" aria-pressed="${uiMaterial==='precision'}" onclick="App.setUiMaterial('precision')">
-            <span class="material-swatch" aria-hidden="true"><i></i><i></i><i></i></span>
-            <span class="material-copy"><b>FORGED Precision</b><small>Minimalista · técnica · elegante</small><em class="material-state">${uiMaterial==='precision'?'MATERIAL ACTIVO':'APLICAR MATERIAL'}</em></span>
-          </button>
-          <button type="button" class="material-option foundry ${uiMaterial==='foundry'?'active':''}" data-ui-material="foundry" aria-pressed="${uiMaterial==='foundry'}" onclick="App.setUiMaterial('foundry')">
-            <span class="material-swatch" aria-hidden="true"><i></i><i></i><i></i></span>
-            <span class="material-copy"><b>FORGED Foundry <mark>BETA</mark></b><small>Acero mecanizado · industrial · robusta</small><em class="material-state">${uiMaterial==='foundry'?'MATERIAL ACTIVO':'APLICAR MATERIAL'}</em></span>
-          </button>
-        </div>
-        <small class="material-footnote">El material se guarda únicamente para el perfil activo.</small>
-      </section>
+
       <section class="settings-section"><h3>Pantalla</h3>
         <label>Tamaño del texto<select id="fontScale"><option value="normal" ${fontScale==='normal'?'selected':''}>Normal</option><option value="large" ${fontScale==='large'?'selected':''}>Grande</option><option value="xl" ${fontScale==='xl'?'selected':''}>Muy grande</option></select></label>
         <label>Temporizador<select id="timerOrientation"><option value="auto" ${timerOrientation==='auto'?'selected':''}>Automático / apaisado</option><option value="portrait" ${timerOrientation==='portrait'?'selected':''}>Mantener vertical</option><option value="landscape" ${timerOrientation==='landscape'?'selected':''}>Forzar apaisado</option></select></label>
@@ -2913,7 +2921,7 @@ const App={
     this.data.settings.vibration=Boolean(document.getElementById("vibrationSetting")?.checked);
     this.data.settings.fontScale=document.getElementById("fontScale")?.value||"normal";
     this.data.settings.timerOrientation=document.getElementById("timerOrientation")?.value||"auto";
-    this.data.settings.uiMaterial=["precision","foundry"].includes(this.data.settings.uiMaterial)?this.data.settings.uiMaterial:"precision";
+    this.data.settings.uiMaterial=window.PhoenixMaterialEngine?.isSupported?.(this.data.settings.uiMaterial)?this.data.settings.uiMaterial:"precision";
     this.data.settings.planningMode=document.querySelector('input[name="planningMode"]:checked')?.value||"fixed";
     const bodyWeight=this.parseDecimal(document.getElementById("bodyWeight")?.value);
     if(bodyWeight>=20&&bodyWeight<=400&&Number(bodyWeight.toFixed(1))!==Number(this.data.profile?.bodyWeight||0)){

@@ -1,0 +1,16 @@
+/* Semantic tokens · FORGED Foundry */
+html[data-phx-material="foundry"]{
+  --phx-material-id:foundry;
+  --phx-surface-screen:#090a0b;
+  --phx-surface-primary:#151719;
+  --phx-surface-raised:#24282c;
+  --phx-edge-primary:#4b5056;
+  --phx-action-primary:#b88a32;
+  --phx-action-primary-hi:#e5c477;
+  --phx-action-primary-low:#5b3a0d;
+  --phx-text-primary:#f0ece1;
+  --phx-text-secondary:#9a9ca0;
+  --phx-radius-control:8px;
+  --phx-radius-card:9px;
+  --phx-press-travel:4px;
+}

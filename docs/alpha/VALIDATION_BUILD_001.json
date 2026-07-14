@@ -1,0 +1,21 @@
+{
+  "build": "11-alpha-build-001",
+  "status": "PASS",
+  "checks": {
+    "javascriptSyntax": "PASS",
+    "jsonParsing": "PASS",
+    "cssParsing": "PASS",
+    "serviceWorkerAssets": "PASS",
+    "htmlAssets": "PASS",
+    "uiActions": "PASS",
+    "skinNoExecutable": "PASS",
+    "skinNoExternalAssets": "PASS",
+    "skinBudgets": "PASS"
+  },
+  "materialSizesBytes": {
+    "precision": 1156,
+    "foundry": 26927
+  },
+  "errors": [],
+  "runtimeBrowserTest": "NOT_RUN: local browser blocked by managed environment policy"
+}

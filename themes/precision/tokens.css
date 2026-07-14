@@ -1,0 +1,16 @@
+/* Semantic tokens · FORGED Precision */
+html[data-phx-material="precision"]{
+  --phx-material-id:precision;
+  --phx-surface-screen:#070709;
+  --phx-surface-primary:#17181b;
+  --phx-surface-raised:#24252a;
+  --phx-edge-primary:#676b74;
+  --phx-action-primary:#d8b35e;
+  --phx-action-primary-hi:#ffe3a1;
+  --phx-action-primary-low:#6c4812;
+  --phx-text-primary:#f4efe4;
+  --phx-text-secondary:#8c8d92;
+  --phx-radius-control:14px;
+  --phx-radius-card:22px;
+  --phx-press-travel:2px;
+}

@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "foundry",
+  "name": "FORGED Foundry",
+  "author": "Phoenix Forge",
+  "version": "0.3.0-beta",
+  "engine": "0.1.x",
+  "status": "beta",
+  "fallback": false,
+  "styles": [
+    "tokens.css",
+    "components.css",
+    "timer.css"
+  ],
+  "assetsBudgetKb": 80,
+  "capabilities": [
+    "visual-tokens",
+    "components",
+    "timer"
+  ],
+  "network": "forbidden",
+  "scripts": "forbidden"
+}

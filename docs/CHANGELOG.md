@@ -1,3 +1,8 @@
+## 10.3 · Foundry Phase 3
+
+- Biblioteca, planificación, rutinas, bloques, historial, peso y ajustes adaptados a Foundry.
+- Refinado responsive y estados físicos de controles.
+
 ## 10.2 · Foundry Phase 2
 - Phoenix Timer Foundry completo y responsive.
 - Mantiene Precision y toda la lógica intacta.
