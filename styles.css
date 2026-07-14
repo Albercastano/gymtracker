@@ -1413,3 +1413,188 @@ button.phoenix-emblem{cursor:pointer}
 @media(max-width:420px){#rest .phoenix-timer-screen{padding-inline:8px!important}.phoenix-timer{gap:12px}.phoenix-timer__brand img{width:42px;height:42px}.phoenix-timer__title span{font-size:1.15rem}.phoenix-timer__instrument{padding:39px 8px 14px;border-radius:23px}.phoenix-timer__ring{width:min(82vw,380px);padding:11px}.phoenix-timer__time{font-size:clamp(4.7rem,22vw,7.4rem)}.phoenix-timer__controls button{min-height:76px}.phoenix-timer__skip{min-height:56px;font-size:.74rem}.phoenix-timer__footer button{min-height:58px}}
 @media(orientation:landscape){body.timer-landscape #rest.active{min-height:100dvh}body.timer-landscape #rest .phoenix-timer-screen{max-width:1160px!important;padding:8px 12px!important}.phoenix-timer{grid-template-columns:minmax(430px,1fr) 280px;grid-template-areas:"header controls" "instrument controls";align-items:center}.phoenix-timer__header{grid-area:header}.phoenix-timer__instrument{grid-area:instrument}.phoenix-timer__controls{grid-area:controls;grid-template-columns:1fr;align-self:end}.phoenix-timer__skip{grid-column:2;align-self:start}.phoenix-timer__footer{grid-column:2}.phoenix-timer__ring{width:min(58vh,500px)}.phoenix-timer__time{font-size:clamp(5rem,17vh,9rem)}}
 @media(prefers-reduced-motion:reduce){.phoenix-timer *{animation:none!important;transition:none!important}}
+
+/* =========================================================
+   GYMTRACKER PHOENIX 10.1 · PHX SKIN ENGINE PREVIEW
+   Materials: FORGED Precision / FORGED Foundry (Beta)
+   Lightweight: CSS gradients + shadows, no texture images.
+   ========================================================= */
+
+.material-settings{text-align:left}
+.material-intro{margin:.15rem 0 1rem;color:var(--mut);line-height:1.5}
+.material-selector{display:grid;gap:12px}
+.material-option{
+  width:100%;min-height:116px;display:grid;grid-template-columns:118px 1fr;align-items:center;gap:15px;
+  padding:14px;border:1px solid rgba(255,255,255,.1);border-radius:20px;
+  color:var(--ink);background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018));
+  text-align:left;box-shadow:0 9px 0 rgba(0,0,0,.36),0 18px 32px rgba(0,0,0,.28);
+  transition:transform .12s ease,border-color .18s ease,box-shadow .18s ease
+}
+.material-option:active{transform:translateY(5px);box-shadow:0 4px 0 rgba(0,0,0,.45),0 10px 18px rgba(0,0,0,.24)}
+.material-option.active{border-color:rgba(216,179,94,.62);box-shadow:0 9px 0 rgba(74,48,12,.72),0 18px 34px rgba(0,0,0,.38),inset 0 0 0 1px rgba(255,227,161,.1)}
+.material-swatch{position:relative;height:82px;border-radius:15px;overflow:hidden;border:1px solid rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 9px 18px rgba(0,0,0,.35)}
+.material-swatch i{position:absolute;display:block}
+.material-option.precision .material-swatch{background:radial-gradient(circle at 25% 20%,rgba(255,227,161,.14),transparent 36%),linear-gradient(145deg,#25262b,#09090b 62%,#15161a)}
+.material-option.precision .material-swatch i:nth-child(1){inset:13px;border:1px solid rgba(255,255,255,.13);border-radius:12px}
+.material-option.precision .material-swatch i:nth-child(2){left:22px;right:22px;top:31px;height:4px;border-radius:999px;background:linear-gradient(90deg,#6c4812,#ffe3a1,#8b5b14)}
+.material-option.precision .material-swatch i:nth-child(3){width:24px;height:24px;right:18px;bottom:12px;border-radius:50%;background:linear-gradient(145deg,#fff1bb,#8b5b14);box-shadow:0 0 16px rgba(216,179,94,.2)}
+.material-option.foundry .material-swatch{
+  background:
+    radial-gradient(circle at 10px 10px,#b9a36c 0 2px,#2a2215 3px 5px,transparent 6px),
+    radial-gradient(circle at calc(100% - 10px) 10px,#b9a36c 0 2px,#2a2215 3px 5px,transparent 6px),
+    radial-gradient(circle at 10px calc(100% - 10px),#b9a36c 0 2px,#2a2215 3px 5px,transparent 6px),
+    radial-gradient(circle at calc(100% - 10px) calc(100% - 10px),#b9a36c 0 2px,#2a2215 3px 5px,transparent 6px),
+    repeating-linear-gradient(104deg,rgba(255,255,255,.025) 0 1px,transparent 1px 7px),
+    linear-gradient(150deg,#343539,#111214 48%,#242529)
+}
+.material-option.foundry .material-swatch i:nth-child(1){inset:10px;border:2px solid #090a0b;outline:1px solid rgba(216,179,94,.28);clip-path:polygon(6px 0,calc(100% - 6px) 0,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0 calc(100% - 6px),0 6px)}
+.material-option.foundry .material-swatch i:nth-child(2){left:25px;right:25px;top:28px;height:24px;background:linear-gradient(180deg,#ba8c35,#5f3f0f);border:1px solid #e1ba68;box-shadow:0 4px 0 #2a1a07,inset 0 1px 0 rgba(255,255,255,.35)}
+.material-option.foundry .material-swatch i:nth-child(3){left:34px;right:34px;top:38px;height:3px;background:#ffe2a0;opacity:.7}
+.material-copy{display:grid;gap:5px;min-width:0}
+.material-copy b{font-size:1.03rem;color:var(--gold2)}
+.material-copy b mark{margin-left:6px;padding:3px 6px;border-radius:999px;background:rgba(216,179,94,.13);color:var(--gold);font-size:.61rem;letter-spacing:.12em}
+.material-copy small{color:var(--mut);line-height:1.35}
+.material-copy em{margin-top:4px;color:var(--gold);font-size:.68rem;font-style:normal;font-weight:1000;letter-spacing:.12em}
+.material-footnote{display:block;margin-top:12px;color:var(--mut)}
+@media(max-width:440px){.material-option{grid-template-columns:92px 1fr;padding:11px;gap:11px}.material-swatch{height:72px}}
+
+/* ---------- Foundry material tokens ---------- */
+html[data-material="foundry"]{
+  --bg:#070706;
+  --panel:#121313;
+  --panel2:#202121;
+  --ink:#f1eadc;
+  --mut:#aaa296;
+  --gold:#b88a32;
+  --gold2:#e6c476;
+  --line:rgba(203,166,90,.26);
+  --shadow:rgba(0,0,0,.78)
+}
+html[data-material="foundry"] body{
+  background:
+    repeating-linear-gradient(108deg,rgba(255,255,255,.012) 0 1px,transparent 1px 9px),
+    radial-gradient(900px 460px at 18% -12%,rgba(181,132,42,.12),transparent 62%),
+    linear-gradient(145deg,#080808,#171818 48%,#080808)
+}
+
+/* Foundry header: machined rail, restrained fasteners */
+html[data-material="foundry"] .topbar{
+  background:
+    radial-gradient(circle at 16px 16px,#b69a62 0 2px,#30291d 3px 5px,transparent 6px),
+    radial-gradient(circle at calc(100% - 16px) 16px,#b69a62 0 2px,#30291d 3px 5px,transparent 6px),
+    repeating-linear-gradient(102deg,rgba(255,255,255,.018) 0 1px,transparent 1px 8px),
+    linear-gradient(180deg,rgba(38,39,39,.97),rgba(10,10,10,.98));
+  border-bottom:2px solid #050505;box-shadow:0 6px 0 #050505,0 15px 30px rgba(0,0,0,.42);backdrop-filter:none
+}
+html[data-material="foundry"] .dest-button,
+html[data-material="foundry"] .profile-button{
+  border-radius:10px;border:1px solid rgba(213,181,111,.28);
+  background:linear-gradient(180deg,#292a2a,#101111);
+  box-shadow:0 5px 0 #050505,inset 0 1px 0 rgba(255,255,255,.09)
+}
+html[data-material="foundry"] .topbar-brand img{filter:drop-shadow(0 5px 9px rgba(0,0,0,.8)) drop-shadow(0 0 8px rgba(184,138,50,.13))}
+
+/* Foundry plates */
+html[data-material="foundry"] .card,
+html[data-material="foundry"] .list-item,
+html[data-material="foundry"] .exercise-card,
+html[data-material="foundry"] .settings-section,
+html[data-material="foundry"] .series-box,
+html[data-material="foundry"] .control-box{
+  border-radius:10px;
+  border:1px solid #41413d;
+  outline:1px solid rgba(0,0,0,.85);
+  background:
+    radial-gradient(circle at 11px 11px,#a98b51 0 1.5px,#292318 2.5px 4px,transparent 5px),
+    radial-gradient(circle at calc(100% - 11px) 11px,#a98b51 0 1.5px,#292318 2.5px 4px,transparent 5px),
+    repeating-linear-gradient(105deg,rgba(255,255,255,.018) 0 1px,transparent 1px 8px),
+    linear-gradient(155deg,#2b2c2c,#131414 58%,#202121);
+  box-shadow:0 7px 0 #050505,0 18px 35px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.08),inset 0 -1px 0 rgba(0,0,0,.85)
+}
+html[data-material="foundry"] .card{padding:20px}
+html[data-material="foundry"] .exercise-card{padding:16px}
+
+/* Foundry buttons: physical travel, no zoom */
+html[data-material="foundry"] .secondary,
+html[data-material="foundry"] .primary,
+html[data-material="foundry"] .danger,
+html[data-material="foundry"] .king,
+html[data-material="foundry"] .data-king,
+html[data-material="foundry"] .exercise-card button{
+  position:relative;border-radius:8px;border:1px solid #56554f;outline:1px solid #030303;
+  background:
+    radial-gradient(circle at 10px 10px,#c0a36a 0 1.5px,#2b2519 2.5px 4px,transparent 5px),
+    radial-gradient(circle at calc(100% - 10px) 10px,#c0a36a 0 1.5px,#2b2519 2.5px 4px,transparent 5px),
+    repeating-linear-gradient(102deg,rgba(255,255,255,.02) 0 1px,transparent 1px 7px),
+    linear-gradient(180deg,#303131,#141515);
+  color:#eee7da;box-shadow:0 7px 0 #050505,0 13px 22px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.12);
+  text-shadow:0 1px 0 #000
+}
+html[data-material="foundry"] .primary,
+html[data-material="foundry"] .king,
+html[data-material="foundry"] .exercise-card button{
+  color:#17120a;border-color:#b48738;
+  background:
+    radial-gradient(circle at 10px 10px,#ffdda0 0 1.5px,#543b12 2.5px 4px,transparent 5px),
+    radial-gradient(circle at calc(100% - 10px) 10px,#ffdda0 0 1.5px,#543b12 2.5px 4px,transparent 5px),
+    repeating-linear-gradient(100deg,rgba(255,255,255,.05) 0 1px,transparent 1px 7px),
+    linear-gradient(180deg,#d6ad5b,#8b621f 62%,#5d3d11);
+  box-shadow:0 8px 0 #392408,0 16px 25px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,242,194,.52)
+}
+html[data-material="foundry"] .data-king{color:#ece7dc}
+html[data-material="foundry"] .danger{color:#f0a7a3;border-color:#6c2b28;background:linear-gradient(180deg,#4b2523,#21100f)}
+html[data-material="foundry"] .secondary:active,
+html[data-material="foundry"] .primary:active,
+html[data-material="foundry"] .danger:active,
+html[data-material="foundry"] .king:active,
+html[data-material="foundry"] .data-king:active,
+html[data-material="foundry"] .exercise-card button:active{transform:translateY(5px);box-shadow:0 2px 0 #050505,0 6px 12px rgba(0,0,0,.36)}
+
+/* Foundry sheets and dialogs */
+html[data-material="foundry"] .sheet-panel,
+html[data-material="foundry"] .profile-gate__panel,
+html[data-material="foundry"] .phoenix-origin__panel{
+  border-radius:12px 12px 0 0;border:1px solid #4b4a44;
+  background:
+    radial-gradient(circle at 14px 14px,#b89b61 0 2px,#2d261a 3px 5px,transparent 6px),
+    radial-gradient(circle at calc(100% - 14px) 14px,#b89b61 0 2px,#2d261a 3px 5px,transparent 6px),
+    repeating-linear-gradient(106deg,rgba(255,255,255,.017) 0 1px,transparent 1px 9px),
+    linear-gradient(155deg,#2a2b2b,#101111 58%,#1d1e1e);
+  box-shadow:0 -8px 0 #050505,0 -20px 45px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.09)
+}
+html[data-material="foundry"] .handle{height:7px;border-radius:2px;background:linear-gradient(180deg,#9b7a3c,#37250b);box-shadow:0 2px 0 #050505}
+
+/* Foundry inputs stay readable and light */
+html[data-material="foundry"] input,
+html[data-material="foundry"] select,
+html[data-material="foundry"] textarea{
+  border-radius:7px;border:1px solid #4a4944;background:linear-gradient(180deg,#0a0a0a,#171818);box-shadow:inset 0 3px 8px rgba(0,0,0,.72),0 1px 0 rgba(255,255,255,.04)
+}
+
+/* Foundry timer: heavier casing, same precise logic */
+html[data-material="foundry"] .phx-timer-shell,
+html[data-material="foundry"] .timer-instrument,
+html[data-material="foundry"] .timer-chassis{
+  border-radius:12px!important;
+  background:
+    radial-gradient(circle at 16px 16px,#b89b62 0 2px,#2b251a 3px 6px,transparent 7px),
+    radial-gradient(circle at calc(100% - 16px) 16px,#b89b62 0 2px,#2b251a 3px 6px,transparent 7px),
+    radial-gradient(circle at 16px calc(100% - 16px),#b89b62 0 2px,#2b251a 3px 6px,transparent 7px),
+    radial-gradient(circle at calc(100% - 16px) calc(100% - 16px),#b89b62 0 2px,#2b251a 3px 6px,transparent 7px),
+    repeating-linear-gradient(103deg,rgba(255,255,255,.018) 0 1px,transparent 1px 8px),
+    linear-gradient(150deg,#343535,#0f1010 54%,#272828)!important;
+  border:2px solid #474641!important;outline:2px solid #050505;
+  box-shadow:0 10px 0 #030303,0 26px 55px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.1)!important
+}
+html[data-material="foundry"] .phx-timer-time,
+html[data-material="foundry"] .timer-time{
+  filter:drop-shadow(0 5px 0 #3b2608) drop-shadow(0 14px 19px rgba(0,0,0,.75));
+  letter-spacing:-.07em!important
+}
+html[data-material="foundry"] .phx-timer-control,
+html[data-material="foundry"] .timer-control{border-radius:8px!important}
+
+/* Material switch itself follows the selected material */
+html[data-material="foundry"] .material-option.foundry.active{outline:2px solid rgba(184,138,50,.38);outline-offset:2px}
+
+@media(prefers-reduced-motion:reduce){.material-option{transition:none}}
