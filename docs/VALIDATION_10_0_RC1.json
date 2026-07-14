@@ -1,0 +1,82 @@
+{
+  "app_js_syntax": {
+    "ok": true,
+    "value": "ok"
+  },
+  "pedb_loader_syntax": {
+    "ok": true,
+    "value": "ok"
+  },
+  "pedb_db_syntax": {
+    "ok": true,
+    "value": "ok"
+  },
+  "manifest_json": {
+    "ok": true,
+    "value": "GymTracker Phoenix 10.0 RC1 · FORGED Stable"
+  },
+  "pedb_manifest_json": {
+    "ok": true,
+    "value": "3.0.0"
+  },
+  "pedb_exercise_count": {
+    "ok": true,
+    "value": 677
+  },
+  "pedb_relation_count": {
+    "ok": true,
+    "value": 23811
+  },
+  "html_structure": {
+    "ok": true,
+    "value": {
+      "ids": 98,
+      "title": "GymTracker Phoenix 10.0 RC1 · FORGED Stable"
+    }
+  },
+  "app_method_links": {
+    "ok": true,
+    "value": {
+      "calls": 111,
+      "definitions": 214
+    }
+  },
+  "native_browser_dialogs": {
+    "ok": true,
+    "value": 0
+  },
+  "brand_icons": {
+    "ok": true,
+    "value": {
+      "favicon-32.png": [
+        32,
+        32
+      ],
+      "favicon-48.png": [
+        48,
+        48
+      ],
+      "apple-touch-icon.png": [
+        180,
+        180
+      ],
+      "icon-192.png": [
+        192,
+        192
+      ],
+      "icon-512.png": [
+        512,
+        512
+      ],
+      "phoenix-master-1024.png": [
+        1024,
+        1024
+      ]
+    }
+  },
+  "service_worker_assets": {
+    "ok": true,
+    "value": 27
+  },
+  "all_ok": true
+}

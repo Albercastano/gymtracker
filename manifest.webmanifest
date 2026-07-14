@@ -1,10 +1,10 @@
 {
-  "name": "GymTracker Phoenix Lab 9.9.21 Peso y Biblioteca FORGED",
-  "short_name": "Phoenix 9.9.21",
+  "name": "GymTracker Phoenix 10.0 RC1 · FORGED Stable",
+  "short_name": "Phoenix 10 RC1",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#050507",
-  "theme_color": "#d8b35e",
+  "theme_color": "#050507",
   "icons": [
     {
       "src": "icon-192.png",
@@ -18,5 +18,6 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "description": "Entrenamiento de fuerza y calistenia offline-first con perfiles locales y PEDB integrada."
 }

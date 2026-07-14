@@ -29,6 +29,9 @@ const App={
   storageHealthy:true,
   lastSaveAt:null,
   phoenixTapTimes:[],
+  lastPhoenixPointerAt:0,
+  pendingForgedAction:null,
+  editingWeightId:null,
 
 
   async init(){
@@ -64,7 +67,15 @@ const App={
     document.querySelectorAll("[data-phoenix-easter]").forEach(trigger=>{
       if(trigger.dataset.easterBound==="1")return;
       trigger.dataset.easterBound="1";
-      trigger.addEventListener("click",event=>this.registerPhoenixTap(event),{passive:false});
+      trigger.addEventListener("pointerup",event=>{
+        this.lastPhoenixPointerAt=Date.now();
+        this.registerPhoenixTap(event);
+      },{passive:false});
+      trigger.addEventListener("click",event=>{
+        // Some Android WebViews emit both pointerup and click. Count only once.
+        if(Date.now()-this.lastPhoenixPointerAt<450)return;
+        this.registerPhoenixTap(event);
+      },{passive:false});
       trigger.addEventListener("keydown",event=>{
         if(event.key==="Enter"||event.key===" ")this.registerPhoenixTap(event);
       });
@@ -126,6 +137,43 @@ const App={
     try{this.toast("Ha ocurrido un error. Tus datos siguen guardados.")}catch(e){}
   },
 
+  openForgedDialog(options={}){
+    const sheet=document.getElementById("forgedDialog");if(!sheet)return;
+    this.pendingForgedAction=typeof options.onConfirm==="function"?options.onConfirm:null;
+    const eyebrow=document.getElementById("forgedDialogEyebrow");
+    const title=document.getElementById("forgedDialogTitle");
+    const message=document.getElementById("forgedDialogMessage");
+    const wrap=document.getElementById("forgedDialogInputWrap");
+    const input=document.getElementById("forgedDialogInput");
+    const inputLabel=document.getElementById("forgedDialogInputLabel");
+    const confirm=document.getElementById("forgedDialogConfirm");
+    if(eyebrow)eyebrow.textContent=options.eyebrow||"PHOENIX";
+    if(title)title.textContent=options.title||"Confirmar acción";
+    if(message)message.textContent=options.message||"";
+    const wantsInput=Boolean(options.input);
+    if(wrap)wrap.hidden=!wantsInput;
+    if(input){input.value=options.inputValue||"";input.placeholder=options.placeholder||"";input.type=options.inputType||"text"}
+    if(inputLabel)inputLabel.textContent=options.inputLabel||"Valor";
+    if(confirm){confirm.textContent=options.confirmText||"CONFIRMAR";confirm.className=options.danger?"danger forged-danger forged-danger--full":"primary"}
+    sheet.classList.add("show");sheet.setAttribute("aria-hidden","false");document.body.classList.add("sheet-open");
+    if(wantsInput)setTimeout(()=>input?.focus(),160);
+  },
+  closeForgedDialog(){
+    const sheet=document.getElementById("forgedDialog");sheet?.classList.remove("show");sheet?.setAttribute("aria-hidden","true");
+    const anotherSheet=[...document.querySelectorAll(".sheet.show")].some(el=>el!==sheet);
+    if(!anotherSheet)document.body.classList.remove("sheet-open");
+    this.pendingForgedAction=null;
+  },
+  confirmForgedDialog(){
+    const action=this.pendingForgedAction;
+    const value=document.getElementById("forgedDialogInputWrap")?.hidden?null:(document.getElementById("forgedDialogInput")?.value||"").trim();
+    if(typeof action!=="function"){this.closeForgedDialog();return}
+    try{
+      const keepOpen=action(value)===false;
+      if(!keepOpen)this.closeForgedDialog();
+    }catch(error){this.reportError(error);this.closeForgedDialog()}
+  },
+
 
   profileDbKey(id){return id==="alberto"?DB_KEY:`${DB_KEY}_profile_${id}`},
   profileActiveKey(id){return id==="alberto"?ACTIVE_KEY:`${ACTIVE_KEY}_profile_${id}`},
@@ -183,21 +231,15 @@ const App={
     document.getElementById("profileButton")?.setAttribute("aria-expanded","false");
   },
   selectProfileAndReload(id){
+    this.switchProfileDirect(id);
+  },
+  switchProfileDirect(id){
     if(!this.profiles.some(p=>p.id===id))return;
-    try{this.persistNow()}catch(e){}
-    try{localStorage.setItem(ACTIVE_PROFILE_KEY,id)}catch(e){}
-    const current=this.activeProfileId;
-    if(id===current){
-      this.closeProfileGate();
-      this.toast(`Perfil activo: ${this.activeProfile()?.name||id}`);
-      return;
+    if(id===this.activeProfileId){
+      this.closeProfileGate();this.closeProfileSheet();
+      this.toast(`Perfil activo: ${this.activeProfile()?.name||id}`);return;
     }
-    try{
-      location.reload();
-    }catch(e){
-      this.performProfileSwitch(id);
-      this.closeProfileGate();
-    }
+    this.performProfileSwitch(id);
   },
   profileSelectChanged(id){this.selectProfileAndReload(id)},
   openProfileSheet(){
@@ -336,7 +378,18 @@ const App={
     }
     this.data.trainingBlocks=Array.isArray(this.data.trainingBlocks)?this.data.trainingBlocks:[];
     this.data.sessions=Array.isArray(this.data.sessions)?this.data.sessions:[];
-    this.data.weights=Array.isArray(this.data.weights)?this.data.weights:[];
+    this.data.weights=(Array.isArray(this.data.weights)?this.data.weights:[]).map((entry,index)=>({
+      ...entry,
+      id:entry.id||`w_legacy_${index}_${Math.abs(new Date(entry.date||0).getTime())}`,
+      date:entry.date||new Date().toISOString(),
+      weight:Number(entry.weight)||0,
+      note:String(entry.note||""),
+      profileId:entry.profileId||this.activeProfileId
+    })).filter(entry=>entry.weight>0);
+    if(this.data.weights.length){
+      const latest=this.data.weights.slice().sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+      this.data.profile.bodyWeight=Number(latest.weight)||this.data.profile.bodyWeight||null;
+    }
     this.data.alternatives=this.data.alternatives||{};
     this.data.library=Array.isArray(this.data.library)?this.data.library:this.defaults().library;
     this.data.personalExercises=Array.isArray(this.data.personalExercises)?this.data.personalExercises:[];
@@ -646,7 +699,7 @@ const App={
           <strong class="phx-metric">${Math.round(weekVolume).toLocaleString('es-ES')}</strong>
           <span class="phx-metric-label">kg · 7 días</span>
         </button>
-        <button class="phx-card phx-card--compact phx-card--interactive" onclick="App.renderSettings()">
+        <button class="phx-card phx-card--compact phx-card--interactive" onclick="App.openWeightSheet()">
           <span class="phx-card__eyebrow">PESO</span>
           <strong class="phx-metric">${bodyWeight?bodyWeight.toFixed(1):"—"}</strong>
           <span class="phx-metric-label">${bodyWeight?"kg":"sin registrar"}</span>
@@ -661,7 +714,7 @@ const App={
 
   startWorkout(routineId){
     const r=this.getRoutine(routineId);
-    if(!r||!r.items.length){alert("No hay una rutina válida para hoy.");return}
+    if(!r||!r.items.length){this.toast("No hay una rutina válida para hoy.");return}
     this.active={id:"s"+Date.now(),routineId:r.id,date:new Date().toISOString(),exerciseIndex:0,setIndex:0,currentSets:[],completedExercises:[],exerciseProgress:{},exerciseOverrides:{},startedAt:Date.now(),phase:"gym",restEndsAt:null,restLeft:0,restPaused:false,restPausedLeft:0};
     this.saveActive();
     this.renderGym()
@@ -675,7 +728,9 @@ const App={
     if(this.active.phase==="summary"){this.renderExerciseSummary();return}
     this.renderGym()
   },
-  discardWorkout(){if(confirm("¿Descartar el entrenamiento en curso?")){this.active=null;this.saveActive();this.renderHome()}},
+  discardWorkout(){
+    this.openForgedDialog({eyebrow:"ENTRENAMIENTO EN CURSO",title:"Descartar entrenamiento",message:"Se eliminará la sesión que está abierta. El historial anterior no se modificará.",confirmText:"DESCARTAR",danger:true,onConfirm:()=>{this.active=null;this.saveActive();this.renderHome(false)}})
+  },
 
   currentRoutine(){return this.active?this.getRoutine(this.active.routineId):null},
   currentPlannedExercise(){return this.currentRoutine()?.items[this.active.exerciseIndex]},
@@ -1653,7 +1708,12 @@ const App={
     this.pendingRoutineId=rid;
     this.renderLibrary(true)
   },
-  createRoutine(){const name=prompt("Nombre de la rutina","Nueva rutina");if(!name)return;const id="r"+Date.now();this.data.routines.push({id,name,items:[]});this.openRoutineId=id;this.save();this.renderRoutines(false)},
+  createRoutine(){
+    this.openForgedDialog({eyebrow:"NUEVA RUTINA",title:"Ponle un nombre",message:"La rutina se creará vacía para que añadas ejercicios desde PEDB.",input:true,inputLabel:"NOMBRE",inputValue:"Nueva rutina",confirmText:"CREAR RUTINA",onConfirm:value=>{
+      const name=String(value||"").trim();if(!name){this.toast("Escribe un nombre");return false}
+      const id="r"+Date.now();this.data.routines.push({id,name,items:[]});this.openRoutineId=id;this.save();this.renderRoutines(false)
+    }})
+  },
   renameRoutine(id,name){const r=this.getRoutine(id);if(r&&name.trim()){r.name=name.trim();this.save();this.renderRoutines(false)}},
   editRoutineItem(rid,eid,field,value){
     const e=this.getRoutine(rid)?.items.find(x=>x.id===eid);if(!e)return;
@@ -1675,8 +1735,7 @@ const App={
   },
   deleteRoutineItem(rid,eid){
     const r=this.getRoutine(rid);const item=r?.items.find(x=>x.id===eid);if(!r||!item)return;
-    if(!confirm(`¿Eliminar ${item.name} de esta rutina?`))return;
-    r.items=r.items.filter(x=>x.id!==eid);this.save();this.renderRoutines(false)
+    this.openForgedDialog({eyebrow:"EDITOR DE RUTINAS",title:"Eliminar ejercicio",message:`¿Eliminar ${item.name} de esta rutina?`,confirmText:"ELIMINAR",danger:true,onConfirm:()=>{r.items=r.items.filter(x=>x.id!==eid);this.save();this.renderRoutines(false)}})
   },
   duplicateRoutine(id){
     const r=this.getRoutine(id);if(!r)return;
@@ -1734,13 +1793,14 @@ const App={
     const r=this.getRoutine(id);if(!r)return;
     const affected=[];
     Object.entries(this.data.weeklyPlans||{}).forEach(([week,plan])=>Object.entries(plan||{}).forEach(([d,rid])=>{if(rid===id)affected.push(`${week} · ${["L","M","X","J","V","S","D"][Number(d)]}`)}));
-    const extra=affected.length?`\nTambién se quitará de ${affected.length} asignación${affected.length>1?'es':''} futura${affected.length>1?'s':''}.`:'';
-    if(!confirm(`¿Eliminar ${r.name}?${extra}\nEl historial completado no se modificará.`))return;
-    this.data.routines=this.data.routines.filter(x=>x.id!==id);
-    Object.values(this.data.weeklyPlans||{}).forEach(plan=>Object.keys(plan||{}).forEach(day=>{if(plan[day]===id)delete plan[day]}));
-    Object.keys(this.data.weekPlan||{}).forEach(day=>{if(this.data.weekPlan[day]===id)delete this.data.weekPlan[day]});
-    if(this.openRoutineId===id)this.openRoutineId=this.data.routines[0]?.id||null;
-    this.save();this.renderRoutines(false)
+    const extra=affected.length?` También se quitará de ${affected.length} asignación${affected.length>1?'es':''} futura${affected.length>1?'s':''}.`:'';
+    this.openForgedDialog({eyebrow:"EDITOR DE RUTINAS",title:"Eliminar rutina",message:`¿Eliminar ${r.name}?${extra} El historial completado no se modificará.`,confirmText:"ELIMINAR RUTINA",danger:true,onConfirm:()=>{
+      this.data.routines=this.data.routines.filter(x=>x.id!==id);
+      Object.values(this.data.weeklyPlans||{}).forEach(plan=>Object.keys(plan||{}).forEach(day=>{if(plan[day]===id)delete plan[day]}));
+      Object.keys(this.data.weekPlan||{}).forEach(day=>{if(this.data.weekPlan[day]===id)delete this.data.weekPlan[day]});
+      if(this.openRoutineId===id)this.openRoutineId=this.data.routines[0]?.id||null;
+      this.save();this.renderRoutines(false)
+    }})
   },
 
   openRoutineTextImporter(){
@@ -1907,7 +1967,7 @@ const App={
       this.toast("Rutina importada");
       this.renderRoutines()
     }catch(error){
-      alert(error.message)
+      this.toast(error.message||"No se pudo importar la rutina")
     }
   },
 
@@ -2038,7 +2098,7 @@ const App={
     const e=this.allExercises().find(x=>x.id===id);if(!e)return;
     const pedb=e.pedb||{};
     const type=this.pedbMeta?.types?.get?.(pedb.type_id)?.name_es||pedb.exercise_type||"Ejercicio";
-    const equipment=(pedb.equipment_ids||pedb.equipment||[]);const equipmentText=Array.isArray(equipment)?equipment.join(" · "):String(equipment||"");
+    const equipment=(pedb.equipment_ids||pedb.equipment||[]);const equipmentText=Array.isArray(equipment)?equipment.map(id=>this.pedbMeta.equipment.get(id)?.name_es||id).join(" · "):String(equipment||"");
     document.getElementById("exercisePreviewTitle").textContent=e.name;
     document.getElementById("exercisePreviewMeta").textContent=`${e.group||"Sin grupo"} · ${type}`;
     document.getElementById("exercisePreviewStats").innerHTML=`
@@ -2070,7 +2130,7 @@ const App={
     const group=document.getElementById("personalGroup").value;
     const size=document.getElementById("personalSize").value;
     const type=document.getElementById("personalType").value;
-    if(!name){alert("Escribe un nombre");return}
+    if(!name){this.toast("Escribe un nombre");return}
     const large=size==="large";
     this.data.personalExercises.push({id:"p"+Date.now(),name,group,size,type,sets:large?3:4,reps:type==="time"?(large?30:20):(large?8:12),rest:large?90:60,increment:large?2.5:.5,official:false});
     this.save();this.closePersonalExercise();document.getElementById("personalName").value="";this.updateLibraryView()
@@ -2220,7 +2280,7 @@ const App={
       this.linkExistingRoutinesToPEDB();
       this.updateLibraryView();
       this.toast(`${userExercises.length} personales · ${relations.length} relaciones`)
-    }catch(error){this.reportError(error);alert(error.message||"No se pudo importar el CSV")}
+    }catch(error){this.reportError(error);this.toast(error.message||"No se pudo importar el CSV")}
   },
 
 
@@ -2329,16 +2389,15 @@ const App={
     const b=this.data.trainingBlocks.find(x=>x.id===id);if(!b)return;
     const src=this.getWeekPlan(this.blockWeekDate(b,index-1),false);
     if(!Object.keys(src).length){this.toast("La semana anterior está vacía.");return}
-    if(!confirm(`¿Copiar la semana ${index} en la semana ${index+1}?`))return;
-    this.data.weeklyPlans[this.weekKey(this.blockWeekDate(b,index))]={...src};this.save();this.renderBlocks(false);this.toast("Semana copiada")
+    this.openForgedDialog({eyebrow:"BLOQUE DE ENTRENAMIENTO",title:"Copiar semana",message:`¿Copiar la semana ${index} en la semana ${index+1}?`,confirmText:"COPIAR SEMANA",onConfirm:()=>{this.data.weeklyPlans[this.weekKey(this.blockWeekDate(b,index))]={...src};this.save();this.renderBlocks(false);this.toast("Semana copiada")}})
   },
   toggleDeloadWeek(id,week){
     const b=this.data.trainingBlocks.find(x=>x.id===id);if(!b)return;
     b.deloadWeek=Number(b.deloadWeek)===week?null:week;this.save();this.renderBlocks(false)
   },
   finishBlock(id){
-    const b=this.data.trainingBlocks.find(x=>x.id===id);if(!b||!confirm(`¿Finalizar ${b.name}? Las semanas y entrenamientos se conservarán.`))return;
-    b.status="completed";b.completedAt=new Date().toISOString();this.save();this.renderBlocks(false);this.toast("Bloque finalizado")
+    const b=this.data.trainingBlocks.find(x=>x.id===id);if(!b)return;
+    this.openForgedDialog({eyebrow:"BLOQUE DE ENTRENAMIENTO",title:"Finalizar bloque",message:`Finalizar ${b.name}. Las semanas y entrenamientos se conservarán.`,confirmText:"FINALIZAR BLOQUE",onConfirm:()=>{b.status="completed";b.completedAt=new Date().toISOString();this.save();this.renderBlocks(false);this.toast("Bloque finalizado")}})
   },
   repeatBlock(id){
     const b=this.data.trainingBlocks.find(x=>x.id===id);if(!b)return;
@@ -2351,8 +2410,8 @@ const App={
     this.openBlockId=copy.id;this.save();this.renderBlocks(false);this.toast("Bloque repetido")
   },
   deleteBlock(id){
-    const b=this.data.trainingBlocks.find(x=>x.id===id);if(!b||!confirm(`¿Eliminar ${b.name}? La planificación semanal y el historial no se borrarán.`))return;
-    this.data.trainingBlocks=this.data.trainingBlocks.filter(x=>x.id!==id);this.openBlockId=this.data.trainingBlocks[0]?.id||null;this.save();this.renderBlocks(false)
+    const b=this.data.trainingBlocks.find(x=>x.id===id);if(!b)return;
+    this.openForgedDialog({eyebrow:"BLOQUE DE ENTRENAMIENTO",title:"Eliminar bloque",message:`Eliminar ${b.name}. La planificación semanal y el historial no se borrarán.`,confirmText:"ELIMINAR BLOQUE",danger:true,onConfirm:()=>{this.data.trainingBlocks=this.data.trainingBlocks.filter(x=>x.id!==id);this.openBlockId=this.data.trainingBlocks[0]?.id||null;this.save();this.renderBlocks(false)}})
   },
 
   renderHistory(withHistory=true){
@@ -2474,20 +2533,47 @@ const App={
     this.toast(mode==="fixed"?"Planificación fija activada":"Reinicio semanal activado");
   },
 
-  openWeightSheet(){
+  syncBodyWeightFromHistory(){
+    this.data.weights=Array.isArray(this.data.weights)?this.data.weights:[];
+    const latest=this.data.weights.slice().sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+    this.data.profile=this.data.profile||{};
+    this.data.profile.bodyWeight=latest?Number(latest.weight):null;
+  },
+  openWeightSheet(entryId=null){
     const sheet=document.getElementById("weightSheet");if(!sheet)return;
+    this.editingWeightId=entryId||null;
+    const entry=entryId?(this.data.weights||[]).find(x=>x.id===entryId):null;
     const today=new Date();const local=new Date(today.getTime()-today.getTimezoneOffset()*60000).toISOString().slice(0,10);
-    document.getElementById("weightDateInput").value=local;
-    document.getElementById("weightValueInput").value=this.data.profile?.bodyWeight||"";
-    document.getElementById("weightNoteInput").value="";
+    document.getElementById("weightEntryId").value=entry?.id||"";
+    document.getElementById("weightDateInput").value=entry?this.isoDate(entry.date):local;
+    document.getElementById("weightValueInput").value=entry?Number(entry.weight).toFixed(1):(this.data.profile?.bodyWeight||"");
+    document.getElementById("weightNoteInput").value=entry?.note||"";
+    document.getElementById("weightSheetTitle").textContent=entry?"Editar peso":"Registrar peso";
+    document.getElementById("weightSaveButton").textContent=entry?"GUARDAR CAMBIOS":"GUARDAR PESO";
     document.getElementById("weightProfileName").textContent=this.activeProfile()?.name||"Perfil";
     const current=Number(this.data.profile?.bodyWeight)||0;
     document.getElementById("weightCurrentValue").textContent=current?`Último registro: ${current.toFixed(1)} kg`:"Sin peso registrado";
+    this.renderWeightHistorySheet();
     sheet.classList.add("show");sheet.setAttribute("aria-hidden","false");document.body.classList.add("sheet-open");
     setTimeout(()=>document.getElementById("weightValueInput")?.focus(),180)
   },
+  resetWeightEditor(){this.openWeightSheet(null)},
+  renderWeightHistorySheet(){
+    const list=document.getElementById("weightHistoryList");if(!list)return;
+    const entries=(this.data.weights||[]).slice().sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,20);
+    list.innerHTML=entries.length?entries.map(entry=>`<article class="weight-history-item ${entry.id===this.editingWeightId?'active':''}"><div><span>${new Date(entry.date).toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'})}</span><b>${Number(entry.weight).toFixed(1)} kg</b><small>${this.escape(entry.note||'Sin nota')}</small></div><div><button type="button" onclick="App.editWeightEntry('${entry.id}')">EDITAR</button><button type="button" class="danger-mini" onclick="App.requestDeleteWeightEntry('${entry.id}')">BORRAR</button></div></article>`).join(''):`<div class="weight-history-empty">Todavía no hay registros de peso.</div>`;
+  },
+  editWeightEntry(id){this.openWeightSheet(id)},
+  requestDeleteWeightEntry(id){
+    const entry=(this.data.weights||[]).find(x=>x.id===id);if(!entry)return;
+    this.openForgedDialog({eyebrow:"PESO CORPORAL",title:"Eliminar registro",message:`Eliminar el registro de ${Number(entry.weight).toFixed(1)} kg del ${new Date(entry.date).toLocaleDateString('es-ES')}?`,confirmText:"ELIMINAR REGISTRO",danger:true,onConfirm:()=>{
+      this.data.weights=this.data.weights.filter(x=>x.id!==id);this.syncBodyWeightFromHistory();this.save();this.editingWeightId=null;this.openWeightSheet(null);
+      if(this.currentScreen==="data")this.renderData(false);else if(this.currentScreen==="settings")this.renderSettings(false);else if(this.currentScreen==="home")this.renderHome(false);
+      this.toast("Registro eliminado")
+    }})
+  },
   closeWeightSheet(){
-    const sheet=document.getElementById("weightSheet");sheet?.classList.remove("show");sheet?.setAttribute("aria-hidden","true");document.body.classList.remove("sheet-open")
+    const sheet=document.getElementById("weightSheet");sheet?.classList.remove("show");sheet?.setAttribute("aria-hidden","true");document.body.classList.remove("sheet-open");this.editingWeightId=null
   },
   saveWeightEntry(){
     const raw=String(document.getElementById("weightValueInput")?.value||"").replace(",",".");
@@ -2495,12 +2581,19 @@ const App={
     if(!(weight>=20&&weight<=400)){this.toast("Introduce un peso válido");return}
     if(!date){this.toast("Selecciona una fecha");return}
     this.data.profile=this.data.profile||{};this.data.weights=Array.isArray(this.data.weights)?this.data.weights:[];
-    this.data.profile.bodyWeight=Number(weight.toFixed(1));
     const iso=new Date(`${date}T12:00:00`).toISOString();
-    this.data.weights.push({id:`w_${Date.now()}`,date:iso,weight:Number(weight.toFixed(1)),note,profileId:this.activeProfileId});
+    const id=document.getElementById("weightEntryId")?.value||this.editingWeightId;
+    if(id){
+      const entry=this.data.weights.find(x=>x.id===id);
+      if(entry){entry.date=iso;entry.weight=Number(weight.toFixed(1));entry.note=note;entry.profileId=this.activeProfileId}
+    }else{
+      const sameDay=this.data.weights.find(x=>this.isoDate(x.date)===date);
+      if(sameDay){sameDay.date=iso;sameDay.weight=Number(weight.toFixed(1));sameDay.note=note;sameDay.profileId=this.activeProfileId}
+      else this.data.weights.push({id:`w_${Date.now()}`,date:iso,weight:Number(weight.toFixed(1)),note,profileId:this.activeProfileId});
+    }
     this.data.weights.sort((x,y)=>new Date(x.date)-new Date(y.date));
-    this.save();this.closeWeightSheet();this.toast(`Peso guardado · ${weight.toFixed(1)} kg`);
-    if(this.currentScreen==="data")this.renderData(false);else if(this.currentScreen==="settings")this.renderSettings(false)
+    this.syncBodyWeightFromHistory();this.save();this.editingWeightId=null;this.openWeightSheet(null);this.toast(`Peso guardado · ${weight.toFixed(1)} kg`);
+    if(this.currentScreen==="data")this.renderData(false);else if(this.currentScreen==="settings")this.renderSettings(false);else if(this.currentScreen==="home")this.renderHome(false)
   },
 
   renderSettings(withHistory=true){
@@ -2519,8 +2612,8 @@ const App={
         <label>Temporizador<select id="timerOrientation"><option value="auto" ${timerOrientation==='auto'?'selected':''}>Automático / apaisado</option><option value="portrait" ${timerOrientation==='portrait'?'selected':''}>Mantener vertical</option><option value="landscape" ${timerOrientation==='landscape'?'selected':''}>Forzar apaisado</option></select></label>
       </section>
       <section class="settings-section"><h3>Peso corporal</h3>
-        <label>Peso actual<input id="bodyWeight" type="number" min="1" step=".1" value="${this.data.profile.bodyWeight||''}"></label>
-        <button class="secondary forged-weight-launch" onclick="App.openWeightSheet()">ABRIR REGISTRO FORGED</button>
+        <label>Peso actual<input id="bodyWeight" type="number" min="20" step=".1" value="${this.data.profile.bodyWeight||''}"></label>
+        <button class="secondary forged-weight-launch" onclick="App.openWeightSheet()">REGISTRAR O EDITAR PESO</button>
       </section>
       <div class="storage-status ${this.storageHealthy?'ok':'error'}"><span>ALMACENAMIENTO LOCAL</span><b>${this.storageHealthy?'Protegido':'Revisar espacio'}</b><small>${this.lastSaveAt?'Último guardado: '+new Date(this.lastSaveAt).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}):'Guardado automático activo'}</small></div>
       <div class="planning-mode-setting"><div class="eyebrow">PLANIFICACIÓN SEMANAL</div><label><input type="radio" name="planningMode" value="fixed" ${mode==="fixed"?'checked':''}> <span><b>Mantener planificación fija</b><small>La semana base se repite hasta que decidas cambiarla.</small></span></label><label><input type="radio" name="planningMode" value="clear" ${mode==="clear"?'checked':''}> <span><b>Vaciar al terminar la semana</b><small>Cada lunes empieza en descanso.</small></span></label></div>
@@ -2531,10 +2624,12 @@ const App={
   },
   saveBodyWeight(){
     const w=Number(document.getElementById("bodyWeight")?.value);
-    if(!(w>0)){this.toast("Introduce un peso válido");return}
-    this.data.profile.bodyWeight=w;
-    this.data.weights.push({date:new Date().toISOString(),weight:w});
-    this.save();this.toast("Peso guardado")
+    if(!(w>=20&&w<=400)){this.toast("Introduce un peso válido");return}
+    const date=this.isoDate(new Date());
+    const existing=(this.data.weights||[]).find(x=>this.isoDate(x.date)===date);
+    if(existing){existing.weight=Number(w.toFixed(1));existing.date=new Date().toISOString()}
+    else this.data.weights.push({id:`w_${Date.now()}`,date:new Date().toISOString(),weight:Number(w.toFixed(1)),note:"Actualizado desde Ajustes",profileId:this.activeProfileId});
+    this.syncBodyWeightFromHistory();this.save();this.toast("Peso actualizado")
   },
   saveSettings(){
     const step=Number(document.getElementById("weightStep")?.value);
@@ -2546,6 +2641,13 @@ const App={
     this.data.settings.fontScale=document.getElementById("fontScale")?.value||"normal";
     this.data.settings.timerOrientation=document.getElementById("timerOrientation")?.value||"auto";
     this.data.settings.planningMode=document.querySelector('input[name="planningMode"]:checked')?.value||"fixed";
+    const bodyWeight=Number(document.getElementById("bodyWeight")?.value);
+    if(bodyWeight>=20&&bodyWeight<=400&&Number(bodyWeight.toFixed(1))!==Number(this.data.profile?.bodyWeight||0)){
+      const date=this.isoDate(new Date());const existing=(this.data.weights||[]).find(x=>this.isoDate(x.date)===date);
+      if(existing){existing.weight=Number(bodyWeight.toFixed(1));existing.date=new Date().toISOString()}
+      else this.data.weights.push({id:`w_${Date.now()}`,date:new Date().toISOString(),weight:Number(bodyWeight.toFixed(1)),note:"Actualizado desde Ajustes",profileId:this.activeProfileId});
+      this.syncBodyWeightFromHistory();
+    }
     this.applyUiSettings();this.save();this.toast("Ajustes guardados")
   },
 
@@ -2614,7 +2716,7 @@ const App={
     const payload={
       format:"GymTracker Phoenix Backup",
       schema_version:1,
-      app_version:"9.9.16",
+      app_version:"10.0 RC1",
       profile:{id:this.activeProfileId,name:this.activeProfile()?.name||this.activeProfileId},
       exportedAt:new Date().toISOString(),
       counts:{

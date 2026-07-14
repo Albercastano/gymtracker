@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 10.0 RC1 · FORGED Stable
+- Consolidación sobre la última base funcional 9.9.21.
+- Cambio de perfil inmediato entre Alberto, Edy, Churri y Chino, sin recargar la aplicación.
+- Easter egg Phoenix reforzado para pulsación táctil.
+- PHX-BRAND-001: kit de iconos unificado y sin marco claro exterior.
+- Peso corporal registrable, editable y eliminable por perfil.
+- Migración automática de registros de peso antiguos sin identificador.
+- Confirmaciones y entradas críticas mediante paneles FORGED; se eliminan alert, prompt y confirm nativos.
+- PEDB 3.0 integrada: 677 ejercicios y 23.811 relaciones.
+- Se mantienen las claves de almacenamiento históricas para conservar los datos existentes.
+
 ## v8.5.2 Weight Button Fix
 - El peso deja de depender del ajustador genérico.
 - Botones de subir y bajar peso usan funciones explícitas.

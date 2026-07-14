@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#050507">
-  <title>GymTracker Phoenix Lab 9.9.20 · Easter egg robusto</title>
+  <title>GymTracker Phoenix 10.0 RC1 · FORGED Stable</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
   <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
@@ -231,14 +231,31 @@
       <div class="eyebrow">PESO CORPORAL</div>
       <h2 id="weightSheetTitle">Registrar peso</h2>
       <p class="muted">El registro se guarda únicamente en el perfil activo.</p>
+      <input id="weightEntryId" type="hidden" value="">
       <div class="weight-forged-current"><span>PERFIL ACTIVO</span><b id="weightProfileName">Perfil</b><small id="weightCurrentValue">Sin peso registrado</small></div>
       <div class="weight-forged-form">
         <label><span>FECHA</span><input id="weightDateInput" type="date"></label>
         <label><span>PESO</span><div class="weight-input-wrap"><input id="weightValueInput" type="number" min="20" max="400" step="0.1" inputmode="decimal" placeholder="80,0"><em>kg</em></div></label>
         <label><span>NOTA OPCIONAL</span><textarea id="weightNoteInput" rows="3" maxlength="180" placeholder="Ej. En ayunas, después de entrenar…"></textarea></label>
       </div>
-      <button type="button" class="king small-king" onclick="App.saveWeightEntry()">GUARDAR PESO</button>
-      <button type="button" class="secondary" onclick="App.closeWeightSheet()">Cancelar</button>
+      <div class="weight-history-heading"><div><span>HISTORIAL DEL PERFIL</span><b>Registros recientes</b></div><small>Editables y eliminables</small></div>
+      <div id="weightHistoryList" class="weight-history-list"></div>
+      <button id="weightSaveButton" type="button" class="king small-king" onclick="App.saveWeightEntry()">GUARDAR PESO</button>
+      <button type="button" class="secondary" onclick="App.resetWeightEditor()">Nuevo registro</button>
+      <button type="button" class="secondary" onclick="App.closeWeightSheet()">Cerrar</button>
+    </div>
+  </div>
+
+  <div id="forgedDialog" class="sheet forged-sheet" aria-hidden="true">
+    <div class="sheet-backdrop" onclick="App.closeForgedDialog()"></div>
+    <div class="sheet-panel forged-dialog-panel" role="dialog" aria-modal="true" aria-labelledby="forgedDialogTitle">
+      <div class="handle"></div>
+      <div id="forgedDialogEyebrow" class="eyebrow">PHOENIX</div>
+      <h2 id="forgedDialogTitle">Confirmar acción</h2>
+      <p id="forgedDialogMessage" class="muted"></p>
+      <label id="forgedDialogInputWrap" class="forged-dialog-input" hidden><span id="forgedDialogInputLabel">Valor</span><input id="forgedDialogInput" type="text" autocomplete="off"></label>
+      <button id="forgedDialogConfirm" type="button" class="primary" onclick="App.confirmForgedDialog()">CONFIRMAR</button>
+      <button type="button" class="secondary" onclick="App.closeForgedDialog()">Cancelar</button>
     </div>
   </div>
 
