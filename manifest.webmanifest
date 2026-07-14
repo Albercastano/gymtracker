@@ -1,6 +1,6 @@
 {
-  "name": "GymTracker Phoenix 10.0 RC3 · Peso corporal robusto",
-  "short_name": "Phoenix 10 RC3",
+  "name": "GymTracker Phoenix 10.0 RC4 · Phoenix Timer 2.0",
+  "short_name": "Phoenix RC4",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#050507",

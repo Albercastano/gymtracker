@@ -45,3 +45,9 @@
 - PEDB 2.1.0 integrado.
 - Importación CSV de ejercicios personales.
 - Generación local de relaciones USR-EX.
+
+
+## 10.0 RC4
+- PHX-TIMER-2.0 implementado.
+- Sonido final reforzado mediante AudioContext persistente.
+- Guía FORGED v1 incorporada a la fuente.

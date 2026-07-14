@@ -32,6 +32,8 @@ const App={
   lastPhoenixPointerAt:0,
   pendingForgedAction:null,
   editingWeightId:null,
+  audioCtx:null,
+  audioUnlocked:false,
 
 
   async init(){
@@ -41,6 +43,7 @@ const App={
     this.applyUiSettings();
     this.updateProfileChrome();
     this.bindPhoenixEasterEgg();
+    this.bindAudioUnlock();
     history.replaceState({phoenix:true,screen:"home",destination:"Inicio"},"","#home");
     this.renderHome(false);
     setTimeout(()=>{
@@ -459,6 +462,7 @@ const App={
       ?this.active.exerciseOverrides:{};
     this.active.restPaused=Boolean(this.active.restPaused);
     this.active.restPausedLeft=Math.max(0,Number(this.active.restPausedLeft)||0);
+    this.active.restTotal=Math.max(Number(this.active.restTotal)||0,Number(this.active.restLeft)||0,Number(this.active.restPausedLeft)||0);
     this.active.phase=["gym","series","rest","summary"].includes(this.active.phase)?this.active.phase:"gym";
 
     if(this.active.phase==="rest" && Number(this.active.restEndsAt)>0){
@@ -972,7 +976,9 @@ const App={
     const safeSeconds=Math.max(0,Number(seconds)||0);
     this.active.phase="rest";
     this.active.restLeft=safeSeconds;
+    this.active.restTotal=safeSeconds;
     this.active.restEndsAt=Date.now()+(safeSeconds*1000);
+    this.ensureAudioReady();
     this.active.restPaused=false;
     this.active.restPausedLeft=0;
     this.saveActive();
@@ -1021,40 +1027,80 @@ const App={
   renderRest(){
     this.requestTimerLandscape();
     const e=this.currentExercise();
-    document.getElementById("rest").innerHTML=`<div class="focus casio-screen forged-rest-screen">
-      <section id="casioTimer" class="forged-rest-timer" aria-label="Temporizador de descanso">
-        <div class="forged-rest-timer__watermark" aria-hidden="true"><img src="icon-512.png" alt=""></div>
-        <header class="forged-rest-timer__head">
-          <div><span>PHOENIX</span><b>FORGED REST</b></div>
-          <em>SERIE ${this.active.setIndex+1}/${e.sets}</em>
+    const currentSeries=Math.max(1,Number(this.active.setIndex)||1);
+    const nextSeries=Math.min(Number(e.sets)||1,currentSeries+1);
+    const soundOn=this.data?.settings?.sound!==false;
+    const vibrationOn=this.data?.settings?.vibration!==false;
+    document.getElementById("rest").innerHTML=`<div class="focus phoenix-timer-screen">
+      <section id="phoenixTimer" class="phoenix-timer" aria-label="Phoenix Timer de descanso">
+        <header class="phoenix-timer__header">
+          <div class="phoenix-timer__brand"><img src="icon-192.png" alt=""><div><b>PHOENIX</b><span>GYMTRACKER</span></div></div>
+          <div class="phoenix-timer__title"><span>DESCANSO</span><i></i></div>
+          <div class="phoenix-timer__series">
+            <div><small>SERIE ACTUAL</small><b>${currentSeries}/${e.sets}</b></div>
+            <span aria-hidden="true">→</span>
+            <div><small>SIGUIENTE</small><b>${nextSeries}/${e.sets}</b><em>${this.escape(e.name)}</em></div>
+          </div>
         </header>
-        <div class="forged-rest-timer__display">
-          <span class="forged-rest-timer__label">DESCANSO</span>
-          <div id="restTime" class="time"></div>
-          <small>SIGUIENTE · SERIE ${this.active.setIndex+1}/${e.sets}</small>
+
+        <div class="phoenix-timer__instrument">
+          <div class="phoenix-timer__screw phoenix-timer__screw--tl"></div><div class="phoenix-timer__screw phoenix-timer__screw--tr"></div>
+          <div class="phoenix-timer__screw phoenix-timer__screw--bl"></div><div class="phoenix-timer__screw phoenix-timer__screw--br"></div>
+          <div class="phoenix-timer__plate">PHOENIX TIMER</div>
+          <div id="phoenixTimerRing" class="phoenix-timer__ring" style="--progress:1">
+            <div class="phoenix-timer__ticks" aria-hidden="true"></div>
+            <div class="phoenix-timer__core">
+              <span class="phoenix-timer__hourglass" aria-hidden="true">⌛</span>
+              <div id="restTime" class="phoenix-timer__time">00:00</div>
+              <div class="phoenix-timer__next">SIGUIENTE · SERIE ${nextSeries}/${e.sets}</div>
+              <div id="phoenixTimerState" class="phoenix-timer__state">DESCANSO</div>
+            </div>
+            <div class="phoenix-timer__spark" aria-hidden="true"></div>
+          </div>
+          <div class="phoenix-timer__status"><span>●</span><b id="phoenixTimerPulse">PRECISIÓN FORGED</b></div>
         </div>
-        <div class="forged-rest-timer__controls">
-          <button type="button" onclick="App.adjustRest(-30)"><span>−30</span><small>SEG</small></button>
-          <button type="button" id="restPauseButton" class="forged-rest-timer__pause" onclick="App.toggleRestPause()"><span>${this.active.restPaused?"▶":"Ⅱ"}</span><small>${this.active.restPaused?"SEGUIR":"PAUSA"}</small></button>
-          <button type="button" onclick="App.adjustRest(30)"><span>+30</span><small>SEG</small></button>
+
+        <div class="phoenix-timer__controls">
+          <button type="button" onclick="App.adjustRest(-30)"><b>−30</b><span>SEGUNDOS</span></button>
+          <button type="button" id="restPauseButton" class="phoenix-timer__pause" onclick="App.toggleRestPause()"><b>${this.active.restPaused?"▶":"Ⅱ"}</b><span>${this.active.restPaused?"SEGUIR":"PAUSA"}</span></button>
+          <button type="button" onclick="App.adjustRest(30)"><b>+30</b><span>SEGUNDOS</span></button>
         </div>
+        <button class="phoenix-timer__skip" onclick="App.skipRest()"><span>»</span> SALTAR DESCANSO</button>
+        <footer class="phoenix-timer__footer">
+          <button type="button" onclick="App.toggleTimerSound()"><span>◖))</span><div><small>SONIDO</small><b id="timerSoundStatus">${soundOn?"ACTIVADO":"DESACTIVADO"}</b></div></button>
+          <button type="button" onclick="App.toggleTimerVibration()"><span>▣</span><div><small>VIBRACIÓN</small><b id="timerVibrationStatus">${vibrationOn?"ACTIVADA":"DESACTIVADA"}</b></div></button>
+        </footer>
       </section>
-      <button class="rest-skip forged-rest-skip" onclick="App.skipRest()">SALTAR DESCANSO</button>
     </div>`;
     this.updateRestDisplay();
     this.show("rest","Ejercicio")
   },
 
   updateRestDisplay(){
-    const t=Math.max(0,this.active?.restLeft||0),m=Math.floor(t/60),sec=t%60;
+    const t=Math.max(0,Math.round(Number(this.active?.restLeft)||0));
+    const total=Math.max(1,Number(this.active?.restTotal)||t||1);
+    const m=Math.floor(t/60),sec=t%60;
+    const progress=Math.max(0,Math.min(1,t/total));
     const el=document.getElementById("restTime");if(el)el.textContent=`${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`;
-    const timer=document.getElementById("casioTimer");if(timer){timer.classList.toggle("is-warning",t>0&&t<=10);timer.classList.toggle("is-finished",t===0);timer.classList.toggle("is-paused",Boolean(this.active?.restPaused))}
+    const timer=document.getElementById("phoenixTimer");
+    const ring=document.getElementById("phoenixTimerRing");
+    const state=document.getElementById("phoenixTimerState");
+    const pulse=document.getElementById("phoenixTimerPulse");
+    if(ring)ring.style.setProperty("--progress",String(progress));
+    if(timer){
+      timer.classList.toggle("is-warning",t>0&&t<=10);
+      timer.classList.toggle("is-finished",t===0);
+      timer.classList.toggle("is-paused",Boolean(this.active?.restPaused));
+    }
+    if(state)state.textContent=t===0?"LISTO":this.active?.restPaused?"PAUSADO":"DESCANSO";
+    if(pulse)pulse.textContent=t===0?"SIGUIENTE SERIE":t<=10?"PULSO DORADO":"PRECISIÓN FORGED";
   },
 
   adjustRest(delta){
     if(!this.active||this.active.phase!=="rest")return;
     const next=Math.max(0,(Number(this.active.restLeft)||0)+(Number(delta)||0));
     this.active.restLeft=next;
+    this.active.restTotal=Math.max(1,Number(this.active.restTotal)||0,next);
     if(this.active.restPaused)this.active.restPausedLeft=next;else this.active.restEndsAt=Date.now()+(next*1000);
     this.saveActive();this.updateRestDisplay();this.buzz(18)
   },
@@ -1064,7 +1110,7 @@ const App={
     if(this.active.restPaused){this.active.restPaused=false;this.active.restLeft=this.active.restPausedLeft;this.active.restEndsAt=Date.now()+(this.active.restLeft*1000);this.saveActive();this.renderRest();this.runRestTimer()}
     else{clearInterval(this.timer);this.active.restPaused=true;this.active.restPausedLeft=Math.max(0,Number(this.active.restLeft)||0);this.saveActive();this.renderRest()}
   },
-  skipRest(){this.releaseTimerOrientation();clearInterval(this.timer);this.active.phase="series";this.active.restEndsAt=null;this.active.restLeft=0;this.active.restPaused=false;this.active.restPausedLeft=0;this.saveActive();this.beginSet()},
+  skipRest(){this.releaseTimerOrientation();clearInterval(this.timer);this.active.phase="series";this.active.restEndsAt=null;this.active.restLeft=0;this.active.restTotal=0;this.active.restPaused=false;this.active.restPausedLeft=0;this.saveActive();this.beginSet()},
 
   formatLoad(value){
     const n=Number(value)||0;
@@ -1110,21 +1156,63 @@ const App={
     try{navigator.vibrate?.(pattern)}catch(e){}
   },
 
-  beep(){
-    if(!this.data?.settings?.sound)return;
+  bindAudioUnlock(){
+    const unlock=()=>this.ensureAudioReady();
+    document.addEventListener("pointerdown",unlock,{passive:true});
+    document.addEventListener("touchstart",unlock,{passive:true});
+    document.addEventListener("keydown",unlock);
+  },
+
+  ensureAudioReady(){
+    if(!this.data?.settings?.sound)return null;
     try{
       const AudioCtx=window.AudioContext||window.webkitAudioContext;
-      if(!AudioCtx)return;
-      const ctx=new AudioCtx();
-      const osc=ctx.createOscillator();
-      const gain=ctx.createGain();
-      osc.type="sine";osc.frequency.setValueAtTime(880,ctx.currentTime);
-      gain.gain.setValueAtTime(.0001,ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(.16,ctx.currentTime+.015);
-      gain.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+.24);
-      osc.connect(gain);gain.connect(ctx.destination);osc.start();osc.stop(ctx.currentTime+.26);
-      osc.onended=()=>ctx.close?.()
+      if(!AudioCtx)return null;
+      if(!this.audioCtx||this.audioCtx.state==="closed")this.audioCtx=new AudioCtx();
+      if(this.audioCtx.state==="suspended")this.audioCtx.resume?.().catch(()=>{});
+      this.audioUnlocked=true;
+      return this.audioCtx
+    }catch(e){return null}
+  },
+
+  beep(){
+    if(!this.data?.settings?.sound)return;
+    const ctx=this.ensureAudioReady();
+    if(!ctx)return;
+    try{
+      const now=ctx.currentTime;
+      const master=ctx.createGain();
+      master.gain.setValueAtTime(.0001,now);
+      master.gain.exponentialRampToValueAtTime(.24,now+.025);
+      master.gain.exponentialRampToValueAtTime(.0001,now+1.15);
+      master.connect(ctx.destination);
+      [392,523.25,659.25].forEach((frequency,index)=>{
+        const osc=ctx.createOscillator();
+        const gain=ctx.createGain();
+        osc.type=index===0?"triangle":"sine";
+        osc.frequency.setValueAtTime(frequency,now);
+        gain.gain.setValueAtTime(.0001,now);
+        gain.gain.exponentialRampToValueAtTime(index===0?.17:.1,now+.02+(index*.035));
+        gain.gain.exponentialRampToValueAtTime(.0001,now+.55+(index*.18));
+        osc.connect(gain);gain.connect(master);osc.start(now+(index*.035));osc.stop(now+1.2);
+      });
     }catch(e){}
+  },
+
+  toggleTimerSound(){
+    this.data.settings.sound=!this.data.settings.sound;
+    this.save();
+    if(this.data.settings.sound){this.ensureAudioReady();this.beep()}
+    const el=document.getElementById("timerSoundStatus");if(el)el.textContent=this.data.settings.sound?"ACTIVADO":"DESACTIVADO";
+    this.toast(`Sonido ${this.data.settings.sound?"activado":"desactivado"}`)
+  },
+
+  toggleTimerVibration(){
+    this.data.settings.vibration=!this.data.settings.vibration;
+    this.save();
+    if(this.data.settings.vibration)this.buzz([35,40,35]);
+    const el=document.getElementById("timerVibrationStatus");if(el)el.textContent=this.data.settings.vibration?"ACTIVADA":"DESACTIVADA";
+    this.toast(`Vibración ${this.data.settings.vibration?"activada":"desactivada"}`)
   },
 
   applyUiSettings(){
