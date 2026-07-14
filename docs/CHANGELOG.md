@@ -1,3 +1,9 @@
+# 10.0 RC2 · Primer entreno
+
+- Temporizador de descanso FORGED.
+- Alternativas PEDB reforzadas y visibles durante la serie.
+- Emparejamiento por nombres genéricos y fallback semántico local.
+
 # CHANGELOG
 
 ## 10.0 RC1 · FORGED Stable

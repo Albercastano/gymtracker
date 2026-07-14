@@ -919,6 +919,7 @@ const App={
       </section>
 
       <button class="set-finish" onclick="App.finishSet()"><span>TERMINAR SERIE</span><b>✓</b></button>
+      <button class="set-alternative-forged" onclick="App.openAlternatives()"><b>⇄</b><span>CAMBIAR EJERCICIO</span></button>
       <button class="set-back" onclick="App.renderGym()">Volver al ejercicio</button>
     </div>`;
     this.show("series","Ejercicio")
@@ -1020,22 +1021,25 @@ const App={
   renderRest(){
     this.requestTimerLandscape();
     const e=this.currentExercise();
-    document.getElementById("rest").innerHTML=`<div class="focus casio-screen">
-      <div id="casioTimer" class="casio-pro">
-        <span class="casio-pro__screw casio-pro__screw--tl" aria-hidden="true"></span>
-        <span class="casio-pro__screw casio-pro__screw--tr" aria-hidden="true"></span>
-        <span class="casio-pro__screw casio-pro__screw--bl" aria-hidden="true"></span>
-        <span class="casio-pro__screw casio-pro__screw--br" aria-hidden="true"></span>
-        <div class="casio-pro__brand"><span>PHOENIX</span><span>FORGED TIMER</span></div>
-        <div class="casio-pro__lcd">
-          <div class="casio-pro__lcd-top"><div class="label">REST</div><div class="casio-pro__series">SET ${this.active.setIndex+1}/${e.sets}</div></div>
+    document.getElementById("rest").innerHTML=`<div class="focus casio-screen forged-rest-screen">
+      <section id="casioTimer" class="forged-rest-timer" aria-label="Temporizador de descanso">
+        <div class="forged-rest-timer__watermark" aria-hidden="true"><img src="icon-512.png" alt=""></div>
+        <header class="forged-rest-timer__head">
+          <div><span>PHOENIX</span><b>FORGED REST</b></div>
+          <em>SERIE ${this.active.setIndex+1}/${e.sets}</em>
+        </header>
+        <div class="forged-rest-timer__display">
+          <span class="forged-rest-timer__label">DESCANSO</span>
           <div id="restTime" class="time"></div>
-          <div class="casio-pro__next">SIGUIENTE · SERIE ${this.active.setIndex+1}/${e.sets}</div>
+          <small>SIGUIENTE · SERIE ${this.active.setIndex+1}/${e.sets}</small>
         </div>
-        <div class="casio-pro__micro"><span>ADJUST</span><span>MODE</span><span>START/STOP</span></div>
-        <div class="casio-pro__controls"><button onclick="App.adjustRest(-30)">−30</button><button id="restPauseButton" onclick="App.toggleRestPause()">${this.active.restPaused?"▶":"Ⅱ"}</button><button onclick="App.adjustRest(30)">+30</button></div>
-      </div>
-      <button class="rest-skip" onclick="App.skipRest()">Saltar descanso</button>
+        <div class="forged-rest-timer__controls">
+          <button type="button" onclick="App.adjustRest(-30)"><span>−30</span><small>SEG</small></button>
+          <button type="button" id="restPauseButton" class="forged-rest-timer__pause" onclick="App.toggleRestPause()"><span>${this.active.restPaused?"▶":"Ⅱ"}</span><small>${this.active.restPaused?"SEGUIR":"PAUSA"}</small></button>
+          <button type="button" onclick="App.adjustRest(30)"><span>+30</span><small>SEG</small></button>
+        </div>
+      </section>
+      <button class="rest-skip forged-rest-skip" onclick="App.skipRest()">SALTAR DESCANSO</button>
     </div>`;
     this.updateRestDisplay();
     this.show("rest","Ejercicio")
@@ -1520,22 +1524,88 @@ const App={
     return this.matchPedbByName(item.name||item.exercise_name_snapshot)||null
   },
 
+  configuredAlternativeNames(name){
+    const target=this.normalizeExerciseName(name);
+    const entries=Object.entries(this.data.alternatives||{});
+    const exact=entries.find(([key])=>this.normalizeExerciseName(key)===target);
+    if(exact)return exact[1]||[];
+    const tokens=target.split(" ").filter(Boolean);
+    const match=entries.find(([key])=>{
+      const normalized=this.normalizeExerciseName(key);
+      return tokens.length&&tokens.every(t=>normalized.includes(t))
+    });
+    return match?.[1]||[]
+  },
+
+  heuristicPedbAlternatives(source,reason="Máquina ocupada",expanded=false){
+    if(!source||!this.pedbReady)return[];
+    const sourceEquipment=new Set(source.equipment_ids||[]);
+    const rows=this.pedbExercises.filter(e=>e.id!==source.id).map(e=>{
+      let score=0;
+      const samePattern=Boolean(source.pattern_id&&e.pattern_id===source.pattern_id);
+      const sameMuscle=Boolean(source.muscle_id&&e.muscle_id===source.muscle_id);
+      const sameZone=Boolean(source.zone_id&&e.zone_id===source.zone_id);
+      const differentZone=Boolean(source.zone_id&&e.zone_id&&e.zone_id!==source.zone_id);
+      const equipment=(e.equipment_ids||[]);
+      const differentEquipment=equipment.some(id=>!sourceEquipment.has(id))||equipment.length!==sourceEquipment.size;
+
+      if(reason==="En casa"){
+        if(!e.home_suitable)return null;
+        score+=65;
+        if(samePattern)score+=32;
+        if(sameMuscle)score+=28;
+        if(sameZone)score+=12;
+        if(e.bodyweight)score+=8
+      }else if(reason==="Otra zona"){
+        if(!sameMuscle||!differentZone)return null;
+        score+=60;
+        if(samePattern)score+=24;
+        if(differentEquipment)score+=6
+      }else{
+        if(samePattern)score+=48;
+        if(sameMuscle)score+=34;
+        if(sameZone)score+=16;
+        if(differentEquipment)score+=14;
+        if(!e.machine_based)score+=5;
+        if(score<55)return null
+      }
+      return {id:e.id,name:e.name_es,reason:reason==="En casa"?"Mismo patrón, apto para casa":reason==="Otra zona"?"Mismo músculo, otra zona":"Mismo patrón con otro material",recommended:score>=90,score}
+    }).filter(Boolean).sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name,"es"));
+    return rows.slice(0,expanded?18:6)
+  },
+
   async alternativeOptions(reason="Máquina ocupada",expanded=false){
     const planned=this.currentPlannedExercise();if(!planned)return[];
+    const result=[];
+    const seen=new Set([this.normalizeExerciseName(planned.name)]);
+    const push=item=>{
+      if(!item?.name)return;
+      const key=this.normalizeExerciseName(item.name);
+      if(!key||seen.has(key))return;
+      seen.add(key);result.push(item)
+    };
+
     if(this.pedbReady){
       const source=await this.findPedbExerciseForItem(planned);
       if(source){
-        const relations=await PEDB_DB.getRelations(source.id,this.pedbCategoryForReason(reason));
-        const chosen=expanded?relations:relations.filter(r=>r.recommended);
-        const limited=(chosen.length?chosen:relations).slice(0,expanded?12:3);
-        const rows=await Promise.all(limited.map(async rel=>({rel,exercise:await this.pedbExercise(rel.target_id)})));
-        return rows.filter(x=>x.exercise).map(({rel,exercise})=>({
-          id:exercise.id,name:exercise.name_es,reason:rel.reason,recommended:Boolean(rel.recommended),score:Number(rel.score)||0
-        }))
+        try{
+          const relations=await PEDB_DB.getRelations(source.id,this.pedbCategoryForReason(reason));
+          const selected=(expanded?relations:(relations.filter(r=>r.recommended).length?relations.filter(r=>r.recommended):relations)).slice(0,expanded?18:6);
+          const byId=new Map(this.pedbExercises.map(e=>[e.id,e]));
+          selected.forEach(rel=>{
+            const exercise=byId.get(rel.target_id);
+            if(exercise)push({id:exercise.id,name:exercise.name_es,reason:rel.reason||"Relación PEDB",recommended:Boolean(rel.recommended),score:Number(rel.score)||0})
+          })
+        }catch(error){console.warn("Relaciones PEDB no disponibles",error)}
+        this.heuristicPedbAlternatives(source,reason,expanded).forEach(push)
       }
     }
-    const configured=this.data.alternatives[planned.name]||[];
-    return configured.slice(0,expanded?12:3).map((name,i)=>({id:null,name,reason:"Mantiene el patrón",recommended:i===0,score:0}))
+
+    this.configuredAlternativeNames(planned.name).forEach((name,i)=>push({
+      id:null,name,reason:"Alternativa configurada",recommended:i===0,score:0
+    }));
+
+    return result.slice(0,expanded?18:6)
   },
 
   async openAlternatives(reason="Máquina ocupada",expanded=false){
@@ -1543,11 +1613,11 @@ const App={
     this.altReason=reason;this.pedbAltExpanded=expanded;
     document.getElementById("altCurrent").innerHTML=`<strong>${planned.name}</strong><span>${reason}${this.pedbReady?" · PEDB":""}</span>`;
     document.querySelectorAll("[data-alt-reason]").forEach(btn=>btn.classList.toggle("active",btn.dataset.altReason===reason));
-    document.getElementById("altList").innerHTML=`<div class="muted">Buscando alternativas…</div>`;
+    document.getElementById("altList").innerHTML=`<div class="alt-loading"><span></span><b>Buscando alternativas</b><small>PEDB + coincidencias por patrón</small></div>`;
     document.getElementById("alternativesSheet").classList.add("show");
     try{
       const list=await this.alternativeOptions(reason,expanded);
-      document.getElementById("altList").innerHTML=list.length?list.map((item,i)=>`<button class="alt-option" onclick="App.useAlternativeEncoded('${encodeURIComponent(item.name)}','${reason}','${item.id||""}')"><span><b>${item.name}</b><small>${item.reason||"Alternativa compatible"}</small></span><em>${item.recommended?"Recomendada":"Similar"}</em></button>`).join("")+(!expanded&&this.pedbReady?`<button class="secondary" onclick="App.openAlternatives('${reason}',true)">Ver más</button>`:""):`<div class="muted">Sin alternativas configuradas para este caso.</div>`
+      document.getElementById("altList").innerHTML=list.length?list.map((item,i)=>`<button class="alt-option" onclick="App.useAlternativeEncoded('${encodeURIComponent(item.name)}','${reason}','${item.id||""}')"><span><b>${item.name}</b><small>${item.reason||"Alternativa compatible"}</small></span><em>${item.recommended?"Recomendada":"Similar"}</em></button>`).join("")+(!expanded&&this.pedbReady?`<button class="secondary" onclick="App.openAlternatives('${reason}',true)">Ver más</button>`:""):`<div class="alt-empty"><b>No hemos encontrado una sustitución directa.</b><small>Prueba otro motivo o abre la biblioteca PEDB.</small><button class="secondary" onclick="App.closeAlternatives();App.renderLibrary(true)">ABRIR BIBLIOTECA</button></div>`
     }catch(error){this.reportError(error);document.getElementById("altList").innerHTML=`<div class="muted">No se pudieron cargar las alternativas.</div>`}
   },
   selectAlternativeReason(reason){this.openAlternatives(reason,false)},
@@ -1990,16 +2060,47 @@ const App={
     if(!this.pedbReady||!name)return null;
     const target=this.normalizeExerciseName(name);
     if(!target)return null;
-    let exact=this.pedbExercises.find(e=>this.normalizeExerciseName(e.name_es)===target||
+
+    const aliases={
+      "press banca":"PEX-000142",
+      "dominadas":"PEX-000058",
+      "remo barra":"PEX-000073",
+      "remo con barra":"PEX-000073",
+      "press inclinado":"PEX-000144",
+      "press militar":"PEX-000102",
+      "sentadilla":"PEX-000086",
+      "peso muerto rumano":"PEX-000095"
+    };
+    const aliasId=aliases[target];
+    if(aliasId){
+      const alias=this.pedbExercises.find(e=>e.id===aliasId);
+      if(alias)return alias
+    }
+
+    const exact=this.pedbExercises.find(e=>this.normalizeExerciseName(e.name_es)===target||
       (e.synonyms_es||[]).some(x=>this.normalizeExerciseName(x)===target));
     if(exact)return exact;
-    const tokens=target.split(" ").filter(x=>x.length>2);
-    if(tokens.length<2)return null;
-    const candidates=this.pedbExercises.filter(e=>{
-      const hay=[e.name_es,...(e.synonyms_es||[])].map(x=>this.normalizeExerciseName(x)).join(" ");
-      return tokens.every(t=>hay.includes(t));
-    });
-    return candidates.length===1?candidates[0]:null
+
+    const targetTokens=target.split(" ").filter(Boolean);
+    const genericPenalty=/(asistid|lastrad|negativ|una mano|explosiv|agarre|maquina|cadenas|bandas|tabla)/i;
+    const candidates=this.pedbExercises.map(e=>{
+      const names=[e.name_es,...(e.synonyms_es||[])].map(x=>this.normalizeExerciseName(x)).filter(Boolean);
+      let best=-Infinity;
+      names.forEach(candidate=>{
+        const candidateTokens=candidate.split(" ").filter(Boolean);
+        const matched=targetTokens.filter(t=>candidateTokens.some(c=>c===t||c.startsWith(t)||t.startsWith(c))).length;
+        if(matched!==targetTokens.length)return;
+        const extra=Math.max(0,candidateTokens.length-targetTokens.length);
+        let score=(matched*100)-(extra*12);
+        if(candidate.startsWith(target))score+=35;
+        if(candidate.includes(target))score+=20;
+        if(genericPenalty.test(candidate))score-=18;
+        if(e.machine_based)score-=3;
+        best=Math.max(best,score)
+      });
+      return {e,score:best}
+    }).filter(x=>Number.isFinite(x.score)).sort((a,b)=>b.score-a.score||a.e.name_es.length-b.e.name_es.length);
+    return candidates[0]?.e||null
   },
 
   linkExistingRoutinesToPEDB(){
@@ -2716,7 +2817,7 @@ const App={
     const payload={
       format:"GymTracker Phoenix Backup",
       schema_version:1,
-      app_version:"10.0 RC1",
+      app_version:"10.0 RC2",
       profile:{id:this.activeProfileId,name:this.activeProfile()?.name||this.activeProfileId},
       exportedAt:new Date().toISOString(),
       counts:{
