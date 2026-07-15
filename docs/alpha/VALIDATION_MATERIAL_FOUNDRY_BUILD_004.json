@@ -1,0 +1,31 @@
+{
+  "valid": true,
+  "materialId": "foundry",
+  "contractVersion": "0.2.0",
+  "totalBytes": 34520,
+  "budgetKb": 88,
+  "errors": [],
+  "warnings": [],
+  "files": [
+    {
+      "path": "components.css",
+      "bytes": 32921,
+      "sha256": "684643dd1e40d201a1cf3a4f5cb4bb183389d4543985edf20b45973f5aeecd05"
+    },
+    {
+      "path": "manifest.json",
+      "bytes": 477,
+      "sha256": "1ab34cfcd3a6cc1d26d02df2f106be3d01d5f1bf9752b212e786f6e262ac3311"
+    },
+    {
+      "path": "timer.css",
+      "bytes": 166,
+      "sha256": "b3a45fee1bb29f50d7968dd2e6df17d7eae4cca8fc5631d4640abe21251de08f"
+    },
+    {
+      "path": "tokens.css",
+      "bytes": 956,
+      "sha256": "19662bfaf77d0bb28c46a34437f0fcfcfcb037f253f7ccda5c96bc27c9e10d6a"
+    }
+  ]
+}

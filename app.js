@@ -63,6 +63,12 @@ const App={
     });
     window.addEventListener("pagehide",()=>this.persistNow());
     window.addEventListener("beforeunload",()=>this.persistNow());
+    window.addEventListener("phxmaterialchange",()=>{
+      if(this.currentScreen==="forgeLab")this.updateForgeLabMaterialState();
+    });
+    window.addEventListener("resize",()=>{
+      if(this.currentScreen==="forgeLab")this.updateForgeLabDiagnostics();
+    });
   },
 
 
@@ -565,6 +571,7 @@ const App={
       blocks:{screen:"routines",destination:"Planificación"},
       history:{screen:"data",destination:"Datos"},
       settings:{screen:"data",destination:"Datos"},
+      forgeLab:{screen:"settings",destination:"Ajustes"},
       backups:{screen:"data",destination:"Datos"},
       gym:{screen:"home",destination:"Inicio"},
       series:{screen:"gym",destination:"Ejercicio"},
@@ -589,6 +596,7 @@ const App={
     if(target==="blocks"){this.renderBlocks(withHistory);return}
     if(target==="history"){this.renderHistory(withHistory);return}
     if(target==="settings"){this.renderSettings(withHistory);return}
+    if(target==="forgeLab"){this.renderForgeLab(withHistory);return}
     if(target==="backups"){this.renderBackups(withHistory);return}
     if(target==="gym"){this.renderGym(withHistory);return}
     if(target==="series"){this.beginSet();return}
@@ -1243,6 +1251,12 @@ const App={
       if(state)state.textContent=active?'MATERIAL ACTIVO':'APLICAR MATERIAL';
     });
     this.toast(material==='foundry'?'FORGED Foundry aplicado':'FORGED Precision aplicado');
+    if(this.currentScreen==="forgeLab"){
+      requestAnimationFrame(()=>{
+        this.updateForgeLabMaterialState();
+        this.updateForgeLabDiagnostics();
+      });
+    }
   },
 
   requestTimerLandscape(){
@@ -2860,13 +2874,225 @@ const App={
     this.toast(`Peso guardado · ${rounded.toFixed(1).replace(".",",")} kg`)
   },
 
+  renderForgeLab(withHistory=true){
+    const material=this.data?.settings?.uiMaterial||"precision";
+    const materialName=window.PhoenixMaterialEngine?.getManifest?.(material)?.name||(material==="foundry"?"FORGED Foundry":"FORGED Precision");
+    const screen=document.getElementById("forgeLab");
+    if(!screen)return;
+    screen.innerHTML=`<div class="forge-lab">
+      <section class="forge-lab__hero phx-card phx-card--highlight">
+        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 004</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.3</span></div>
+        <p>Banco de pruebas visual. Los mismos componentes se comparan bajo cada material sin tocar datos ni lógica de entrenamiento.</p>
+        <div class="forge-lab__material-bar" role="group" aria-label="Material del laboratorio">
+          <button type="button" class="forge-lab__material ${material==='precision'?'active':''}" data-ui-material="precision" aria-pressed="${material==='precision'}" onclick="App.setUiMaterial('precision')"><span>PRECISION</span><small>Instrumento limpio</small></button>
+          <button type="button" class="forge-lab__material ${material==='foundry'?'active':''}" data-ui-material="foundry" aria-pressed="${material==='foundry'}" onclick="App.setUiMaterial('foundry')"><span>FOUNDRY</span><small>Acero mecanizado</small></button>
+        </div>
+        <div class="forge-lab__active"><span>MATERIAL ACTIVO</span><b data-material-current>${this.escape(materialName)}</b><small>Visual-only · Local-only · Fallback Precision</small></div>
+      </section>
+
+      <section class="forge-lab__diagnostics phx-card" aria-label="Diagnóstico del dispositivo">
+        <div><span>VIEWPORT</span><b id="forgeViewport">—</b></div>
+        <div><span>ORIENTACIÓN</span><b id="forgeOrientation">—</b></div>
+        <div><span>TEXTO</span><b id="forgeTextScale">—</b></div>
+        <div><span>MATERIAL</span><b id="forgeMaterialDiagnostic">—</b></div>
+      </section>
+
+      <section class="forge-lab__certificate phx-card" aria-label="Certificado del material">
+        <div class="forge-lab__certificate-head"><div><span>PHX MATERIAL CONTRACT 0.1</span><h2>Certificado de la Forja</h2></div><b id="forgeCertificateState">VALIDANDO</b></div>
+        <div class="forge-lab__certificate-grid">
+          <div><span>MATERIAL</span><b id="forgeCertificateMaterial">—</b></div>
+          <div><span>MOTOR</span><b id="forgeCertificateEngine">—</b></div>
+          <div><span>COMPONENTES</span><b id="forgeCertificateComponents">—</b></div>
+          <div><span>RED</span><b id="forgeCertificateNetwork">—</b></div>
+          <div><span>SCRIPTS</span><b id="forgeCertificateScripts">—</b></div>
+          <div><span>PRESUPUESTO</span><b id="forgeCertificateBudget">—</b></div>
+          <div><span>FALLBACK</span><b id="forgeCertificateFallback">—</b></div>
+        </div>
+        <p id="forgeCertificateMessage">Comprobando el manifiesto visual instalado.</p>
+        <button type="button" class="secondary" onclick="App.validateActiveMaterial()">REVALIDAR MATERIAL</button>
+      </section>
+
+
+
+      <section class="forge-lab__component-contract phx-card" aria-label="Cobertura del contrato de componentes">
+        <div class="forge-lab__certificate-head"><div><span>PHX COMPONENT CONTRACT 0.1</span><h2>Arquitectura por componentes</h2></div><b id="forgeComponentState">CARGANDO</b></div>
+        <div class="forge-lab__component-grid">
+          <div><span>COMPONENTES</span><b id="forgeComponentTotal">—</b></div>
+          <div><span>BOTONES</span><b id="forgeComponentButtons">—</b></div>
+          <div><span>SUPERFICIES</span><b id="forgeComponentSurfaces">—</b></div>
+          <div><span>ENTRADAS</span><b id="forgeComponentInputs">—</b></div>
+          <div><span>ETIQUETAS</span><b id="forgeComponentLabels">—</b></div>
+          <div><span>RUNTIME</span><b id="forgeComponentRuntime">—</b></div>
+        </div>
+        <p>Foundry y futuras Creaciones de la Forja estilizan componentes semánticos <code>phx-*</code>, no pantallas ni datos.</p>
+        <button type="button" class="secondary" onclick="App.refreshForgeComponentCoverage()">REESCANEAR COMPONENTES</button>
+      </section>
+
+      <section class="forge-lab__section">
+        <header><div><span>01 · ACCIONES</span><h2>Botones y estados</h2></div><small>Área táctil mínima verificada</small></header>
+        <div class="forge-lab__grid forge-lab__grid--buttons phx-card">
+          <button class="primary" onclick="App.toast('Acción primaria')">ACCIÓN PRIMARIA</button>
+          <button class="secondary" onclick="App.toast('Acción secundaria')">SECUNDARIA</button>
+          <button class="danger" onclick="App.toast('Acción destructiva protegida')">DESTRUCTIVA</button>
+          <button class="secondary" disabled aria-disabled="true">DESACTIVADA</button>
+        </div>
+      </section>
+
+      <section class="forge-lab__section">
+        <header><div><span>02 · SUPERFICIES</span><h2>Tarjetas y métricas</h2></div><small>Una jerarquía por placa</small></header>
+        <div class="forge-lab__cards">
+          <article class="phx-card forge-lab__sample-card"><div class="eyebrow">HOY TOCA</div><h3>SUPERIOR A</h3><p>5 ejercicios · 18 series · 62 min</p><button class="primary" onclick="App.toast('Muestra de entrenamiento')">COMENZAR</button></article>
+          <article class="phx-card forge-lab__metric-card"><span>VOLUMEN SEMANAL</span><strong>12.480</strong><small>kg · +8,4 %</small><div class="forge-lab__progress"><i style="width:72%"></i></div></article>
+          <article class="phx-card forge-lab__state-card"><span class="forge-lab__status success">COMPLETADO</span><h3>Press banca</h3><p>4 × 8 · 82,5 kg</p><div><span class="forge-lab__chip">PR</span><span class="forge-lab__chip">+2,5 kg</span></div></article>
+        </div>
+      </section>
+
+      <section class="forge-lab__section">
+        <header><div><span>03 · ENTRADA</span><h2>Campos y selección</h2></div><small>Sin guardar datos</small></header>
+        <div class="forge-lab__form phx-card">
+          <label><span>PESO</span><input type="text" inputmode="decimal" value="82,5" aria-label="Peso de muestra"><small>kg</small></label>
+          <label><span>REPETICIONES</span><input type="number" inputmode="numeric" value="8" aria-label="Repeticiones de muestra"><small>reps</small></label>
+          <div class="forge-lab__segments" role="group" aria-label="Selector de muestra"><button class="active" onclick="this.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));this.classList.add('active')">REPS</button><button onclick="this.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));this.classList.add('active')">TIEMPO</button></div>
+          <label class="setting-switch forge-lab__switch"><span><b>Vibración</b><small>Control de muestra</small></span><input type="checkbox" checked></label>
+        </div>
+      </section>
+
+      <section class="forge-lab__section">
+        <header><div><span>04 · PHX TIMER</span><h2>Instrumento de descanso</h2></div><small>Specimen estático</small></header>
+        <div class="forge-lab__timer phx-card">
+          <div class="forge-lab__timer-head"><img src="icon-192.png" alt=""><div><span>PHOENIX TIMER</span><b>DESCANSO</b></div><em>SERIE 3/4</em></div>
+          <div class="forge-lab__timer-chassis">
+            <i class="forge-lab__bolt bolt-a"></i><i class="forge-lab__bolt bolt-b"></i><i class="forge-lab__bolt bolt-c"></i><i class="forge-lab__bolt bolt-d"></i>
+            <div class="forge-lab__timer-ring" style="--lab-progress:.68"><div><strong>01:30</strong><span>DESCANSO</span></div></div>
+          </div>
+          <div class="forge-lab__timer-controls"><button class="secondary">−30</button><button class="primary">PAUSA</button><button class="secondary">+30</button></div>
+          <p>Siguiente: Press inclinado · 8 reps · 80 kg</p>
+        </div>
+      </section>
+
+      <section class="forge-lab__section">
+        <header><div><span>05 · PEDB</span><h2>Ficha de ejercicio</h2></div><small>Catálogo profesional</small></header>
+        <article class="forge-lab__exercise phx-card">
+          <div class="forge-lab__exercise-code"><span>PEDB</span><b>PEX-00125</b></div>
+          <div><h3>PRESS BANCA</h3><p>Pectoral · Empuje horizontal · Compuesto</p><div class="forge-lab__chips"><span>4 SERIES</span><span>8 REPS</span><span>90 S</span></div></div>
+          <div class="forge-lab__exercise-actions"><button class="secondary" onclick="App.toast('Ficha de muestra')">VER FICHA</button><button class="primary" onclick="App.toast('Ejercicio de muestra')">AÑADIR</button></div>
+        </article>
+      </section>
+
+      <section class="forge-lab__section">
+        <header><div><span>06 · ESTADOS</span><h2>Respuesta del sistema</h2></div><small>Color + texto + forma</small></header>
+        <div class="forge-lab__states">
+          <div class="forge-lab__notice success"><b>GUARDADO</b><span>Los datos permanecen en el dispositivo.</span></div>
+          <div class="forge-lab__notice warning"><b>ATENCIÓN</b><span>Revisa la planificación antes de continuar.</span></div>
+          <div class="forge-lab__notice error"><b>ERROR SEGURO</b><span>Precision se aplicará como material de reserva.</span></div>
+          <div class="forge-lab__notice empty"><b>SIN DATOS</b><span>Completa una sesión para ver estadísticas.</span></div>
+        </div>
+      </section>
+
+      <section class="forge-lab__contract phx-card">
+        <div class="eyebrow">CONTRATO DE LA FORJA</div><h2>Lo visual nunca toca tus datos.</h2>
+        <ul><li>Sin JavaScript en materiales.</li><li>Sin conexiones externas.</li><li>Sin cambios de posición en acciones críticas.</li><li>Precision siempre disponible como reserva.</li></ul>
+      </section>
+    </div>`;
+    this.show("forgeLab","Ajustes",{history:withHistory});
+    this.updateForgeLabDiagnostics();
+    this.updateForgeLabMaterialState();
+    this.updateForgeLabMaterialCertificate();
+    requestAnimationFrame(()=>this.updateForgeComponentCoverage());
+  },
+
+  updateForgeLabDiagnostics(){
+    const viewport=document.getElementById("forgeViewport");
+    if(!viewport)return;
+    const width=Math.round(window.innerWidth||document.documentElement.clientWidth||0);
+    const height=Math.round(window.innerHeight||document.documentElement.clientHeight||0);
+    const orientation=width>height?"APAISADO":"VERTICAL";
+    const scale=(this.data?.settings?.fontScale||"normal").toUpperCase();
+    const material=(this.data?.settings?.uiMaterial||"precision").toUpperCase();
+    viewport.textContent=`${width} × ${height}`;
+    const orientationEl=document.getElementById("forgeOrientation");if(orientationEl)orientationEl.textContent=orientation;
+    const textEl=document.getElementById("forgeTextScale");if(textEl)textEl.textContent=scale;
+    const materialEl=document.getElementById("forgeMaterialDiagnostic");if(materialEl)materialEl.textContent=material;
+  },
+
+  updateForgeLabMaterialState(){
+    if(this.currentScreen!=="forgeLab")return;
+    const material=this.data?.settings?.uiMaterial||window.PhoenixMaterialEngine?.active||"precision";
+    const manifest=window.PhoenixMaterialEngine?.getManifest?.(material);
+    document.querySelectorAll('#forgeLab [data-ui-material]').forEach(button=>{
+      const active=button.dataset.uiMaterial===material;
+      button.classList.toggle('active',active);
+      button.setAttribute('aria-pressed',String(active));
+    });
+    document.querySelectorAll('#forgeLab [data-material-current]').forEach(el=>el.textContent=manifest?.name||(material==='foundry'?'FORGED Foundry':'FORGED Precision'));
+    const materialEl=document.getElementById("forgeMaterialDiagnostic");if(materialEl)materialEl.textContent=material.toUpperCase();
+    this.updateForgeLabMaterialCertificate();
+  },
+
+  updateForgeLabMaterialCertificate(){
+    if(this.currentScreen!=="forgeLab")return;
+    const engine=window.PhoenixMaterialEngine;
+    const material=this.data?.settings?.uiMaterial||engine?.active||"precision";
+    const manifest=engine?.getManifest?.(material);
+    const certificate=engine?.getCertificate?.(material)||engine?.validate?.(material);
+    const state=document.getElementById("forgeCertificateState");
+    const message=document.getElementById("forgeCertificateMessage");
+    const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value};
+    set("forgeCertificateMaterial",manifest?.name||material);
+    set("forgeCertificateEngine",manifest?.engine||engine?.version||"—");
+    set("forgeCertificateComponents",manifest?.componentContract||window.PhoenixComponentContract?.version||"—");
+    set("forgeCertificateNetwork",manifest?.network==="forbidden"?"BLOQUEADA":"REVISAR");
+    set("forgeCertificateScripts",manifest?.scripts==="forbidden"?"PROHIBIDOS":"REVISAR");
+    set("forgeCertificateBudget",manifest?.assetsBudgetKb?`${manifest.assetsBudgetKb} KB`:"—");
+    set("forgeCertificateFallback",manifest?.fallback?"SÍ":"PRECISION");
+    if(state){
+      state.textContent=certificate?.valid?"CERTIFICADO":"RECHAZADO";
+      state.classList.toggle("valid",certificate?.valid===true);
+      state.classList.toggle("invalid",certificate?.valid!==true);
+    }
+    if(message){
+      if(certificate?.valid)message.textContent=`Material válido · Contrato ${certificate.contractVersion||engine?.contractVersion||"0.1"} · Solo presentación visual.`;
+      else message.textContent=(certificate?.errors||["El material no cumple el contrato"]).join(" · ");
+    }
+  },
+
+
+  updateForgeComponentCoverage(){
+    if(this.currentScreen!=="forgeLab")return;
+    const runtime=window.PhoenixComponentRuntime;
+    const report=runtime?.report?.();
+    const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value};
+    set("forgeComponentTotal",report?.total??"—");
+    set("forgeComponentButtons",report?.byType?.button??0);
+    set("forgeComponentSurfaces",report?.byType?.surface??0);
+    set("forgeComponentInputs",report?.byType?.input??0);
+    set("forgeComponentLabels",(report?.byType?.label??0)+(report?.byType?.chip??0));
+    set("forgeComponentRuntime",runtime?.version||"NO DISPONIBLE");
+    const state=document.getElementById("forgeComponentState");
+    if(state){state.textContent=report?.total>0?"ACTIVO":"REVISAR";state.classList.toggle("valid",report?.total>0)}
+  },
+
+  refreshForgeComponentCoverage(){
+    window.PhoenixComponentRuntime?.scan?.(document);
+    requestAnimationFrame(()=>this.updateForgeComponentCoverage());
+    this.toast("Componentes PHX reescaneados")
+  },
+
+  validateActiveMaterial(){
+    this.updateForgeLabMaterialCertificate();
+    const material=this.data?.settings?.uiMaterial||"precision";
+    const certificate=window.PhoenixMaterialEngine?.validate?.(material);
+    this.toast(certificate?.valid?"Material certificado por la Forja":"Material rechazado; se usará Precision");
+    if(!certificate?.valid&&material!=="precision")this.setUiMaterial("precision");
+  },
+
   renderSettings(withHistory=true){
     const mode=this.data.settings.planningMode||"fixed";
     const fontScale=this.data.settings.fontScale||"normal";
     const timerOrientation=this.data.settings.timerOrientation||"auto";
     const uiMaterial=this.data.settings.uiMaterial||"precision";
     document.getElementById("settings").innerHTML=`<div class="card settings-definitive"><div class="eyebrow">AJUSTES</div>
-      <section class="settings-section material-settings material-settings--alpha"><div class="engine-badge"><span>PHX SKIN ENGINE</span><b>0.1 ALPHA</b></div><h3>Apariencia y materiales</h3>
+      <section class="settings-section material-settings material-settings--alpha"><div class="engine-badge"><span>PHX SKIN ENGINE</span><b>0.3 ALPHA</b></div><h3>Apariencia y materiales</h3>
         <p class="material-intro">Elige el material visual. No cambia datos, rutinas ni funcionamiento.</p>
         <div class="material-selector" role="group" aria-label="Material de la interfaz">
           <button type="button" class="material-option precision ${uiMaterial==='precision'?'active':''}" data-ui-material="precision" aria-pressed="${uiMaterial==='precision'}" onclick="App.setUiMaterial('precision')">
@@ -2880,6 +3106,7 @@ const App={
         </div>
         <div class="alpha-security-strip"><span>RED</span><b>LOCAL ONLY</b><span>NUBE</span><b>DESACTIVADA</b></div>
         <small class="material-footnote">Las creaciones visuales no ejecutan JavaScript ni pueden leer o transmitir tus datos.</small>
+        <button type="button" class="secondary forge-lab-launch" onclick="App.renderForgeLab()"><span>ABRIR FORGE LAB</span><small>Comparar componentes y materiales</small></button>
       </section>
       <section class="settings-section"><h3>Entrenamiento</h3>
         <label>Descanso predeterminado<input id="defaultRest" type="number" min="0" step="5" value="${this.data.settings.defaultRest}"><small>Segundos usados al crear nuevos ejercicios.</small></label>
@@ -2998,7 +3225,7 @@ const App={
     const payload={
       format:"GymTracker Phoenix Backup",
       schema_version:1,
-      app_version:"10.0 RC2",
+      app_version:"11 Alpha Build 004",
       profile:{id:this.activeProfileId,name:this.activeProfile()?.name||this.activeProfileId},
       exportedAt:new Date().toISOString(),
       counts:{

@@ -1,0 +1,4 @@
+/* Phoenix Timer: solo material y acabado, nunca lógica. */
+:root[data-phx-material="my-material"] .phx-timer{
+  color:var(--phx-text-primary);
+}

@@ -514,3 +514,109 @@ html[data-phx-material="foundry"] textarea:focus{
   html[data-phx-material="foundry"] .routine-accordion,
   html[data-phx-material="foundry"] .block-card{box-shadow:0 3px 0 #050506,0 9px 18px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.07)!important}
 }
+
+
+/* Build 002 · Forge Lab under FORGED Foundry */
+html[data-phx-material="foundry"] .forge-lab__hero,
+html[data-phx-material="foundry"] .forge-lab__diagnostics,
+html[data-phx-material="foundry"] .forge-lab__grid,
+html[data-phx-material="foundry"] .forge-lab__sample-card,
+html[data-phx-material="foundry"] .forge-lab__metric-card,
+html[data-phx-material="foundry"] .forge-lab__state-card,
+html[data-phx-material="foundry"] .forge-lab__form,
+html[data-phx-material="foundry"] .forge-lab__timer,
+html[data-phx-material="foundry"] .forge-lab__exercise,
+html[data-phx-material="foundry"] .forge-lab__contract{
+  border-radius:9px!important;
+  border:1px solid #4b4942!important;
+  outline:1px solid #030303;
+  background:
+    radial-gradient(circle at 12px 12px,#aa8c52 0 1.5px,#2a2318 2.5px 4px,transparent 5px),
+    radial-gradient(circle at calc(100% - 12px) 12px,#aa8c52 0 1.5px,#2a2318 2.5px 4px,transparent 5px),
+    repeating-linear-gradient(103deg,rgba(255,255,255,.018) 0 1px,transparent 1px 8px),
+    linear-gradient(150deg,#303131,#111212 56%,#252626)!important;
+  box-shadow:0 8px 0 #030303,0 20px 38px rgba(0,0,0,.56),inset 0 1px 0 rgba(255,255,255,.08)!important
+}
+html[data-phx-material="foundry"] .forge-lab__material,
+html[data-phx-material="foundry"] .forge-lab__notice,
+html[data-phx-material="foundry"] .forge-lab__exercise-code{
+  border-radius:6px;
+  background:linear-gradient(180deg,#292a2a,#0e0f0f);
+  border-color:#4a4842;
+  box-shadow:0 5px 0 #030303,inset 0 1px 0 rgba(255,255,255,.08)
+}
+html[data-phx-material="foundry"] .forge-lab__material.active{border-color:#b88a32;box-shadow:0 6px 0 #3d2708,0 0 0 1px rgba(184,138,50,.2)}
+html[data-phx-material="foundry"] .forge-lab__timer-chassis{
+  border-radius:7px;
+  border:2px solid #4b4942;
+  outline:2px solid #030303;
+  background:
+    radial-gradient(circle at 18px 18px,#c0a36a 0 2px,#2e271a 3px 6px,transparent 7px),
+    radial-gradient(circle at calc(100% - 18px) 18px,#c0a36a 0 2px,#2e271a 3px 6px,transparent 7px),
+    radial-gradient(circle at 18px calc(100% - 18px),#c0a36a 0 2px,#2e271a 3px 6px,transparent 7px),
+    radial-gradient(circle at calc(100% - 18px) calc(100% - 18px),#c0a36a 0 2px,#2e271a 3px 6px,transparent 7px),
+    repeating-linear-gradient(104deg,rgba(255,255,255,.018) 0 1px,transparent 1px 8px),
+    linear-gradient(150deg,#3a3b3b,#111212 52%,#272828)
+}
+html[data-phx-material="foundry"] .forge-lab__timer-ring{box-shadow:0 0 0 6px #050505,0 0 0 9px #4b4942,0 20px 38px rgba(0,0,0,.72)}
+
+
+/* =========================================================
+   PHOENIX 11 ALPHA · BUILD 004
+   PHX Component Contract 0.1 · official semantic layer.
+   Screen-specific selectors above remain as a temporary
+   compatibility bridge; new Forge materials target phx-* only.
+   ========================================================= */
+html[data-phx-material="foundry"] .phx-surface--rail{
+  background:
+    radial-gradient(circle at 16px 16px,#b69a62 0 2px,#30291d 3px 5px,transparent 6px),
+    radial-gradient(circle at calc(100% - 16px) 16px,#b69a62 0 2px,#30291d 3px 5px,transparent 6px),
+    repeating-linear-gradient(102deg,rgba(255,255,255,.018) 0 1px,transparent 1px 8px),
+    linear-gradient(180deg,rgba(38,39,39,.97),rgba(10,10,10,.98));
+  border-bottom:2px solid #050505;box-shadow:0 6px 0 #050505,0 15px 30px rgba(0,0,0,.42)
+}
+html[data-phx-material="foundry"] .phx-surface--card{
+  border-radius:var(--phx-radius-card);border:1px solid var(--phx-border-subtle);outline:1px solid rgba(0,0,0,.85);
+  background:
+    radial-gradient(circle at 11px 11px,#a98b51 0 1.5px,#292318 2.5px 4px,transparent 5px),
+    radial-gradient(circle at calc(100% - 11px) 11px,#a98b51 0 1.5px,#292318 2.5px 4px,transparent 5px),
+    repeating-linear-gradient(105deg,rgba(255,255,255,.018) 0 1px,transparent 1px 8px),
+    linear-gradient(155deg,#2b2c2c,var(--phx-surface-primary) 58%,#202121);
+  box-shadow:var(--phx-shadow-card)
+}
+html[data-phx-material="foundry"] .phx-surface--panel{
+  border-radius:12px 12px 0 0;border:1px solid var(--phx-border-subtle);
+  background:
+    radial-gradient(circle at 14px 14px,#b89b61 0 2px,#2d261a 3px 5px,transparent 6px),
+    radial-gradient(circle at calc(100% - 14px) 14px,#b89b61 0 2px,#2d261a 3px 5px,transparent 6px),
+    repeating-linear-gradient(106deg,rgba(255,255,255,.017) 0 1px,transparent 1px 9px),
+    linear-gradient(155deg,#2a2b2b,#101111 58%,var(--phx-surface-panel));
+  box-shadow:0 -8px 0 #050505,0 -20px 45px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.09)
+}
+html[data-phx-material="foundry"] .phx-button{
+  position:relative;min-height:var(--phx-control-min-height);border-radius:var(--phx-radius-control);border:1px solid #56554f;outline:1px solid #030303;
+  background:repeating-linear-gradient(102deg,rgba(255,255,255,.02) 0 1px,transparent 1px 7px),linear-gradient(180deg,#303131,#141515);
+  color:var(--phx-text-primary);box-shadow:var(--phx-shadow-control);text-shadow:0 1px 0 #000;
+  transition:transform var(--phx-motion-fast) ease,box-shadow var(--phx-motion-fast) ease,filter var(--phx-motion-fast) ease
+}
+html[data-phx-material="foundry"] .phx-button--primary{
+  color:#17120a;border-color:#b48738;
+  background:repeating-linear-gradient(100deg,rgba(255,255,255,.05) 0 1px,transparent 1px 7px),linear-gradient(180deg,#d6ad5b,#8b621f 62%,#5d3d11);
+  box-shadow:0 8px 0 #392408,0 16px 25px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,242,194,.52)
+}
+html[data-phx-material="foundry"] .phx-button--danger{color:#f0a7a3;border-color:var(--phx-danger);background:linear-gradient(180deg,#4b2523,#21100f)}
+html[data-phx-material="foundry"] .phx-button--material.active,
+html[data-phx-material="foundry"] .phx-button--profile.active{border-color:var(--phx-border-active);box-shadow:0 0 0 2px rgba(184,138,50,.16),var(--phx-shadow-control)}
+html[data-phx-material="foundry"] .phx-button:active{transform:translateY(var(--phx-press-travel));box-shadow:0 2px 0 #050505,0 6px 12px rgba(0,0,0,.36)}
+html[data-phx-material="foundry"] .phx-button.is-disabled{opacity:.4;filter:saturate(.35);pointer-events:none}
+html[data-phx-material="foundry"] .phx-input{
+  border-radius:var(--phx-radius-control);border:1px solid #4a4944;background:linear-gradient(180deg,var(--phx-surface-inset),#171818);
+  box-shadow:inset 0 3px 8px rgba(0,0,0,.72),0 1px 0 rgba(255,255,255,.04)
+}
+html[data-phx-material="foundry"] .phx-chip{border-radius:999px;border:1px solid rgba(184,138,50,.28);background:#111;color:#d7b86f}
+html[data-phx-material="foundry"] .phx-chip--success{border-color:rgba(113,139,79,.55);color:#b9d68f}
+html[data-phx-material="foundry"] .phx-chip--danger{border-color:rgba(142,48,53,.65);color:#efaaa6}
+html[data-phx-material="foundry"] .phx-label--eyebrow{color:var(--phx-action-primary-hi);text-shadow:0 1px 0 #000}
+html[data-phx-material="foundry"] .phx-metric strong,
+html[data-phx-material="foundry"] .phx-metric--hero{font-variant-numeric:tabular-nums;color:var(--phx-action-primary-hi)}
+html[data-phx-material="foundry"] .phx-progress{border-radius:3px;background:#080808;box-shadow:inset 0 2px 5px #000}

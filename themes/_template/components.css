@@ -1,0 +1,7 @@
+/* Componentes visuales. No cambies posiciones de acciones críticas. */
+:root[data-phx-material="my-material"] .phx-card{
+  background:var(--phx-surface-primary);
+  color:var(--phx-text-primary);
+  border-radius:var(--phx-radius-card);
+  box-shadow:var(--phx-shadow-elevated);
+}

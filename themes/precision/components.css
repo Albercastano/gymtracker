@@ -1,3 +1,10 @@
-/* FORGED Precision · safe fallback material.
-   Base component rules live in styles.css; this file is intentionally small. */
+/* FORGED Precision · PHX Component Contract 0.1 */
 html[data-phx-material="precision"] body{background-color:var(--phx-surface-screen)}
+html[data-phx-material="precision"] .phx-button{min-height:var(--phx-control-min-height);border-radius:var(--phx-radius-control);transition:transform var(--phx-motion-fast) ease,box-shadow var(--phx-motion-fast) ease}
+html[data-phx-material="precision"] .phx-button:active{transform:translateY(var(--phx-press-travel))}
+html[data-phx-material="precision"] .phx-surface--card{border-radius:var(--phx-radius-card)}
+html[data-phx-material="precision"] .phx-surface--panel{background:linear-gradient(155deg,var(--phx-surface-panel),var(--phx-surface-screen));border-color:var(--phx-border-subtle)}
+html[data-phx-material="precision"] .phx-input{border-radius:var(--phx-radius-control)}
+html[data-phx-material="precision"] .phx-chip{border-radius:999px}
+html[data-phx-material="precision"] .phx-label--eyebrow{color:var(--phx-action-primary)}
+html[data-phx-material="precision"] .phx-button.is-disabled{opacity:.45;pointer-events:none}

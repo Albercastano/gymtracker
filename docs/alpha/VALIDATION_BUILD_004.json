@@ -1,0 +1,74 @@
+{
+  "build": "11 Alpha Build 004",
+  "generatedAt": "2026-07-15T01:22:59.098382+00:00",
+  "skinEngine": "0.3.0",
+  "materialContract": "0.2.0",
+  "componentContract": "0.1.0",
+  "checks": {
+    "javascriptSyntax": "passed",
+    "jsonSyntax": "passed",
+    "materialPrecision": "passed",
+    "materialFoundry": "passed",
+    "onclickHandlers": "117/117 resolved",
+    "serviceWorkerAssets": "40/40 present",
+    "cssBraceBalance": "passed",
+    "browserRuntime": "not executed: environment blocks local navigation"
+  },
+  "files": [
+    {
+      "path": "index.html",
+      "sha256": "bd5cf99bedc73b6ca0b0fa35e6549107dbe8d52801eb6f6ec55b985935b3a0b9",
+      "bytes": 22985
+    },
+    {
+      "path": "app.js",
+      "sha256": "1f3ed873cf2c08f7d57645f33a31bb66c07cd1b16aa7e64a6698d1fc6c94d493",
+      "bytes": 196068
+    },
+    {
+      "path": "styles.css",
+      "sha256": "ac425c0d78482624d84a0a68c27fc92ef884df4fd9357ead7bcde71f1dbdf4a8",
+      "bytes": 154426
+    },
+    {
+      "path": "sw.js",
+      "sha256": "eb9419a1ce9881612b69f9866e9ef30a1d3fbb82009d2fa651fcb36fc19e7c75",
+      "bytes": 1541
+    },
+    {
+      "path": "manifest.webmanifest",
+      "sha256": "6ba29fc5494a2316d53c1e9c2f89d7dc886d820591d9415544ff7272efa5483c",
+      "bytes": 656
+    },
+    {
+      "path": "themes/material-contract.js",
+      "sha256": "2ba99894ed7609ea6a290fdb7f299e6eadc6fa5279d806c0c6e8644ba13b3be3",
+      "bytes": 3914
+    },
+    {
+      "path": "themes/component-contract.js",
+      "sha256": "e6b4ed1193c639060af0cc73a9ce7d835a8132127c2fbd0eefafba3f8e86bdf2",
+      "bytes": 1528
+    },
+    {
+      "path": "themes/material-engine.js",
+      "sha256": "10a4509952b7b02315dbec941457f3485baf4692fa7f0d7ac7eb13f03f7bbaa9",
+      "bytes": 5173
+    },
+    {
+      "path": "themes/component-runtime.js",
+      "sha256": "c8cae1ed4278e0f40504539592edc14e80778448afe0ea98e7706c0ea48eed2c",
+      "bytes": 5455
+    },
+    {
+      "path": "themes/precision/manifest.json",
+      "sha256": "d899e4d3c9753f8c06df62637b40268d8bd20420d341e1b7fbe31bc474efbe08",
+      "bytes": 475
+    },
+    {
+      "path": "themes/foundry/manifest.json",
+      "sha256": "1ab34cfcd3a6cc1d26d02df2f106be3d01d5f1bf9752b212e786f6e262ac3311",
+      "bytes": 477
+    }
+  ]
+}

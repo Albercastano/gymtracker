@@ -1,6 +1,6 @@
 {
-  "name": "GymTracker Phoenix 11 Alpha · Build 001",
-  "short_name": "Phoenix 11 A001",
+  "name": "GymTracker Phoenix 11 Alpha · Build 004 · Component Architecture",
+  "short_name": "Phoenix 11 A004",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#050507",
@@ -19,5 +19,5 @@
       "purpose": "any maskable"
     }
   ],
-  "description": "GymTracker Phoenix local-first con PHX Skin Engine 0.1 y materiales FORGED modulares."
+  "description": "GymTracker Phoenix local-first con PHX Skin Engine 0.3, contrato seguro de materiales y arquitectura semántica de componentes."
 }

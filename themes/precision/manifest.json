@@ -3,8 +3,8 @@
   "id": "precision",
   "name": "FORGED Precision",
   "author": "Phoenix Forge",
-  "version": "1.0.0",
-  "engine": "0.1.x",
+  "version": "1.1.0",
+  "engine": "0.3.x",
   "status": "stable",
   "fallback": true,
   "styles": [
@@ -12,12 +12,14 @@
     "components.css",
     "timer.css"
   ],
-  "assetsBudgetKb": 24,
+  "assetsBudgetKb": 28,
   "capabilities": [
     "visual-tokens",
     "components",
-    "timer"
+    "timer",
+    "component-contract"
   ],
   "network": "forbidden",
-  "scripts": "forbidden"
+  "scripts": "forbidden",
+  "componentContract": "0.1.x"
 }

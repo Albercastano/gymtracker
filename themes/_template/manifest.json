@@ -1,18 +1,18 @@
 {
   "schemaVersion": 1,
-  "id": "foundry",
-  "name": "FORGED Foundry",
-  "author": "Phoenix Forge",
-  "version": "0.5.0-alpha",
+  "id": "my-material",
+  "name": "Mi creación de la Forja",
+  "author": "Tu nombre",
+  "version": "0.1.0",
   "engine": "0.3.x",
-  "status": "alpha",
+  "status": "community",
   "fallback": false,
   "styles": [
     "tokens.css",
     "components.css",
     "timer.css"
   ],
-  "assetsBudgetKb": 88,
+  "assetsBudgetKb": 80,
   "capabilities": [
     "visual-tokens",
     "components",

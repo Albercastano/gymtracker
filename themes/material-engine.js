@@ -1,20 +1,32 @@
 "use strict";
 (function(){
-  const ENGINE_VERSION="0.1.0";
+  const ENGINE_VERSION="0.3.0";
   const FALLBACK="precision";
   const registry=Object.freeze({
-    precision:Object.freeze({id:"precision",name:"FORGED Precision",version:"1.0.0",status:"stable",styles:["tokens.css","components.css","timer.css"]}),
-    foundry:Object.freeze({id:"foundry",name:"FORGED Foundry",version:"0.3.0-beta",status:"beta",styles:["tokens.css","components.css","timer.css"]})
+    precision:Object.freeze({
+      schemaVersion:1,id:"precision",name:"FORGED Precision",author:"Phoenix Forge",version:"1.1.0",engine:"0.3.x",componentContract:"0.1.x",status:"stable",fallback:true,
+      styles:Object.freeze(["tokens.css","components.css","timer.css"]),assetsBudgetKb:28,
+      capabilities:Object.freeze(["visual-tokens","components","timer","component-contract"]),network:"forbidden",scripts:"forbidden"
+    }),
+    foundry:Object.freeze({
+      schemaVersion:1,id:"foundry",name:"FORGED Foundry",author:"Phoenix Forge",version:"0.5.0-alpha",engine:"0.3.x",componentContract:"0.1.x",status:"alpha",fallback:false,
+      styles:Object.freeze(["tokens.css","components.css","timer.css"]),assetsBudgetKb:88,
+      capabilities:Object.freeze(["visual-tokens","components","timer","component-contract"]),network:"forbidden",scripts:"forbidden"
+    })
   });
+  const contract=window.PhoenixMaterialContract;
+  const certificates=contract?.certifyRegistry?.(registry)||Object.freeze({});
   let active=FALLBACK;
   let generation=0;
 
-  function safeId(value){return typeof value==="string"&&/^[a-z0-9-]{1,40}$/.test(value)&&Object.hasOwn(registry,value)}
+  function validCertificate(id){return certificates?.[id]?.valid===true}
+  function safeId(value){return typeof value==="string"&&/^[a-z0-9-]{1,40}$/.test(value)&&Object.hasOwn(registry,value)&&validCertificate(value)}
   function safeStyle(value){return typeof value==="string"&&/^[a-z0-9-]+\.css$/.test(value)}
   function getManifest(id){return registry[safeId(id)?id:FALLBACK]}
+  function getCertificate(id){return certificates[safeId(id)?id:FALLBACK]||null}
   function setAttributes(id){
     document.documentElement.dataset.phxMaterial=id;
-    document.documentElement.dataset.material=id; // backwards compatibility during Alpha
+    document.documentElement.dataset.material=id;
     if(document.body){document.body.dataset.phxMaterial=id;document.body.dataset.material=id}
   }
   function removeOldLinks(){document.querySelectorAll('link[data-phx-material-style]').forEach(el=>el.remove())}
@@ -41,19 +53,23 @@
   async function apply(requested,options={}){
     const id=safeId(requested)?requested:FALLBACK;
     const manifest=getManifest(id);
+    const certificate=getCertificate(id);
+    if(!certificate?.valid&&id!==FALLBACK)return apply(FALLBACK,{...options,fallback:true,reason:'contract'});
     const token=++generation;
     active=id;setAttributes(id);removeOldLinks();
     try{
       await Promise.all(manifest.styles.map(file=>linkFor(id,file,token)));
       if(token!==generation)return active;
       document.documentElement.dataset.phxMaterialReady='true';
+      document.documentElement.dataset.phxMaterialCertified=String(certificate?.valid===true);
       refreshControls();
-      window.dispatchEvent(new CustomEvent('phxmaterialchange',{detail:{id,manifest,engine:ENGINE_VERSION}}));
+      window.dispatchEvent(new CustomEvent('phxmaterialchange',{detail:{id,manifest,certificate,engine:ENGINE_VERSION}}));
       return id;
     }catch(error){
       console.error('[PHX Skin Engine]',error);
-      if(id!==FALLBACK)return apply(FALLBACK,{...options,fallback:true});
+      if(id!==FALLBACK)return apply(FALLBACK,{...options,fallback:true,reason:'asset'});
       document.documentElement.dataset.phxMaterialReady='false';
+      document.documentElement.dataset.phxMaterialCertified='false';
       refreshControls();
       return FALLBACK;
     }
@@ -66,7 +82,11 @@
       return safeId(data?.settings?.uiMaterial)?data.settings.uiMaterial:FALLBACK;
     }catch(_){return FALLBACK}
   }
-  const api=Object.freeze({version:ENGINE_VERSION,fallback:FALLBACK,registry,isSupported:safeId,get active(){return active},getManifest,apply,refreshControls});
+  const api=Object.freeze({
+    version:ENGINE_VERSION,contractVersion:contract?.version||'unavailable',fallback:FALLBACK,registry,certificates,
+    isSupported:safeId,get active(){return active},getManifest,getCertificate,apply,refreshControls,
+    validate:(id)=>contract?.validateManifest?.(registry[id])||Object.freeze({valid:false,errors:['Contrato no disponible'],warnings:[]})
+  });
   window.PhoenixMaterialEngine=api;
   setAttributes(storedMaterial());
   document.addEventListener('DOMContentLoaded',()=>apply(storedMaterial(),{boot:true}),{once:true});

@@ -1458,7 +1458,7 @@ button.phoenix-emblem{cursor:pointer}
 .material-footnote{display:block;margin-top:12px;color:var(--mut)}
 @media(max-width:440px){.material-option{grid-template-columns:92px 1fr;padding:11px;gap:11px}.material-swatch{height:72px}}
 
-/* Phoenix 11 Alpha: material skins are loaded from /themes by PHX Skin Engine 0.1. */
+/* Phoenix 11 Alpha: material skins are loaded from /themes by PHX Skin Engine 0.3. */
 
 /* Phoenix 11 Alpha Build 001 · visible material engine status */
 .material-settings--alpha{border-color:rgba(216,179,94,.38)!important;box-shadow:0 8px 0 rgba(54,35,9,.65),0 22px 42px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.07)!important}
@@ -1467,3 +1467,76 @@ button.phoenix-emblem{cursor:pointer}
 .alpha-security-strip{display:grid;grid-template-columns:auto 1fr auto 1fr;gap:7px 10px;align-items:center;margin-top:13px;padding:10px 11px;border-radius:12px;background:rgba(3,3,4,.7);border:1px solid rgba(126,168,90,.25);font-size:.62rem;letter-spacing:.09em}
 .alpha-security-strip span{color:#777a80}.alpha-security-strip b{color:#9fc57d}
 @media(max-width:410px){.alpha-security-strip{grid-template-columns:auto 1fr}.material-settings--alpha{padding:14px!important}}
+
+
+/* =========================================================
+   PHOENIX 11 ALPHA · BUILD 004 · COMPONENT ARCHITECTURE
+   Catálogo interno de componentes. Visual-only, sin datos.
+   ========================================================= */
+.forge-lab{width:min(980px,100%);margin:0 auto;padding:8px 0 34px;display:grid;gap:18px}
+.forge-lab__hero{padding:clamp(20px,5vw,38px)!important;overflow:hidden;position:relative}
+.forge-lab__hero::after{content:"";position:absolute;width:260px;height:260px;right:-105px;top:-105px;border-radius:50%;background:radial-gradient(circle,rgba(216,179,94,.15),transparent 68%);pointer-events:none}
+.forge-lab__hero-top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;position:relative;z-index:1}
+.forge-lab__hero h1{margin:5px 0 0;font-size:clamp(2.4rem,9vw,5.6rem);line-height:.88;letter-spacing:-.055em;color:var(--phx-text-primary,var(--ink))}
+.forge-lab__hero h1 em{font-style:normal;color:var(--phx-action-primary,var(--gold))}
+.forge-lab__hero>p{max-width:680px;color:var(--phx-text-secondary,var(--mut));line-height:1.6;position:relative;z-index:1}
+.forge-lab__engine{padding:7px 9px;border-radius:999px;border:1px solid color-mix(in srgb,var(--phx-action-primary,#d8b35e) 34%,transparent);color:var(--phx-action-primary,#d8b35e);font-size:.62rem;font-weight:950;letter-spacing:.12em;white-space:nowrap}
+.forge-lab__material-bar{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px;position:relative;z-index:1}
+.forge-lab__material{min-height:70px;padding:12px 14px;border-radius:var(--phx-radius-control,14px);border:1px solid rgba(255,255,255,.1);background:var(--phx-surface-primary,#17181b);color:var(--phx-text-primary,#f4efe4);display:grid;gap:4px;text-align:left;box-shadow:0 6px 0 rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.08)}
+.forge-lab__material span{font-weight:1000;letter-spacing:.08em}.forge-lab__material small{color:var(--phx-text-secondary,#8c8d92)}
+.forge-lab__material.active{border-color:var(--phx-action-primary,#d8b35e);box-shadow:0 6px 0 var(--phx-action-primary-low,#6c4812),0 0 0 1px color-mix(in srgb,var(--phx-action-primary,#d8b35e) 18%,transparent)}
+.forge-lab__active{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;align-items:center;margin-top:14px;padding:12px 14px;border-radius:14px;background:rgba(0,0,0,.24);border:1px solid rgba(255,255,255,.07);position:relative;z-index:1}
+.forge-lab__active span{font-size:.62rem;letter-spacing:.12em;color:var(--phx-text-secondary,#8c8d92)}.forge-lab__active b{color:var(--phx-action-primary,#d8b35e)}.forge-lab__active small{grid-column:1/-1;color:var(--phx-text-secondary,#8c8d92)}
+.forge-lab__diagnostics{display:grid;grid-template-columns:repeat(4,1fr);padding:0!important;overflow:hidden}
+.forge-lab__diagnostics>div{padding:15px 12px;text-align:center;border-right:1px solid rgba(255,255,255,.07)}.forge-lab__diagnostics>div:last-child{border-right:0}
+.forge-lab__diagnostics span{display:block;font-size:.58rem;font-weight:900;letter-spacing:.12em;color:var(--phx-text-secondary,#8c8d92)}.forge-lab__diagnostics b{display:block;margin-top:5px;color:var(--phx-action-primary,#d8b35e);font-size:.92rem}
+.forge-lab__section{display:grid;gap:10px}.forge-lab__section>header{display:flex;justify-content:space-between;gap:14px;align-items:end;padding:0 4px}.forge-lab__section>header span{font-size:.62rem;font-weight:950;letter-spacing:.14em;color:var(--phx-action-primary,#d8b35e)}.forge-lab__section>header h2{margin:3px 0 0;font-size:clamp(1.25rem,4vw,1.7rem)}.forge-lab__section>header small{color:var(--phx-text-secondary,#8c8d92);text-align:right}
+.forge-lab__grid{display:grid;gap:11px;padding:16px!important}.forge-lab__grid--buttons{grid-template-columns:repeat(2,minmax(0,1fr))}.forge-lab__grid button{min-height:56px}
+.forge-lab__cards{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:12px}.forge-lab__sample-card,.forge-lab__metric-card,.forge-lab__state-card{min-height:190px;padding:20px!important}.forge-lab__sample-card h3,.forge-lab__state-card h3{margin:8px 0;font-size:1.35rem}.forge-lab__sample-card p,.forge-lab__state-card p{color:var(--phx-text-secondary,#8c8d92)}.forge-lab__sample-card button{width:100%;margin-top:12px}
+.forge-lab__metric-card{display:flex;flex-direction:column;justify-content:center}.forge-lab__metric-card>span{font-size:.64rem;font-weight:900;letter-spacing:.12em;color:var(--phx-text-secondary,#8c8d92)}.forge-lab__metric-card strong{font-size:clamp(2.3rem,8vw,4.6rem);line-height:1;color:var(--phx-action-primary,#d8b35e);font-variant-numeric:tabular-nums}.forge-lab__metric-card small{color:var(--phx-text-secondary,#8c8d92)}
+.forge-lab__progress{height:7px;margin-top:18px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}.forge-lab__progress i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--phx-action-primary-low,#6c4812),var(--phx-action-primary-hi,#ffe3a1))}
+.forge-lab__status{display:inline-flex;width:max-content;padding:5px 8px;border-radius:999px;font-size:.58rem;font-weight:1000;letter-spacing:.1em}.forge-lab__status.success{background:rgba(126,168,90,.16);border:1px solid rgba(126,168,90,.3);color:#bfe29d}
+.forge-lab__chip,.forge-lab__chips span{display:inline-flex;margin:4px 5px 0 0;padding:5px 7px;border-radius:999px;border:1px solid rgba(216,179,94,.2);color:var(--phx-action-primary,#d8b35e);font-size:.58rem;font-weight:900;letter-spacing:.08em}
+.forge-lab__form{display:grid;grid-template-columns:1fr 1fr;gap:13px;padding:18px!important}.forge-lab__form label>span{display:block;margin-bottom:6px;font-size:.63rem;font-weight:900;letter-spacing:.11em;color:var(--phx-text-secondary,#8c8d92)}.forge-lab__form label{position:relative}.forge-lab__form label>small{position:absolute;right:13px;bottom:15px;color:var(--phx-text-secondary,#8c8d92)}.forge-lab__form input{width:100%;min-height:54px;padding-right:48px}
+.forge-lab__segments{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:5px;border-radius:var(--phx-radius-control,14px);background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.08)}.forge-lab__segments button{min-height:46px;border-radius:calc(var(--phx-radius-control,14px) - 4px);background:transparent;color:var(--phx-text-secondary,#8c8d92);border:0}.forge-lab__segments button.active{background:var(--phx-surface-raised,#24252a);color:var(--phx-action-primary,#d8b35e);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--phx-action-primary,#d8b35e) 25%,transparent)}
+.forge-lab__switch{margin:0!important;padding:9px 12px!important;border-radius:var(--phx-radius-control,14px);border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.18)}
+.forge-lab__timer{padding:18px!important;display:grid;gap:14px}.forge-lab__timer-head{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:11px}.forge-lab__timer-head img{width:42px;height:42px;object-fit:contain}.forge-lab__timer-head span{display:block;color:var(--phx-text-secondary,#8c8d92);font-size:.58rem;letter-spacing:.12em}.forge-lab__timer-head b{color:var(--phx-action-primary,#d8b35e);letter-spacing:.08em}.forge-lab__timer-head em{font-style:normal;font-size:.64rem;color:var(--phx-text-secondary,#8c8d92)}
+.forge-lab__timer-chassis{position:relative;display:grid;place-items:center;min-height:370px;padding:28px;border-radius:var(--phx-radius-card,22px);border:1px solid var(--phx-edge-primary,#676b74);background:linear-gradient(145deg,var(--phx-surface-raised,#24252a),var(--phx-surface-screen,#070709));box-shadow:0 10px 0 #030303,0 28px 54px rgba(0,0,0,.62),inset 0 1px 0 rgba(255,255,255,.09)}
+.forge-lab__bolt{position:absolute;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#e0d3b7 0 1px,#766344 2px,#17130d 5px,#050505 70%);border:1px solid #030303}.bolt-a{left:15px;top:15px}.bolt-b{right:15px;top:15px}.bolt-c{left:15px;bottom:15px}.bolt-d{right:15px;bottom:15px}
+.forge-lab__timer-ring{--lab-progress:.68;width:min(70vw,310px);aspect-ratio:1;border-radius:50%;padding:12px;background:conic-gradient(from -90deg,var(--phx-action-primary-hi,#ffe3a1) calc(var(--lab-progress)*1turn),rgba(255,255,255,.08) 0);box-shadow:0 0 0 5px #070708,0 0 0 7px var(--phx-edge-primary,#676b74),0 20px 38px rgba(0,0,0,.66)}
+.forge-lab__timer-ring>div{width:100%;height:100%;border-radius:50%;display:grid;place-content:center;text-align:center;background:radial-gradient(circle at 50% 38%,var(--phx-surface-raised,#24252a),var(--phx-surface-screen,#070709) 70%);box-shadow:inset 0 8px 22px rgba(255,255,255,.035),inset 0 -18px 30px rgba(0,0,0,.62)}
+.forge-lab__timer-ring strong{font-size:clamp(4rem,17vw,7.8rem);line-height:.9;letter-spacing:-.08em;font-variant-numeric:tabular-nums;color:transparent;background:linear-gradient(180deg,var(--phx-action-primary-hi,#ffe3a1),var(--phx-action-primary,#d8b35e) 40%,var(--phx-action-primary-low,#6c4812) 72%,var(--phx-action-primary-hi,#ffe3a1));-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 5px 0 rgba(50,31,6,.75))}.forge-lab__timer-ring span{margin-top:10px;font-size:.62rem;letter-spacing:.16em;color:var(--phx-text-secondary,#8c8d92)}
+.forge-lab__timer-controls{display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:9px}.forge-lab__timer-controls button{min-height:58px}.forge-lab__timer>p{margin:0;text-align:center;color:var(--phx-text-secondary,#8c8d92)}
+.forge-lab__exercise{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;padding:20px!important}.forge-lab__exercise-code{display:grid;place-items:center;min-width:90px;min-height:90px;padding:10px;border-radius:var(--phx-radius-control,14px);background:var(--phx-surface-raised,#24252a);border:1px solid color-mix(in srgb,var(--phx-action-primary,#d8b35e) 28%,transparent)}.forge-lab__exercise-code span{font-size:.58rem;letter-spacing:.12em;color:var(--phx-text-secondary,#8c8d92)}.forge-lab__exercise-code b{color:var(--phx-action-primary,#d8b35e);font-size:.78rem}.forge-lab__exercise h3{margin:0 0 6px}.forge-lab__exercise p{margin:0;color:var(--phx-text-secondary,#8c8d92)}.forge-lab__exercise-actions{display:grid;gap:8px;min-width:130px}.forge-lab__exercise-actions button{min-height:50px}
+.forge-lab__states{display:grid;grid-template-columns:1fr 1fr;gap:10px}.forge-lab__notice{display:grid;gap:4px;padding:15px 16px;border-radius:var(--phx-radius-control,14px);border:1px solid rgba(255,255,255,.09);background:var(--phx-surface-primary,#17181b)}.forge-lab__notice b{font-size:.7rem;letter-spacing:.12em}.forge-lab__notice span{color:var(--phx-text-secondary,#8c8d92);line-height:1.4}.forge-lab__notice.success{border-color:rgba(126,168,90,.32)}.forge-lab__notice.success b{color:#bfe29d}.forge-lab__notice.warning{border-color:rgba(216,179,94,.34)}.forge-lab__notice.warning b{color:var(--phx-action-primary,#d8b35e)}.forge-lab__notice.error{border-color:rgba(142,48,53,.5)}.forge-lab__notice.error b{color:#e49da1}.forge-lab__notice.empty b{color:var(--phx-text-primary,#f4efe4)}
+.forge-lab__contract{padding:22px!important}.forge-lab__contract h2{margin:8px 0 12px}.forge-lab__contract ul{margin:0;padding-left:20px;color:var(--phx-text-secondary,#8c8d92);line-height:1.7}
+.forge-lab-launch{width:100%;margin-top:14px;display:grid!important;gap:2px;text-align:left!important;padding-inline:16px!important}.forge-lab-launch span{font-weight:1000;letter-spacing:.08em}.forge-lab-launch small{color:var(--phx-text-secondary,#8c8d92)}
+@media(max-width:760px){.forge-lab__cards{grid-template-columns:1fr 1fr}.forge-lab__sample-card{grid-column:1/-1}.forge-lab__exercise{grid-template-columns:auto 1fr}.forge-lab__exercise-actions{grid-column:1/-1;grid-template-columns:1fr 1fr}.forge-lab__diagnostics{grid-template-columns:1fr 1fr}.forge-lab__diagnostics>div:nth-child(2){border-right:0}.forge-lab__diagnostics>div:nth-child(-n+2){border-bottom:1px solid rgba(255,255,255,.07)}}
+@media(max-width:520px){.forge-lab{gap:15px}.forge-lab__hero-top{display:grid}.forge-lab__engine{width:max-content}.forge-lab__material-bar,.forge-lab__grid--buttons,.forge-lab__cards,.forge-lab__form,.forge-lab__states{grid-template-columns:1fr}.forge-lab__sample-card{grid-column:auto}.forge-lab__section>header{align-items:start}.forge-lab__section>header small{max-width:120px}.forge-lab__timer-chassis{min-height:310px;padding:20px 8px}.forge-lab__timer-ring{width:min(76vw,290px)}.forge-lab__timer-controls{grid-template-columns:1fr 1fr 1fr}.forge-lab__exercise{grid-template-columns:1fr}.forge-lab__exercise-code{width:100%;min-height:64px}.forge-lab__exercise-actions{grid-column:auto}.forge-lab__active{grid-template-columns:1fr}.forge-lab__active small{grid-column:auto}}
+@media(prefers-reduced-motion:reduce){.forge-lab *{transition:none!important;animation:none!important}}
+
+
+/* Build 004 · PHX Material Contract certificate */
+.forge-lab__certificate{padding:20px;display:grid;gap:16px}
+.forge-lab__certificate-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.forge-lab__certificate-head span{display:block;font-size:.68rem;font-weight:950;letter-spacing:.14em;color:var(--phx-accent,#d8b35e)}
+.forge-lab__certificate-head h2{margin:5px 0 0;font-size:1.25rem}
+#forgeCertificateState{padding:8px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.12);font-size:.68rem;letter-spacing:.1em}
+#forgeCertificateState.valid{color:#dff1cf;border-color:rgba(126,168,90,.45);background:rgba(126,168,90,.12)}
+#forgeCertificateState.invalid{color:#ffd6d8;border-color:rgba(142,48,53,.55);background:rgba(142,48,53,.14)}
+.forge-lab__certificate-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.forge-lab__certificate-grid>div{padding:12px;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:rgba(255,255,255,.025)}
+.forge-lab__certificate-grid span{display:block;font-size:.62rem;font-weight:900;letter-spacing:.1em;color:var(--muted,#8c8d92)}
+.forge-lab__certificate-grid b{display:block;margin-top:5px;font-size:.78rem;color:var(--phx-text-primary,#f4efe4);overflow-wrap:anywhere}
+.forge-lab__certificate p{margin:0;color:var(--muted,#8c8d92);line-height:1.5}
+@media (max-width:520px){.forge-lab__certificate-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.forge-lab__certificate-head{align-items:flex-start;flex-direction:column}}
+
+
+/* Phoenix 11 Alpha Build 004 · PHX Component Contract */
+.forge-lab__component-contract{padding:18px;display:grid;gap:14px}
+.forge-lab__component-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.forge-lab__component-grid>div{min-width:0;padding:11px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(255,255,255,.025)}
+.forge-lab__component-grid span{display:block;font-size:.62rem;font-weight:900;letter-spacing:.09em;color:var(--mut,#8c8d92)}
+.forge-lab__component-grid b{display:block;margin-top:5px;font-size:.95rem;color:var(--ink,#f4efe4);overflow-wrap:anywhere}
+.forge-lab__component-contract code{color:var(--gold,#d8b35e);font-weight:800}
+@media(max-width:410px){.forge-lab__component-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}

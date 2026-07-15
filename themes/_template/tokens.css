@@ -1,0 +1,10 @@
+/* PHX Material Template · Solo tokens semánticos */
+:root[data-phx-material="my-material"]{
+  --phx-surface-primary:#17181b;
+  --phx-surface-elevated:#24252a;
+  --phx-text-primary:#f4efe4;
+  --phx-text-muted:#8c8d92;
+  --phx-accent:#d8b35e;
+  --phx-radius-card:22px;
+  --phx-shadow-elevated:0 6px 0 #000,0 20px 45px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.10);
+}

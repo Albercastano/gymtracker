@@ -13,4 +13,15 @@ html[data-phx-material="foundry"]{
   --phx-radius-control:8px;
   --phx-radius-card:9px;
   --phx-press-travel:4px;
+  --phx-surface-panel:#202223;
+  --phx-surface-inset:#090a0a;
+  --phx-border-subtle:#4b4a44;
+  --phx-border-active:rgba(184,138,50,.56);
+  --phx-shadow-card:0 8px 0 #030303,0 22px 42px rgba(0,0,0,.62),inset 0 1px 0 rgba(255,255,255,.10);
+  --phx-shadow-control:0 7px 0 #050505,0 14px 25px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.10);
+  --phx-danger:#6c2b28;
+  --phx-success:#718b4f;
+  --phx-control-min-height:56px;
+  --phx-motion-fast:100ms;
+  --phx-motion-panel:200ms;
 }

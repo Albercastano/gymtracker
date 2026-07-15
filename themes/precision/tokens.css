@@ -13,4 +13,15 @@ html[data-phx-material="precision"]{
   --phx-radius-control:14px;
   --phx-radius-card:22px;
   --phx-press-travel:2px;
+  --phx-surface-panel:#1d1e22;
+  --phx-surface-inset:#0d0e10;
+  --phx-border-subtle:rgba(255,255,255,.10);
+  --phx-border-active:rgba(216,179,94,.38);
+  --phx-shadow-card:0 6px 0 #000,0 20px 45px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.10);
+  --phx-shadow-control:0 4px 0 #000,0 12px 24px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.09);
+  --phx-danger:#8e3035;
+  --phx-success:#7ea85a;
+  --phx-control-min-height:54px;
+  --phx-motion-fast:120ms;
+  --phx-motion-panel:220ms;
 }
