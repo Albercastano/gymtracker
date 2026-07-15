@@ -1,6 +1,6 @@
 {
-  "name": "GymTracker Phoenix 11 Alpha · Build 004 · Component Architecture",
-  "short_name": "Phoenix 11 A004",
+  "name": "GymTracker Phoenix 11 Alpha · Build 007 · Foundry Quality Gate",
+  "short_name": "Phoenix 11 A007",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#050507",
@@ -19,5 +19,5 @@
       "purpose": "any maskable"
     }
   ],
-  "description": "GymTracker Phoenix local-first con PHX Skin Engine 0.3, contrato seguro de materiales y arquitectura semántica de componentes."
+  "description": "GymTracker Phoenix local-first con PHX Skin Engine, Foundry Visual Core y puerta de calidad visual, responsive y segura."
 }

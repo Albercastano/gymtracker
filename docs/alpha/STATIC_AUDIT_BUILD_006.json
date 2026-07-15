@@ -1,0 +1,10 @@
+{
+  "onclickReferences": 42,
+  "missingAppMethods": [],
+  "foundryVisualCoreCssBytes": 14569,
+  "foundryTotalBytes": 49112,
+  "swIncludesVisualCore": true,
+  "manifestIncludesVisualCore": true,
+  "manifestBuild": "006",
+  "appVersionBuild": "006"
+}

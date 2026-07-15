@@ -1,0 +1,56 @@
+{
+  "build": "Phoenix 11 Alpha Build 007",
+  "feature": "Foundry Quality Gate 1.0",
+  "valid": true,
+  "checks": {
+    "app.js:syntax": true,
+    "themes/material-engine.js:syntax": true,
+    "themes/material-contract.js:syntax": true,
+    "themes/component-runtime.js:syntax": true,
+    "themes/component-contract.js:syntax": true,
+    "manifest.webmanifest:json": true,
+    "themes/precision/manifest.json:json": true,
+    "themes/foundry/manifest.json:json": true,
+    "data/manifest.json:json": true,
+    "serviceWorkerAssets": true,
+    "material:precision": true,
+    "material:foundry": true,
+    "inlineActionsResolved": true,
+    "noNativeDialogs": true,
+    "feature:previewUiMaterial(": true,
+    "feature:applyMaterialPreview(": true,
+    "feature:cancelMaterialPreview(": true,
+    "feature:restorePrecisionMaterial(": true,
+    "feature:runForgeQualityGate(": true,
+    "feature:quality-state-grid": true,
+    "feature:quality-intensity-grid": true,
+    "feature:forgeQualityScore": true,
+    "materialIsolation": true,
+    "styles.css:braces": true,
+    "themes/precision/tokens.css:braces": true,
+    "themes/precision/components.css:braces": true,
+    "themes/precision/timer.css:braces": true,
+    "themes/foundry/components.css:braces": true,
+    "themes/foundry/tokens.css:braces": true,
+    "themes/foundry/timer.css:braces": true,
+    "themes/foundry/visual-core.css:braces": true,
+    "themes/_template/tokens.css:braces": true,
+    "themes/_template/components.css:braces": true,
+    "themes/_template/timer.css:braces": true
+  },
+  "errors": [],
+  "warnings": [
+    "Browser runtime test unavailable in this environment: local URLs are blocked by administrator. Final visual validation required after publishing."
+  ],
+  "materials": {
+    "precisionBytes": 2582,
+    "foundryBytes": 49136
+  },
+  "sha256": {
+    "index.html": "efb24b3ec190de5f90ab1bc489bfb26ef3e43c3e1a41b291c6c7fa7bc94cb322",
+    "app.js": "45e91187c40c9381ee7b66592c86aa7c97a5f0f920af51b0e5e44863814df7dd",
+    "styles.css": "6684d796cc6faf706a1be8ec695a52342622210e467d1acaceb913040d9de0e1",
+    "themes/material-engine.js": "b04e58f16c15ff549891aa0a43cf6cd5dc05e1dce851aa2de3098fe648aace93",
+    "themes/foundry/visual-core.css": "e0deeab737d2e5dc477ffb9c8830aafa1aa9ecc7871b02ad90251c80184fd26d"
+  }
+}

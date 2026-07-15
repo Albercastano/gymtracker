@@ -1,0 +1,204 @@
+/* ============================================================
+   PHOENIX 11 ALPHA · BUILD 006
+   FORGED FOUNDRY VISUAL CORE 1.0
+   Robust industrial component system. CSS-only, local-only.
+   ============================================================ */
+html[data-phx-material="foundry"]{
+  --fd-iron-950:#060707;
+  --fd-iron-900:#0b0c0d;
+  --fd-iron-850:#111315;
+  --fd-iron-800:#171a1d;
+  --fd-iron-700:#22262a;
+  --fd-iron-600:#34393e;
+  --fd-edge:#5a6066;
+  --fd-edge-dark:#17191b;
+  --fd-brass-300:#f1d28b;
+  --fd-brass-500:#bd8b2f;
+  --fd-brass-700:#68410b;
+  --fd-rust:#652d25;
+  --fd-cut:12px;
+  --fd-depth:8px;
+  --fd-machined:
+    repeating-linear-gradient(103deg,rgba(255,255,255,.024) 0 1px,transparent 1px 7px),
+    repeating-linear-gradient(8deg,rgba(0,0,0,.16) 0 1px,transparent 1px 13px);
+}
+
+/* Screen atmosphere: denser steel, still quiet enough for readability. */
+html[data-phx-material="foundry"] body{
+  background:
+    radial-gradient(900px 520px at 50% -120px,rgba(192,143,48,.13),transparent 58%),
+    repeating-linear-gradient(108deg,rgba(255,255,255,.012) 0 1px,transparent 1px 11px),
+    linear-gradient(155deg,#050606 0%,#151719 48%,#070808 100%)!important;
+}
+html[data-phx-material="foundry"] .screen::before{
+  content:"";position:fixed;inset:0;pointer-events:none;opacity:.34;
+  background:linear-gradient(90deg,transparent 0 49.7%,rgba(255,255,255,.018) 49.9% 50.1%,transparent 50.3%);
+}
+
+/* ---------- CORE SURFACES ---------- */
+html[data-phx-material="foundry"] .phx-surface--card,
+html[data-phx-material="foundry"] .foundry-core__plate,
+html[data-phx-material="foundry"] .home-today-card,
+html[data-phx-material="foundry"] .home-last-card,
+html[data-phx-material="foundry"] .routine-accordion,
+html[data-phx-material="foundry"] .pedb-forged-card{
+  position:relative;
+  border-radius:4px!important;
+  border:1px solid #5a5f63!important;
+  outline:2px solid #050606!important;
+  clip-path:polygon(var(--fd-cut) 0,calc(100% - var(--fd-cut)) 0,100% var(--fd-cut),100% calc(100% - var(--fd-cut)),calc(100% - var(--fd-cut)) 100%,var(--fd-cut) 100%,0 calc(100% - var(--fd-cut)),0 var(--fd-cut));
+  background:
+    linear-gradient(115deg,rgba(255,255,255,.055),transparent 19% 70%,rgba(255,255,255,.018)),
+    var(--fd-machined),
+    linear-gradient(158deg,#33383c 0%,#16191b 46%,#0a0c0d 100%)!important;
+  box-shadow:
+    0 var(--fd-depth) 0 #020303,
+    0 24px 42px rgba(0,0,0,.62),
+    inset 0 1px 0 rgba(255,255,255,.16),
+    inset 0 -2px 0 rgba(0,0,0,.94),
+    inset 0 0 0 7px rgba(0,0,0,.13)!important;
+}
+html[data-phx-material="foundry"] .phx-surface--card::after,
+html[data-phx-material="foundry"] .foundry-core__plate::after,
+html[data-phx-material="foundry"] .home-today-card::after,
+html[data-phx-material="foundry"] .home-last-card::after,
+html[data-phx-material="foundry"] .routine-accordion::after,
+html[data-phx-material="foundry"] .pedb-forged-card::after{
+  content:"";position:absolute;inset:7px;pointer-events:none;z-index:0;
+  border:1px solid rgba(231,219,191,.08);
+  clip-path:polygon(7px 0,calc(100% - 7px) 0,100% 7px,100% calc(100% - 7px),calc(100% - 7px) 100%,7px 100%,0 calc(100% - 7px),0 7px);
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.52);
+}
+html[data-phx-material="foundry"] .phx-surface--card>*,
+html[data-phx-material="foundry"] .foundry-core__plate>*,
+html[data-phx-material="foundry"] .home-today-card>*,
+html[data-phx-material="foundry"] .home-last-card>*,
+html[data-phx-material="foundry"] .routine-accordion>*,
+html[data-phx-material="foundry"] .pedb-forged-card>*{position:relative;z-index:1}
+
+/* Hero plates carry structural fasteners. */
+html[data-phx-material="foundry"] .home-today-card,
+html[data-phx-material="foundry"] .foundry-core__hero,
+html[data-phx-material="foundry"] .forge-lab__timer-chassis{
+  background:
+    radial-gradient(circle at 18px 18px,#d3bc89 0 1.5px,#776240 2.5px 4px,#17130d 5px 7px,transparent 8px),
+    radial-gradient(circle at calc(100% - 18px) 18px,#d3bc89 0 1.5px,#776240 2.5px 4px,#17130d 5px 7px,transparent 8px),
+    radial-gradient(circle at 18px calc(100% - 18px),#d3bc89 0 1.5px,#776240 2.5px 4px,#17130d 5px 7px,transparent 8px),
+    radial-gradient(circle at calc(100% - 18px) calc(100% - 18px),#d3bc89 0 1.5px,#776240 2.5px 4px,#17130d 5px 7px,transparent 8px),
+    linear-gradient(115deg,rgba(255,255,255,.055),transparent 19% 70%,rgba(255,255,255,.018)),
+    var(--fd-machined),
+    linear-gradient(158deg,#383d41 0%,#16191b 46%,#090b0c 100%)!important;
+}
+
+/* ---------- CORE BUTTONS ---------- */
+html[data-phx-material="foundry"] .phx-button,
+html[data-phx-material="foundry"] .foundry-core__button{
+  position:relative;isolation:isolate;overflow:hidden;
+  min-height:58px;border-radius:3px!important;border:1px solid #656a6e!important;outline:2px solid #040505!important;
+  clip-path:polygon(8px 0,calc(100% - 8px) 0,100% 8px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0 calc(100% - 8px),0 8px);
+  background:
+    radial-gradient(circle at 12px 50%,#c9b17f 0 1.5px,#665334 2.5px 4px,#16130f 5px 7px,transparent 8px),
+    radial-gradient(circle at calc(100% - 12px) 50%,#c9b17f 0 1.5px,#665334 2.5px 4px,#16130f 5px 7px,transparent 8px),
+    var(--fd-machined),
+    linear-gradient(180deg,#3a3f43 0%,#1b1e20 45%,#0c0e0f 100%)!important;
+  color:#f0eadf!important;text-shadow:0 2px 0 #000!important;
+  box-shadow:0 8px 0 #020303,0 16px 27px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.18),inset 0 -2px 0 rgba(0,0,0,.92)!important;
+  letter-spacing:.075em!important;font-weight:950!important;
+  transition:transform 90ms ease,box-shadow 90ms ease,filter 90ms ease!important;
+}
+html[data-phx-material="foundry"] .phx-button::after,
+html[data-phx-material="foundry"] .foundry-core__button::after{
+  content:"";position:absolute;inset:5px;z-index:-1;pointer-events:none;border:1px solid rgba(255,255,255,.075);
+  clip-path:polygon(5px 0,calc(100% - 5px) 0,100% 5px,100% calc(100% - 5px),calc(100% - 5px) 100%,5px 100%,0 calc(100% - 5px),0 5px);
+}
+html[data-phx-material="foundry"] .phx-button--primary,
+html[data-phx-material="foundry"] .foundry-core__button--primary{
+  border-color:#bc8b31!important;color:#140f07!important;text-shadow:0 1px 0 rgba(255,236,184,.45)!important;
+  background:
+    radial-gradient(circle at 12px 50%,#fff0bf 0 1.5px,#8c6526 2.5px 4px,#2c1a05 5px 7px,transparent 8px),
+    radial-gradient(circle at calc(100% - 12px) 50%,#fff0bf 0 1.5px,#8c6526 2.5px 4px,#2c1a05 5px 7px,transparent 8px),
+    repeating-linear-gradient(100deg,rgba(255,255,255,.075) 0 1px,transparent 1px 8px),
+    linear-gradient(180deg,#e7c06d 0%,#ad7723 43%,#70450c 70%,#b97f26 100%)!important;
+  box-shadow:0 9px 0 #3b2306,0 19px 31px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,246,211,.72),inset 0 -2px 0 rgba(55,28,2,.82)!important;
+}
+html[data-phx-material="foundry"] .phx-button--danger{
+  border-color:#71362f!important;color:#ffc0b5!important;
+  background:radial-gradient(circle at 12px 50%,#d59689 0 1.5px,#5c2f2a 2.5px 4px,#170a09 5px 7px,transparent 8px),radial-gradient(circle at calc(100% - 12px) 50%,#d59689 0 1.5px,#5c2f2a 2.5px 4px,#170a09 5px 7px,transparent 8px),linear-gradient(180deg,#61322d,#271311)!important;
+  box-shadow:0 8px 0 #170807,0 16px 27px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,207,197,.16)!important;
+}
+html[data-phx-material="foundry"] .phx-button:active,
+html[data-phx-material="foundry"] .foundry-core__button:active{transform:translateY(6px)!important;box-shadow:0 2px 0 #020303,0 7px 12px rgba(0,0,0,.42),inset 0 3px 8px rgba(0,0,0,.55)!important;filter:brightness(.9)}
+
+/* ---------- PANELS ---------- */
+html[data-phx-material="foundry"] .phx-surface--panel,
+html[data-phx-material="foundry"] .foundry-core__panel{
+  border-radius:4px 4px 0 0!important;border:2px solid #5f6468!important;outline:2px solid #030404!important;
+  background:
+    radial-gradient(circle at 18px 18px,#cfb681 0 1.5px,#6d5838 2.5px 4px,#15120e 5px 7px,transparent 8px),
+    radial-gradient(circle at calc(100% - 18px) 18px,#cfb681 0 1.5px,#6d5838 2.5px 4px,#15120e 5px 7px,transparent 8px),
+    linear-gradient(115deg,rgba(255,255,255,.055),transparent 20% 73%,rgba(255,255,255,.018)),var(--fd-machined),linear-gradient(155deg,#363b3f,#111416 58%,#25292c)!important;
+  box-shadow:0 -10px 0 #020303,0 -26px 52px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.15),inset 0 0 0 8px rgba(0,0,0,.16)!important;
+}
+
+/* ---------- METRICS ---------- */
+html[data-phx-material="foundry"] .phx-metric,
+html[data-phx-material="foundry"] .foundry-core__metric-value{
+  display:inline-block;max-width:100%;font-family:Impact,"Arial Narrow",system-ui,sans-serif!important;
+  font-variant-numeric:tabular-nums!important;letter-spacing:-.035em!important;line-height:.9!important;
+  color:transparent!important;background:linear-gradient(180deg,#fff0bc 0%,#d7aa4e 27%,#82540f 64%,#efca73 100%)!important;
+  -webkit-background-clip:text!important;background-clip:text!important;
+  -webkit-text-stroke:1px rgba(255,239,188,.18);
+  filter:drop-shadow(0 4px 0 #382207) drop-shadow(0 10px 12px rgba(0,0,0,.68));
+}
+html[data-phx-material="foundry"] .foundry-core__metric-unit{display:block;margin-top:8px;color:#c0b8aa;font-size:.76rem;font-weight:850;letter-spacing:.12em;text-transform:uppercase}
+
+/* ---------- ROUTINE ROW ---------- */
+html[data-phx-material="foundry"] .foundry-core__routine,
+html[data-phx-material="foundry"] .routine-item-card{
+  display:grid;grid-template-columns:44px 1fr auto;gap:13px;align-items:center;min-height:78px;padding:13px 15px!important;
+  border-radius:3px!important;border:1px solid #555b5f!important;outline:1px solid #030404!important;
+  background:linear-gradient(115deg,rgba(255,255,255,.045),transparent 22% 72%),var(--fd-machined),linear-gradient(180deg,#2b3034,#111416)!important;
+  box-shadow:0 6px 0 #020303,inset 0 1px 0 rgba(255,255,255,.12)!important;
+  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
+}
+html[data-phx-material="foundry"] .foundry-core__routine-index{display:grid;place-items:center;width:38px;height:38px;border-radius:2px;border:1px solid #9b742e;background:linear-gradient(180deg,#47320f,#181006);color:#edcc7e;font-weight:950;box-shadow:inset 0 1px 0 rgba(255,235,181,.2),0 3px 0 #050301}
+html[data-phx-material="foundry"] .foundry-core__routine h4{margin:0;color:#f2eadc;font-size:1rem;letter-spacing:.02em}
+html[data-phx-material="foundry"] .foundry-core__routine p{margin:4px 0 0;color:#aaa397;font-size:.78rem}
+html[data-phx-material="foundry"] .foundry-core__routine-state{color:#e5c477;font-weight:950;font-size:1.15rem}
+
+/* ---------- PEDB SPECIMEN ---------- */
+html[data-phx-material="foundry"] .foundry-core__pedb{display:grid;gap:15px;padding:20px!important}
+html[data-phx-material="foundry"] .foundry-core__pedb-head{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center}
+html[data-phx-material="foundry"] .foundry-core__code{min-width:86px;padding:11px 10px;text-align:center;border-radius:2px;border:1px solid #6b5733;background:linear-gradient(180deg,#2b2518,#0c0a07);box-shadow:0 4px 0 #020202,inset 0 1px 0 rgba(255,239,197,.12)}
+html[data-phx-material="foundry"] .foundry-core__code span{display:block;color:#a99d89;font-size:.55rem;letter-spacing:.16em}
+html[data-phx-material="foundry"] .foundry-core__code b{display:block;margin-top:4px;color:#e3bd67;font-size:.78rem}
+html[data-phx-material="foundry"] .foundry-core__pedb h4{margin:0 0 4px;color:#f5eee0;font-size:1.15rem}.foundry-core__pedb p{margin:0;color:#a9a297}
+html[data-phx-material="foundry"] .foundry-core__chips{display:flex;flex-wrap:wrap;gap:7px}
+html[data-phx-material="foundry"] .foundry-core__chips span{padding:7px 9px;border-radius:2px;border:1px solid #4c5053;background:#101214;color:#cbb273;font-size:.62rem;font-weight:900;letter-spacing:.08em;box-shadow:inset 0 1px 0 rgba(255,255,255,.07)}
+html[data-phx-material="foundry"] .foundry-core__pedb-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+
+/* ---------- FOUNDRY VISUAL CORE LAB ---------- */
+.forge-lab__visual-core{display:grid;gap:14px;padding:18px!important}
+.forge-lab__visual-core-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.forge-lab__visual-core-head span{display:block;color:var(--phx-action-primary,#d8b35e);font-size:.64rem;font-weight:950;letter-spacing:.15em}
+.forge-lab__visual-core-head h2{margin:5px 0 0}.forge-lab__visual-core-head b{padding:7px 9px;border:1px solid rgba(216,179,94,.34);border-radius:999px;color:#d8b35e;font-size:.62rem;letter-spacing:.1em;white-space:nowrap}
+.foundry-core__grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.foundry-core__plate{padding:17px!important;min-width:0}.foundry-core__plate>h3{margin:0 0 13px;color:#efeadf;font-size:.86rem;letter-spacing:.08em}.foundry-core__button-stack{display:grid;gap:10px}
+.foundry-core__metric-card{display:grid;align-content:center;min-height:200px;text-align:center}.foundry-core__metric-value{font-size:clamp(3.5rem,14vw,6.4rem)}
+.foundry-core__panel{padding:25px 18px 18px}.foundry-core__panel h3{margin:0 0 7px}.foundry-core__panel p{margin:0 0 16px;color:#a8a197;line-height:1.5}.foundry-core__panel-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.foundry-core__timer{grid-column:1/-1;padding:18px!important}.foundry-core__timer .forge-lab__timer-chassis{min-height:390px}.foundry-core__routine-list{display:grid;gap:8px}.foundry-core__pedb-wrap{min-width:0}
+
+@media(max-width:620px){
+  .foundry-core__grid{grid-template-columns:1fr}
+  .foundry-core__timer{grid-column:auto}
+  .forge-lab__visual-core-head{display:grid}.forge-lab__visual-core-head b{width:max-content}
+  html[data-phx-material="foundry"] .foundry-core__panel-actions,html[data-phx-material="foundry"] .foundry-core__pedb-actions{grid-template-columns:1fr}
+}
+@media(max-width:390px){
+  html[data-phx-material="foundry"]{--fd-cut:8px;--fd-depth:6px}
+  html[data-phx-material="foundry"] .phx-button,html[data-phx-material="foundry"] .foundry-core__button{min-height:56px;font-size:.78rem!important;letter-spacing:.045em!important}
+  html[data-phx-material="foundry"] .foundry-core__routine{grid-template-columns:38px 1fr auto;padding:11px!important}
+  html[data-phx-material="foundry"] .foundry-core__routine-index{width:34px;height:34px}
+  html[data-phx-material="foundry"] .foundry-core__pedb-head{grid-template-columns:1fr}.foundry-core__code{width:100%}
+}
+@media(prefers-reduced-motion:reduce){html[data-phx-material="foundry"] .phx-button,html[data-phx-material="foundry"] .foundry-core__button{transition:none!important}}

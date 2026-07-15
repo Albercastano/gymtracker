@@ -10,7 +10,7 @@
     rails:".topbar",
     inputs:"input,select,textarea",
     chips:"[class*='chip'],[class*='badge'],[class*='status']",
-    metrics:"[class*='metric']",
+    metrics:".phx-metric,[data-phx-metric-value],.data-v2__metric>strong,.forge-lab__metric-card>strong",
     progress:"progress,[class*='progress']",
     labels:".eyebrow",
     timers:".phoenix-timer"
@@ -64,6 +64,10 @@
     each(selectors.rails,el=>add(el,"surface","rail"));
     each(selectors.inputs,classifyInput);
     each(selectors.chips,classifyChip);
+    query(".phx-metric-label,.home-metrics,.data-v2__metrics,.forge-lab__metrics").forEach(el=>{
+      el.classList.remove("phx-metric","phx-metric--standard","phx-metric--hero");
+      if(el.dataset.phxComponent==="metric")delete el.dataset.phxComponent;
+    });
     each(selectors.metrics,el=>add(el,"metric",el.classList.contains("hero")?"hero":"standard"));
     each(selectors.progress,el=>add(el,"progress","standard"));
     each(selectors.labels,el=>add(el,"label","eyebrow"));

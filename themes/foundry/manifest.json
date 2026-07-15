@@ -3,16 +3,17 @@
   "id": "foundry",
   "name": "FORGED Foundry",
   "author": "Phoenix Forge",
-  "version": "0.5.0-alpha",
+  "version": "0.6.0-alpha",
   "engine": "0.3.x",
   "status": "alpha",
   "fallback": false,
   "styles": [
     "tokens.css",
     "components.css",
-    "timer.css"
+    "timer.css",
+    "visual-core.css"
   ],
-  "assetsBudgetKb": 88,
+  "assetsBudgetKb": 96,
   "capabilities": [
     "visual-tokens",
     "components",
@@ -21,5 +22,6 @@
   ],
   "network": "forbidden",
   "scripts": "forbidden",
-  "componentContract": "0.1.x"
+  "componentContract": "0.1.x",
+  "qualityGate": "1.0"
 }

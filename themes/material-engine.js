@@ -1,16 +1,16 @@
 "use strict";
 (function(){
-  const ENGINE_VERSION="0.3.0";
+  const ENGINE_VERSION="0.3.1";
   const FALLBACK="precision";
   const registry=Object.freeze({
     precision:Object.freeze({
-      schemaVersion:1,id:"precision",name:"FORGED Precision",author:"Phoenix Forge",version:"1.1.0",engine:"0.3.x",componentContract:"0.1.x",status:"stable",fallback:true,
+      schemaVersion:1,id:"precision",name:"FORGED Precision",author:"Phoenix Forge",version:"1.2.0",engine:"0.3.x",componentContract:"0.1.x",status:"stable",fallback:true,
       styles:Object.freeze(["tokens.css","components.css","timer.css"]),assetsBudgetKb:28,
       capabilities:Object.freeze(["visual-tokens","components","timer","component-contract"]),network:"forbidden",scripts:"forbidden"
     }),
     foundry:Object.freeze({
-      schemaVersion:1,id:"foundry",name:"FORGED Foundry",author:"Phoenix Forge",version:"0.5.0-alpha",engine:"0.3.x",componentContract:"0.1.x",status:"alpha",fallback:false,
-      styles:Object.freeze(["tokens.css","components.css","timer.css"]),assetsBudgetKb:88,
+      schemaVersion:1,id:"foundry",name:"FORGED Foundry",author:"Phoenix Forge",version:"0.6.0-alpha",engine:"0.3.x",componentContract:"0.1.x",status:"alpha",fallback:false,
+      styles:Object.freeze(["tokens.css","components.css","timer.css","visual-core.css"]),assetsBudgetKb:96,
       capabilities:Object.freeze(["visual-tokens","components","timer","component-contract"]),network:"forbidden",scripts:"forbidden"
     })
   });

@@ -1,0 +1,26 @@
+{
+  "build": "Phoenix 11 Alpha Build 006",
+  "feature": "Foundry Visual Core 1.0",
+  "foundryCssBytes": 48612,
+  "foundryCssKb": 47.47,
+  "budgetKb": 96,
+  "withinBudget": true,
+  "components": [
+    "primary-button",
+    "secondary-button",
+    "plate-card",
+    "decision-panel",
+    "metric",
+    "phoenix-timer",
+    "routine-row",
+    "pedb-card"
+  ],
+  "network": "forbidden",
+  "scripts": "forbidden",
+  "fallback": "precision",
+  "materialValidatorPassed": true,
+  "precisionValidatorPassed": true,
+  "javascriptSyntaxPassed": true,
+  "manifestJsonPassed": true,
+  "visualRuntimeTest": "not available in container; final validation required on published mobile build"
+}
