@@ -330,7 +330,7 @@ html[data-phx-material="apex"] .archive-month.verified{border-color:rgba(0,230,1
 html[data-phx-material="apex"] .archive-month.verified>span{color:var(--phx-green)}
 html[data-phx-material="apex"] :where(.planning-choice,.profile-choice,.alt-reasons button){border-radius:18px;background:#010507;border:1px solid rgba(0,217,255,.15);color:#eafaff}
 html[data-phx-material="apex"] :where(.planning-choice,.alt-reasons button).active{border-color:var(--phx-cyan);box-shadow:0 0 20px rgba(0,217,255,.08)}
-@media(max-width:390px){
+@media(max-width:759px){
   html[data-phx-material="apex"] .material-selector{grid-template-columns:1fr}
   html[data-phx-material="apex"] .week-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   html[data-phx-material="apex"] .history-kpis strong{font-size:clamp(1.45rem,8vw,2.3rem)}
@@ -886,3 +886,7 @@ html[data-phx-material="apex"] .pwa-update__actions .pwa-update__later{border-co
 html[data-phx-material="apex"] [data-a11y-modal="true"]:focus{outline:none}
 html[data-phx-material="apex"] .screen[aria-hidden="true"]{display:none!important}
 @media(max-width:390px){html[data-phx-material="apex"] .pwa-update{grid-template-columns:1fr}html[data-phx-material="apex"] .pwa-update__actions{display:grid;grid-template-columns:1fr 1fr}}
+
+/* Build 025 mobile safety */
+html[data-phx-material="apex"] .material-option{min-width:0;max-width:100%;overflow:hidden}
+html[data-phx-material="apex"] .material-copy{min-width:0;overflow-wrap:anywhere}

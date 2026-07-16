@@ -1642,3 +1642,54 @@ html[data-phx-material-preview="true"] .forge-lab__preview-console{animation:phx
 .build-stamp{position:absolute;right:0;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;min-height:18px;padding:2px 6px;border:1px solid color-mix(in srgb,var(--gold) 48%,transparent);border-radius:999px;background:rgba(216,179,94,.08);color:var(--gold);font-size:.46rem;font-weight:900;line-height:1;letter-spacing:.11em;white-space:nowrap;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
 @media(max-width:420px){.topbar-brand__copy{padding-right:50px}.build-stamp{font-size:.42rem;padding:2px 5px}}
 @media(max-width:380px){.topbar-brand div.topbar-brand__copy{display:flex;padding-right:0}.build-stamp{position:static;transform:none;margin-top:3px}}
+
+
+/* =========================================================
+   PHOENIX 11 ALPHA · BUILD 025
+   MATERIAL SELECTOR RESPONSIVE REPAIR
+   Regression observed on physical Android device.
+   ========================================================= */
+.material-settings,
+.material-settings *{box-sizing:border-box}
+.material-settings{min-width:0;max-width:100%;overflow:hidden}
+.material-selector{width:100%;min-width:0;grid-template-columns:1fr!important}
+.material-option{min-width:0;max-width:100%;overflow:hidden}
+.material-option>*{min-width:0;max-width:100%}
+.material-copy{min-width:0;overflow-wrap:anywhere;word-break:normal}
+.material-copy b,.material-copy small,.material-copy em{max-width:100%;white-space:normal;overflow-wrap:anywhere}
+.material-copy b mark{display:inline-flex;vertical-align:middle;max-width:100%}
+.material-swatch{width:100%;max-width:100%}
+.material-safety-actions,.material-safety-actions button{min-width:0;max-width:100%}
+.material-safety-actions button{white-space:normal;overflow-wrap:anywhere}
+
+/* Two material cards may only share a row on genuinely wide layouts. */
+@media(min-width:760px){
+  html[data-phx-material="apex"] .material-selector,
+  .material-selector{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .material-option{grid-template-columns:minmax(92px,118px) minmax(0,1fr)}
+}
+
+/* Phone layout: one card per row and vertical card anatomy. */
+@media(max-width:559px){
+  html[data-phx-material="apex"] .material-selector,
+  .material-selector{grid-template-columns:minmax(0,1fr)!important}
+  .material-option,
+  html[data-phx-material="apex"] .material-option{
+    grid-template-columns:minmax(0,1fr)!important;
+    align-items:stretch;
+    gap:12px;
+    padding:14px;
+  }
+  .material-swatch{height:96px}
+  .material-copy{gap:7px}
+  .material-copy b{font-size:1rem;line-height:1.2}
+  .material-copy small{font-size:.86rem;line-height:1.45}
+  .material-copy em{font-size:.7rem;line-height:1.35}
+}
+
+@media(max-width:390px){
+  .material-settings--alpha{padding:12px!important}
+  .engine-badge{align-items:flex-start;flex-direction:column}
+  .material-option{padding:12px}
+  .material-swatch{height:84px}
+}
