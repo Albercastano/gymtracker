@@ -22,12 +22,12 @@
       }
     }catch(_){/* storage may be unavailable during first paint */}
   </script>
-  <link rel="manifest" href="manifest.webmanifest?v=022">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=022">
-  <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png?v=022">
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=022">
-  <link rel="stylesheet" href="styles.css?v=022">
-  <link rel="stylesheet" href="themes/apex/apex.css?v=022" data-phx-apex-bootstrap>
+  <link rel="manifest" href="manifest.webmanifest?v=024">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=024">
+  <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png?v=024">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=024">
+  <link rel="stylesheet" href="styles.css?v=024">
+  <link rel="stylesheet" href="themes/apex/apex.css?v=024" data-phx-apex-bootstrap>
 </head>
 <body>
   <section id="splash" class="splash">
@@ -72,7 +72,7 @@
     <button id="destButton" class="dest-button" onclick="App.goDestination()">Inicio</button>
     <button type="button" class="topbar-brand phoenix-easter-trigger" data-phoenix-easter aria-label="GymTracker Phoenix">
       <img src="icon-512.png" alt="" aria-hidden="true">
-      <div><strong>GYMTRACKER</strong><span>PHOENIX</span></div>
+      <div class="topbar-brand__copy"><strong>GYMTRACKER</strong><span>PHOENIX</span><small class="build-stamp" aria-label="Versión instalada Build 024">BUILD 024</small></div>
     </button>
     <button id="profileButton" class="profile-button profile-trigger" type="button" onclick="App.openProfileGate()" aria-haspopup="dialog" aria-expanded="false" aria-controls="profileGate">
       <span>PERFIL ACTIVO</span>
@@ -301,26 +301,30 @@
   </div>
 
   <input id="pedbCsvInput" type="file" accept=".csv,text/csv" hidden onchange="App.importPersonalExercisesCsv(this)">
-  <script src="core/network-gate.js?v=022"></script>
-  <script src="core/sync-provider.js?v=022"></script>
-  <script src="themes/material-contract.js?v=022"></script>
-  <script src="themes/component-contract.js?v=022"></script>
-  <script src="themes/material-engine.js?v=022"></script>
-  <script src="themes/component-runtime.js?v=022"></script>
-  <script src="forge/contracts/shape-contract.js?v=022"></script>
-  <script src="forge/core/forge-action-bus.js?v=022"></script>
-  <script src="forge/core/forge-view-model.js?v=022"></script>
-  <script src="forge/core/forge-diagnostics.js?v=022"></script>
-  <script src="forge/renderers/home-renderer.js?v=022"></script>
-  <script src="forge/instruments/instrument-registry.js?v=022"></script>
-  <script src="forge/renderers/workout-renderer.js?v=022"></script>
-  <script src="forge/renderers/set-renderer.js?v=022"></script>
-  <script src="forge/renderers/rest-renderer.js?v=022"></script>
-  <script src="forge/engine/shape-engine.js?v=022"></script>
-  <script src="js/pedb-bundle.js?v=022"></script>
-  <script src="js/pedb-db.js?v=022"></script>
-  <script src="js/pedb-loader.js?v=022"></script>
-  <script src="app.js?v=022"></script>
+  <script src="core/network-gate.js?v=024"></script>
+  <script src="core/sync-provider.js?v=024"></script>
+  <script src="themes/material-contract.js?v=024"></script>
+  <script src="themes/component-contract.js?v=024"></script>
+  <script src="themes/material-engine.js?v=024"></script>
+  <script src="themes/component-runtime.js?v=024"></script>
+  <script src="forge/contracts/shape-contract.js?v=024"></script>
+  <script src="forge/core/forge-action-bus.js?v=024"></script>
+  <script src="forge/core/forge-view-model.js?v=024"></script>
+  <script src="forge/core/forge-diagnostics.js?v=024"></script>
+  <script src="forge/renderers/home-renderer.js?v=024"></script>
+  <script src="forge/instruments/instrument-registry.js?v=024"></script>
+  <script src="forge/renderers/workout-renderer.js?v=024"></script>
+  <script src="forge/renderers/set-renderer.js?v=024"></script>
+  <script src="forge/renderers/rest-renderer.js?v=024"></script>
+  <script src="forge/renderers/exercise-summary-renderer.js?v=024"></script>
+  <script src="forge/renderers/workout-summary-renderer.js?v=024"></script>
+  <script src="forge/renderers/data-renderer.js?v=024"></script>
+  <script src="forge/renderers/history-renderer.js?v=024"></script>
+  <script src="forge/engine/shape-engine.js?v=024"></script>
+  <script src="js/pedb-bundle.js?v=024"></script>
+  <script src="js/pedb-db.js?v=024"></script>
+  <script src="js/pedb-loader.js?v=024"></script>
+  <script src="app.js?v=024"></script>
 
   <div id="nextExerciseOverlay" class="next-overlay" aria-hidden="true">
     <div class="next-card">

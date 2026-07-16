@@ -1,6 +1,6 @@
 "use strict";
 (function(){
-  const VERSION="0.5.0";
+  const VERSION="0.7.0";
   const FALLBACK="precision";
   const contract=window.PhoenixShapeContract;
   const registry=Object.freeze({
@@ -93,8 +93,8 @@
     active=resolved;setAttributes(resolved);
     document.documentElement.dataset.phxShapeReady="true";
     document.documentElement.dataset.phxShapeCertified=String(loaded.certificate?.valid===true);
-    document.documentElement.dataset.phxShapeMode="renderer-home-workout-set-rest";
-    window.dispatchEvent(new CustomEvent("phxshapechange",{detail:{id:resolved,shape:loaded.shape,manifest:loaded.manifest,certificate:loaded.certificate,engine:VERSION,mode:"renderer-home-workout-set-rest",source:options.source||"unknown"}}));
+    document.documentElement.dataset.phxShapeMode="renderer-training-data-history";
+    window.dispatchEvent(new CustomEvent("phxshapechange",{detail:{id:resolved,shape:loaded.shape,manifest:loaded.manifest,certificate:loaded.certificate,engine:VERSION,mode:"renderer-training-data-history",source:options.source||"unknown"}}));
     return resolved;
   }
   function storedShape(){
@@ -140,6 +140,10 @@
       if(screen==="gym")report=window.PhoenixForgeWorkoutRenderer?.render?.({target,shape,snapshot:current,context});
       if(screen==="series")report=window.PhoenixForgeSetRenderer?.render?.({target,shape,snapshot:current,context});
       if(screen==="rest")report=window.PhoenixForgeRestRenderer?.render?.({target,shape,snapshot:current,context});
+      if(screen==="exercise-summary")report=window.PhoenixForgeExerciseSummaryRenderer?.render?.({target,shape,snapshot:current,context});
+      if(screen==="workout-summary")report=window.PhoenixForgeWorkoutSummaryRenderer?.render?.({target,shape,snapshot:current,context});
+      if(screen==="data")report=window.PhoenixForgeDataRenderer?.render?.({target,shape,snapshot:current,context});
+      if(screen==="history")report=window.PhoenixForgeHistoryRenderer?.render?.({target,shape,snapshot:current,context});
       if(!report)throw new Error(`No existe renderer declarativo para ${screen}`);
       lastRender=Object.freeze({...report,at:new Date().toISOString(),fallback:false});
       document.documentElement.dataset.phxShapeRenderer=screen;

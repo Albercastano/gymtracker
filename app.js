@@ -1620,7 +1620,7 @@ const App={
     if(score)score.textContent=`${passed}/${checks.length}`;
     if(state){state.textContent=passed===checks.length?'APROBADO':passed>=checks.length-1?'REVISAR':'BLOQUEADO';state.className=passed===checks.length?'valid':passed>=checks.length-1?'warning':'invalid'}
     if(list)list.innerHTML=checks.map(item=>`<div class="forge-quality-check ${item.ok?'ok':'fail'}"><i>${item.ok?'✓':'!'}</i><div><b>${this.escape(item.name)}</b><span>${this.escape(item.detail)}</span></div></div>`).join('');
-    this.lastForgeQualityReport={build:'021',material:active,viewport:`${innerWidth}x${innerHeight}`,passed,total:checks.length,checks:checks.map(x=>({name:x.name,ok:x.ok,detail:x.detail})),at:new Date().toISOString()};
+    this.lastForgeQualityReport={build:'024',material:active,viewport:`${innerWidth}x${innerHeight}`,passed,total:checks.length,checks:checks.map(x=>({name:x.name,ok:x.ok,detail:x.detail})),at:new Date().toISOString()};
     this.toast(passed===checks.length?'Quality Gate superado':'Quality Gate: hay puntos por revisar');
   },
 
@@ -1640,6 +1640,14 @@ const App={
   },
 
   renderExerciseSummary(){
+    clearInterval(this.timer);
+    if(this.active){this.active.phase="summary";this.saveActive()}
+    const host=document.getElementById("exerciseSummary");
+    if(window.PhoenixShapeEngine?.render?.("exercise-summary",host,this,{source:"exercise-summary"})){this.show("exerciseSummary","Ejercicio");return}
+    this.renderExerciseSummaryLegacy()
+  },
+
+  renderExerciseSummaryLegacy(){
     clearInterval(this.timer);
     if(this.active){this.active.phase="summary";this.saveActive()}
     const e=this.currentExercise();
@@ -1953,47 +1961,10 @@ const App={
     }).join("");
 
     this.lastCompletedSession=session;
-    document.getElementById("workoutSummary").innerHTML=`<div class="focus workout-complete-forged">
-      <section class="workout-complete-hero">
-        <div class="workout-complete-phoenix"><img src="icon-512.png" alt="" aria-hidden="true"></div>
-        <div class="eyebrow">ENTRENAMIENTO COMPLETADO</div>
-        <div class="workout-complete-title">${r.name.toUpperCase()}</div>
-        <div class="workout-complete-date">${new Date(session.endedAt).toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'})}</div>
-        <div class="workout-saved-state">✓ SESIÓN GUARDADA</div>
-      </section>
-
-      <section class="workout-complete-metrics">
-        <div><strong>${exercises.length}</strong><span>ejercicios</span></div>
-        <div><strong>${session.totalSets}</strong><span>series</span></div>
-        <div><strong>${durationMin}</strong><span>minutos</span></div>
-        <div><strong>${Math.round(session.volume)}</strong><span>kg volumen</span></div>
-      </section>
-
-      ${alternatives?`<div class="workout-complete-note">${alternatives} ${alternatives===1?"ejercicio adaptado":"ejercicios adaptados"} durante la sesión</div>`:""}
-
-      ${prReport?`<section class="workout-complete-report workout-pr-report"><div class="workout-complete-report__head"><span>NUEVOS RÉCORDS</span><b>${session.prs.length} PR real${session.prs.length===1?"":"es"}</b></div><div class="workout-pr-list">${prReport}</div></section>`:""}
-
-      <section class="workout-complete-report">
-        <div class="workout-complete-report__head"><span>INFORME COMPLETO</span><b>${session.totalSets} series guardadas</b></div>
-        <div class="workout-complete-list">${exerciseReport||'<div class="muted">No se registraron series.</div>'}</div>
-      </section>
-
-      <div id="progressionSummary"></div>
-
-      <section class="workout-complete-report workout-notes-card">
-        <div class="workout-complete-report__head"><span>NOTAS DE LA SESIÓN</span><b id="workoutNotesState">Sin nota</b></div>
-        <textarea id="workoutNotes" class="workout-notes-input" maxlength="500" placeholder="Sensaciones, molestias, técnica, cambios para la próxima sesión..."></textarea>
-        <button class="workout-notes-save" onclick="App.saveWorkoutNotes()">GUARDAR NOTA</button>
-      </section>
-
-      <div class="workout-complete-actions">
-        <div class="workout-share-grid">
-          <button class="workout-complete-copy" onclick="App.copyLastWorkoutReport()">COPIAR PARA ENTRENADOR</button>
-          <button class="workout-complete-copy" onclick="App.shareLastWorkoutReport()">COMPARTIR RESUMEN</button>
-        </div>
-        <button class="workout-complete-home" onclick="App.renderHome()"><span>FINALIZAR Y VOLVER</span><b>✓</b></button>
-      </div>
-    </div>`;
+    const workoutHost=document.getElementById("workoutSummary");
+    if(!window.PhoenixShapeEngine?.render?.("workout-summary",workoutHost,this,{source:"finish-workout"})){
+      workoutHost.innerHTML=`<div class="focus workout-complete-forged"><section class="workout-complete-hero"><div class="eyebrow">ENTRENAMIENTO COMPLETADO</div><div class="workout-complete-title">${r.name.toUpperCase()}</div><div class="workout-saved-state">✓ SESIÓN GUARDADA</div></section><section class="workout-complete-metrics"><div><strong>${exercises.length}</strong><span>ejercicios</span></div><div><strong>${session.totalSets}</strong><span>series</span></div><div><strong>${durationMin}</strong><span>minutos</span></div><div><strong>${Math.round(session.volume)}</strong><span>kg volumen</span></div></section><button class="workout-complete-home" onclick="App.renderHome()"><span>FINALIZAR Y VOLVER</span><b>✓</b></button></div>`;
+    }
 
     this.renderProgressionSummary();
     this.show("workoutSummary","Inicio")
@@ -2156,6 +2127,13 @@ const App={
   },
   restorePlannedExercise(){if(!this.active)return;delete this.active.exerciseOverrides[String(this.active.exerciseIndex)];this.saveActive();this.closeAlternatives();this.renderGym(false)},
 
+  renderData(withHistory=true){
+    const target=document.getElementById("data");
+    const ok=window.PhoenixShapeEngine?.render?.("data",target,this,{source:"app"});
+    if(!ok)return this.renderDataLegacy(withHistory);
+    this.show("data","Inicio",{history:withHistory});
+  },
+
   setDataMetric(metric){
     this.dataMetric=metric;
     this.renderData(false)
@@ -2167,7 +2145,7 @@ const App={
     this.renderData(false)
   },
 
-  renderData(withHistory=true){
+  renderDataLegacy(withHistory=true){
     const sessions=(this.data.sessions||[]).slice().sort((a,b)=>new Date(a.endedAt||a.date)-new Date(b.endedAt||b.date));
     const now=Date.now(), weekAgo=now-(7*24*60*60*1000);
     const weekSessions=sessions.filter(s=>new Date(s.endedAt||s.date).getTime()>=weekAgo);
@@ -3110,7 +3088,7 @@ const App={
     this.openForgedDialog({eyebrow:"BLOQUE DE ENTRENAMIENTO",title:"Eliminar bloque",message:`Eliminar ${b.name}. La planificación semanal y el historial no se borrarán.`,confirmText:"ELIMINAR BLOQUE",danger:true,onConfirm:()=>{this.data.trainingBlocks=this.data.trainingBlocks.filter(x=>x.id!==id);this.openBlockId=this.data.trainingBlocks[0]?.id||null;this.save();this.renderBlocks(false)}})
   },
 
-  renderHistory(withHistory=true){
+  renderHistoryLegacy(withHistory=true){
     const sessions=(this.data.sessions||[]).slice().reverse();
     const cards=sessions.map((s,index)=>{
       const date=new Date(s.endedAt||s.date);
@@ -3135,6 +3113,13 @@ const App={
     const actions=sessions.length?`<div class="history-manage-actions"><button class="secondary" onclick="App.openHistoryDelete('range')">Borrar por fechas</button><button class="danger forged-danger" onclick="App.openHistoryDelete('all')">Borrar todo el historial</button></div>`:'';
     document.getElementById("history").innerHTML=`<section class="history-header"><div><div class="eyebrow">DATOS</div><h2>Historial</h2><p>${sessions.length?`${sessions.length} entrenamiento${sessions.length===1?'':'s'} guardado${sessions.length===1?'':'s'}`:'Tu progreso aparecerá aquí'}</p></div></section>${actions}${cards||'<div class="phx-card phx-card--base history-empty"><strong>Aún no hay entrenamientos</strong><span>Completa una sesión para empezar tu historial.</span></div>'}`;
     this.show("history","Datos",{history:withHistory})
+  },
+
+  renderHistory(withHistory=true){
+    const target=document.getElementById("history");
+    const ok=window.PhoenixShapeEngine?.render?.("history",target,this,{source:"app"});
+    if(!ok)return this.renderHistoryLegacy(withHistory);
+    this.show("history","Datos",{history:withHistory});
   },
 
   toggleHistorySession(id,button){

@@ -1,8 +1,8 @@
 "use strict";
 (function(){
-  const VERSION="0.4.0";
+  const VERSION="0.6.0";
   const allowed=new Set([
-    "start-workout","resume-workout","discard-workout","open-home","open-data","open-history","open-weight","open-material-settings","open-library","open-routines","open-blocks","save-set","change-weight","change-reps","pause-timer","resume-timer","skip-rest","change-exercise","finish-workout","begin-set","pause-workout","return-workout","adjust-rest","toggle-timer-sound","toggle-timer-vibration"
+    "start-workout","resume-workout","discard-workout","open-home","open-data","open-history","open-weight","open-material-settings","open-library","open-routines","open-blocks","save-set","change-weight","change-reps","pause-timer","resume-timer","skip-rest","change-exercise","finish-workout","begin-set","pause-workout","return-workout","adjust-rest","toggle-timer-sound","toggle-timer-vibration","edit-current-set","complete-exercise","save-workout-notes","copy-workout-report","share-workout-report","set-data-metric","set-data-range","toggle-history-session","delete-history-session"
   ]);
   const handlers=new Map();
   const audit=[];
@@ -58,6 +58,15 @@
     bind("change-exercise",()=>app.openAlternatives?.("Máquina ocupada"));
     bind("finish-workout",()=>app.finishWorkout?.());
     bind("return-workout",()=>app.renderGym?.());
+    bind("edit-current-set",({index,field,value})=>app.editCurrentSet?.(Number(index),String(field||""),Number(value)));
+    bind("complete-exercise",()=>app.completeExercise?.());
+    bind("save-workout-notes",()=>app.saveWorkoutNotes?.());
+    bind("copy-workout-report",()=>app.copyLastWorkoutReport?.());
+    bind("share-workout-report",()=>app.shareLastWorkoutReport?.());
+    bind("set-data-metric",({metric})=>app.setDataMetric?.(String(metric||"volume")));
+    bind("set-data-range",({range})=>app.setDataRange?.(String(range||"4w")));
+    bind("toggle-history-session",({panelId})=>{const panel=document.getElementById(String(panelId||""));if(!panel)return false;const opening=panel.hidden;panel.hidden=!opening;return opening});
+    bind("delete-history-session",({index})=>app.openHistoryDelete?.("single",Number(index)));
     coreBound=true;
     window.dispatchEvent(new CustomEvent("phxforgecorebound",{detail:{version:VERSION,actions:handlers.size}}));
     return true;

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "precision",
   "name": "Precision",
-  "engine": "0.5.x",
+  "engine": "0.7.x",
   "screens": {
     "home": {
       "layout": "stack",
@@ -299,6 +299,129 @@
           "order": 50,
           "span": 12,
           "minTouch": 44
+        }
+      ]
+    },
+    "exercise-summary": {
+      "layout": "instrument",
+      "slots": [
+        {
+          "id": "summary-hero",
+          "component": "exercise-summary-hero",
+          "instrument": "precision-exercise-summary-hero",
+          "order": 10,
+          "span": 12,
+          "required": true
+        },
+        {
+          "id": "summary-metrics",
+          "component": "exercise-summary-metrics",
+          "instrument": "precision-exercise-summary-metrics",
+          "order": 20,
+          "span": 12,
+          "required": true
+        },
+        {
+          "id": "summary-sets",
+          "component": "exercise-summary-sets",
+          "instrument": "precision-exercise-summary-sets",
+          "order": 30,
+          "span": 12,
+          "required": true
+        },
+        {
+          "id": "summary-next",
+          "component": "exercise-summary-next",
+          "instrument": "precision-exercise-summary-next",
+          "order": 40,
+          "span": 12,
+          "required": true,
+          "minTouch": 56
+        }
+      ]
+    },
+    "workout-summary": {
+      "layout": "stack",
+      "slots": [
+        {
+          "id": "workout-hero",
+          "component": "workout-summary-hero",
+          "instrument": "precision-workout-summary-hero",
+          "order": 10,
+          "span": 12,
+          "required": true
+        },
+        {
+          "id": "workout-metrics",
+          "component": "workout-summary-metrics",
+          "instrument": "precision-workout-summary-metrics",
+          "order": 20,
+          "span": 12,
+          "required": true
+        },
+        {
+          "id": "workout-report",
+          "component": "workout-summary-report",
+          "instrument": "precision-workout-summary-report",
+          "order": 30,
+          "span": 12,
+          "required": true
+        },
+        {
+          "id": "workout-notes",
+          "component": "workout-summary-notes",
+          "instrument": "precision-workout-summary-notes",
+          "order": 40,
+          "span": 12
+        },
+        {
+          "id": "workout-actions",
+          "component": "workout-summary-actions",
+          "instrument": "precision-workout-summary-actions",
+          "order": 50,
+          "span": 12,
+          "required": true
+        }
+      ]
+    },
+    "data": {
+      "layout": "dashboard",
+      "slots": [
+        {
+          "id": "data-hero",
+          "component": "data-hero",
+          "order": 10
+        },
+        {
+          "id": "data-week",
+          "component": "data-week",
+          "order": 20
+        },
+        {
+          "id": "data-chart",
+          "component": "data-chart",
+          "order": 30
+        },
+        {
+          "id": "data-insights",
+          "component": "data-insights",
+          "order": 40
+        },
+        {
+          "id": "data-recent",
+          "component": "data-recent",
+          "order": 50
+        }
+      ]
+    },
+    "history": {
+      "layout": "stack",
+      "slots": [
+        {
+          "id": "history-list",
+          "component": "history-list",
+          "order": 10,
+          "required": true
         }
       ]
     }
