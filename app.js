@@ -329,12 +329,13 @@ const App={
   loadProfiles(){
     try{this.profiles=JSON.parse(localStorage.getItem(PROFILE_REGISTRY_KEY)||"null")||[]}catch(e){this.profiles=[]}
     if(!Array.isArray(this.profiles)||!this.profiles.length){
-      this.profiles=[{id:"alberto",name:"Alberto",createdAt:new Date().toISOString()},{id:"edy",name:"Edy",createdAt:new Date().toISOString()},{id:"churri",name:"Churri",createdAt:new Date().toISOString()},{id:"chino",name:"Chino",createdAt:new Date().toISOString()}];
+      this.profiles=[{id:"alberto",name:"Alberto",createdAt:new Date().toISOString()},{id:"edy",name:"Edy",createdAt:new Date().toISOString()},{id:"churri",name:"Churri",createdAt:new Date().toISOString()},{id:"chino",name:"Chino",createdAt:new Date().toISOString()},{id:"igor",name:"Igor",createdAt:new Date().toISOString()}];
     }
     if(!this.profiles.some(p=>p.id==="alberto"))this.profiles.unshift({id:"alberto",name:"Alberto",createdAt:new Date().toISOString()});
     if(!this.profiles.some(p=>p.id==="edy"))this.profiles.push({id:"edy",name:"Edy",createdAt:new Date().toISOString()});
     if(!this.profiles.some(p=>p.id==="churri"))this.profiles.push({id:"churri",name:"Churri",createdAt:new Date().toISOString()});
     if(!this.profiles.some(p=>p.id==="chino"))this.profiles.push({id:"chino",name:"Chino",createdAt:new Date().toISOString()});
+    if(!this.profiles.some(p=>p.id==="igor"))this.profiles.push({id:"igor",name:"Igor",createdAt:new Date().toISOString()});
     const storedActive=localStorage.getItem(ACTIVE_PROFILE_KEY);
     let urlProfile=null;
     try{urlProfile=new URLSearchParams(location.search).get("profile")}catch(e){}
@@ -1620,7 +1621,7 @@ const App={
     if(score)score.textContent=`${passed}/${checks.length}`;
     if(state){state.textContent=passed===checks.length?'APROBADO':passed>=checks.length-1?'REVISAR':'BLOQUEADO';state.className=passed===checks.length?'valid':passed>=checks.length-1?'warning':'invalid'}
     if(list)list.innerHTML=checks.map(item=>`<div class="forge-quality-check ${item.ok?'ok':'fail'}"><i>${item.ok?'✓':'!'}</i><div><b>${this.escape(item.name)}</b><span>${this.escape(item.detail)}</span></div></div>`).join('');
-    this.lastForgeQualityReport={build:'025',material:active,viewport:`${innerWidth}x${innerHeight}`,passed,total:checks.length,checks:checks.map(x=>({name:x.name,ok:x.ok,detail:x.detail})),at:new Date().toISOString()};
+    this.lastForgeQualityReport={build:'028',material:active,viewport:`${innerWidth}x${innerHeight}`,passed,total:checks.length,checks:checks.map(x=>({name:x.name,ok:x.ok,detail:x.detail})),at:new Date().toISOString()};
     this.toast(passed===checks.length?'Quality Gate superado':'Quality Gate: hay puntos por revisar');
   },
 
@@ -3304,7 +3305,7 @@ const App={
         <p>Banco de pruebas visual. Los mismos componentes se comparan bajo cada material sin tocar datos ni lógica de entrenamiento.</p>
         <div class="forge-lab__material-bar" role="group" aria-label="Material del laboratorio">
           <button type="button" class="forge-lab__material ${material==='precision'?'active':''}" data-ui-material="precision" aria-pressed="${material==='precision'}" onclick="App.previewUiMaterial('precision')"><span>PRECISION</span><small>Vista previa segura</small></button>
-          <button type="button" class="forge-lab__material ${material==='apex'?'active':''}" data-ui-material="apex" aria-pressed="${material==='apex'}" onclick="App.previewUiMaterial('apex')"><span>APEX</span><small>BETA · SISTEMA CONGELADO</small></button>
+          <button type="button" class="forge-lab__material ${material==='apex'?'active':''}" data-ui-material="apex" aria-pressed="${material==='apex'}" onclick="App.previewUiMaterial('apex')"><span>APEX</span><small>1.0 · SKIN COMPLETA</small></button>
         </div>
         <div class="forge-lab__active"><span>MATERIAL GUARDADO</span><b data-material-current>${this.escape(materialName)}</b><small>Visual-only · Local-only · Fallback Precision</small></div>
         <div class="forge-lab__preview-console" id="forgePreviewConsole">
@@ -3617,7 +3618,7 @@ const App={
     const timerOrientation=this.data.settings.timerOrientation||"auto";
     const uiMaterial=this.data.settings.uiMaterial||"precision";
     document.getElementById("settings").innerHTML=`<div class="card settings-definitive"><div class="eyebrow">AJUSTES</div>
-      <section id="materialSettingsSection" class="settings-section material-settings material-settings--alpha"><div class="engine-badge"><span>PHX SKIN ENGINE</span><b>0.5 BETA</b></div><h3>Apariencia y materiales</h3>
+      <section id="materialSettingsSection" class="settings-section material-settings material-settings--alpha"><div class="engine-badge"><span>PHX SKIN ENGINE</span><b>0.7 · CERTIFICADO</b></div><h3>Apariencia y materiales</h3>
         <p class="material-intro">Elige el material visual. No cambia datos, rutinas ni funcionamiento.</p>
         <div class="material-selector" role="group" aria-label="Material de la interfaz">
           <button type="button" class="material-option precision ${uiMaterial==='precision'?'active':''}" data-ui-material="precision" aria-pressed="${uiMaterial==='precision'}" onclick="App.setUiMaterial('precision')">
@@ -3626,7 +3627,7 @@ const App={
           </button>
           <button type="button" class="material-option apex ${uiMaterial==='apex'?'active':''}" data-ui-material="apex" aria-pressed="${uiMaterial==='apex'}" onclick="App.setUiMaterial('apex')">
             <span class="material-swatch" aria-hidden="true"><i></i><i></i><i></i></span>
-            <span class="material-copy"><b>FORGED Apex <mark>BETA</mark></b><small>Negro absoluto · líneas finas · cian, verde y rojo</small><em class="material-state">${uiMaterial==='apex'?'MATERIAL ACTIVO':'APLICAR MATERIAL'}</em></span>
+            <span class="material-copy"><b>FORGED Apex <mark>1.0</mark></b><small>Negro absoluto · líneas finas · cian, verde y rojo</small><em class="material-state">${uiMaterial==='apex'?'MATERIAL ACTIVO':'APLICAR MATERIAL'}</em></span>
           </button>
         </div>
         <div class="material-safety-actions"><button type="button" class="secondary" onclick="App.restorePrecisionMaterial()">RESTAURAR FORGED PRECISION</button><button type="button" class="secondary" onclick="App.renderForgeLab()">VISTA PREVIA EN FORGE LAB</button><button type="button" class="secondary" onclick="App.repairApexInstallation()">REPARAR CACHÉ APEX</button></div>
@@ -3652,7 +3653,7 @@ const App={
       <div class="storage-status ${this.storageHealthy?'ok':'error'}"><span>ALMACENAMIENTO LOCAL</span><b>${this.storageHealthy?'Protegido':'Revisar espacio'}</b><small>${this.lastSaveAt?'Último guardado: '+new Date(this.lastSaveAt).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}):'Guardado automático activo'}</small></div>
       <div class="planning-mode-setting"><div class="eyebrow">PLANIFICACIÓN SEMANAL</div><label><input type="radio" name="planningMode" value="fixed" ${mode==="fixed"?'checked':''}> <span><b>Mantener planificación fija</b><small>La semana base se repite hasta que decidas cambiarla.</small></span></label><label><input type="radio" name="planningMode" value="clear" ${mode==="clear"?'checked':''}> <span><b>Vaciar al terminar la semana</b><small>Cada lunes empieza en descanso.</small></span></label></div>
       <section class="settings-section profile-settings-zone"><h3>Cambiar perfil</h3><p>El perfil activo es <b>${this.escape(this.activeProfile()?.name||'Perfil')}</b>. Puedes cambiar en cualquier momento.</p><div class="settings-profile-grid">${this.profiles.map(p=>`<button type="button" class="profile-choice ${p.id===this.activeProfileId?'active':''}" onclick="App.selectProfileAndReload('${p.id}')"><span>${p.id===this.activeProfileId?'ACTIVO':'ENTRAR EN'}</span><b>${this.escape(p.name)}</b><em>${p.id===this.activeProfileId?'✓':'→'}</em></button>`).join('')}</div></section>
-      <section class="settings-section danger-zone"><h3>Datos del perfil · ${this.escape(this.activeProfile()?.name||'Perfil')}</h3><p>Estas acciones solo afectan al perfil activo. Alberto, Edy, Churri y Chino permanecen completamente separados.</p><button class="danger forged-danger" onclick="App.openDataDelete('test')">Borrar datos de prueba</button><button class="danger forged-danger forged-danger--full" onclick="App.openDataDelete('full')">Restablecer este perfil</button></section>
+      <section class="settings-section danger-zone"><h3>Datos del perfil · ${this.escape(this.activeProfile()?.name||'Perfil')}</h3><p>Estas acciones solo afectan al perfil activo. Alberto, Edy, Churri, Chino e Igor permanecen completamente separados.</p><button class="danger forged-danger" onclick="App.openDataDelete('test')">Borrar datos de prueba</button><button class="danger forged-danger forged-danger--full" onclick="App.openDataDelete('full')">Restablecer este perfil</button></section>
       <button class="primary" onclick="App.saveSettings()">Guardar ajustes</button></div>`;
     this.show("settings","Datos",{history:withHistory})
   },

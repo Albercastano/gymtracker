@@ -124,3 +124,20 @@
 - Acciones de Home trasladadas al Forge Action Bus.
 - Fallback automático al renderer heredado.
 - Apariencia y datos existentes conservados.
+
+
+## Phoenix 11 Alpha · Build 026
+
+### Profile Registry Integrity 1.0
+
+- Añadido Igor al registro persistente de perfiles.
+- Migración no destructiva para instalaciones con Alberto, Edy, Churri y Chino.
+- Separación de datos por perfil conservada mediante claves independientes.
+- Sincronizada la identidad BUILD 026 entre cabecera, HTML, Forge Lab y service worker.
+- Corregidas referencias de caché que aún apuntaban a Build 024.
+
+
+## Phoenix 11 Alpha · Build 028
+- Apex Complete Skin 1.0.
+- Promoción a estado estable y cobertura integral de componentes y estados.
+- Auditoría responsive y sincronización completa de versión 028.

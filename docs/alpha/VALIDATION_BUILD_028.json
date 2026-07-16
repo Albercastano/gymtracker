@@ -1,0 +1,724 @@
+{
+  "build": "028",
+  "name": "APEX COMPLETE SKIN 1.0",
+  "status": "PASS",
+  "passed": 142,
+  "total": 142,
+  "checks": [
+    {
+      "name": "JS syntax: app.js",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JS syntax: core/network-gate.js",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JS syntax: core/sync-provider.js",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JS syntax: forge/contracts/shape-contract.js",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JS syntax: forge/core/forge-action-bus.js",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JS syntax: forge/core/forge-diagnostics.js",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JS syntax: forge/core/forge-view-model.js",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JS syntax: forge/engine/shape-engine.js",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JS syntax: forge/instruments/instrument-registry.js",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JS syntax: forge/renderers/data-renderer.js",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JS syntax: forge/renderers/exercise-summary-renderer.js",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JS syntax: forge/renderers/history-renderer.js",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JS syntax: forge/renderers/home-renderer.js",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JS syntax: forge/renderers/rest-renderer.js",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JS syntax: forge/renderers/set-renderer.js",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JS syntax: forge/renderers/workout-renderer.js",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JS syntax: forge/renderers/workout-summary-renderer.js",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JS syntax: js/pedb-bundle.js",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JS syntax: js/pedb-db.js",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JS syntax: js/pedb-loader.js",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JS syntax: sw.js",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JS syntax: themes/component-contract.js",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JS syntax: themes/component-runtime.js",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JS syntax: themes/material-contract.js",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JS syntax: themes/material-engine.js",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JS syntax: themes/token-contract.js",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: data/anatomy.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: data/equipment.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: data/equipment_meta.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: data/equipment_profiles_schema.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: data/exercise_types.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: data/exercises.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: data/families.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: data/family_knowledge.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: data/functions.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: data/manifest.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: data/muscles.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: data/packs.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: data/patterns.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: data/reason_templates.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: data/relations.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: data/search_index.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: data/tags.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: data/user_relation_rules.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: data/zones.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: docs/PEDB/VALIDATION_REPORT.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: docs/VALIDATION_10_0_RC1.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: docs/alpha/STATIC_AUDIT_BUILD_006.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: docs/alpha/VALIDATION_BUILD_001.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: docs/alpha/VALIDATION_BUILD_002.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: docs/alpha/VALIDATION_BUILD_004.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: docs/alpha/VALIDATION_BUILD_005.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: docs/alpha/VALIDATION_BUILD_006.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: docs/alpha/VALIDATION_BUILD_007.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: docs/alpha/VALIDATION_BUILD_008.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: docs/alpha/VALIDATION_BUILD_009.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: docs/alpha/VALIDATION_BUILD_010.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: docs/alpha/VALIDATION_BUILD_011.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: docs/alpha/VALIDATION_BUILD_012.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: docs/alpha/VALIDATION_BUILD_013.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: docs/alpha/VALIDATION_BUILD_016.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: docs/alpha/VALIDATION_BUILD_017.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: docs/alpha/VALIDATION_BUILD_018.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: docs/alpha/VALIDATION_BUILD_019.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: docs/alpha/VALIDATION_BUILD_020.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: docs/alpha/VALIDATION_BUILD_021.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: docs/alpha/VALIDATION_BUILD_022.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: docs/alpha/VALIDATION_MATERIAL_APEX_BUILD_008.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: docs/alpha/VALIDATION_MATERIAL_APEX_BUILD_009.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: docs/alpha/VALIDATION_MATERIAL_PRECISION.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: docs/alpha/VALIDATION_MATERIAL_PRECISION_BUILD_004.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: docs/alpha/VALIDATION_MATERIAL_PRECISION_BUILD_006.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: docs/alpha/VALIDATION_MATERIAL_PRECISION_BUILD_009.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: forge/contracts/schemas/shape.schema.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: forge/shapes/precision/manifest.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: forge/shapes/precision/shape.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: templates/PEDB_Ejercicios_Manuales.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: themes/_template/manifest.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: themes/apex/manifest.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: themes/precision/manifest.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "JSON valid: themes/schema/material-manifest.schema.json",
+      "ok": true,
+      "detail": "OK"
+    },
+    {
+      "name": "Visible BUILD 028",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Build aria label 028",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "All index assets v028",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "SW version 028",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "SW cache 028 apex complete",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "SW fallback index 028",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "No SW v027",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Quality report build 028",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Apex version 1.0.0",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Apex status stable",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Apex engine 0.7.x",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Apex capability full-app-coverage",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Apex capability responsive",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Apex capability accessibility-states",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Apex capability component-contract",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Apex capability timer",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Apex capability motion",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Material engine 0.7.0",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Engine Apex stable metadata",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "No current Apex beta label",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Apex 1.0 UI label",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Skin Engine certified UI",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Apex token --phx-surface-screen",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Apex token --phx-action-primary",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Apex token --phx-text-primary",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Apex token --phx-danger",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Apex token --phx-success",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Apex token --phx-focus-ring",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Apex token --phx-opacity-disabled",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Apex coverage APEX 1.0 FULL-APP COVERAGE CERTIFICATE",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Apex coverage .empty-state",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Apex coverage .error-state",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Apex coverage .success-state",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Apex coverage .data-table",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Apex coverage .progress-fill",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Apex coverage :focus-visible",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Apex coverage [aria-disabled=\"true\"]",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Apex coverage @media(max-width:760px)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Apex coverage @media(max-width:430px)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Profile preserved Alberto",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Profile preserved Edy",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Profile preserved Churri",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Profile preserved Chino",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Profile preserved Igor",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Igor non-destructive migration",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "PEDB 1200 exercises",
+      "ok": true,
+      "detail": "1200"
+    },
+    {
+      "name": "PEDB 21522 relations",
+      "ok": true,
+      "detail": "21522"
+    },
+    {
+      "name": "Renderer preserved home-renderer.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Renderer preserved workout-renderer.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Renderer preserved set-renderer.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Renderer preserved rest-renderer.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Renderer preserved exercise-summary-renderer.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Renderer preserved workout-summary-renderer.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Renderer preserved data-renderer.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Renderer preserved history-renderer.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Required file README_PHOENIX_11_ALPHA_BUILD_028.txt",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Required file themes/apex/apex.css",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Required file themes/apex/manifest.json",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Required file themes/material-engine.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Required file sw.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Required file actualizar-apex.html",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "limitations": [
+    "No se ha ejecutado instalación publicada ni ciclo real del service worker.",
+    "No se ha probado físicamente en Android.",
+    "La validación responsive es contractual/estática; requiere prueba visual del usuario en dispositivo."
+  ]
+}

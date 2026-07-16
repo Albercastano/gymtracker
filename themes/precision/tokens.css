@@ -24,4 +24,8 @@ html[data-phx-material="precision"]{
   --phx-control-min-height:54px;
   --phx-motion-fast:120ms;
   --phx-motion-panel:220ms;
+  --phx-focus-ring:0 0 0 3px color-mix(in srgb,var(--phx-action-primary-hi) 72%,transparent);
+  --phx-overlay:rgba(0,0,0,.72);
+  --phx-text-on-action:#111318;
+  --phx-opacity-disabled:.52;
 }

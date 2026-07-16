@@ -1,0 +1,28 @@
+/* Phoenix Skin Engine 0.6 · semantic bridge
+   Legacy selectors consume material tokens without changing layout. */
+:root{
+  --bg:var(--phx-surface-screen,#070709);
+  --panel:var(--phx-surface-primary,#17181b);
+  --panel2:var(--phx-surface-raised,#24252a);
+  --ink:var(--phx-text-primary,#f4efe4);
+  --mut:var(--phx-text-secondary,#8c8d92);
+  --gold:var(--phx-action-primary,#d8b35e);
+  --gold2:var(--phx-action-primary-hi,#ffe3a1);
+  --red:var(--phx-danger,#8e3035);
+  --line:var(--phx-border-subtle,rgba(255,255,255,.10));
+  --shadow:rgba(0,0,0,.58);
+}
+html,body{background-color:var(--phx-surface-screen);color:var(--phx-text-primary)}
+.card,.list-item,.control-box,.series-box,.settings-section,.routine-accordion,.block-card,.history-session{
+  border-color:var(--phx-border-subtle);
+}
+.secondary,.dest-button,.profile-button,input,select,textarea{
+  color:var(--phx-text-primary);
+  border-color:var(--phx-border-subtle);
+}
+.muted,.control-label,.meta span,.badge{color:var(--phx-text-secondary)}
+.eyebrow,.version,.list-item strong,.exercise-card strong{color:var(--phx-action-primary-hi)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{
+  outline:3px solid var(--phx-action-primary-hi);outline-offset:3px;
+}
+[disabled],[aria-disabled="true"]{opacity:.52;filter:saturate(.55);cursor:not-allowed}

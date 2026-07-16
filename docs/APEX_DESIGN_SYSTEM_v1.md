@@ -1,8 +1,8 @@
 # FORGED APEX · DESIGN SYSTEM 1.0
 
-**Estado:** Beta Freeze  
+**Estado:** Estable Freeze  
 **Material:** `apex`  
-**Versión:** `1.0.0-beta`  
+**Versión:** `1.0.0`  
 **Fallback:** FORGED Precision
 
 ## Identidad

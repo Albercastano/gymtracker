@@ -1,6 +1,6 @@
 "use strict";
 (function(){
-  const ENGINE_VERSION="0.5.1";
+  const ENGINE_VERSION="0.7.0";
   const BOOT_DEFAULT="apex";
   const FALLBACK="precision";
   const registry=Object.freeze({
@@ -10,9 +10,9 @@
       capabilities:Object.freeze(["visual-tokens","components","timer","component-contract"]),network:"forbidden",scripts:"forbidden"
     }),
     apex:Object.freeze({
-      schemaVersion:1,id:"apex",name:"FORGED Apex",author:"Phoenix Forge",version:"1.0.0-beta",engine:"0.3.x",componentContract:"0.1.x",status:"beta",fallback:false,
+      schemaVersion:1,id:"apex",name:"FORGED Apex",author:"Phoenix Forge",version:"1.0.0",engine:"0.7.x",componentContract:"0.1.x",status:"stable",fallback:false,
       styles:Object.freeze(["apex.css"]),assetsBudgetKb:96,
-      capabilities:Object.freeze(["visual-tokens","components","timer","motion","component-contract"]),network:"forbidden",scripts:"forbidden"
+      capabilities:Object.freeze(["visual-tokens","components","timer","motion","component-contract","full-app-coverage","responsive","accessibility-states"]),network:"forbidden",scripts:"forbidden"
     })
   });
   const contract=window.PhoenixMaterialContract;
@@ -67,6 +67,7 @@
       document.documentElement.dataset.phxMaterialCertified=String(certificate?.valid===true);
       refreshControls();
       window.dispatchEvent(new CustomEvent('phxmaterialchange',{detail:{id,manifest,certificate,engine:ENGINE_VERSION}}));
+      window.PhoenixTokenContract?.audit?.(id);
       return id;
     }catch(error){
       console.error('[PHX Skin Engine]',error);

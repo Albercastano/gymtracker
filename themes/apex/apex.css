@@ -1,4 +1,4 @@
-/* FORGED APEX 1.0 BETA · frozen visual asset · no scripts · no network */
+/* FORGED APEX 1.0 · certified full-app skin · no scripts · no network */
 html[data-phx-material="apex"]{
   --phx-material-id:apex;
   --phx-surface-screen:#000000;
@@ -29,6 +29,10 @@ html[data-phx-material="apex"]{
   --phx-control-min-height:54px;
   --phx-motion-fast:120ms;
   --phx-motion-panel:220ms;
+  --phx-focus-ring:0 0 0 3px color-mix(in srgb,var(--phx-action-primary-hi) 72%,transparent);
+  --phx-overlay:rgba(0,0,0,.72);
+  --phx-text-on-action:#111318;
+  --phx-opacity-disabled:.52;
   color-scheme:dark;
 }
 html[data-phx-material="apex"] body{
@@ -890,3 +894,63 @@ html[data-phx-material="apex"] .screen[aria-hidden="true"]{display:none!importan
 /* Build 025 mobile safety */
 html[data-phx-material="apex"] .material-option{min-width:0;max-width:100%;overflow:hidden}
 html[data-phx-material="apex"] .material-copy{min-width:0;overflow-wrap:anywhere}
+
+
+/* BUILD 028 · APEX 1.0 FULL-APP COVERAGE CERTIFICATE */
+html[data-phx-material="apex"]{
+  --apex-version:"1.0";
+  --apex-build:"028";
+}
+html[data-phx-material="apex"] :where(
+  .card,.panel,.metric-card,.stat-card,.summary-card,.exercise-card,.set-card,
+  .history-card,.weight-card,.library-card,.settings-card,.routine-card,
+  .empty-state,.error-state,.success-state,.info-state,.forge-lab__panel
+){
+  min-width:0;
+  background:linear-gradient(145deg,rgba(4,12,16,.97),rgba(0,2,3,.995));
+  border-color:rgba(0,217,255,.18);
+  color:var(--phx-text-primary);
+  box-shadow:var(--phx-shadow-card);
+}
+html[data-phx-material="apex"] :where(.modal,.dialog,.sheet,.popover,.menu,.dropdown,.context-menu){
+  color:var(--phx-text-primary);
+  background:linear-gradient(155deg,#061015,#000 72%);
+  border-color:rgba(0,217,255,.28);
+}
+html[data-phx-material="apex"] :where(.chip,.pill,.badge,.tag,.status-badge){
+  color:#c9f8ff;background:rgba(0,217,255,.065);border-color:rgba(0,217,255,.25);
+}
+html[data-phx-material="apex"] :where(.active,.selected,[aria-selected="true"]):is(.chip,.pill,.badge,.tag,.tab,.segmented-button){
+  color:#001016;background:var(--phx-action-primary);border-color:var(--phx-action-primary-hi);
+}
+html[data-phx-material="apex"] :where(.empty-state,.error-state,.success-state,.info-state){
+  border-style:solid;border-width:1px;border-radius:var(--phx-radius-card);padding:20px;
+}
+html[data-phx-material="apex"] .error-state{border-color:color-mix(in srgb,var(--phx-danger) 48%,transparent)}
+html[data-phx-material="apex"] .success-state{border-color:color-mix(in srgb,var(--phx-success) 48%,transparent)}
+html[data-phx-material="apex"] :where(table,.data-table){border-color:rgba(0,217,255,.16)}
+html[data-phx-material="apex"] :where(th,.data-table__head){color:var(--phx-cyan);background:rgba(0,217,255,.035)}
+html[data-phx-material="apex"] :where(td,.data-table__cell){border-color:rgba(0,217,255,.1)}
+html[data-phx-material="apex"] :where(.progress,.progress-track){background:#001016;border-color:rgba(0,217,255,.14)}
+html[data-phx-material="apex"] :where(.progress>i,.progress-fill){background:linear-gradient(90deg,#006e85,var(--phx-cyan));box-shadow:0 0 14px rgba(0,217,255,.32)}
+html[data-phx-material="apex"] :where(button,a,input,select,textarea,[tabindex]):focus-visible{
+  outline:none;box-shadow:var(--phx-focus-ring);
+}
+html[data-phx-material="apex"] :where(button,[role="button"],[aria-disabled="true"]):disabled,
+html[data-phx-material="apex"] [aria-disabled="true"]{opacity:var(--phx-opacity-disabled);filter:saturate(.55);pointer-events:none}
+html[data-phx-material="apex"] .build-stamp{
+  color:#9df5ff;border-color:rgba(0,217,255,.35);background:rgba(0,217,255,.055);
+  box-shadow:inset 0 0 12px rgba(0,217,255,.04);
+}
+html[data-phx-material="apex"] .material-option.apex mark{color:#001016;background:var(--phx-cyan);border-color:var(--phx-action-primary-hi)}
+html[data-phx-material="apex"] img,html[data-phx-material="apex"] svg,html[data-phx-material="apex"] canvas{max-width:100%}
+html[data-phx-material="apex"] :where(.grid,.cards-grid,.material-grid,.metrics-grid)>*{min-width:0}
+@media(max-width:760px){
+ html[data-phx-material="apex"] :where(.material-grid,.cards-grid,.settings-grid){grid-template-columns:minmax(0,1fr)!important}
+ html[data-phx-material="apex"] :where(.modal,.dialog,.sheet-panel,.forged-dialog__panel){max-width:calc(100vw - 20px)}
+}
+@media(max-width:430px){
+ html[data-phx-material="apex"] .topbar-brand__copy{min-width:0}
+ html[data-phx-material="apex"] .build-stamp{font-size:8px;letter-spacing:.12em;white-space:nowrap}
+ html[data-phx-material="apex"] :where(.metric-value,.timer-value,.set-stepper strong){font-variant-numeric:tabular-nums;overflow-wrap:normal}
+}

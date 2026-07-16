@@ -3,9 +3,9 @@
   "id": "apex",
   "name": "FORGED Apex",
   "author": "Phoenix Forge",
-  "version": "1.0.0-beta",
-  "engine": "0.3.x",
-  "status": "beta",
+  "version": "1.0.0",
+  "engine": "0.7.x",
+  "status": "stable",
   "fallback": false,
   "styles": [
     "apex.css"
@@ -16,7 +16,10 @@
     "components",
     "motion",
     "timer",
-    "visual-tokens"
+    "visual-tokens",
+    "full-app-coverage",
+    "responsive",
+    "accessibility-states"
   ],
   "network": "forbidden",
   "scripts": "forbidden",
