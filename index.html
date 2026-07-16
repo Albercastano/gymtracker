@@ -3,21 +3,38 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#050507">
+  <meta name="theme-color" content="#000000">
+  <meta name="phx-build" content="017">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; form-action 'self'; connect-src 'self'; img-src 'self' data: blob:; media-src 'self' data: blob:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'">
-  <title>GymTracker Phoenix 11 Alpha · Build 016 · FORGED Apex Beta Freeze</title>
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
-  <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-  <link rel="stylesheet" href="styles.css">
+  <title>GymTracker Phoenix 11 Alpha · Build 017 · Apex Visibility Hotfix</title>
+  <script>
+    // Build 017 bootstrap: Apex is painted immediately and stale Foundry links are neutralized.
+    document.documentElement.dataset.phxMaterial="apex";
+    document.documentElement.dataset.material="apex";
+    document.documentElement.dataset.phxBuild="017";
+    try{
+      const activeProfile=localStorage.getItem("gymtracker_phoenix_active_profile_v1")||"alberto";
+      const key=activeProfile==="alberto"?"gymtracker_phoenix_v8":`gymtracker_phoenix_v8_profile_${activeProfile}`;
+      const data=JSON.parse(localStorage.getItem(key)||"null");
+      if(data?.settings?.uiMaterial==="foundry"){
+        data.settings.uiMaterial="apex";
+        localStorage.setItem(key,JSON.stringify(data));
+      }
+    }catch(_){/* storage may be unavailable during first paint */}
+  </script>
+  <link rel="manifest" href="manifest.webmanifest?v=017">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=017">
+  <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png?v=017">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=017">
+  <link rel="stylesheet" href="styles.css?v=017">
+  <link rel="stylesheet" href="themes/apex/apex.css?v=017" data-phx-apex-bootstrap>
 </head>
 <body>
   <section id="splash" class="splash">
     <div class="splash-card forged">
       <button type="button" class="phoenix-emblem phoenix-easter-trigger" data-phoenix-easter aria-label="Logo Phoenix"><img src="icon-512.png" alt=""></button>
       <h1><span>GYM</span><span>TRACKER</span></h1>
-      <div class="sub">PHOENIX · FORGED</div>
+      <div class="sub">PHOENIX · APEX</div>
       <p>Entrena más. Progresa siempre.</p>
     </div>
   </section>
@@ -284,16 +301,16 @@
   </div>
 
   <input id="pedbCsvInput" type="file" accept=".csv,text/csv" hidden onchange="App.importPersonalExercisesCsv(this)">
-  <script src="core/network-gate.js"></script>
-  <script src="core/sync-provider.js"></script>
-  <script src="themes/material-contract.js"></script>
-  <script src="themes/component-contract.js"></script>
-  <script src="themes/material-engine.js"></script>
-  <script src="themes/component-runtime.js"></script>
-  <script src="js/pedb-bundle.js"></script>
-  <script src="js/pedb-db.js"></script>
-  <script src="js/pedb-loader.js"></script>
-  <script src="app.js"></script>
+  <script src="core/network-gate.js?v=017"></script>
+  <script src="core/sync-provider.js?v=017"></script>
+  <script src="themes/material-contract.js?v=017"></script>
+  <script src="themes/component-contract.js?v=017"></script>
+  <script src="themes/material-engine.js?v=017"></script>
+  <script src="themes/component-runtime.js?v=017"></script>
+  <script src="js/pedb-bundle.js?v=017"></script>
+  <script src="js/pedb-db.js?v=017"></script>
+  <script src="js/pedb-loader.js?v=017"></script>
+  <script src="app.js?v=017"></script>
 
   <div id="nextExerciseOverlay" class="next-overlay" aria-hidden="true">
     <div class="next-card">

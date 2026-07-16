@@ -1,6 +1,7 @@
 "use strict";
 (function(){
-  const ENGINE_VERSION="0.5.0";
+  const ENGINE_VERSION="0.5.1";
+  const BOOT_DEFAULT="apex";
   const FALLBACK="precision";
   const registry=Object.freeze({
     precision:Object.freeze({
@@ -29,7 +30,7 @@
     document.documentElement.dataset.material=id;
     if(document.body){document.body.dataset.phxMaterial=id;document.body.dataset.material=id}
   }
-  function removeOldLinks(){document.querySelectorAll('link[data-phx-material-style]').forEach(el=>el.remove())}
+  function removeOldLinks(){document.querySelectorAll('link[data-phx-material-style]').forEach(el=>el.remove());document.querySelectorAll('link[href*="/foundry/"],link[data-phx-material-style="foundry"]').forEach(el=>el.remove())}
   function refreshControls(){
     document.querySelectorAll('[data-ui-material]').forEach(button=>{
       const selected=button.dataset.uiMaterial===active;
@@ -43,6 +44,8 @@
   function linkFor(id,file,token){
     return new Promise((resolve,reject)=>{
       if(!safeStyle(file))return reject(new Error('Unsafe material stylesheet'));
+      const bootstrap=id==='apex'&&file==='apex.css'?document.querySelector('link[data-phx-apex-bootstrap]'):null;
+      if(bootstrap)return resolve(bootstrap);
       const link=document.createElement('link');
       link.rel='stylesheet';link.href=`themes/${id}/${file}`;link.dataset.phxMaterialStyle=id;
       link.onload=()=>token===generation?resolve(link):resolve(link);
@@ -79,8 +82,10 @@
       const activeProfile=localStorage.getItem('gymtracker_phoenix_active_profile_v1')||'alberto';
       const key=activeProfile==='alberto'?'gymtracker_phoenix_v8':`gymtracker_phoenix_v8_profile_${activeProfile}`;
       const data=JSON.parse(localStorage.getItem(key)||'null');
-      return safeId(data?.settings?.uiMaterial)?data.settings.uiMaterial:FALLBACK;
-    }catch(_){return FALLBACK}
+      const stored=data?.settings?.uiMaterial;
+      if(stored==='foundry')return BOOT_DEFAULT;
+      return safeId(stored)?stored:BOOT_DEFAULT;
+    }catch(_){return BOOT_DEFAULT}
   }
   const api=Object.freeze({
     version:ENGINE_VERSION,contractVersion:contract?.version||'unavailable',fallback:FALLBACK,registry,certificates,

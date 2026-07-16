@@ -225,8 +225,9 @@ const App={
 
   registerServiceWorker(){
     if(!("serviceWorker" in navigator)||!/^https?:$/.test(location.protocol))return;
-    navigator.serviceWorker.register("sw.js").then(registration=>{
+    navigator.serviceWorker.register("sw.js?v=017",{updateViaCache:"none"}).then(registration=>{
       this.swRegistration=registration;
+      registration.update().catch(()=>{});
       if(registration.waiting&&navigator.serviceWorker.controller)this.showAppUpdate();
       registration.addEventListener("updatefound",()=>{
         const worker=registration.installing;if(!worker)return;
@@ -246,6 +247,17 @@ const App={
     const waiting=this.swRegistration?.waiting;
     if(!waiting){this.dismissAppUpdate();return}
     waiting.postMessage({type:"SKIP_WAITING"})
+  },
+
+  async repairApexInstallation(){
+    try{
+      const registrations=await navigator.serviceWorker?.getRegistrations?.()||[];
+      await Promise.all(registrations.map(reg=>reg.unregister()));
+      const keys=await window.caches?.keys?.()||[];
+      await Promise.all(keys.filter(key=>key.startsWith("gymtracker-phoenix")).map(key=>window.caches.delete(key)));
+      this.data.settings.uiMaterial="apex";this.save();
+      location.replace(`index.html?v=017&apexrepair=${Date.now()}#settings`);
+    }catch(error){this.reportError(error)}
   },
 
   persistNow(){
@@ -487,9 +499,9 @@ const App={
     if(!["fixed","clear"].includes(this.data.settings.planningMode))this.data.settings.planningMode="fixed";
     if(!["normal","large","xl"].includes(this.data.settings.fontScale))this.data.settings.fontScale="normal";
     if(!["auto","portrait","landscape"].includes(this.data.settings.timerOrientation))this.data.settings.timerOrientation="auto";
-    if(window.PhoenixMaterialEngine&&!window.PhoenixMaterialEngine.isSupported(this.data.settings.uiMaterial))this.data.settings.uiMaterial=window.PhoenixMaterialEngine.fallback;
-    else if(!window.PhoenixMaterialEngine&&!["precision","apex"].includes(this.data.settings.uiMaterial))this.data.settings.uiMaterial="precision";
-    if(this.data.settings.uiMaterial==="foundry")this.data.settings.uiMaterial="precision";
+    if(this.data.settings.uiMaterial==="foundry")this.data.settings.uiMaterial="apex";
+    if(window.PhoenixMaterialEngine&&!window.PhoenixMaterialEngine.isSupported(this.data.settings.uiMaterial))this.data.settings.uiMaterial=window.PhoenixMaterialEngine.isSupported("apex")?"apex":window.PhoenixMaterialEngine.fallback;
+    else if(!window.PhoenixMaterialEngine&&!["precision","apex"].includes(this.data.settings.uiMaterial))this.data.settings.uiMaterial="apex";
     this.data.settings.defaultRest=Math.max(0,Number(this.data.settings.defaultRest)||90);
     this.data.settings.sound=this.data.settings.sound!==false;
     this.data.settings.vibration=this.data.settings.vibration!==false;
@@ -1536,7 +1548,7 @@ const App={
     if(score)score.textContent=`${passed}/${checks.length}`;
     if(state){state.textContent=passed===checks.length?'APROBADO':passed>=checks.length-1?'REVISAR':'BLOQUEADO';state.className=passed===checks.length?'valid':passed>=checks.length-1?'warning':'invalid'}
     if(list)list.innerHTML=checks.map(item=>`<div class="forge-quality-check ${item.ok?'ok':'fail'}"><i>${item.ok?'✓':'!'}</i><div><b>${this.escape(item.name)}</b><span>${this.escape(item.detail)}</span></div></div>`).join('');
-    this.lastForgeQualityReport={build:'009',material:active,viewport:`${innerWidth}x${innerHeight}`,passed,total:checks.length,checks:checks.map(x=>({name:x.name,ok:x.ok,detail:x.detail})),at:new Date().toISOString()};
+    this.lastForgeQualityReport={build:'017',material:active,viewport:`${innerWidth}x${innerHeight}`,passed,total:checks.length,checks:checks.map(x=>({name:x.name,ok:x.ok,detail:x.detail})),at:new Date().toISOString()};
     this.toast(passed===checks.length?'Quality Gate superado':'Quality Gate: hay puntos por revisar');
   },
 
@@ -3231,7 +3243,7 @@ const App={
     if(!screen)return;
     screen.innerHTML=`<div class="forge-lab">
       <section class="forge-lab__hero phx-card phx-card--highlight">
-        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 016</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.5.0</span></div>
+        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 017</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.5.1</span></div>
         <p>Banco de pruebas visual. Los mismos componentes se comparan bajo cada material sin tocar datos ni lógica de entrenamiento.</p>
         <div class="forge-lab__material-bar" role="group" aria-label="Material del laboratorio">
           <button type="button" class="forge-lab__material ${material==='precision'?'active':''}" data-ui-material="precision" aria-pressed="${material==='precision'}" onclick="App.previewUiMaterial('precision')"><span>PRECISION</span><small>Vista previa segura</small></button>
@@ -3287,7 +3299,7 @@ const App={
       </section>
 
       <section class="forge-lab__visual-core phx-card" aria-label="Apex Visual Core 0.2">
-        <div class="forge-lab__visual-core-head"><div><span>APEX VISUAL CORE 1.0</span><h2>Componentes ultratecnológicos de referencia</h2></div><b>BUILD 016</b></div>
+        <div class="forge-lab__visual-core-head"><div><span>APEX VISUAL CORE 1.0</span><h2>Componentes ultratecnológicos de referencia</h2></div><b>BUILD 017</b></div>
         <p class="muted">Negro absoluto, líneas finas, números limpios y color funcional. Sin imágenes pesadas ni cambios en la lógica.</p>
         <div class="apex-core__grid">
           <article class="apex-core__card apex-core__actions"><span>01 · ACCIONES</span><h3>Control limpio</h3><button class="phx-button phx-button--primary" onclick="App.toast('Acción primaria Apex')">COMENZAR ENTRENAMIENTO</button><button class="phx-button phx-button--secondary" onclick="App.toast('Acción secundaria Apex')">VER DETALLES</button></article>
@@ -3516,7 +3528,7 @@ const App={
             <span class="material-copy"><b>FORGED Apex <mark>BETA</mark></b><small>Negro absoluto · líneas finas · cian, verde y rojo</small><em class="material-state">${uiMaterial==='apex'?'MATERIAL ACTIVO':'APLICAR MATERIAL'}</em></span>
           </button>
         </div>
-        <div class="material-safety-actions"><button type="button" class="secondary" onclick="App.restorePrecisionMaterial()">RESTAURAR FORGED PRECISION</button><button type="button" class="secondary" onclick="App.renderForgeLab()">VISTA PREVIA EN FORGE LAB</button></div>
+        <div class="material-safety-actions"><button type="button" class="secondary" onclick="App.restorePrecisionMaterial()">RESTAURAR FORGED PRECISION</button><button type="button" class="secondary" onclick="App.renderForgeLab()">VISTA PREVIA EN FORGE LAB</button><button type="button" class="secondary" onclick="App.repairApexInstallation()">REPARAR CACHÉ APEX</button></div>
         <div class="alpha-security-strip"><span>RED</span><b>LOCAL ONLY</b><span>NUBE</span><b>DESACTIVADA</b></div>
         <small class="material-footnote">Las creaciones visuales no ejecutan JavaScript ni pueden leer o transmitir tus datos.</small>
         <button type="button" class="secondary forge-lab-launch" onclick="App.renderForgeLab()"><span>ABRIR FORGE LAB</span><small>Comparar componentes y materiales</small></button>
@@ -3638,7 +3650,7 @@ const App={
     const payload={
       format:"GymTracker Phoenix Backup",
       schema_version:1,
-      app_version:"11 Alpha Build 016",
+      app_version:"11 Alpha Build 017",
       profile:{id:this.activeProfileId,name:this.activeProfile()?.name||this.activeProfileId},
       exportedAt:new Date().toISOString(),
       counts:{

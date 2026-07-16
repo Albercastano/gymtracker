@@ -1,10 +1,10 @@
 {
-  "name": "GymTracker Phoenix 11 Alpha Build 016",
-  "short_name": "Phoenix 11 A016",
-  "start_url": "./index.html",
+  "name": "GymTracker Phoenix 11 Alpha Build 017",
+  "short_name": "Phoenix 11 A017",
+  "start_url": "./index.html?v=017",
   "display": "standalone",
-  "background_color": "#050507",
-  "theme_color": "#050507",
+  "background_color": "#000000",
+  "theme_color": "#000000",
   "icons": [
     {
       "src": "icon-192.png",
@@ -19,5 +19,5 @@
       "purpose": "any maskable"
     }
   ],
-  "description": "GymTracker Phoenix · FORGED Apex 1.0 Beta Freeze · PEDB 3.4 · Precision fallback"
+  "description": "GymTracker Phoenix · FORGED Apex 1.0 · Hotfix de visibilidad y actualización PWA · PEDB 3.4"
 }

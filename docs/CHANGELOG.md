@@ -1,3 +1,11 @@
+# Build 017 · Apex Visibility Hotfix
+
+- Corregida la actualización bloqueada por cachés PWA antiguas.
+- Apex se precarga antes del arranque del motor visual.
+- Migración automática de cualquier preferencia `foundry` a `apex`.
+- Foundry ausente del registro de materiales y del paquete.
+- Añadida recuperación segura `actualizar-apex.html`.
+
 ## Phoenix 11 Alpha · Build 016 · Apex Beta Freeze
 
 - FORGED Apex 1.0 Beta congelado y documentado.

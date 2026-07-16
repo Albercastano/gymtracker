@@ -1,0 +1,39 @@
+{
+  "build": "Phoenix 11 Alpha Build 017",
+  "release": "FORGED Apex Visibility Hotfix",
+  "checks": {
+    "javascriptSyntax": true,
+    "jsonSyntax": true,
+    "apexStaticBootstrap": true,
+    "apexRegistered": true,
+    "foundryNotRegistered": true,
+    "foundryAssetsAbsent": true,
+    "foundryPreferenceMigratesToApex": true,
+    "serviceWorkerImmediateActivation": true,
+    "serviceWorkerNetworkFirstShell": true,
+    "cacheRecoveryPage": true,
+    "cacheAssetReferencesPresent": true,
+    "pedbExercises1200": true,
+    "pedbRelations21522": true,
+    "inlineMaterialHarnessPassed": true
+  },
+  "browserHarness": {
+    "method": "Chromium page.set_content with intercepted local Apex stylesheet; localhost navigation blocked by environment policy",
+    "result": {
+      "material": "apex",
+      "materialReady": "true",
+      "registry": [
+        "precision",
+        "apex"
+      ],
+      "foundrySupported": false,
+      "apexSupported": true,
+      "apexStylesheetLinks": 1,
+      "foundryStylesheetLinks": 0,
+      "bodyBackground": "rgb(0, 0, 0)",
+      "errors": []
+    }
+  },
+  "missingCacheAssets": [],
+  "apexCssBytes": 90244
+}
