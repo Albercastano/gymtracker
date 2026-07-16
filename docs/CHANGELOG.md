@@ -1,3 +1,13 @@
+
+## Phoenix 11 Alpha · Build 008 — Foundry Field Prototype 1.0
+
+- Foundry reforzado en Home, GYM, Serie, Timer y Datos.
+- Componentes Hero con placas mecanizadas, biseles y remaches estructurales.
+- Métricas y temporizador con cifras metálicas de mayor presencia.
+- Validación aislada de 360, 390 y 430 px sin desbordamiento horizontal.
+- Precision permanece intacto y como fallback seguro.
+- Material Foundry: 79 KB dentro de un presupuesto de 96 KB.
+
 ## 10.3 · Foundry Phase 3
 
 - Biblioteca, planificación, rutinas, bloques, historial, peso y ajustes adaptados a Foundry.

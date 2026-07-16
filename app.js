@@ -2981,7 +2981,7 @@ const App={
     if(!screen)return;
     screen.innerHTML=`<div class="forge-lab">
       <section class="forge-lab__hero phx-card phx-card--highlight">
-        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 007</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.3</span></div>
+        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 008</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.3</span></div>
         <p>Banco de pruebas visual. Los mismos componentes se comparan bajo cada material sin tocar datos ni lógica de entrenamiento.</p>
         <div class="forge-lab__material-bar" role="group" aria-label="Material del laboratorio">
           <button type="button" class="forge-lab__material ${material==='precision'?'active':''}" data-ui-material="precision" aria-pressed="${material==='precision'}" onclick="App.previewUiMaterial('precision')"><span>PRECISION</span><small>Vista previa segura</small></button>
@@ -3037,7 +3037,7 @@ const App={
       </section>
 
       <section class="forge-lab__visual-core phx-card" aria-label="Foundry Visual Core 1.0">
-        <div class="forge-lab__visual-core-head"><div><span>FOUNDRY VISUAL CORE 1.0</span><h2>Ocho componentes con auténtico punch</h2></div><b>BUILD 007</b></div>
+        <div class="forge-lab__visual-core-head"><div><span>FOUNDRY VISUAL CORE 1.0</span><h2>Ocho componentes con auténtico punch</h2></div><b>BUILD 008</b></div>
         <p class="muted">Núcleo de validación industrial: más masa, bisel, profundidad y contraste. Sin imágenes pesadas ni cambios en la lógica.</p>
         <div class="foundry-core__grid">
           <article class="foundry-core__plate"><h3>01 · BOTONES MECANIZADOS</h3><div class="foundry-core__button-stack"><button class="foundry-core__button foundry-core__button--primary phx-button phx-button--primary" onclick="App.toast('Pulsador primario Foundry')">COMENZAR ENTRENAMIENTO</button><button class="foundry-core__button phx-button phx-button--secondary" onclick="App.toast('Pulsador secundario Foundry')">VER DETALLES</button></div></article>
@@ -3388,7 +3388,7 @@ const App={
     const payload={
       format:"GymTracker Phoenix Backup",
       schema_version:1,
-      app_version:"11 Alpha Build 007",
+      app_version:"11 Alpha Build 008",
       profile:{id:this.activeProfileId,name:this.activeProfile()?.name||this.activeProfileId},
       exportedAt:new Date().toISOString(),
       counts:{

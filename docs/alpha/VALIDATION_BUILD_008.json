@@ -1,0 +1,27 @@
+{
+  "build": "Phoenix 11 Alpha Build 008",
+  "name": "Foundry Field Prototype 1.0",
+  "javascriptSyntax": true,
+  "jsonSyntax": true,
+  "cssBraceIssues": [],
+  "serviceWorkerMissingAssets": [],
+  "missingMaterialStyles": [],
+  "foundryBytes": 79049,
+  "foundryBudgetBytes": 98304,
+  "foundryWithinBudget": true,
+  "isolatedVisualRender": {
+    "homeViewport": "390x844",
+    "homeHorizontalOverflow": false,
+    "timerCenterDeltaPx": -0.008,
+    "timerHorizontalOverflow": false,
+    "testedWidths": [
+      360,
+      390,
+      430
+    ]
+  },
+  "notes": [
+    "La prueba visual fue aislada con el marcado real de Home y Timer; el entorno bloquea navegación a servidor local.",
+    "La validación final sigue siendo necesaria en la PWA publicada."
+  ]
+}
