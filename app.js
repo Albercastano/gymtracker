@@ -235,7 +235,8 @@ const App={
 
   registerServiceWorker(){
     if(!("serviceWorker" in navigator)||!/^https?:$/.test(location.protocol))return;
-    navigator.serviceWorker.register("sw.js?v=021",{updateViaCache:"none"}).then(registration=>{
+    navigator.serviceWorker.register("sw.js?v=031",{updateViaCache:"none"}).then(async registration=>{
+      try{await registration.update()}catch(_){}
       this.swRegistration=registration;
       registration.update().catch(()=>{});
       if(registration.waiting&&navigator.serviceWorker.controller)this.showAppUpdate();
@@ -3301,7 +3302,7 @@ const App={
     if(!screen)return;
     screen.innerHTML=`<div class="forge-lab">
       <section class="forge-lab__hero phx-card phx-card--highlight">
-        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 030</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.8.0</span></div>
+        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 031</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.9.0</span></div>
         <p>Banco de pruebas visual. Los mismos componentes se comparan bajo cada material sin tocar datos ni lógica de entrenamiento.</p>
         <div class="forge-lab__material-bar" role="group" aria-label="Material del laboratorio">
           <button type="button" class="forge-lab__material ${material==='precision'?'active':''}" data-ui-material="precision" aria-pressed="${material==='precision'}" onclick="App.previewUiMaterial('precision')"><span>PRECISION</span><small>Vista previa segura</small></button>
@@ -3619,7 +3620,7 @@ const App={
     const timerOrientation=this.data.settings.timerOrientation||"auto";
     const uiMaterial=this.data.settings.uiMaterial||"precision";
     document.getElementById("settings").innerHTML=`<div class="card settings-definitive"><div class="eyebrow">AJUSTES</div>
-      <section id="materialSettingsSection" class="settings-section material-settings material-settings--alpha"><div class="engine-badge"><span>PHX SKIN ENGINE</span><b>0.7 · CERTIFICADO</b></div><h3>Apariencia y materiales</h3>
+      <section id="materialSettingsSection" class="settings-section material-settings material-settings--alpha"><div class="engine-badge"><span>PHX SKIN ENGINE</span><b>0.9 · SIGNATURE READY</b></div><h3>Apariencia y materiales</h3>
         <p class="material-intro">Elige el material visual. No cambia datos, rutinas ni funcionamiento.</p>
         <div class="material-selector" role="group" aria-label="Material de la interfaz">
           <button type="button" class="material-option precision ${uiMaterial==='precision'?'active':''}" data-ui-material="precision" aria-pressed="${uiMaterial==='precision'}" onclick="App.setUiMaterial('precision')">
@@ -3632,7 +3633,7 @@ const App={
           </button>
           <button type="button" class="material-option vektor ${uiMaterial==='vektor'?'active':''}" data-ui-material="vektor" aria-pressed="${uiMaterial==='vektor'}" onclick="App.setUiMaterial('vektor')">
             <span class="material-swatch" aria-hidden="true"><i></i><i></i><i></i></span>
-            <span class="material-copy"><b>FORGED Vektor <mark>0.1</mark></b><small>Instrumental · angular · acero y naranja técnico</small><em class="material-state">${uiMaterial==='vektor'?'MATERIAL ACTIVO':'APLICAR MATERIAL'}</em></span>
+            <span class="material-copy"><b>FORGED Vektor <mark>0.2</mark></b><small>Instrumental · angular · acero y naranja técnico</small><em class="material-state">${uiMaterial==='vektor'?'MATERIAL ACTIVO':'APLICAR MATERIAL'}</em></span>
           </button>
         </div>
         <div class="material-safety-actions"><button type="button" class="secondary" onclick="App.restorePrecisionMaterial()">RESTAURAR FORGED PRECISION</button><button type="button" class="secondary" onclick="App.renderForgeLab()">VISTA PREVIA EN FORGE LAB</button><button type="button" class="secondary" onclick="App.repairApexInstallation()">REPARAR CACHÉ APEX</button></div>

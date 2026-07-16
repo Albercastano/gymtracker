@@ -3,7 +3,7 @@
   "id": "vektor",
   "name": "FORGED Vektor",
   "author": "Phoenix Forge",
-  "version": "0.1.0-alpha",
+  "version": "0.2.0",
   "engine": "0.8.x",
   "status": "alpha",
   "fallback": false,
@@ -22,5 +22,6 @@
   ],
   "network": "forbidden",
   "scripts": "forbidden",
-  "componentContract": "0.1.x"
+  "componentContract": "0.1.x",
+  "engineVersion": "0.9.0"
 }

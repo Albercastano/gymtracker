@@ -954,3 +954,19 @@ html[data-phx-material="apex"] :where(.grid,.cards-grid,.material-grid,.metrics-
  html[data-phx-material="apex"] .build-stamp{font-size:8px;letter-spacing:.12em;white-space:nowrap}
  html[data-phx-material="apex"] :where(.metric-value,.timer-value,.set-stepper strong){font-variant-numeric:tabular-nums;overflow-wrap:normal}
 }
+
+
+/* BUILD 031 · APEX SIGNATURE PERSONALITY */
+html[data-phx-material="apex"]{--apex-cyan:#00e5ff;--apex-green:#00f08a;--apex-red:#ff3b63;--apex-grid:rgba(0,229,255,.028)}
+html[data-phx-material="apex"] body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background:radial-gradient(circle at 72% -12%,rgba(0,229,255,.09),transparent 32%),repeating-linear-gradient(0deg,var(--apex-grid) 0 1px,transparent 1px 28px),repeating-linear-gradient(90deg,var(--apex-grid) 0 1px,transparent 1px 28px),#000304}
+html[data-phx-material="apex"] :where(.card,.settings-section,.data-v2__metric,.data-v2__chart,.history-session,.routine-accordion){position:relative;overflow:hidden}
+html[data-phx-material="apex"] :where(.card,.settings-section,.data-v2__metric,.data-v2__chart,.history-session,.routine-accordion)::after{content:"";position:absolute;left:14px;right:14px;top:0;height:1px;background:linear-gradient(90deg,transparent,var(--apex-cyan),transparent);opacity:.18;pointer-events:none}
+html[data-phx-material="apex"] :where(.primary,.king,.gym-primary-action,.set-finish){background:linear-gradient(180deg,#0df1ff,#00bcd4 58%,#00798e);color:#001013;border-color:#63f6ff;box-shadow:0 4px 0 #005566,0 0 22px rgba(0,229,255,.14),inset 0 1px rgba(255,255,255,.7)}
+html[data-phx-material="apex"] .phoenix-timer__shell{position:relative;background:radial-gradient(circle at 50% 43%,rgba(0,229,255,.055),transparent 44%),linear-gradient(160deg,#071116,#000304 70%);border:1px solid rgba(0,229,255,.4);border-radius:30px;box-shadow:0 22px 58px rgba(0,0,0,.7),inset 0 1px rgba(130,246,255,.17),0 0 34px rgba(0,229,255,.09)}
+html[data-phx-material="apex"] .phoenix-timer__shell::before{content:"PHX SIGNATURE TIMER";position:absolute;top:16px;left:20px;color:var(--apex-cyan);font-size:.58rem;font-weight:900;letter-spacing:.19em;opacity:.78}
+html[data-phx-material="apex"] .phoenix-timer__ring{filter:drop-shadow(0 0 10px rgba(0,229,255,.38))}
+html[data-phx-material="apex"] .phoenix-timer__time{color:#f7fdff;text-shadow:0 0 16px rgba(0,229,255,.16);font-weight:500;letter-spacing:-.045em}
+html[data-phx-material="apex"] .phoenix-timer__controls button{border-radius:999px!important;border-color:rgba(0,229,255,.28)!important;background:#02080b!important}
+html[data-phx-material="apex"] .phoenix-timer__controls button:last-child{box-shadow:inset 0 0 0 1px rgba(255,59,99,.18)}
+html[data-phx-material="apex"] .material-option.apex.active{box-shadow:0 0 0 1px var(--apex-green),0 0 30px rgba(0,240,138,.12),inset 0 1px rgba(255,255,255,.08)}
+html[data-phx-material="apex"] .data-v2__graph{background:repeating-linear-gradient(0deg,rgba(0,229,255,.035) 0 1px,transparent 1px 22px),repeating-linear-gradient(90deg,rgba(0,229,255,.035) 0 1px,transparent 1px 22px),#000506}

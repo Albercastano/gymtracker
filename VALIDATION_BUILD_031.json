@@ -1,0 +1,68 @@
+{
+  "build": "031",
+  "name": "SIGNATURE_SKINS_INTEGRATION",
+  "passed": 12,
+  "total": 12,
+  "checks": [
+    {
+      "name": "Build visible 031",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "SW registration 031",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "SW cache 031",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Igor static profile",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Igor registry migration",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Apex signature personality",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Vektor signature personality",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Signature timer both skins",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "JSON valid",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "PEDB exercises",
+      "ok": true,
+      "detail": "1200"
+    },
+    {
+      "name": "PEDB relations",
+      "ok": true,
+      "detail": "21522"
+    }
+  ]
+}

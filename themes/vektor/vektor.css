@@ -1,4 +1,4 @@
-/* FORGED VEKTOR 0.1 · functional alpha · vector instrument language */
+/* FORGED VEKTOR 0.2 · functional alpha · vector instrument language */
 html[data-phx-material="vektor"]{
  --phx-material-id:vektor;--phx-surface-screen:#080a0b;--phx-surface-primary:#0d1011;--phx-surface-raised:#15191a;--phx-surface-panel:#101314;--phx-surface-inset:#050707;
  --phx-edge-primary:#5d696b;--phx-action-primary:#ff7a1a;--phx-action-primary-hi:#ffc07a;--phx-action-primary-low:#a63d00;
@@ -43,3 +43,15 @@ html[data-phx-material="vektor"] :where(.danger,.forged-danger){background:#2610
 html[data-phx-material="vektor"] :where(.success,.completed){--vektor-state:#a8d25b}
 @media(max-width:760px){html[data-phx-material="vektor"] .material-selector{grid-template-columns:1fr!important}html[data-phx-material="vektor"] :where(.phx-card,.card,.settings-section){max-width:100%;min-width:0}html[data-phx-material="vektor"] .topbar-brand__copy strong{letter-spacing:.16em}}
 @media(prefers-reduced-motion:reduce){html[data-phx-material="vektor"] *,html[data-phx-material="vektor"] *::before,html[data-phx-material="vektor"] *::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+
+/* BUILD 031 · VEKTOR SIGNATURE PERSONALITY */
+html[data-phx-material="vektor"]{--vektor-orange:#ff7a00;--vektor-amber:#ffc24d;--vektor-ivory:#f2f1e8;--vektor-gunmetal:#14181d}
+html[data-phx-material="vektor"] :where(.card,.settings-section,.history-session,.routine-accordion,.data-v2__metric,.data-v2__chart){clip-path:polygon(0 10px,10px 0,calc(100% - 10px) 0,100% 10px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0 calc(100% - 8px))}
+html[data-phx-material="vektor"] .phoenix-timer__shell{position:relative;border-radius:10px;clip-path:polygon(0 16px,16px 0,calc(100% - 28px) 0,100% 28px,100% calc(100% - 16px),calc(100% - 16px) 100%,28px 100%,0 calc(100% - 28px));background:linear-gradient(135deg,rgba(255,255,255,.06),transparent 20%),repeating-linear-gradient(135deg,rgba(255,255,255,.025) 0 2px,transparent 2px 6px),linear-gradient(155deg,#252b2d,#080a0b 70%);border:2px solid #596466;box-shadow:0 9px 0 #020303,0 30px 64px rgba(0,0,0,.68),inset 0 1px #7b8789}
+html[data-phx-material="vektor"] .phoenix-timer__shell::before{content:"PHX SIGNATURE TIMER  /  VEKTOR";position:absolute;left:18px;top:14px;font-size:.56rem;letter-spacing:.18em;color:var(--vektor-amber);font-weight:900}
+html[data-phx-material="vektor"] .phoenix-timer__shell::after{content:"";position:absolute;left:18px;right:18px;bottom:15px;height:4px;background:linear-gradient(90deg,var(--vektor-orange) 0 68%,rgba(255,122,0,.13) 68%);box-shadow:0 0 10px rgba(255,122,0,.35)}
+html[data-phx-material="vektor"] .phoenix-timer__time{color:var(--vektor-ivory);text-shadow:2px 2px 0 #3c2a15,0 0 11px rgba(255,194,77,.12);font-family:"Roboto Condensed","Arial Narrow",system-ui,sans-serif;letter-spacing:.035em}
+html[data-phx-material="vektor"] .phoenix-timer__controls button{clip-path:polygon(0 7px,7px 0,calc(100% - 7px) 0,100% 7px,100% calc(100% - 7px),calc(100% - 7px) 100%,7px 100%,0 calc(100% - 7px));border-radius:0!important}
+html[data-phx-material="vektor"] .material-option.vektor.active{border-color:var(--vektor-orange);box-shadow:0 0 0 1px #7c3a00,0 0 28px rgba(255,122,0,.16),inset 0 1px rgba(255,255,255,.09)}
+html[data-phx-material="vektor"] .engine-badge{border-radius:5px!important;background:linear-gradient(90deg,#131718,#090b0c)!important;border-left:4px solid var(--vektor-orange)!important}
