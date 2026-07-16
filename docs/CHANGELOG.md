@@ -1,3 +1,14 @@
+# Build 018 · Phoenix Forge Foundation 0.1
+
+- Añadido Forge Shape Contract 0.1.
+- Añadido Forge Action Bus con acciones semánticas autorizadas.
+- Añadido ViewModel semántico de Home.
+- Añadido Shape Engine en modo Foundation.
+- Precision queda registrada como forma y fallback obligatorio.
+- Forma y material se guardan por separado mediante preferencias no destructivas.
+- Forge Lab incorpora diagnóstico de forma, Action Bus y ViewModel.
+- Apariencia, datos, PEDB y funciones de Build 017 se conservan.
+
 # Build 017 · Apex Visibility Hotfix
 
 - Corregida la actualización bloqueada por cachés PWA antiguas.

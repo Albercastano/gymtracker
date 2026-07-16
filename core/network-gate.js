@@ -2,7 +2,7 @@
 (function(){
   const nativeFetch=window.fetch.bind(window);
   const allowedExtensions=/\.(?:json|css|js|png|webp|svg|csv|txt|md|webmanifest)$/i;
-  const allowedRoots=['/data/','/js/','/themes/','/templates/','/docs/'];
+  const allowedRoots=['/data/','/js/','/themes/','/forge/','/templates/','/docs/'];
   function isLocalAsset(url,method){
     if(method!=='GET'||url.origin!==location.origin)return false;
     const path=url.pathname;

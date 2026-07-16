@@ -48,6 +48,7 @@ const App={
     const origin=document.getElementById("phoenixOrigin");
     if(origin){origin.hidden=true;origin.classList.remove("show");origin.setAttribute("aria-hidden","true")}
     this.load();
+    this.registerForgeBridge();
     this.applyUiSettings();
     this.updateProfileChrome();
     this.bindPhoenixEasterEgg();
@@ -77,6 +78,15 @@ const App={
     window.addEventListener("resize",()=>{
       if(this.currentScreen==="forgeLab")this.updateForgeLabDiagnostics();
     });
+  },
+
+
+  registerForgeBridge(){
+    try{
+      window.PhoenixForgeActionBus?.bindCore?.(this);
+      window.PhoenixShapeEngine?.bindCore?.(this);
+      window.PhoenixShapeEngine?.observeScreen?.(this.currentScreen||"home",this);
+    }catch(error){console.warn("Phoenix Forge bridge no disponible",error)}
   },
 
 
@@ -225,7 +235,7 @@ const App={
 
   registerServiceWorker(){
     if(!("serviceWorker" in navigator)||!/^https?:$/.test(location.protocol))return;
-    navigator.serviceWorker.register("sw.js?v=017",{updateViaCache:"none"}).then(registration=>{
+    navigator.serviceWorker.register("sw.js?v=018",{updateViaCache:"none"}).then(registration=>{
       this.swRegistration=registration;
       registration.update().catch(()=>{});
       if(registration.waiting&&navigator.serviceWorker.controller)this.showAppUpdate();
@@ -256,7 +266,7 @@ const App={
       const keys=await window.caches?.keys?.()||[];
       await Promise.all(keys.filter(key=>key.startsWith("gymtracker-phoenix")).map(key=>window.caches.delete(key)));
       this.data.settings.uiMaterial="apex";this.save();
-      location.replace(`index.html?v=017&apexrepair=${Date.now()}#settings`);
+      location.replace(`index.html?v=018&apexrepair=${Date.now()}#settings`);
     }catch(error){this.reportError(error)}
   },
 
@@ -444,7 +454,7 @@ const App={
 
   defaults(){
     return{
-      settings:{weightStep:.5,defaultRest:90,sound:true,vibration:true,planningMode:"fixed",fontScale:"normal",timerOrientation:"auto",uiMaterial:"apex"},
+      settings:{weightStep:.5,defaultRest:90,sound:true,vibration:true,planningMode:"fixed",fontScale:"normal",timerOrientation:"auto",uiMaterial:"apex",uiShape:"precision",uiInstruments:{},uiCalibration:{}},
       profile:{bodyWeight:null},
       routines:[
         {id:"r1",name:"Torso A",day:1,items:[
@@ -495,13 +505,19 @@ const App={
   },
 
   normalize(){
-    this.data.settings=this.data.settings||{weightStep:.5,defaultRest:90,sound:true,vibration:true,planningMode:"fixed",fontScale:"normal",timerOrientation:"auto",uiMaterial:"apex"};
+    this.data.settings=this.data.settings||{weightStep:.5,defaultRest:90,sound:true,vibration:true,planningMode:"fixed",fontScale:"normal",timerOrientation:"auto",uiMaterial:"apex",uiShape:"precision",uiInstruments:{},uiCalibration:{}};
     if(!["fixed","clear"].includes(this.data.settings.planningMode))this.data.settings.planningMode="fixed";
     if(!["normal","large","xl"].includes(this.data.settings.fontScale))this.data.settings.fontScale="normal";
     if(!["auto","portrait","landscape"].includes(this.data.settings.timerOrientation))this.data.settings.timerOrientation="auto";
     if(this.data.settings.uiMaterial==="foundry")this.data.settings.uiMaterial="apex";
     if(window.PhoenixMaterialEngine&&!window.PhoenixMaterialEngine.isSupported(this.data.settings.uiMaterial))this.data.settings.uiMaterial=window.PhoenixMaterialEngine.isSupported("apex")?"apex":window.PhoenixMaterialEngine.fallback;
     else if(!window.PhoenixMaterialEngine&&!["precision","apex"].includes(this.data.settings.uiMaterial))this.data.settings.uiMaterial="apex";
+    const shapeEngine=window.PhoenixShapeEngine;
+    if(!this.data.settings.uiShape)this.data.settings.uiShape="precision";
+    if(shapeEngine&&!shapeEngine.isSupported(this.data.settings.uiShape))this.data.settings.uiShape=shapeEngine.fallback;
+    else if(!shapeEngine&&this.data.settings.uiShape!=="precision")this.data.settings.uiShape="precision";
+    this.data.settings.uiInstruments=(this.data.settings.uiInstruments&&typeof this.data.settings.uiInstruments==="object"&&!Array.isArray(this.data.settings.uiInstruments))?this.data.settings.uiInstruments:{};
+    this.data.settings.uiCalibration=(this.data.settings.uiCalibration&&typeof this.data.settings.uiCalibration==="object"&&!Array.isArray(this.data.settings.uiCalibration))?this.data.settings.uiCalibration:{};
     this.data.settings.defaultRest=Math.max(0,Number(this.data.settings.defaultRest)||90);
     this.data.settings.sound=this.data.settings.sound!==false;
     this.data.settings.vibration=this.data.settings.vibration!==false;
@@ -678,6 +694,7 @@ const App={
     el.setAttribute("aria-hidden","false");
     this.currentScreen=id;
     this.destination=destination;
+    window.PhoenixShapeEngine?.observeScreen?.(id,this);
 
     const btn=document.getElementById("destButton");
     btn.textContent=destination;
@@ -1432,10 +1449,16 @@ const App={
     const requested=this.data?.settings?.uiMaterial||"precision";
     const engine=window.PhoenixMaterialEngine;
     const material=engine?.isSupported?.(requested)?requested:(engine?.fallback||"precision");
+    const shapeEngine=window.PhoenixShapeEngine;
+    const requestedShape=this.data?.settings?.uiShape||"precision";
+    const shape=shapeEngine?.isSupported?.(requestedShape)?requestedShape:(shapeEngine?.fallback||"precision");
     this.data.settings.uiMaterial=material;
+    this.data.settings.uiShape=shape;
     document.documentElement.dataset.fontScale=scale;
     if(engine)engine.apply(material,{source:"app"});
     else{document.documentElement.dataset.phxMaterial=material;document.documentElement.dataset.material=material;document.body.dataset.material=material}
+    if(shapeEngine)shapeEngine.apply(shape,{source:"app"});
+    else{document.documentElement.dataset.phxShape=shape;document.documentElement.dataset.shape=shape;document.body.dataset.phxShape=shape}
   },
 
   setUiMaterial(material){
@@ -1464,6 +1487,18 @@ const App={
         this.updateForgeLabDiagnostics();
       });
     }
+  },
+
+  setUiShape(shape){
+    const engine=window.PhoenixShapeEngine;
+    if(engine&&!engine.isSupported(shape)){this.toast("Forma no compatible");return}
+    if(!engine&&shape!=="precision")return;
+    this.data.settings.uiShape=shape;
+    if(engine)engine.apply(shape,{source:"settings"});else this.applyUiSettings();
+    this.save();
+    window.PhoenixShapeEngine?.observeScreen?.(this.currentScreen,this);
+    this.toast(shape==="precision"?"Forma Precision aplicada":`Forma ${shape} aplicada`);
+    if(this.currentScreen==="forgeLab")requestAnimationFrame(()=>this.updateForgeShapeDiagnostics())
   },
 
   previewUiMaterial(material){
@@ -1548,7 +1583,7 @@ const App={
     if(score)score.textContent=`${passed}/${checks.length}`;
     if(state){state.textContent=passed===checks.length?'APROBADO':passed>=checks.length-1?'REVISAR':'BLOQUEADO';state.className=passed===checks.length?'valid':passed>=checks.length-1?'warning':'invalid'}
     if(list)list.innerHTML=checks.map(item=>`<div class="forge-quality-check ${item.ok?'ok':'fail'}"><i>${item.ok?'✓':'!'}</i><div><b>${this.escape(item.name)}</b><span>${this.escape(item.detail)}</span></div></div>`).join('');
-    this.lastForgeQualityReport={build:'017',material:active,viewport:`${innerWidth}x${innerHeight}`,passed,total:checks.length,checks:checks.map(x=>({name:x.name,ok:x.ok,detail:x.detail})),at:new Date().toISOString()};
+    this.lastForgeQualityReport={build:'018',material:active,viewport:`${innerWidth}x${innerHeight}`,passed,total:checks.length,checks:checks.map(x=>({name:x.name,ok:x.ok,detail:x.detail})),at:new Date().toISOString()};
     this.toast(passed===checks.length?'Quality Gate superado':'Quality Gate: hay puntos por revisar');
   },
 
@@ -3243,7 +3278,7 @@ const App={
     if(!screen)return;
     screen.innerHTML=`<div class="forge-lab">
       <section class="forge-lab__hero phx-card phx-card--highlight">
-        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 017</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.5.1</span></div>
+        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 018</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.5.1</span></div>
         <p>Banco de pruebas visual. Los mismos componentes se comparan bajo cada material sin tocar datos ni lógica de entrenamiento.</p>
         <div class="forge-lab__material-bar" role="group" aria-label="Material del laboratorio">
           <button type="button" class="forge-lab__material ${material==='precision'?'active':''}" data-ui-material="precision" aria-pressed="${material==='precision'}" onclick="App.previewUiMaterial('precision')"><span>PRECISION</span><small>Vista previa segura</small></button>
@@ -3299,7 +3334,7 @@ const App={
       </section>
 
       <section class="forge-lab__visual-core phx-card" aria-label="Apex Visual Core 0.2">
-        <div class="forge-lab__visual-core-head"><div><span>APEX VISUAL CORE 1.0</span><h2>Componentes ultratecnológicos de referencia</h2></div><b>BUILD 017</b></div>
+        <div class="forge-lab__visual-core-head"><div><span>APEX VISUAL CORE 1.0</span><h2>Componentes ultratecnológicos de referencia</h2></div><b>BUILD 018</b></div>
         <p class="muted">Negro absoluto, líneas finas, números limpios y color funcional. Sin imágenes pesadas ni cambios en la lógica.</p>
         <div class="apex-core__grid">
           <article class="apex-core__card apex-core__actions"><span>01 · ACCIONES</span><h3>Control limpio</h3><button class="phx-button phx-button--primary" onclick="App.toast('Acción primaria Apex')">COMENZAR ENTRENAMIENTO</button><button class="phx-button phx-button--secondary" onclick="App.toast('Acción secundaria Apex')">VER DETALLES</button></article>
@@ -3402,6 +3437,19 @@ const App={
         <div class="forge-quality-actions"><button type="button" class="primary" onclick="App.runForgeQualityGate()">EJECUTAR QUALITY GATE</button><button type="button" class="secondary" onclick="App.restorePrecisionMaterial()">PRECISION DE EMERGENCIA</button></div>
       </section>
 
+      <section class="forge-lab__contract phx-card" aria-label="Forge Shape Engine">
+        <div class="eyebrow">FORGE SHAPE ENGINE · FOUNDATION 0.1</div><h2>La forma ya tiene un contrato propio.</h2>
+        <ul><li>Forma y material se guardan por separado.</li><li>Los componentes reciben datos filtrados.</li><li>Las acciones pasan por un bus autorizado.</li><li>Precision permanece como fallback obligatorio.</li></ul>
+        <div class="forge-lab__certificate-grid">
+          <div><span>FORMA ACTIVA</span><b id="forgeShapeActive">PRECISION</b></div>
+          <div><span>CONTRATO</span><b id="forgeShapeContract">0.1.0</b></div>
+          <div><span>ACTION BUS</span><b id="forgeActionBusState">REVISAR</b></div>
+          <div><span>VIEW MODEL</span><b id="forgeViewModelState">REVISAR</b></div>
+        </div>
+        <p id="forgeShapeMessage" class="muted">La Build 018 observa la interfaz actual sin alterar su composición.</p>
+        <button type="button" class="secondary" onclick="App.runForgeShapeDiagnostics()">VERIFICAR FORGE FOUNDATION</button>
+      </section>
+
       <section class="forge-lab__contract phx-card">
         <div class="eyebrow">CONTRATO DE LA FORJA</div><h2>Lo visual nunca toca tus datos.</h2>
         <ul><li>Sin JavaScript en materiales.</li><li>Sin conexiones externas.</li><li>Sin cambios de posición en acciones críticas.</li><li>Precision siempre disponible como reserva.</li></ul>
@@ -3409,6 +3457,7 @@ const App={
     </div>`;
     this.show("forgeLab","Ajustes",{history:withHistory});
     this.updateForgeLabDiagnostics();
+    this.updateForgeShapeDiagnostics();
     this.updateForgeLabMaterialState();
     this.updateForgeLabMaterialCertificate();
     requestAnimationFrame(()=>{this.updateForgeComponentCoverage();setTimeout(()=>this.runForgeQualityGate(),120)});
@@ -3426,6 +3475,35 @@ const App={
     const orientationEl=document.getElementById("forgeOrientation");if(orientationEl)orientationEl.textContent=orientation;
     const textEl=document.getElementById("forgeTextScale");if(textEl)textEl.textContent=scale;
     const materialEl=document.getElementById("forgeMaterialDiagnostic");if(materialEl)materialEl.textContent=material;
+  },
+
+  updateForgeShapeDiagnostics(report=null){
+    if(this.currentScreen!=="forgeLab")return;
+    const engine=window.PhoenixShapeEngine;
+    const active=this.data?.settings?.uiShape||engine?.active||"precision";
+    const certificate=engine?.getCertificate?.(active);
+    const snapshot=engine?.snapshot?.("home",this);
+    const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value};
+    set("forgeShapeActive",String(active||"precision").toUpperCase());
+    set("forgeShapeContract",window.PhoenixShapeContract?.version||"NO DISPONIBLE");
+    set("forgeActionBusState",window.PhoenixForgeActionBus?.coreBound?"ENLAZADO":"REVISAR");
+    set("forgeViewModelState",snapshot?.components?.["workout-today"]?"ACTIVO":"REVISAR");
+    const message=document.getElementById("forgeShapeMessage");
+    if(message){
+      const ready=document.documentElement.dataset.phxShapeReady==="true";
+      const valid=certificate?.valid!==false;
+      message.textContent=ready&&valid
+        ?`Forma ${active} preparada · Modo Foundation · ${Object.keys(snapshot?.components||{}).length} componentes Home disponibles.`
+        :"El motor de forma usará Precision como reserva hasta completar la validación.";
+    }
+    return report||null
+  },
+
+  runForgeShapeDiagnostics(){
+    const report=window.PhoenixForgeDiagnostics?.run?.(this)||null;
+    this.updateForgeShapeDiagnostics(report);
+    this.toast(report?.shapeReady&&report?.coreBound?"Forge Foundation verificada":"Forge Foundation requiere revisión");
+    return report
   },
 
   updateForgeLabMaterialState(){
@@ -3650,7 +3728,7 @@ const App={
     const payload={
       format:"GymTracker Phoenix Backup",
       schema_version:1,
-      app_version:"11 Alpha Build 017",
+      app_version:"11 Alpha Build 018",
       profile:{id:this.activeProfileId,name:this.activeProfile()?.name||this.activeProfileId},
       exportedAt:new Date().toISOString(),
       counts:{

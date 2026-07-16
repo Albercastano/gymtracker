@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "precision",
+  "name": "Precision",
+  "engine": "0.1.x",
+  "screens": {
+    "home": {
+      "layout": "stack",
+      "slots": [
+        {"id":"brand","component":"app-brand","variant":"precision-brand","order":10,"span":12},
+        {"id":"storage","component":"storage-status","variant":"precision-alert","order":15,"span":12},
+        {"id":"today","component":"workout-today","variant":"precision-hero","order":20,"span":12,"required":true},
+        {"id":"gym","component":"start-workout-action","variant":"precision-king","order":30,"span":6,"required":true,"minTouch":56},
+        {"id":"data","component":"open-data-action","variant":"precision-secondary","order":40,"span":6,"required":true,"minTouch":56},
+        {"id":"weekly","component":"weekly-progress","variant":"precision-cards","order":50,"span":12},
+        {"id":"last","component":"last-workout","variant":"precision-card","order":60,"span":12}
+      ]
+    }
+  },
+  "responsive": {
+    "360": {"columns":4,"gap":12},
+    "390": {"columns":4,"gap":14},
+    "430": {"columns":4,"gap":16}
+  }
+}

@@ -1,0 +1,152 @@
+{
+  "build": "Phoenix 11 Alpha Build 018",
+  "release": "Phoenix Forge Foundation 0.1",
+  "generatedAt": "2026-07-16T18:16:03.909086+00:00",
+  "baseBuild": {
+    "name": "GymTracker Phoenix 11 Alpha Build 017 Apex Visibility Hotfix",
+    "zipSha256": "22a5d66703b19d9a95be907ba7cb239d1e933ca4e30bca778526d2448f5b41e7"
+  },
+  "staticValidation": {
+    "result": "pass",
+    "checks": {
+      "versionBuild018": true,
+      "indexTitleBuild018": true,
+      "serviceWorkerCacheBuild018": true,
+      "manifestStartUrlBuild018": true,
+      "javascriptSyntax": true,
+      "javascriptFilesChecked": 16,
+      "jsonSyntax": true,
+      "jsonFilesChecked": 51,
+      "precisionShapeSchema": true,
+      "duplicateHtmlIds": true,
+      "htmlAssetsPresent": true,
+      "serviceWorkerAssetsPresent": true,
+      "serviceWorkerAssetCount": 57,
+      "forgeAssetsCached": true,
+      "forgeScriptsLoadedBeforeApp": true,
+      "forgeRootAllowedLocally": true,
+      "externalNetworkStillBlocked": true,
+      "shapeEnginePrecisionFallback": true,
+      "shapeEngineNoWindowAppDependency": true,
+      "shapeEngineCoreBinding": true,
+      "actionBusWhitelist": true,
+      "forgeSettingsNonDestructive": true,
+      "appBindsForgeCore": true,
+      "appActionMethodsPresent": true,
+      "appMethodCount": 256,
+      "pedbExercises1200": true,
+      "pedbRelations21522": true,
+      "pedbExerciseIdsUnique": true,
+      "pedbRelationIdsUnique": true,
+      "pedbRelationReferencesValid": true,
+      "pedbOfflineBundle": true
+    },
+    "missingHtmlAssets": [],
+    "missingServiceWorkerAssets": []
+  },
+  "browserHarness": {
+    "passed": true,
+    "method": "Chromium page.set_content with real app scripts/styles and opaque-origin mocks",
+    "viewports": [
+      {
+        "width": 360,
+        "height": 740,
+        "shape": "precision",
+        "shapeReady": "true",
+        "shapeCertified": "true",
+        "actionCoreBound": true,
+        "shapeCoreBound": true,
+        "horizontalOverflow": false,
+        "errors": [],
+        "console": []
+      },
+      {
+        "width": 390,
+        "height": 844,
+        "shape": "precision",
+        "shapeReady": "true",
+        "shapeCertified": "true",
+        "actionCoreBound": true,
+        "shapeCoreBound": true,
+        "horizontalOverflow": false,
+        "errors": [],
+        "console": []
+      },
+      {
+        "width": 430,
+        "height": 932,
+        "shape": "precision",
+        "shapeReady": "true",
+        "shapeCertified": "true",
+        "actionCoreBound": true,
+        "shapeCoreBound": true,
+        "horizontalOverflow": false,
+        "errors": [],
+        "console": []
+      },
+      {
+        "width": 844,
+        "height": 390,
+        "shape": "precision",
+        "shapeReady": "true",
+        "shapeCertified": "true",
+        "actionCoreBound": true,
+        "shapeCoreBound": true,
+        "horizontalOverflow": false,
+        "errors": [],
+        "console": []
+      }
+    ],
+    "functional": {
+      "invalidShapeRejected": true,
+      "invalidShapeErrors": [
+        "home: falta el componente obligatorio workout-today",
+        "home: falta el componente obligatorio start-workout-action",
+        "home: falta el componente obligatorio open-data-action"
+      ],
+      "unsupportedShapeFallback": "precision",
+      "actionBusOpenedData": "data",
+      "unauthorizedActionRejected": true,
+      "forgeLab": {
+        "shape": "PRECISION",
+        "contract": "0.1.0",
+        "bus": "ENLAZADO",
+        "viewModel": "ACTIVO"
+      }
+    },
+    "errors": [],
+    "console": [],
+    "limitations": [
+      "localhost and file URL navigation are blocked by environment policy",
+      "service worker and install/update flow are not exercised",
+      "PEDB IndexedDB persistence is mocked; PEDB files are validated separately by static tests",
+      "this is not a physical Android test"
+    ]
+  },
+  "pedb": {
+    "version": "3.4.0",
+    "exercises": 1200,
+    "relations": 21522,
+    "exerciseIdsUnique": true,
+    "relationIdsUnique": true,
+    "referencesValid": true,
+    "offlineBundleMatchesJson": true
+  },
+  "dataCompatibility": {
+    "storageKeysChanged": false,
+    "destructiveMigration": false,
+    "newProfileSettings": [
+      "uiShape",
+      "uiInstruments",
+      "uiCalibration"
+    ],
+    "fallbackShape": "precision"
+  },
+  "scope": {
+    "visualRendererMigration": false,
+    "foundationMode": true,
+    "publishedPwaTested": false,
+    "serviceWorkerRuntimeTested": false,
+    "physicalAndroidTested": false
+  }
+}
