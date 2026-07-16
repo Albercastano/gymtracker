@@ -1,26 +1,19 @@
-# CHECKLIST DE ACEPTACIÓN
+# PHOENIX · TRABAJO POST-APEX
 
-## Inicio y navegación
-- [ ] Splash correcto.
-- [ ] GYM abre la rutina de hoy.
-- [ ] DATOS abre el menú.
-- [ ] Atrás Android no sale a la web anterior.
-- [ ] Botones Inicio/Datos/Rutinas/Ejercicio llevan al destino correcto.
+FORGED Apex queda congelado como Beta 1.0 en Build 016. No quedan tareas de diseño Apex abiertas salvo fallos encontrados en el dispositivo real.
 
-## Entrenamiento
-- [ ] Iniciar serie.
-- [ ] Finalizar serie una sola vez aunque se pulse dos veces.
-- [ ] Casio aparece.
-- [ ] Casio continúa tras bloquear/reabrir.
-- [ ] Siguiente serie correcta.
-- [ ] Resumen editable.
-- [ ] Transición al siguiente ejercicio.
-- [ ] Finalizar y guardar sesión.
+## Validación física pendiente
 
-## Datos
-- [ ] Biblioteca.
-- [ ] Añadir ejercicio a rutina.
-- [ ] Asignar rutina a hoy.
-- [ ] Historial.
-- [ ] Peso corporal.
-- [ ] Exportar/importar backup.
+- Audio y vibración del Timer en Android/PWA.
+- Instalación y actualización PWA publicada.
+- Comportamiento con pantalla bloqueada y reapertura.
+- Revisión táctil final a 360–430 px.
+
+## Próximas áreas de producto, fuera de Apex
+
+- Migración del almacenamiento principal a IndexedDB/repositorios.
+- Backup con verificación criptográfica y recuperación previa visible.
+- Superseries ejecutables.
+- Deload funcional y progresión avanzada.
+- Estadísticas y fuerza relativa por ejercicio y fecha.
+- Exportación XLSX.

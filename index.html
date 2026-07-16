@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#050507">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; form-action 'self'; connect-src 'self'; img-src 'self' data: blob:; media-src 'self' data: blob:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'">
-  <title>GymTracker Phoenix 11 Alpha · Build 013 · FORGED Apex UI Completion</title>
+  <title>GymTracker Phoenix 11 Alpha · Build 016 · FORGED Apex Beta Freeze</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
   <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
@@ -65,23 +65,23 @@
   </header>
 
   <main>
-    <section id="home" class="screen active"></section>
-    <section id="gym" class="screen"></section>
-    <section id="series" class="screen"></section>
-    <section id="rest" class="screen"></section>
-    <section id="exerciseSummary" class="screen"></section>
-    <section id="workoutSummary" class="screen"></section>
-    <section id="data" class="screen"></section>
-    <section id="routines" class="screen"></section>
-    <section id="blocks" class="screen"></section>
-    <section id="history" class="screen"></section>
-    <section id="settings" class="screen"></section>
-    <section id="backups" class="screen"></section>
-    <section id="library" class="screen"></section>
-    <section id="forgeLab" class="screen"></section>
+    <section id="home" class="screen active" aria-hidden="false"></section>
+    <section id="gym" class="screen" aria-hidden="true"></section>
+    <section id="series" class="screen" aria-hidden="true"></section>
+    <section id="rest" class="screen" aria-hidden="true"></section>
+    <section id="exerciseSummary" class="screen" aria-hidden="true"></section>
+    <section id="workoutSummary" class="screen" aria-hidden="true"></section>
+    <section id="data" class="screen" aria-hidden="true"></section>
+    <section id="routines" class="screen" aria-hidden="true"></section>
+    <section id="blocks" class="screen" aria-hidden="true"></section>
+    <section id="history" class="screen" aria-hidden="true"></section>
+    <section id="settings" class="screen" aria-hidden="true"></section>
+    <section id="backups" class="screen" aria-hidden="true"></section>
+    <section id="library" class="screen" aria-hidden="true"></section>
+    <section id="forgeLab" class="screen" aria-hidden="true"></section>
   </main>
 
-  <div id="alternativesSheet" class="sheet">
+  <div id="alternativesSheet" class="sheet" aria-hidden="true">
     <div class="sheet-backdrop" onclick="App.closeAlternatives()"></div>
     <div class="sheet-panel">
       <div class="handle"></div>
@@ -118,7 +118,7 @@
     </section>
   </div>
 
-  <div id="profileSheet" class="sheet forged-sheet">
+  <div id="profileSheet" class="sheet forged-sheet" aria-hidden="true">
     <div class="sheet-backdrop" onclick="App.closeProfileSheet()"></div>
     <div class="sheet-panel profile-panel">
       <div class="handle"></div><div class="eyebrow">PERFILES LOCALES</div><h2>¿Quién entrena?</h2>
@@ -129,7 +129,7 @@
   </div>
 
 
-  <div id="profileConfirmSheet" class="sheet forged-sheet">
+  <div id="profileConfirmSheet" class="sheet forged-sheet" aria-hidden="true">
     <div class="sheet-backdrop" onclick="App.closeProfileConfirm()"></div>
     <div class="sheet-panel profile-confirm-panel">
       <div class="handle"></div><div class="eyebrow">CAMBIO DE PERFIL</div><h2 id="profileConfirmTitle">Cambiar perfil</h2>
@@ -141,7 +141,7 @@
   </div>
 
 
-  <div id="historyDeleteSheet" class="sheet forged-sheet">
+  <div id="historyDeleteSheet" class="sheet forged-sheet" aria-hidden="true">
     <div class="sheet-backdrop" onclick="App.closeHistoryDelete()"></div>
     <div class="sheet-panel delete-panel">
       <div class="handle"></div><div class="eyebrow">HISTORIAL · ZONA DE SEGURIDAD</div><h2 id="historyDeleteTitle">Borrar historial</h2>
@@ -158,7 +158,7 @@
     </div>
   </div>
 
-  <div id="deleteDataSheet" class="sheet forged-sheet">
+  <div id="deleteDataSheet" class="sheet forged-sheet" aria-hidden="true">
     <div class="sheet-backdrop" onclick="App.closeDataDelete()"></div>
     <div class="sheet-panel delete-panel">
       <div class="handle"></div><div class="eyebrow">ZONA DE SEGURIDAD</div><h2 id="deleteTitle">Borrar datos</h2>
@@ -262,8 +262,14 @@
     </div>
   </div>
 
+
+  <aside id="pwaUpdate" class="pwa-update" hidden role="status" aria-live="polite" aria-atomic="true">
+    <div class="pwa-update__copy"><span>PHOENIX ACTUALIZADO</span><b>Hay una versión nueva lista para aplicar.</b></div>
+    <div class="pwa-update__actions"><button type="button" class="secondary pwa-update__later" onclick="App.dismissAppUpdate()">MÁS TARDE</button><button type="button" class="primary" onclick="App.applyAppUpdate()">ACTUALIZAR</button></div>
+  </aside>
+
   <input id="importFile" type="file" accept=".gtb,.json,application/json" hidden onchange="App.importBackupFile(this.files[0])">
-  <div id="personalExerciseSheet" class="sheet">
+  <div id="personalExerciseSheet" class="sheet" aria-hidden="true">
     <div class="sheet-backdrop" onclick="App.closePersonalExercise()"></div>
     <div class="sheet-panel">
       <div class="handle"></div>
@@ -300,7 +306,7 @@
   </div>
 
 
-  <div id="routineTextSheet" class="sheet">
+  <div id="routineTextSheet" class="sheet" aria-hidden="true">
     <div class="sheet-backdrop" onclick="App.closeRoutineTextImporter()"></div>
     <div class="sheet-panel routine-import-panel">
       <div class="handle"></div>

@@ -1,0 +1,327 @@
+{
+  "build": "Phoenix 11 Alpha Build 016",
+  "release": "FORGED Apex 1.0 Beta Freeze",
+  "pedb": {
+    "version": "3.4.0",
+    "exercises": 1200,
+    "relations": 21522
+  },
+  "material": {
+    "id": "apex",
+    "version": "1.0.0-beta",
+    "status": "beta",
+    "cssBytes": 90244,
+    "budgetKb": 96
+  },
+  "checks": {
+    "javascriptSyntax": true,
+    "jsonSyntax": true,
+    "duplicateHtmlIds": true,
+    "missingStaticReferences": true,
+    "missingInlineAppMethods": true,
+    "foundryRemoved": true,
+    "singleApexCss": true,
+    "apexBetaManifest": true,
+    "apexUnderBudget": true,
+    "pedbJson1200": true,
+    "pedbBundle1200": true,
+    "relationsJson21522": true,
+    "relationsBundle21522": true,
+    "browserHarnessPassed": true,
+    "pwaUpdateHandshake": true
+  },
+  "htmlAudit": {
+    "duplicateIds": [],
+    "missingReferences": [],
+    "missingAppMethods": []
+  },
+  "browserValidation": {
+    "environment": "Chromium inline harness; localStorage and IndexedDB simulated because navigation is blocked by administrative policy",
+    "viewports": [
+      {
+        "viewport": [
+          360,
+          780
+        ],
+        "screens": [
+          {
+            "screen": "home",
+            "overflow": false,
+            "scrollWidth": 360,
+            "width": 360
+          },
+          {
+            "screen": "data",
+            "overflow": false,
+            "scrollWidth": 360,
+            "width": 360
+          },
+          {
+            "screen": "settings",
+            "overflow": false,
+            "scrollWidth": 360,
+            "width": 360
+          },
+          {
+            "screen": "library",
+            "overflow": false,
+            "scrollWidth": 360,
+            "width": 360
+          },
+          {
+            "screen": "rest",
+            "overflow": false,
+            "scrollWidth": 360,
+            "width": 360
+          }
+        ],
+        "errors": []
+      },
+      {
+        "viewport": [
+          390,
+          844
+        ],
+        "screens": [
+          {
+            "screen": "home",
+            "overflow": false,
+            "scrollWidth": 390,
+            "width": 390
+          },
+          {
+            "screen": "data",
+            "overflow": false,
+            "scrollWidth": 390,
+            "width": 390
+          },
+          {
+            "screen": "settings",
+            "overflow": false,
+            "scrollWidth": 390,
+            "width": 390
+          },
+          {
+            "screen": "library",
+            "overflow": false,
+            "scrollWidth": 390,
+            "width": 390
+          },
+          {
+            "screen": "rest",
+            "overflow": false,
+            "scrollWidth": 390,
+            "width": 390
+          }
+        ],
+        "errors": []
+      },
+      {
+        "viewport": [
+          430,
+          900
+        ],
+        "screens": [
+          {
+            "screen": "home",
+            "overflow": false,
+            "scrollWidth": 430,
+            "width": 430
+          },
+          {
+            "screen": "data",
+            "overflow": false,
+            "scrollWidth": 430,
+            "width": 430
+          },
+          {
+            "screen": "settings",
+            "overflow": false,
+            "scrollWidth": 430,
+            "width": 430
+          },
+          {
+            "screen": "library",
+            "overflow": false,
+            "scrollWidth": 430,
+            "width": 430
+          },
+          {
+            "screen": "rest",
+            "overflow": false,
+            "scrollWidth": 430,
+            "width": 430
+          }
+        ],
+        "errors": []
+      },
+      {
+        "viewport": [
+          844,
+          390
+        ],
+        "screens": [
+          {
+            "screen": "home",
+            "overflow": false,
+            "scrollWidth": 844,
+            "width": 844
+          },
+          {
+            "screen": "data",
+            "overflow": false,
+            "scrollWidth": 844,
+            "width": 844
+          },
+          {
+            "screen": "settings",
+            "overflow": false,
+            "scrollWidth": 844,
+            "width": 844
+          },
+          {
+            "screen": "library",
+            "overflow": false,
+            "scrollWidth": 844,
+            "width": 844
+          },
+          {
+            "screen": "rest",
+            "overflow": false,
+            "scrollWidth": 844,
+            "width": 844
+          }
+        ],
+        "errors": []
+      }
+    ],
+    "flows": {
+      "boot": {
+        "title": "GymTracker Phoenix 11 Alpha · Build 016 · FORGED Apex Beta Freeze",
+        "screen": "home",
+        "material": "apex",
+        "materialReady": "true",
+        "apexVersion": "1.0.0-beta",
+        "apexStatus": "beta",
+        "pedbReady": true,
+        "pedbExercises": 1200,
+        "pedbRelations": 21522,
+        "profile": "alberto",
+        "activeScreens": [
+          "home"
+        ]
+      },
+      "materials": {
+        "precision": {
+          "active": "precision",
+          "stored": "precision"
+        },
+        "apex": {
+          "active": "apex",
+          "stored": "apex",
+          "css": 8
+        }
+      },
+      "dialog": {
+        "before": {
+          "visible": true,
+          "focusInside": true,
+          "role": "dialog",
+          "modal": "true"
+        },
+        "afterEscapeAriaHidden": "true"
+      },
+      "profiles": {
+        "gate": {
+          "hidden": "false",
+          "focusInside": true
+        },
+        "edy": {
+          "id": "edy",
+          "name": "Edy",
+          "material": "apex",
+          "sessions": 0
+        },
+        "alberto": {
+          "id": "alberto",
+          "name": "Alberto",
+          "material": "apex"
+        }
+      },
+      "library": {
+        "count": 1200,
+        "relations": 21522,
+        "cards": 12,
+        "results": "12 resultadosMostrando 12"
+      },
+      "timer": {
+        "rest": {
+          "screen": "rest",
+          "phase": "rest",
+          "left": 5,
+          "total": 5,
+          "role": "timer",
+          "arc": null
+        },
+        "afterSkip": {
+          "screen": "series",
+          "phase": "series",
+          "setIndex": 1
+        }
+      },
+      "workout": {
+        "screen": "workoutSummary",
+        "active": null,
+        "sessions": 1,
+        "totalSets": 2,
+        "volume": 1280
+      },
+      "systemFeedback": {
+        "range": "1y",
+        "toastRole": "status",
+        "toastLive": "polite",
+        "toastVisible": true,
+        "updateVisible": true
+      },
+      "a11yAudit": {
+        "unnamedVisibleButtons": 0,
+        "unlabelledVisibleInputs": 0
+      }
+    },
+    "errors": [],
+    "warnings": [],
+    "checks": {
+      "bootApex": true,
+      "pedb1200": true,
+      "singleActiveScreen": true,
+      "materialSwitch": true,
+      "dialogA11y": true,
+      "profiles": true,
+      "librarySearch": true,
+      "timer": true,
+      "workoutSaved": true,
+      "systemFeedback": true,
+      "accessibleNames": true,
+      "noOverflow": true,
+      "noRuntimeErrors": true
+    },
+    "passed": true
+  },
+  "validationLimits": [
+    "Chromium navigation to localhost and file:// is blocked by administrative policy. The runtime harness uses inline assets with simulated localStorage and IndexedDB.",
+    "Audio, vibration, installation and Service Worker update acceptance require validation on the published Android/PWA build."
+  ],
+  "files": {
+    "index.html": "f41e6f7c5fcd58844fd6e0d6f12b81a174936d3b487ea32869d20835788b550e",
+    "styles.css": "209f1500b351e68eb7f5d100b48f69e1734f610c9048eacfeb2be41ebfb818b4",
+    "app.js": "28ac852e0eca7cedd46654df65f03a9309d9815642979981b99febd1f3e752fa",
+    "manifest.webmanifest": "0d2663a2a7fc1e42bb6ab2ba68fd01e1b67b5c99664fa3a5334b6457ab491586",
+    "sw.js": "0d31ec39ff914612a8316d5e09e87868e5100fb9a867339b8b842a305edf0397",
+    "themes/material-engine.js": "065dea514a8eaf0569ac02cff4ae87486abad43124aa93e4a70b58402d5adca1",
+    "themes/apex/manifest.json": "09bc67b50df12435c7c9fd2907b80325f89ed35001e77d128359c2a8832b2c59",
+    "themes/apex/apex.css": "b33ed3d52d8eb68a9b3da51479481465b809e1c7294000d3262ccc76946fd220",
+    "data/exercises.json": "98314d9323e758eea1a8ce87dd992609fb0323f4e71927f18f9921a73decebfc",
+    "data/relations.json": "6da20a5dc9f0fd10453153dd14a5daa1c663880728fd496721cb68cc7ad8719f",
+    "js/pedb-bundle.js": "ddeb95dfe2eaf863ddab8278a3396db0f5237dffb435a6eea4d475c3f763b4d6"
+  }
+}

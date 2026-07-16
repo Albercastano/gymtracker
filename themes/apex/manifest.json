@@ -3,21 +3,14 @@
   "id": "apex",
   "name": "FORGED Apex",
   "author": "Phoenix Forge",
-  "version": "0.6.0-alpha",
+  "version": "1.0.0-beta",
   "engine": "0.3.x",
-  "status": "alpha",
+  "status": "beta",
   "fallback": false,
   "styles": [
-    "tokens.css",
-    "components.css",
-    "screens.css",
-    "extended.css",
-    "finish.css",
-    "catalog.css",
-    "timer.css",
-    "polish.css"
+    "apex.css"
   ],
-  "assetsBudgetKb": 100,
+  "assetsBudgetKb": 96,
   "capabilities": [
     "component-contract",
     "components",

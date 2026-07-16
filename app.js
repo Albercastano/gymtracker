@@ -38,6 +38,10 @@ const App={
   audioEl:null,
   audioUnlocking:false,
   lastTimerAnnouncement:null,
+  lastModalTrigger:null,
+  modalObserver:null,
+  swRegistration:null,
+  swReloading:false,
 
 
   async init(){
@@ -48,6 +52,8 @@ const App={
     this.updateProfileChrome();
     this.bindPhoenixEasterEgg();
     this.bindAudioUnlock();
+    this.enhanceAccessibility();
+    this.registerServiceWorker();
     history.replaceState({phoenix:true,screen:"home",destination:"Inicio"},"","#home");
     this.renderHome(false);
     setTimeout(()=>{
@@ -58,9 +64,7 @@ const App={
       const screen=(location.hash||"#home").slice(1);
       this.renderRoute(screen,false);
     });
-    document.addEventListener("keydown",event=>{
-      if(event.key==="Escape")this.closePhoenixOrigin();
-    });
+    document.addEventListener("keydown",event=>this.handleGlobalKeydown(event));
     this.installPEDB();
     document.addEventListener("visibilitychange",()=>{
       if(document.visibilityState==="hidden")this.persistNow();
@@ -133,6 +137,115 @@ const App={
     origin.setAttribute("aria-hidden","true");
     document.body.classList.remove("phoenix-origin-open");
     setTimeout(()=>{if(!origin.classList.contains("show"))origin.hidden=true},280);
+  },
+
+
+  focusableElements(container){
+    if(!container)return[];
+    return [...container.querySelectorAll('button:not([disabled]),a[href],input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')]
+      .filter(el=>!el.hidden&&el.getAttribute("aria-hidden")!=="true"&&el.offsetParent!==null)
+  },
+
+  visibleDialog(){
+    const candidates=[
+      document.querySelector('#phoenixOrigin.show .phoenix-origin__panel'),
+      document.querySelector('#profileGate.show .profile-gate__panel'),
+      ...document.querySelectorAll('.sheet.show .sheet-panel')
+    ].filter(Boolean);
+    return candidates.at(-1)||null
+  },
+
+  closeTopLayer(){
+    const origin=document.getElementById("phoenixOrigin");
+    if(origin?.classList.contains("show")){this.closePhoenixOrigin();return true}
+    const gate=document.getElementById("profileGate");
+    if(gate?.classList.contains("show")){this.closeProfileGate();return true}
+    const sheets=[...document.querySelectorAll('.sheet.show')];
+    const sheet=sheets.at(-1);
+    if(sheet){
+      const backdrop=sheet.querySelector('.sheet-backdrop');
+      if(backdrop){backdrop.click();return true}
+      sheet.classList.remove('show');sheet.setAttribute('aria-hidden','true');return true
+    }
+    return false
+  },
+
+  handleGlobalKeydown(event){
+    const dialog=this.visibleDialog();
+    if(event.key==="Escape"){
+      if(this.closeTopLayer())event.preventDefault();
+      return
+    }
+    if(event.key!=="Tab"||!dialog)return;
+    const focusable=this.focusableElements(dialog);
+    if(!focusable.length){event.preventDefault();dialog.focus();return}
+    const first=focusable[0],last=focusable.at(-1);
+    if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
+    else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
+  },
+
+  syncModalAccessibility(layer){
+    if(!layer)return;
+    const visible=layer.classList.contains("show")&&!layer.hidden;
+    const previous=layer.dataset.phxVisible==="true";
+    layer.dataset.phxVisible=String(visible);
+    layer.setAttribute("aria-hidden",String(!visible));
+    const panel=layer.querySelector('[role="dialog"],.sheet-panel,.profile-gate__panel,.phoenix-origin__panel');
+    if(panel){
+      panel.setAttribute("role","dialog");panel.setAttribute("aria-modal","true");panel.setAttribute("data-a11y-modal","true");
+      if(!panel.hasAttribute("tabindex"))panel.tabIndex=-1
+    }
+    if(visible&&!previous){
+      if(document.activeElement&&!layer.contains(document.activeElement))this.lastModalTrigger=document.activeElement;
+      setTimeout(()=>{const target=this.focusableElements(panel)[0]||panel;target?.focus?.()},80)
+    }else if(!visible&&previous&&!this.visibleDialog()){
+      const target=this.lastModalTrigger;this.lastModalTrigger=null;
+      setTimeout(()=>{if(target?.isConnected)target.focus?.()},40)
+    }
+  },
+
+  enhanceAccessibility(){
+    document.querySelectorAll('.screen').forEach(screen=>{
+      screen.setAttribute("role","region");
+      screen.setAttribute("aria-hidden",String(!screen.classList.contains("active")))
+    });
+    const layers=[document.getElementById("phoenixOrigin"),document.getElementById("profileGate"),...document.querySelectorAll('.sheet')].filter(Boolean);
+    layers.forEach(layer=>this.syncModalAccessibility(layer));
+    this.modalObserver?.disconnect?.();
+    this.modalObserver=new MutationObserver(entries=>{
+      const unique=new Set(entries.map(entry=>entry.target));
+      unique.forEach(layer=>this.syncModalAccessibility(layer))
+    });
+    layers.forEach(layer=>this.modalObserver.observe(layer,{attributes:true,attributeFilter:["class","hidden"]}));
+    document.querySelectorAll('button').forEach(button=>{
+      const accessible=(button.getAttribute('aria-label')||button.textContent||'').trim();
+      if(!accessible){const img=button.querySelector('img[alt]');if(img?.alt)button.setAttribute('aria-label',img.alt)}
+    })
+  },
+
+  registerServiceWorker(){
+    if(!("serviceWorker" in navigator)||!/^https?:$/.test(location.protocol))return;
+    navigator.serviceWorker.register("sw.js").then(registration=>{
+      this.swRegistration=registration;
+      if(registration.waiting&&navigator.serviceWorker.controller)this.showAppUpdate();
+      registration.addEventListener("updatefound",()=>{
+        const worker=registration.installing;if(!worker)return;
+        worker.addEventListener("statechange",()=>{
+          if(worker.state==="installed"&&navigator.serviceWorker.controller)this.showAppUpdate()
+        })
+      });
+      navigator.serviceWorker.addEventListener("controllerchange",()=>{
+        if(this.swReloading)return;this.swReloading=true;location.reload()
+      })
+    }).catch(error=>console.warn("Service Worker no disponible",error))
+  },
+
+  showAppUpdate(){const banner=document.getElementById("pwaUpdate");if(banner)banner.hidden=false},
+  dismissAppUpdate(){const banner=document.getElementById("pwaUpdate");if(banner)banner.hidden=true},
+  applyAppUpdate(){
+    const waiting=this.swRegistration?.waiting;
+    if(!waiting){this.dismissAppUpdate();return}
+    waiting.postMessage({type:"SKIP_WAITING"})
   },
 
   persistNow(){
@@ -319,7 +432,7 @@ const App={
 
   defaults(){
     return{
-      settings:{weightStep:.5,defaultRest:90,sound:true,vibration:true,planningMode:"fixed",fontScale:"normal",timerOrientation:"auto",uiMaterial:"precision"},
+      settings:{weightStep:.5,defaultRest:90,sound:true,vibration:true,planningMode:"fixed",fontScale:"normal",timerOrientation:"auto",uiMaterial:"apex"},
       profile:{bodyWeight:null},
       routines:[
         {id:"r1",name:"Torso A",day:1,items:[
@@ -370,7 +483,7 @@ const App={
   },
 
   normalize(){
-    this.data.settings=this.data.settings||{weightStep:.5,defaultRest:90,sound:true,vibration:true,planningMode:"fixed",fontScale:"normal",timerOrientation:"auto",uiMaterial:"precision"};
+    this.data.settings=this.data.settings||{weightStep:.5,defaultRest:90,sound:true,vibration:true,planningMode:"fixed",fontScale:"normal",timerOrientation:"auto",uiMaterial:"apex"};
     if(!["fixed","clear"].includes(this.data.settings.planningMode))this.data.settings.planningMode="fixed";
     if(!["normal","large","xl"].includes(this.data.settings.fontScale))this.data.settings.fontScale="normal";
     if(!["auto","portrait","landscape"].includes(this.data.settings.timerOrientation))this.data.settings.timerOrientation="auto";
@@ -548,8 +661,9 @@ const App={
     const el=document.getElementById(id);
     if(!el)return;
 
-    document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+    document.querySelectorAll(".screen").forEach(s=>{s.classList.remove("active");s.setAttribute("aria-hidden","true")});
     el.classList.add("active");
+    el.setAttribute("aria-hidden","false");
     this.currentScreen=id;
     this.destination=destination;
 
@@ -3117,11 +3231,11 @@ const App={
     if(!screen)return;
     screen.innerHTML=`<div class="forge-lab">
       <section class="forge-lab__hero phx-card phx-card--highlight">
-        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 013</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.4.3</span></div>
+        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 016</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.5.0</span></div>
         <p>Banco de pruebas visual. Los mismos componentes se comparan bajo cada material sin tocar datos ni lógica de entrenamiento.</p>
         <div class="forge-lab__material-bar" role="group" aria-label="Material del laboratorio">
           <button type="button" class="forge-lab__material ${material==='precision'?'active':''}" data-ui-material="precision" aria-pressed="${material==='precision'}" onclick="App.previewUiMaterial('precision')"><span>PRECISION</span><small>Vista previa segura</small></button>
-          <button type="button" class="forge-lab__material ${material==='apex'?'active':''}" data-ui-material="apex" aria-pressed="${material==='apex'}" onclick="App.previewUiMaterial('apex')"><span>APEX</span><small>ALPHA · COBERTURA AMPLIADA</small></button>
+          <button type="button" class="forge-lab__material ${material==='apex'?'active':''}" data-ui-material="apex" aria-pressed="${material==='apex'}" onclick="App.previewUiMaterial('apex')"><span>APEX</span><small>BETA · SISTEMA CONGELADO</small></button>
         </div>
         <div class="forge-lab__active"><span>MATERIAL GUARDADO</span><b data-material-current>${this.escape(materialName)}</b><small>Visual-only · Local-only · Fallback Precision</small></div>
         <div class="forge-lab__preview-console" id="forgePreviewConsole">
@@ -3173,7 +3287,7 @@ const App={
       </section>
 
       <section class="forge-lab__visual-core phx-card" aria-label="Apex Visual Core 0.2">
-        <div class="forge-lab__visual-core-head"><div><span>APEX VISUAL CORE 0.2</span><h2>Componentes ultratecnológicos de referencia</h2></div><b>BUILD 009</b></div>
+        <div class="forge-lab__visual-core-head"><div><span>APEX VISUAL CORE 1.0</span><h2>Componentes ultratecnológicos de referencia</h2></div><b>BUILD 016</b></div>
         <p class="muted">Negro absoluto, líneas finas, números limpios y color funcional. Sin imágenes pesadas ni cambios en la lógica.</p>
         <div class="apex-core__grid">
           <article class="apex-core__card apex-core__actions"><span>01 · ACCIONES</span><h3>Control limpio</h3><button class="phx-button phx-button--primary" onclick="App.toast('Acción primaria Apex')">COMENZAR ENTRENAMIENTO</button><button class="phx-button phx-button--secondary" onclick="App.toast('Acción secundaria Apex')">VER DETALLES</button></article>
@@ -3390,7 +3504,7 @@ const App={
     const timerOrientation=this.data.settings.timerOrientation||"auto";
     const uiMaterial=this.data.settings.uiMaterial||"precision";
     document.getElementById("settings").innerHTML=`<div class="card settings-definitive"><div class="eyebrow">AJUSTES</div>
-      <section id="materialSettingsSection" class="settings-section material-settings material-settings--alpha"><div class="engine-badge"><span>PHX SKIN ENGINE</span><b>0.4 ALPHA</b></div><h3>Apariencia y materiales</h3>
+      <section id="materialSettingsSection" class="settings-section material-settings material-settings--alpha"><div class="engine-badge"><span>PHX SKIN ENGINE</span><b>0.5 BETA</b></div><h3>Apariencia y materiales</h3>
         <p class="material-intro">Elige el material visual. No cambia datos, rutinas ni funcionamiento.</p>
         <div class="material-selector" role="group" aria-label="Material de la interfaz">
           <button type="button" class="material-option precision ${uiMaterial==='precision'?'active':''}" data-ui-material="precision" aria-pressed="${uiMaterial==='precision'}" onclick="App.setUiMaterial('precision')">
@@ -3399,7 +3513,7 @@ const App={
           </button>
           <button type="button" class="material-option apex ${uiMaterial==='apex'?'active':''}" data-ui-material="apex" aria-pressed="${uiMaterial==='apex'}" onclick="App.setUiMaterial('apex')">
             <span class="material-swatch" aria-hidden="true"><i></i><i></i><i></i></span>
-            <span class="material-copy"><b>FORGED Apex <mark>ALPHA</mark></b><small>Negro absoluto · líneas finas · cian, verde y rojo</small><em class="material-state">${uiMaterial==='apex'?'MATERIAL ACTIVO':'APLICAR MATERIAL'}</em></span>
+            <span class="material-copy"><b>FORGED Apex <mark>BETA</mark></b><small>Negro absoluto · líneas finas · cian, verde y rojo</small><em class="material-state">${uiMaterial==='apex'?'MATERIAL ACTIVO':'APLICAR MATERIAL'}</em></span>
           </button>
         </div>
         <div class="material-safety-actions"><button type="button" class="secondary" onclick="App.restorePrecisionMaterial()">RESTAURAR FORGED PRECISION</button><button type="button" class="secondary" onclick="App.renderForgeLab()">VISTA PREVIA EN FORGE LAB</button></div>
@@ -3524,7 +3638,7 @@ const App={
     const payload={
       format:"GymTracker Phoenix Backup",
       schema_version:1,
-      app_version:"11 Alpha Build 013",
+      app_version:"11 Alpha Build 016",
       profile:{id:this.activeProfileId,name:this.activeProfile()?.name||this.activeProfileId},
       exportedAt:new Date().toISOString(),
       counts:{
@@ -3626,15 +3740,17 @@ const App={
     if(!el){
       el=document.createElement("div");
       el.id="phoenixToast";
-      el.style.cssText="position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom));z-index:1000;transform:translateX(-50%);padding:12px 18px;border-radius:999px;background:#18191e;color:#fff0b8;border:1px solid rgba(255,240,184,.2);font-weight:900;box-shadow:0 14px 38px rgba(0,0,0,.5)";
+      el.className="phoenix-toast";
+      el.setAttribute("role","status");
+      el.setAttribute("aria-live","polite");
+      el.setAttribute("aria-atomic","true");
       document.body.appendChild(el)
     }
-    el.textContent=message;
-    el.style.display="block";
+    el.textContent=String(message||"");
+    el.classList.add("show");
     clearTimeout(this.toastTimer);
-    this.toastTimer=setTimeout(()=>el.style.display="none",1400)
+    this.toastTimer=setTimeout(()=>el.classList.remove("show"),1800)
   }
 };
 
 window.addEventListener("load",()=>App.init());
-if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});

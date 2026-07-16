@@ -1,3 +1,12 @@
+## Phoenix 11 Alpha · Build 016 · Apex Beta Freeze
+
+- FORGED Apex 1.0 Beta congelado y documentado.
+- CSS Apex consolidado en un único activo certificado.
+- Accesibilidad de pantallas, diálogos, foco, teclado y mensajes reforzada.
+- Aviso de actualización PWA antes de aplicar un nuevo Service Worker.
+- Apex pasa a ser el material inicial de perfiles nuevos; Precision sigue como fallback.
+- PEDB 3.4 conservada: 1.200 ejercicios y 21.522 relaciones.
+
 ## Phoenix 11 Alpha · Build 013 · Apex UI Completion
 
 - Homogeneización visual completa de Apex.
