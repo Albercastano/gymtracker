@@ -896,10 +896,10 @@ html[data-phx-material="apex"] .material-option{min-width:0;max-width:100%;overf
 html[data-phx-material="apex"] .material-copy{min-width:0;overflow-wrap:anywhere}
 
 
-/* BUILD 028 · APEX 1.0 FULL-APP COVERAGE CERTIFICATE */
+/* BUILD 029 · APEX 1.0 FULL-APP COVERAGE CERTIFICATE */
 html[data-phx-material="apex"]{
   --apex-version:"1.0";
-  --apex-build:"028";
+  --apex-build:"029";
 }
 html[data-phx-material="apex"] :where(
   .card,.panel,.metric-card,.stat-card,.summary-card,.exercise-card,.set-card,

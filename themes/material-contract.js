@@ -1,9 +1,9 @@
 "use strict";
 (function(){
-  const CONTRACT_VERSION="0.2.0";
+  const CONTRACT_VERSION="0.3.0";
   const SUPPORTED_SCHEMA=1;
   const ALLOWED_STATUS=new Set(["stable","beta","alpha","community"]);
-  const ALLOWED_CAPABILITIES=new Set(["visual-tokens","components","timer","icons","motion","sound-theme","component-contract"]);
+  const ALLOWED_CAPABILITIES=new Set(["visual-tokens","components","timer","icons","motion","sound-theme","component-contract","full-app-coverage","responsive","accessibility-states"]);
   const REQUIRED=["schemaVersion","id","name","author","version","engine","status","fallback","styles","assetsBudgetKb","capabilities","network","scripts","componentContract"];
   const SAFE_ID=/^[a-z][a-z0-9-]{1,39}$/;
   const SAFE_STYLE=/^[a-z0-9-]+\.css$/;
@@ -18,7 +18,7 @@
     if(typeof manifest.name!=="string"||manifest.name.trim().length<3||manifest.name.length>64)errors.push("name debe tener entre 3 y 64 caracteres");
     if(typeof manifest.author!=="string"||manifest.author.trim().length<2||manifest.author.length>64)errors.push("author no válido");
     if(typeof manifest.version!=="string"||!/^[0-9]+\.[0-9]+\.[0-9]+(?:-[a-z0-9.-]+)?$/i.test(manifest.version))errors.push("version debe usar SemVer");
-    if(manifest.engine!=="0.3.x")errors.push("engine debe usar el formato 0.3.x");
+    if(!new Set(["0.3.x","0.7.x"]).has(manifest.engine))errors.push("engine debe declarar una versión compatible: 0.3.x o 0.7.x");
     if(manifest.componentContract!=="0.1.x")errors.push("componentContract debe usar el formato 0.1.x");
     if(!ALLOWED_STATUS.has(manifest.status))errors.push("status no permitido");
     if(typeof manifest.fallback!=="boolean")errors.push("fallback debe ser booleano");

@@ -1,0 +1,74 @@
+{
+  "build": "029",
+  "name": "Apex Compatibility Repair 1.0",
+  "passed": 13,
+  "total": 13,
+  "checks": [
+    {
+      "name": "Contrato actualizado a 0.3.0",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Contrato admite Skin Engine 0.7.x",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Capacidad Apex permitida: full-app-coverage",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Capacidad Apex permitida: responsive",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Capacidad Apex permitida: accessibility-states",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Apex declarado estable",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Apex usa engine 0.7.x",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Build visible 029",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Recursos versionados 029",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Service worker 029",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "JSON válidos",
+      "ok": true,
+      "detail": "56 archivos"
+    },
+    {
+      "name": "PEDB 1200 ejercicios",
+      "ok": true,
+      "detail": "1200"
+    },
+    {
+      "name": "PEDB 21522 relaciones",
+      "ok": true,
+      "detail": "21522"
+    }
+  ],
+  "jsonErrors": []
+}
