@@ -235,7 +235,7 @@ const App={
 
   registerServiceWorker(){
     if(!("serviceWorker" in navigator)||!/^https?:$/.test(location.protocol))return;
-    navigator.serviceWorker.register("sw.js?v=018",{updateViaCache:"none"}).then(registration=>{
+    navigator.serviceWorker.register("sw.js?v=021",{updateViaCache:"none"}).then(registration=>{
       this.swRegistration=registration;
       registration.update().catch(()=>{});
       if(registration.waiting&&navigator.serviceWorker.controller)this.showAppUpdate();
@@ -266,7 +266,7 @@ const App={
       const keys=await window.caches?.keys?.()||[];
       await Promise.all(keys.filter(key=>key.startsWith("gymtracker-phoenix")).map(key=>window.caches.delete(key)));
       this.data.settings.uiMaterial="apex";this.save();
-      location.replace(`index.html?v=018&apexrepair=${Date.now()}#settings`);
+      location.replace(`index.html?v=021&apexrepair=${Date.now()}#settings`);
     }catch(error){this.reportError(error)}
   },
 
@@ -779,6 +779,13 @@ const App={
   },
 
   renderHome(withHistory=true){
+    const target=document.getElementById("home");
+    const rendered=target&&window.PhoenixShapeEngine?.render?.("home",target,this,{source:"app"});
+    if(!rendered)return this.renderHomeLegacy(withHistory);
+    this.show("home","Inicio",{history:withHistory})
+  },
+
+  renderHomeLegacy(withHistory=true){
     const r=this.todayRoutine();
     const active=this.active;
     const totalExercises=r?.items?.length||0;
@@ -912,6 +919,14 @@ const App={
 
   renderGym(withHistory=true){
     if(!this.active){this.renderHome();return}
+    const target=document.getElementById("gym");
+    const rendered=target&&window.PhoenixShapeEngine?.render?.("gym",target,this,{source:"app"});
+    if(!rendered)return this.renderGymLegacy(withHistory);
+    this.show("gym","Inicio",{history:withHistory})
+  },
+
+  renderGymLegacy(withHistory=true){
+    if(!this.active){this.renderHome();return}
     this.normalizeActive();
     const r=this.currentRoutine(),e=this.currentExercise(),override=this.currentOverride();
     const completed=this.completedSeriesForCurrent();
@@ -1044,6 +1059,19 @@ const App={
   },
 
   beginSet(){
+    this.releaseTimerOrientation();
+    this.normalizeActive();
+    const exercise=this.currentExercise();
+    if(!exercise||!this.active)return this.renderHome();
+    if(this.active.setIndex>=exercise.sets){this.renderExerciseSummary();return}
+    this.active.phase="series";this.active.restEndsAt=null;this.active.restLeft=0;this.saveActive();
+    const target=document.getElementById("series");
+    const rendered=window.PhoenixShapeEngine?.render?.("series",target,this,{source:"beginSet"})===true;
+    if(rendered){this.show("series","Ejercicio");return}
+    this.beginSetLegacy();
+  },
+
+  beginSetLegacy(){
     this.releaseTimerOrientation();
     this.normalizeActive();
     const e=this.currentExercise(),r=this.currentRoutine(),override=this.currentOverride();
@@ -1189,6 +1217,15 @@ const App={
   },
 
   renderRest(){
+    this.requestTimerLandscape();
+    const target=document.getElementById("rest");
+    const rendered=window.PhoenixShapeEngine?.render?.("rest",target,this,{source:"app.renderRest"});
+    if(!rendered)return this.renderRestLegacy();
+    this.updateRestDisplay();
+    this.show("rest","Ejercicio")
+  },
+
+  renderRestLegacy(){
     this.requestTimerLandscape();
     const e=this.currentExercise();
     const currentSeries=Math.max(1,Number(this.active.setIndex)||1);
@@ -1583,7 +1620,7 @@ const App={
     if(score)score.textContent=`${passed}/${checks.length}`;
     if(state){state.textContent=passed===checks.length?'APROBADO':passed>=checks.length-1?'REVISAR':'BLOQUEADO';state.className=passed===checks.length?'valid':passed>=checks.length-1?'warning':'invalid'}
     if(list)list.innerHTML=checks.map(item=>`<div class="forge-quality-check ${item.ok?'ok':'fail'}"><i>${item.ok?'✓':'!'}</i><div><b>${this.escape(item.name)}</b><span>${this.escape(item.detail)}</span></div></div>`).join('');
-    this.lastForgeQualityReport={build:'018',material:active,viewport:`${innerWidth}x${innerHeight}`,passed,total:checks.length,checks:checks.map(x=>({name:x.name,ok:x.ok,detail:x.detail})),at:new Date().toISOString()};
+    this.lastForgeQualityReport={build:'021',material:active,viewport:`${innerWidth}x${innerHeight}`,passed,total:checks.length,checks:checks.map(x=>({name:x.name,ok:x.ok,detail:x.detail})),at:new Date().toISOString()};
     this.toast(passed===checks.length?'Quality Gate superado':'Quality Gate: hay puntos por revisar');
   },
 
@@ -3278,7 +3315,7 @@ const App={
     if(!screen)return;
     screen.innerHTML=`<div class="forge-lab">
       <section class="forge-lab__hero phx-card phx-card--highlight">
-        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 018</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.5.1</span></div>
+        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 021</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.5.1</span></div>
         <p>Banco de pruebas visual. Los mismos componentes se comparan bajo cada material sin tocar datos ni lógica de entrenamiento.</p>
         <div class="forge-lab__material-bar" role="group" aria-label="Material del laboratorio">
           <button type="button" class="forge-lab__material ${material==='precision'?'active':''}" data-ui-material="precision" aria-pressed="${material==='precision'}" onclick="App.previewUiMaterial('precision')"><span>PRECISION</span><small>Vista previa segura</small></button>
@@ -3334,7 +3371,7 @@ const App={
       </section>
 
       <section class="forge-lab__visual-core phx-card" aria-label="Apex Visual Core 0.2">
-        <div class="forge-lab__visual-core-head"><div><span>APEX VISUAL CORE 1.0</span><h2>Componentes ultratecnológicos de referencia</h2></div><b>BUILD 018</b></div>
+        <div class="forge-lab__visual-core-head"><div><span>APEX VISUAL CORE 1.0</span><h2>Componentes ultratecnológicos de referencia</h2></div><b>BUILD 021</b></div>
         <p class="muted">Negro absoluto, líneas finas, números limpios y color funcional. Sin imágenes pesadas ni cambios en la lógica.</p>
         <div class="apex-core__grid">
           <article class="apex-core__card apex-core__actions"><span>01 · ACCIONES</span><h3>Control limpio</h3><button class="phx-button phx-button--primary" onclick="App.toast('Acción primaria Apex')">COMENZAR ENTRENAMIENTO</button><button class="phx-button phx-button--secondary" onclick="App.toast('Acción secundaria Apex')">VER DETALLES</button></article>
@@ -3438,7 +3475,7 @@ const App={
       </section>
 
       <section class="forge-lab__contract phx-card" aria-label="Forge Shape Engine">
-        <div class="eyebrow">FORGE SHAPE ENGINE · FOUNDATION 0.1</div><h2>La forma ya tiene un contrato propio.</h2>
+        <div class="eyebrow">FORGE SHAPE ENGINE · HOME RENDERER 0.2</div><h2>Precision ya se renderiza desde su contrato de forma.</h2>
         <ul><li>Forma y material se guardan por separado.</li><li>Los componentes reciben datos filtrados.</li><li>Las acciones pasan por un bus autorizado.</li><li>Precision permanece como fallback obligatorio.</li></ul>
         <div class="forge-lab__certificate-grid">
           <div><span>FORMA ACTIVA</span><b id="forgeShapeActive">PRECISION</b></div>
@@ -3446,8 +3483,8 @@ const App={
           <div><span>ACTION BUS</span><b id="forgeActionBusState">REVISAR</b></div>
           <div><span>VIEW MODEL</span><b id="forgeViewModelState">REVISAR</b></div>
         </div>
-        <p id="forgeShapeMessage" class="muted">La Build 018 observa la interfaz actual sin alterar su composición.</p>
-        <button type="button" class="secondary" onclick="App.runForgeShapeDiagnostics()">VERIFICAR FORGE FOUNDATION</button>
+        <p id="forgeShapeMessage" class="muted">La Build 022 genera Home, Entrenamiento y Consola de Serie desde shape.json, ViewModels e instrumentos autorizados.</p>
+        <button type="button" class="secondary" onclick="App.runForgeShapeDiagnostics()">VERIFICAR HOME RENDERER</button>
       </section>
 
       <section class="forge-lab__contract phx-card">
@@ -3491,9 +3528,10 @@ const App={
     const message=document.getElementById("forgeShapeMessage");
     if(message){
       const ready=document.documentElement.dataset.phxShapeReady==="true";
+      const renderReady=document.documentElement.dataset.phxShapeRenderReady==="true";
       const valid=certificate?.valid!==false;
-      message.textContent=ready&&valid
-        ?`Forma ${active} preparada · Modo Foundation · ${Object.keys(snapshot?.components||{}).length} componentes Home disponibles.`
+      message.textContent=ready&&valid&&renderReady
+        ?`Forma ${active} renderizada · ${Object.keys(snapshot?.components||{}).length} componentes Home · Renderer ${window.PhoenixForgeHomeRenderer?.version||"—"}.`
         :"El motor de forma usará Precision como reserva hasta completar la validación.";
     }
     return report||null
@@ -3502,7 +3540,7 @@ const App={
   runForgeShapeDiagnostics(){
     const report=window.PhoenixForgeDiagnostics?.run?.(this)||null;
     this.updateForgeShapeDiagnostics(report);
-    this.toast(report?.shapeReady&&report?.coreBound?"Forge Foundation verificada":"Forge Foundation requiere revisión");
+    this.toast(report?.shapeReady&&report?.coreBound&&report?.homeRendered?"Home Renderer verificado":"Home Renderer requiere revisión");
     return report
   },
 
@@ -3728,7 +3766,7 @@ const App={
     const payload={
       format:"GymTracker Phoenix Backup",
       schema_version:1,
-      app_version:"11 Alpha Build 018",
+      app_version:"11 Alpha Build 022",
       profile:{id:this.activeProfileId,name:this.activeProfile()?.name||this.activeProfileId},
       exportedAt:new Date().toISOString(),
       counts:{

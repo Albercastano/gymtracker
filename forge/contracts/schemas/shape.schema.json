@@ -3,42 +3,161 @@
   "$id": "https://phoenix.local/forge/shape.schema.json",
   "title": "Phoenix Forge Shape",
   "type": "object",
-  "required": ["schemaVersion", "id", "screens"],
+  "required": [
+    "schemaVersion",
+    "id",
+    "screens"
+  ],
   "additionalProperties": false,
   "properties": {
-    "schemaVersion": {"const": 1},
-    "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]{1,63}$"},
-    "name": {"type": "string", "maxLength": 80},
-    "engine": {"type": "string", "maxLength": 20},
+    "schemaVersion": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{1,63}$"
+    },
+    "name": {
+      "type": "string",
+      "maxLength": 80
+    },
+    "engine": {
+      "type": "string",
+      "maxLength": 20
+    },
     "screens": {
       "type": "object",
       "minProperties": 1,
       "additionalProperties": {
         "type": "object",
-        "required": ["layout", "slots"],
+        "required": [
+          "layout",
+          "slots"
+        ],
         "additionalProperties": false,
         "properties": {
-          "layout": {"enum": ["stack", "grid", "instrument", "split", "list"]},
+          "layout": {
+            "enum": [
+              "stack",
+              "grid",
+              "instrument",
+              "split",
+              "list"
+            ]
+          },
           "slots": {
             "type": "array",
             "items": {
               "type": "object",
-              "required": ["id", "component", "order", "span"],
+              "required": [
+                "id",
+                "component",
+                "order",
+                "span"
+              ],
               "additionalProperties": false,
               "properties": {
-                "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]{1,63}$"},
-                "component": {"type": "string", "pattern": "^[a-z][a-z0-9-]{1,63}$"},
-                "variant": {"type": "string", "pattern": "^[a-z0-9-]{1,64}$"},
-                "order": {"type": "integer", "minimum": 0, "maximum": 9999},
-                "span": {"type": "integer", "minimum": 1, "maximum": 12},
-                "required": {"type": "boolean"},
-                "minTouch": {"type": "number", "minimum": 44, "maximum": 120}
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9-]{1,63}$"
+                },
+                "component": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9-]{1,63}$"
+                },
+                "variant": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9-]{1,64}$"
+                },
+                "order": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9999
+                },
+                "span": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 12
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "minTouch": {
+                  "type": "number",
+                  "minimum": 44
+                },
+                "instrument": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9-]{1,64}$"
+                }
+              }
+            }
+          },
+          "regions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "variant",
+                "order",
+                "slots"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9-]{1,63}$"
+                },
+                "variant": {
+                  "enum": [
+                    "precision-flow",
+                    "precision-actions",
+                    "precision-metrics"
+                  ]
+                },
+                "order": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9999
+                },
+                "slots": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9-]{1,63}$"
+                  }
+                }
               }
             }
           }
         }
       }
     },
-    "responsive": {"type": "object"}
+    "responsive": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "columns",
+          "gap"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "columns": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 12
+          },
+          "gap": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 64
+          }
+        }
+      }
+    }
   }
 }

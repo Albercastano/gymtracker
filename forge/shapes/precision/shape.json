@@ -2,24 +2,319 @@
   "schemaVersion": 1,
   "id": "precision",
   "name": "Precision",
-  "engine": "0.1.x",
+  "engine": "0.5.x",
   "screens": {
     "home": {
       "layout": "stack",
       "slots": [
-        {"id":"brand","component":"app-brand","variant":"precision-brand","order":10,"span":12},
-        {"id":"storage","component":"storage-status","variant":"precision-alert","order":15,"span":12},
-        {"id":"today","component":"workout-today","variant":"precision-hero","order":20,"span":12,"required":true},
-        {"id":"gym","component":"start-workout-action","variant":"precision-king","order":30,"span":6,"required":true,"minTouch":56},
-        {"id":"data","component":"open-data-action","variant":"precision-secondary","order":40,"span":6,"required":true,"minTouch":56},
-        {"id":"weekly","component":"weekly-progress","variant":"precision-cards","order":50,"span":12},
-        {"id":"last","component":"last-workout","variant":"precision-card","order":60,"span":12}
+        {
+          "id": "brand",
+          "component": "app-brand",
+          "variant": "precision-brand",
+          "order": 10,
+          "span": 12
+        },
+        {
+          "id": "storage",
+          "component": "storage-status",
+          "variant": "precision-alert",
+          "order": 15,
+          "span": 12
+        },
+        {
+          "id": "today",
+          "component": "workout-today",
+          "variant": "precision-hero",
+          "order": 20,
+          "span": 12,
+          "required": true
+        },
+        {
+          "id": "gym",
+          "component": "start-workout-action",
+          "variant": "precision-king",
+          "order": 30,
+          "span": 6,
+          "required": true,
+          "minTouch": 56
+        },
+        {
+          "id": "data",
+          "component": "open-data-action",
+          "variant": "precision-secondary",
+          "order": 40,
+          "span": 6,
+          "required": true,
+          "minTouch": 56
+        },
+        {
+          "id": "weekly",
+          "component": "weekly-progress",
+          "variant": "precision-cards",
+          "order": 50,
+          "span": 12
+        },
+        {
+          "id": "last",
+          "component": "last-workout",
+          "variant": "precision-card",
+          "order": 60,
+          "span": 12
+        }
+      ],
+      "regions": [
+        {
+          "id": "brand-region",
+          "variant": "precision-flow",
+          "order": 10,
+          "slots": [
+            "brand"
+          ]
+        },
+        {
+          "id": "alert-region",
+          "variant": "precision-flow",
+          "order": 15,
+          "slots": [
+            "storage"
+          ]
+        },
+        {
+          "id": "hero-region",
+          "variant": "precision-flow",
+          "order": 20,
+          "slots": [
+            "today"
+          ]
+        },
+        {
+          "id": "action-region",
+          "variant": "precision-actions",
+          "order": 30,
+          "slots": [
+            "gym",
+            "data"
+          ]
+        },
+        {
+          "id": "metric-region",
+          "variant": "precision-metrics",
+          "order": 50,
+          "slots": [
+            "weekly"
+          ]
+        },
+        {
+          "id": "history-region",
+          "variant": "precision-flow",
+          "order": 60,
+          "slots": [
+            "last"
+          ]
+        }
+      ]
+    },
+    "gym": {
+      "layout": "stack",
+      "slots": [
+        {
+          "id": "session",
+          "component": "session-progress",
+          "instrument": "precision-session-strip",
+          "order": 10,
+          "span": 12,
+          "required": true
+        },
+        {
+          "id": "exercise",
+          "component": "exercise-stage",
+          "instrument": "precision-exercise-stage",
+          "order": 20,
+          "span": 12,
+          "required": true
+        },
+        {
+          "id": "target",
+          "component": "target-instrument",
+          "instrument": "precision-target-grid",
+          "order": 30,
+          "span": 12,
+          "required": true
+        },
+        {
+          "id": "context",
+          "component": "workout-context",
+          "instrument": "precision-context-pair",
+          "order": 40,
+          "span": 12
+        },
+        {
+          "id": "begin",
+          "component": "begin-set-action",
+          "instrument": "precision-king-action",
+          "order": 50,
+          "span": 12,
+          "required": true,
+          "minTouch": 56
+        },
+        {
+          "id": "pause",
+          "component": "pause-workout-action",
+          "instrument": "precision-quiet-action",
+          "order": 60,
+          "span": 12,
+          "minTouch": 44
+        }
+      ],
+      "regions": [
+        {
+          "id": "session-region",
+          "variant": "precision-flow",
+          "order": 10,
+          "slots": [
+            "session"
+          ]
+        },
+        {
+          "id": "exercise-region",
+          "variant": "precision-flow",
+          "order": 20,
+          "slots": [
+            "exercise"
+          ]
+        },
+        {
+          "id": "instrument-region",
+          "variant": "precision-flow",
+          "order": 30,
+          "slots": [
+            "target"
+          ]
+        },
+        {
+          "id": "context-region",
+          "variant": "precision-flow",
+          "order": 40,
+          "slots": [
+            "context"
+          ]
+        },
+        {
+          "id": "action-region",
+          "variant": "precision-flow",
+          "order": 50,
+          "slots": [
+            "begin",
+            "pause"
+          ]
+        }
+      ]
+    },
+    "series": {
+      "layout": "instrument",
+      "slots": [
+        {
+          "id": "set-head",
+          "component": "set-header",
+          "instrument": "precision-set-header",
+          "order": 10,
+          "span": 12,
+          "required": true
+        },
+        {
+          "id": "set-console",
+          "component": "set-console",
+          "instrument": "precision-set-console",
+          "order": 20,
+          "span": 12,
+          "required": true
+        },
+        {
+          "id": "set-save",
+          "component": "save-set-action",
+          "instrument": "precision-set-finish",
+          "order": 30,
+          "span": 12,
+          "required": true,
+          "minTouch": 56
+        },
+        {
+          "id": "set-change",
+          "component": "change-exercise-action",
+          "instrument": "precision-set-alternative",
+          "order": 40,
+          "span": 12,
+          "minTouch": 44
+        },
+        {
+          "id": "set-back",
+          "component": "return-workout-action",
+          "instrument": "precision-set-back",
+          "order": 50,
+          "span": 12,
+          "minTouch": 44
+        }
+      ]
+    },
+    "rest": {
+      "layout": "instrument",
+      "slots": [
+        {
+          "id": "timer-head",
+          "component": "timer-header",
+          "instrument": "precision-timer-header",
+          "order": 10,
+          "span": 12,
+          "required": true
+        },
+        {
+          "id": "timer-core",
+          "component": "timer-core",
+          "instrument": "precision-timer-core",
+          "order": 20,
+          "span": 12,
+          "required": true
+        },
+        {
+          "id": "timer-controls",
+          "component": "timer-controls",
+          "instrument": "precision-timer-controls",
+          "order": 30,
+          "span": 12,
+          "required": true,
+          "minTouch": 54
+        },
+        {
+          "id": "timer-skip",
+          "component": "timer-skip",
+          "instrument": "precision-timer-skip",
+          "order": 40,
+          "span": 12,
+          "minTouch": 44
+        },
+        {
+          "id": "timer-settings",
+          "component": "timer-settings",
+          "instrument": "precision-timer-settings",
+          "order": 50,
+          "span": 12,
+          "minTouch": 44
+        }
       ]
     }
   },
   "responsive": {
-    "360": {"columns":4,"gap":12},
-    "390": {"columns":4,"gap":14},
-    "430": {"columns":4,"gap":16}
+    "360": {
+      "columns": 4,
+      "gap": 12
+    },
+    "390": {
+      "columns": 4,
+      "gap": 14
+    },
+    "430": {
+      "columns": 4,
+      "gap": 16
+    }
   }
 }

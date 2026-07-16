@@ -1,8 +1,8 @@
 "use strict";
 (function(){
-  const VERSION="0.1.0";
+  const VERSION="0.4.0";
   const allowed=new Set([
-    "start-workout","resume-workout","discard-workout","open-home","open-data","open-history","open-weight","open-material-settings","open-library","open-routines","open-blocks","save-set","change-weight","change-reps","pause-timer","resume-timer","skip-rest","change-exercise","finish-workout"
+    "start-workout","resume-workout","discard-workout","open-home","open-data","open-history","open-weight","open-material-settings","open-library","open-routines","open-blocks","save-set","change-weight","change-reps","pause-timer","resume-timer","skip-rest","change-exercise","finish-workout","begin-set","pause-workout","return-workout","adjust-rest","toggle-timer-sound","toggle-timer-vibration"
   ]);
   const handlers=new Map();
   const audit=[];
@@ -45,13 +45,19 @@
     bind("open-routines",()=>app.renderRoutines());
     bind("open-blocks",()=>app.renderBlocks());
     bind("save-set",()=>app.finishSet?.());
-    bind("change-weight",({delta})=>app.changeWeight?.(Number(delta)||0));
-    bind("change-reps",({delta})=>app.adjustExercise?.("reps",Number(delta)||0));
+    bind("begin-set",()=>app.beginSet?.());
+    bind("pause-workout",()=>app.pauseWorkout?.());
+    bind("change-weight",({delta,screen})=>{app.changeWeight?.(Number(delta)||0);if(screen==="series")app.beginSet?.()});
+    bind("change-reps",({delta,screen})=>{app.adjustExercise?.("reps",Number(delta)||0);if(screen==="series")app.beginSet?.()});
     bind("pause-timer",()=>app.toggleRestPause?.());
     bind("resume-timer",()=>app.toggleRestPause?.());
     bind("skip-rest",()=>app.skipRest?.());
+    bind("adjust-rest",({delta})=>app.adjustRest?.(Number(delta)||0));
+    bind("toggle-timer-sound",()=>app.toggleTimerSound?.());
+    bind("toggle-timer-vibration",()=>app.toggleTimerVibration?.());
     bind("change-exercise",()=>app.openAlternatives?.("Máquina ocupada"));
     bind("finish-workout",()=>app.finishWorkout?.());
+    bind("return-workout",()=>app.renderGym?.());
     coreBound=true;
     window.dispatchEvent(new CustomEvent("phxforgecorebound",{detail:{version:VERSION,actions:handlers.size}}));
     return true;

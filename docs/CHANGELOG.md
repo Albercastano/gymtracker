@@ -113,3 +113,14 @@
 - PHX-TIMER-2.0 implementado.
 - Sonido final reforzado mediante AudioContext persistente.
 - Guía FORGED v1 incorporada a la fuente.
+
+## Phoenix 11 Alpha · Build 019
+
+### Phoenix Forge · Precision Home Renderer 0.2
+
+- Home migrada al renderer declarativo de La Forja.
+- Shape Contract y Shape Engine actualizados a 0.2.
+- Regiones declarativas añadidas a `shape.json`.
+- Acciones de Home trasladadas al Forge Action Bus.
+- Fallback automático al renderer heredado.
+- Apariencia y datos existentes conservados.

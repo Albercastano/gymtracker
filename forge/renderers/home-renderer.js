@@ -1,0 +1,137 @@
+"use strict";
+(function(){
+  const VERSION="0.2.0";
+  const ACTION_ATTRIBUTE="data-forge-action";
+  const REGION_VARIANTS=new Set(["precision-flow","precision-actions","precision-metrics"]);
+
+  function escapeHtml(value){
+    return String(value??"").replace(/[&<>"]/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[char]));
+  }
+  function number(value){return Number.isFinite(Number(value))?Number(value):0}
+  function localeNumber(value){return Math.round(number(value)).toLocaleString("es-ES")}
+  function action(name,label,extra=""){
+    return `${ACTION_ATTRIBUTE}="${escapeHtml(name)}" ${extra} aria-label="${escapeHtml(label)}"`;
+  }
+  function materialContext(context={}){
+    const id=String(context.materialId||"precision");
+    return {
+      id,
+      short:id==="apex"?"APEX":"PRECISION",
+      subtitle:id==="apex"?"PHOENIX · APEX":"PHOENIX · FORGED"
+    };
+  }
+
+  const components=Object.freeze({
+    "app-brand":({data,context})=>{
+      const material=materialContext(context);
+      return `<section class="home-brand home-brand--forged" aria-label="GymTracker Phoenix" data-forge-component="app-brand">
+        <div class="home-brand__plate"><img src="icon-512.png" alt="" aria-hidden="true"></div>
+        <div class="home-brand__copy"><div class="home-brand__name">${escapeHtml(data?.name||"GYMTRACKER")}</div><div class="home-brand__sub">${escapeHtml(material.subtitle)}</div></div>
+        <button type="button" class="home-material-access" ${action("open-material-settings","Cambiar material visual")}>
+          <span>MATERIAL</span><b data-material-short>${escapeHtml(material.short)}</b><em aria-hidden="true">›</em>
+        </button>
+      </section>`;
+    },
+    "storage-status":({data})=>data?.healthy===false
+      ?`<section class="system-alert" role="alert" data-forge-component="storage-status"><strong>GUARDADO EN PAUSA</strong><span>El dispositivo no permite guardar ahora. Libera espacio antes de cerrar GymTracker.</span></section>`
+      :"",
+    "workout-today":({data})=>{
+      const active=data?.status==="active";
+      const ready=data?.status==="ready";
+      const eyebrow=active?"ENTRENAMIENTO EN CURSO":"HOY TOCA";
+      const title=escapeHtml(data?.title||(ready?"Rutina":"DESCANSO"));
+      const meta=active
+        ?`<span>${number(data?.currentExercise)}/${Math.max(1,number(data?.totalExercises))} ejercicios</span><span>${escapeHtml(data?.exerciseName||"Sesión activa")}</span><span class="estimated-time">Toca para continuar</span>`
+        :ready
+          ?`<span>${number(data?.totalExercises)} ejercicios</span><span>${number(data?.totalSets)} series</span><span class="estimated-time">~${number(data?.estimatedMinutes)} min</span>`
+          :`<span>Sin rutina asignada</span>`;
+      return `<section class="phx-card phx-card--highlight home-today-card home-today-card--definitive ${active?"is-active":""}" aria-labelledby="today-title" data-forge-component="workout-today">
+        <div class="phx-card__eyebrow">${eyebrow}</div>
+        <div id="today-title" class="phx-card__hero-title">${title}</div>
+        <div class="home-summary">${meta}</div>
+        ${active?`<div class="home-active-actions"><button class="home-continue" ${action("resume-workout","Continuar entrenamiento")}>CONTINUAR</button><button class="home-discard" ${action("discard-workout","Descartar entrenamiento")}>Descartar</button></div>`:""}
+      </section>`;
+    },
+    "start-workout-action":({data})=>{
+      const active=data?.mode==="resume";
+      const actionName=active?"resume-workout":"start-workout";
+      const routineId=escapeHtml(data?.routineId||"");
+      return `<button class="home-mode home-mode--gym ${active?"has-active":""}" ${action(actionName,active?"Continuar entrenamiento":"Comenzar entrenamiento",`data-routine-id="${routineId}"`)} data-forge-component="start-workout-action">
+        <span class="home-mode__kicker">${active?"SESIÓN ACTIVA":"ENTRENAR"}</span>
+        <strong>GYM</strong>
+        <small>${active?"Continuar ahora":data?.routineId?"Comenzar entrenamiento":"Seleccionar rutina"}</small>
+      </button>`;
+    },
+    "open-data-action":()=>`<button class="home-mode home-mode--data" ${action("open-data","Abrir datos e historial")} data-forge-component="open-data-action">
+      <span class="home-mode__kicker">PROGRESO</span><strong>DATOS</strong><small>Historial y métricas</small>
+    </button>`,
+    "weekly-progress":({data})=>{
+      const sessions=number(data?.sessions);
+      const bodyWeight=number(data?.bodyWeight);
+      return `<button class="phx-card phx-card--compact phx-card--interactive" ${action("open-history","Abrir historial de siete días")} data-forge-metric="sessions">
+          <span class="phx-card__eyebrow">7 DÍAS</span><strong class="phx-metric phx-metric--sessions">${sessions}</strong><span class="phx-metric-label">${sessions===1?"sesión":"sesiones"}</span>
+        </button>
+        <button class="phx-card phx-card--compact phx-card--interactive" ${action("open-history","Abrir volumen de siete días")} data-forge-metric="volume">
+          <span class="phx-card__eyebrow">VOLUMEN</span><strong class="phx-metric phx-metric--volume">${localeNumber(data?.volume)}</strong><span class="phx-metric-label">kg · 7 días</span>
+        </button>
+        <button class="phx-card phx-card--compact phx-card--interactive" ${action("open-weight","Registrar peso corporal")} data-forge-metric="body-weight">
+          <span class="phx-card__eyebrow">PESO</span><strong class="phx-metric phx-metric--weight">${bodyWeight?bodyWeight.toFixed(1):"—"}</strong><span class="phx-metric-label">${bodyWeight?"kg":"sin registrar"}</span>
+        </button>`;
+    },
+    "last-workout":({data})=>data?.exists
+      ?`<button class="phx-card phx-card--base phx-card--interactive home-last-card" ${action("open-history","Abrir historial del último entrenamiento")} data-forge-component="last-workout">
+        <div class="phx-card__header"><div><div class="phx-card__eyebrow">ÚLTIMO ENTRENAMIENTO</div><div class="phx-card__title">${escapeHtml(data?.routineName||"Rutina")}</div></div><span class="phx-card__chevron" aria-hidden="true">›</span></div>
+        <div class="phx-card__meta"><span>${new Date(data.date).toLocaleDateString("es-ES")}</span><span>${number(data?.totalSets)} series</span><span>${localeNumber(data?.volume)} kg</span></div>
+      </button>`
+      :`<div class="phx-card phx-card--base home-last-card" data-forge-component="last-workout"><div class="phx-card__eyebrow">ÚLTIMO ENTRENAMIENTO</div><div class="phx-card__title">Aún no hay sesiones</div><div class="phx-card__copy">Completa tu primer entrenamiento para ver aquí el resumen.</div></div>`
+  });
+
+  function renderSlot(slot,snapshot,context){
+    const renderer=components[slot.component];
+    if(typeof renderer!=="function")throw new Error(`Renderer Home: componente no implementado (${slot.component})`);
+    return renderer({slot,data:snapshot?.components?.[slot.component]||{},snapshot,context});
+  }
+  function renderRegion(region,slotMap,snapshot,context){
+    const variant=REGION_VARIANTS.has(region.variant)?region.variant:"precision-flow";
+    const html=(region.slots||[]).map(id=>slotMap.get(id)).filter(Boolean).map(slot=>renderSlot(slot,snapshot,context)).join("\n");
+    if(!html.trim())return "";
+    if(variant==="precision-actions")return `<section class="home-mode-switch" aria-label="Acciones principales" data-forge-region="${escapeHtml(region.id)}">${html}</section>`;
+    if(variant==="precision-metrics")return `<section class="home-metrics" aria-label="Resumen rápido" data-forge-region="${escapeHtml(region.id)}">${html}</section>`;
+    return html;
+  }
+  function fallbackRegions(slots){
+    return slots.map(slot=>({id:`region-${slot.id}`,variant:"precision-flow",order:slot.order||0,slots:[slot.id]}));
+  }
+  function bindActions(target){
+    if(target.dataset.forgeHomeActionsBound==="1")return;
+    target.dataset.forgeHomeActionsBound="1";
+    target.addEventListener("click",async event=>{
+      const trigger=event.target.closest?.(`[${ACTION_ATTRIBUTE}]`);
+      if(!trigger||!target.contains(trigger))return;
+      event.preventDefault();
+      const name=trigger.getAttribute(ACTION_ATTRIBUTE);
+      const payload={routineId:trigger.dataset.routineId||undefined};
+      trigger.setAttribute("aria-busy","true");
+      try{await window.PhoenixForgeActionBus?.dispatch?.(name,payload)}
+      catch(error){console.warn("Phoenix Forge Home action failed",name,error)}
+      finally{if(trigger.isConnected)trigger.removeAttribute("aria-busy")}
+    });
+  }
+  function render({target,shape,snapshot,context={}}={}){
+    if(!(target instanceof Element))throw new TypeError("Renderer Home: target no válido");
+    const definition=shape?.screens?.home;
+    if(!definition||!Array.isArray(definition.slots))throw new Error("Renderer Home: la forma no define Home");
+    const slots=[...definition.slots].sort((a,b)=>(a.order||0)-(b.order||0));
+    const slotMap=new Map(slots.map(slot=>[slot.id,slot]));
+    const regions=(Array.isArray(definition.regions)&&definition.regions.length?definition.regions:fallbackRegions(slots))
+      .slice().sort((a,b)=>(a.order||0)-(b.order||0));
+    const html=regions.map(region=>renderRegion(region,slotMap,snapshot,context)).join("\n");
+    target.innerHTML=`<div class="home-phoenix home-definitive" data-forge-renderer="home" data-forge-shape="${escapeHtml(shape.id||"precision")}">${html}</div>`;
+    bindActions(target);
+    target.dataset.forgeRendered="true";
+    target.dataset.forgeRendererVersion=VERSION;
+    return Object.freeze({ok:true,screen:"home",shape:shape.id||"precision",components:slots.length,regions:regions.length,version:VERSION});
+  }
+
+  window.PhoenixForgeHomeRenderer=Object.freeze({version:VERSION,render,components:Object.freeze(Object.keys(components)),regionVariants:Object.freeze([...REGION_VARIANTS])});
+})();

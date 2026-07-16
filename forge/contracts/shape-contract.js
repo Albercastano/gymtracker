@@ -1,11 +1,12 @@
 "use strict";
 (function(){
-  const VERSION="0.1.0";
+  const VERSION="0.2.0";
   const allowedScreens=new Set(["home","gym","series","rest","exerciseSummary","workoutSummary","data","routines","blocks","history","settings","backups","library","forgeLab"]);
   const allowedLayouts=new Set(["stack","grid","instrument","split","list"]);
   const allowedComponents=new Set([
     "app-brand","storage-status","workout-today","start-workout-action","resume-workout-action","discard-workout-action","open-data-action","weekly-progress","last-workout","current-exercise","current-set","weight-control","reps-control","save-set-action","rest-timer","workout-progress","exercise-summary","workout-summary","metric","chart","exercise-list","personal-record","body-weight","navigation-action"
   ]);
+  const allowedRegionVariants=new Set(["precision-flow","precision-actions","precision-metrics"]);
   const requiredByScreen=Object.freeze({
     home:Object.freeze(["workout-today","start-workout-action","open-data-action"]),
     gym:Object.freeze(["current-exercise","workout-progress"]),
@@ -25,6 +26,20 @@
     if(slot.order!=null&&(!Number.isInteger(slot.order)||slot.order<0||slot.order>9999))errors.push(`${screen}.${slot.id||index}: order fuera de rango`);
     if(slot.span!=null&&(!Number.isInteger(slot.span)||slot.span<1||slot.span>12))errors.push(`${screen}.${slot.id||index}: span debe estar entre 1 y 12`);
     if(slot.minTouch!=null&&Number(slot.minTouch)<44)errors.push(`${screen}.${slot.id||index}: área táctil inferior a 44 px`);
+    return errors;
+  }
+  function validateRegion(region,screen,index,slotIds,assigned){
+    const errors=[];
+    if(!region||typeof region!=="object")return [`${screen}.regions[${index}] no es un objeto`];
+    if(!safeId(region.id))errors.push(`${screen}.regions[${index}].id no es válido`);
+    if(!allowedRegionVariants.has(region.variant))errors.push(`${screen}.${region.id||index}: variante de región no autorizada (${region.variant||"vacía"})`);
+    if(region.order!=null&&(!Number.isInteger(region.order)||region.order<0||region.order>9999))errors.push(`${screen}.${region.id||index}: order fuera de rango`);
+    if(!Array.isArray(region.slots)||!region.slots.length)errors.push(`${screen}.${region.id||index}: slots de región debe ser una lista no vacía`);
+    else region.slots.forEach(slotId=>{
+      if(!slotIds.has(slotId))errors.push(`${screen}.${region.id||index}: referencia un slot inexistente (${slotId})`);
+      if(assigned.has(slotId))errors.push(`${screen}: el slot ${slotId} aparece en más de una región`);
+      assigned.add(slotId);
+    });
     return errors;
   }
   function validate(shape){
@@ -47,6 +62,15 @@
           if(slot?.id){if(ids.has(slot.id))errors.push(`${screen}: slot duplicado ${slot.id}`);ids.add(slot.id)}
           if(slot?.component)componentCoverage[screen].add(slot.component);
         });
+        if(Array.isArray(definition.regions)){
+          const regionIds=new Set(),assigned=new Set();
+          definition.regions.forEach((region,index)=>{
+            validateRegion(region,screen,index,ids,assigned).forEach(error=>errors.push(error));
+            if(region?.id){if(regionIds.has(region.id))errors.push(`${screen}: región duplicada ${region.id}`);regionIds.add(region.id)}
+          });
+          const unassigned=[...ids].filter(id=>!assigned.has(id));
+          if(unassigned.length)warnings.push(`${screen}: slots sin región (${unassigned.join(", ")})`);
+        }else warnings.push(`${screen}: no define regiones; se usará una región por slot`);
         (requiredByScreen[screen]||[]).forEach(component=>{
           if(!componentCoverage[screen].has(component))errors.push(`${screen}: falta el componente obligatorio ${component}`);
         });
@@ -68,6 +92,7 @@
     allowedScreens:Object.freeze([...allowedScreens]),
     allowedLayouts:Object.freeze([...allowedLayouts]),
     allowedComponents:Object.freeze([...allowedComponents]),
+    allowedRegionVariants:Object.freeze([...allowedRegionVariants]),
     requiredByScreen,
     validate
   });

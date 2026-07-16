@@ -1,0 +1,144 @@
+{
+  "build": "022",
+  "name": "REST_TIMER_RENDERER",
+  "passed": 27,
+  "total": 27,
+  "ok": true,
+  "checks": [
+    {
+      "name": "exists:forge/renderers/rest-renderer.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "exists:forge/core/forge-view-model.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "exists:forge/core/forge-action-bus.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "exists:forge/instruments/instrument-registry.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "exists:forge/engine/shape-engine.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "rest screen declared",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "five rest slots",
+      "ok": true,
+      "detail": "5"
+    },
+    {
+      "name": "rest instruments exact",
+      "ok": true,
+      "detail": "['precision-timer-header', 'precision-timer-core', 'precision-timer-controls', 'precision-timer-skip', 'precision-timer-settings']"
+    },
+    {
+      "name": "renderRest wrapper",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "legacy fallback",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "renderer forbids localStorage",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "renderer forbids indexedDB",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "renderer forbids PEDB",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "renderer forbids app.active",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "renderer forbids App.",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "action adjust-rest",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "action pause-timer",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "action resume-timer",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "action skip-rest",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "action toggle-timer-sound",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "action toggle-timer-vibration",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "renderer loaded before engine",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "renderer cached",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "cache build 022",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "version index 022",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "1200 exercises",
+      "ok": true,
+      "detail": "1200"
+    },
+    {
+      "name": "21522 relations",
+      "ok": true,
+      "detail": "21522"
+    }
+  ]
+}

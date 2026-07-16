@@ -1,7 +1,7 @@
 {
-  "name": "GymTracker Phoenix 11 Alpha Build 018",
-  "short_name": "Phoenix 11 A018",
-  "start_url": "./index.html?v=018",
+  "name": "GymTracker Phoenix 11 Alpha Build 021",
+  "short_name": "Phoenix 11 A021",
+  "start_url": "./index.html?v=021",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",
@@ -19,5 +19,5 @@
       "purpose": "any maskable"
     }
   ],
-  "description": "GymTracker Phoenix · Forge Foundation 0.1 · Shape Engine seguro · PEDB 3.4"
+  "description": "GymTracker Phoenix · Precision Home Renderer 0.2 · Forge Shape Engine · PEDB 3.4"
 }

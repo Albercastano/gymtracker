@@ -3,13 +3,13 @@
   "id": "precision",
   "name": "Precision",
   "author": "Phoenix Forge",
-  "version": "0.1.0",
-  "engine": "0.1.x",
+  "version": "0.3.0",
+  "engine": "0.5.x",
   "status": "stable",
   "fallback": true,
   "shape": "shape.json",
   "scripts": "forbidden",
   "network": "forbidden",
-  "componentContract": "0.1.x",
-  "description": "Contrato de forma que representa la composición Precision actual durante la migración gradual al Forge Shape Engine."
+  "componentContract": "0.2.x",
+  "description": "Forma oficial Precision renderizada por Phoenix Forge. Home, entrenamiento, consola de serie y temporizador conservan la composición aprobada mediante instrumentos declarativos."
 }
