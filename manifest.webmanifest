@@ -1,6 +1,6 @@
 {
-  "name": "GymTracker Phoenix 11 Alpha · Build 008 · Foundry Field Prototype",
-  "short_name": "Phoenix 11 B008",
+  "name": "GymTracker Phoenix 11 Alpha Build 013",
+  "short_name": "Phoenix 11 A013",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#050507",
@@ -19,5 +19,5 @@
       "purpose": "any maskable"
     }
   ],
-  "description": "GymTracker Phoenix local-first con PHX Skin Engine, Foundry Visual Core y puerta de calidad visual, responsive y segura."
+  "description": "GymTracker Phoenix · FORGED Apex UI Completion · PEDB 3.4 · Precision fallback"
 }

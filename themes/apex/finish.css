@@ -1,0 +1,156 @@
+/* FORGED Apex 0.3 · Phase 3 · completion, overlays, profile, dialogs and micro-interaction */
+
+/* EXERCISE COMPLETION */
+html[data-phx-material="apex"] .exercise-complete-forged,
+html[data-phx-material="apex"] .workout-complete-forged{max-width:680px;gap:14px}
+html[data-phx-material="apex"] .exercise-complete-hero,
+html[data-phx-material="apex"] .workout-complete-hero{
+  position:relative;overflow:hidden;background:radial-gradient(circle at 88% 0,rgba(0,230,118,.08),transparent 34%),#010507;
+  border:1px solid rgba(0,230,118,.34);box-shadow:0 18px 52px rgba(0,0,0,.56),inset 0 1px rgba(170,255,216,.035);border-radius:28px
+}
+html[data-phx-material="apex"] .exercise-complete-hero::before,
+html[data-phx-material="apex"] .workout-complete-hero::before{content:"";position:absolute;left:20px;right:20px;top:0;height:1px;background:linear-gradient(90deg,transparent,var(--phx-green),transparent);box-shadow:0 0 14px rgba(0,230,118,.55)}
+html[data-phx-material="apex"] .exercise-complete-title,
+html[data-phx-material="apex"] .workout-complete-title{color:#f7fffb;font-weight:390;letter-spacing:.015em;text-shadow:0 0 24px rgba(0,230,118,.045)}
+html[data-phx-material="apex"] .exercise-complete-alt,
+html[data-phx-material="apex"] .workout-complete-note{color:var(--phx-green)}
+html[data-phx-material="apex"] .exercise-complete-check{border:1px solid rgba(0,230,118,.72);background:rgba(0,230,118,.055);color:var(--phx-green);box-shadow:0 0 24px rgba(0,230,118,.15);font-weight:420}
+html[data-phx-material="apex"] .exercise-complete-metrics>div,
+html[data-phx-material="apex"] .workout-complete-metrics>div{background:#010507;border:1px solid rgba(0,217,255,.14);border-radius:20px;box-shadow:0 12px 32px rgba(0,0,0,.46)}
+html[data-phx-material="apex"] .exercise-complete-metrics>div:last-child,
+html[data-phx-material="apex"] .workout-complete-metrics>div:last-child{border-color:rgba(0,230,118,.24)}
+html[data-phx-material="apex"] .exercise-complete-metrics strong,
+html[data-phx-material="apex"] .workout-complete-metrics strong{color:#f4fcff;font-weight:340;font-variant-numeric:tabular-nums;letter-spacing:0}
+html[data-phx-material="apex"] .exercise-complete-metrics span,
+html[data-phx-material="apex"] .workout-complete-metrics span{color:#71858f;font-weight:520;letter-spacing:.1em}
+html[data-phx-material="apex"] .exercise-complete-card,
+html[data-phx-material="apex"] .workout-complete-report{background:#010507;border:1px solid rgba(0,217,255,.15);border-radius:24px;box-shadow:0 16px 42px rgba(0,0,0,.48)}
+html[data-phx-material="apex"] .exercise-complete-card__head,
+html[data-phx-material="apex"] .workout-complete-report__head{color:#71858f;font-weight:520}
+html[data-phx-material="apex"] .exercise-complete-card__head b,
+html[data-phx-material="apex"] .workout-complete-report__head b{color:var(--phx-cyan);font-weight:520}
+html[data-phx-material="apex"] .exercise-complete-row{background:#000305;border:1px solid rgba(0,217,255,.1);border-radius:16px}
+html[data-phx-material="apex"] .exercise-complete-row>span{color:#dff9ff;font-weight:480}
+html[data-phx-material="apex"] .exercise-complete-row label{background:#01070a;border-color:rgba(0,217,255,.16);border-radius:13px}
+html[data-phx-material="apex"] .exercise-complete-row input{color:#f7fdff;font-weight:360;font-variant-numeric:tabular-nums}
+html[data-phx-material="apex"] .exercise-complete-next,
+html[data-phx-material="apex"] .workout-complete-home{background:linear-gradient(180deg,#75ffb5,#00dc73 58%,#009c50);border:1px solid #8dffc3;color:#00140a;border-radius:21px;box-shadow:0 0 30px rgba(0,230,118,.15),0 10px 28px rgba(0,0,0,.5),inset 0 1px rgba(255,255,255,.65);font-weight:650}
+html[data-phx-material="apex"] .exercise-complete-next:active,
+html[data-phx-material="apex"] .workout-complete-home:active{transform:translateY(1px);box-shadow:0 0 18px rgba(0,230,118,.12),0 5px 18px rgba(0,0,0,.45)}
+html[data-phx-material="apex"] .exercise-complete-next b,
+html[data-phx-material="apex"] .workout-complete-home b{border-width:1px}
+
+/* FULL WORKOUT REPORT */
+html[data-phx-material="apex"] .workout-complete-phoenix{background:transparent;border:1px solid rgba(0,230,118,.35);border-radius:50%;box-shadow:0 0 26px rgba(0,230,118,.08)}
+html[data-phx-material="apex"] .workout-complete-phoenix img{border-radius:50%;box-shadow:none;filter:grayscale(1) brightness(1.85) sepia(1) saturate(9) hue-rotate(105deg) drop-shadow(0 0 10px rgba(0,230,118,.55));mix-blend-mode:screen}
+html[data-phx-material="apex"] .workout-complete-date{color:#71858f;font-weight:450}
+html[data-phx-material="apex"] .workout-saved-state{color:var(--phx-green)!important;border-color:rgba(0,230,118,.28)!important;background:rgba(0,230,118,.04)!important}
+html[data-phx-material="apex"] .workout-complete-exercise{background:#000305;border-color:rgba(0,217,255,.1);border-radius:18px}
+html[data-phx-material="apex"] .workout-complete-exercise__head>span{background:#01070a;border:1px solid rgba(0,217,255,.28);color:var(--phx-cyan);border-radius:50%;font-weight:420}
+html[data-phx-material="apex"] .workout-complete-exercise__head strong{color:#f4fcff;font-weight:470}
+html[data-phx-material="apex"] .workout-complete-exercise__head small{color:var(--phx-green)}
+html[data-phx-material="apex"] .workout-complete-set{color:#71858f}
+html[data-phx-material="apex"] .workout-complete-set span{color:var(--phx-cyan);font-weight:500}
+html[data-phx-material="apex"] .workout-complete-set b{color:#effbff;font-weight:420}
+html[data-phx-material="apex"] .workout-pr-row{background:rgba(0,230,118,.025);border-color:rgba(0,230,118,.18);border-radius:17px}
+html[data-phx-material="apex"] .workout-pr-row>span{background:var(--phx-green);color:#00150a;border-radius:50%;box-shadow:0 0 22px rgba(0,230,118,.13);font-weight:650}
+html[data-phx-material="apex"] .workout-pr-row strong{color:#f4fcff;font-weight:470}
+html[data-phx-material="apex"] .workout-pr-row>b{color:var(--phx-green);font-weight:540}
+html[data-phx-material="apex"] .progression-row{border-color:rgba(0,217,255,.1)}
+html[data-phx-material="apex"] .progression-row span{color:var(--phx-cyan);font-weight:470}
+html[data-phx-material="apex"] .progression-row>em{color:var(--phx-green)}
+html[data-phx-material="apex"] .workout-notes-input{background:#000305;border-color:rgba(0,217,255,.15);color:#f2fbff;border-radius:17px}
+html[data-phx-material="apex"] .workout-notes-input:focus{border-color:var(--phx-cyan);box-shadow:0 0 0 3px rgba(0,217,255,.08)}
+html[data-phx-material="apex"] .workout-notes-save,
+html[data-phx-material="apex"] .workout-complete-copy{background:#010507;border-color:rgba(0,217,255,.24);color:var(--phx-cyan);border-radius:17px;box-shadow:none;font-weight:580}
+
+/* NEXT EXERCISE OVERLAY */
+html[data-phx-material="apex"] .next-overlay{background:rgba(0,0,0,.9);backdrop-filter:blur(18px)}
+html[data-phx-material="apex"] .next-card{position:relative;overflow:hidden;background:radial-gradient(circle at 50% 0,rgba(0,230,118,.08),transparent 35%),#010507;border:1px solid rgba(0,230,118,.4);border-radius:30px;box-shadow:0 30px 90px rgba(0,0,0,.8),0 0 34px rgba(0,230,118,.06),inset 0 1px rgba(190,255,220,.04)}
+html[data-phx-material="apex"] .next-card::before{content:"";position:absolute;left:18px;right:18px;top:0;height:1px;background:linear-gradient(90deg,transparent,var(--phx-green),transparent);box-shadow:0 0 14px var(--phx-green)}
+html[data-phx-material="apex"] .next-check{background:rgba(0,230,118,.06);border:1px solid rgba(0,230,118,.65);color:var(--phx-green);box-shadow:0 0 24px rgba(0,230,118,.14);font-weight:420}
+html[data-phx-material="apex"] .next-completed{color:#6f838d;font-weight:480}
+html[data-phx-material="apex"] .next-label{color:var(--phx-cyan);font-weight:540}
+html[data-phx-material="apex"] .next-name{color:#f6fdff;font-weight:350;letter-spacing:.015em}
+html[data-phx-material="apex"] .next-meta{color:#71858f;font-weight:450}
+
+/* ALTERNATIVES */
+html[data-phx-material="apex"] #alternativesSheet .sheet-panel{background:linear-gradient(160deg,#041014,#000 68%);border-color:rgba(0,217,255,.35)}
+html[data-phx-material="apex"] #alternativesSheet .alt-current{color:#f2fbff;border-color:rgba(0,217,255,.14);background:#010507}
+html[data-phx-material="apex"] #alternativesSheet .alt-reasons button{background:#010507;border:1px solid rgba(0,217,255,.16);color:#71858f;border-radius:999px}
+html[data-phx-material="apex"] #alternativesSheet .alt-reasons button.active{background:var(--phx-cyan);border-color:#8ff2ff;color:#001117;box-shadow:0 0 18px rgba(0,217,255,.16)}
+html[data-phx-material="apex"] #alternativesSheet .alt-option{background:#010507;border:1px solid rgba(0,217,255,.14);border-radius:18px;box-shadow:none;color:#effaff}
+html[data-phx-material="apex"] #alternativesSheet .alt-option.recommended{border-color:rgba(0,230,118,.42);background:radial-gradient(circle at 0 0,rgba(0,230,118,.06),transparent 48%),#010507}
+html[data-phx-material="apex"] #alternativesSheet .alt-option b{color:#f5fdff;font-weight:470}
+html[data-phx-material="apex"] #alternativesSheet .alt-option small{color:#71858f}
+html[data-phx-material="apex"] #alternativesSheet .alt-option em{color:var(--phx-green)}
+
+/* PROFILE GATE */
+html[data-phx-material="apex"] .profile-gate__backdrop{background:rgba(0,0,0,.92);backdrop-filter:blur(18px)}
+html[data-phx-material="apex"] .profile-gate__panel{background:radial-gradient(circle at 50% -15%,rgba(0,217,255,.1),transparent 38%),#010507;border:1px solid rgba(0,217,255,.35);border-radius:30px;box-shadow:0 30px 90px rgba(0,0,0,.82),0 0 34px rgba(0,217,255,.045)}
+html[data-phx-material="apex"] .profile-gate__emblem{border-radius:50%;background:transparent;border-color:rgba(0,217,255,.35)!important;box-shadow:0 0 24px rgba(0,217,255,.08)}
+html[data-phx-material="apex"] .profile-gate__emblem img{filter:grayscale(1) brightness(1.85) sepia(1) saturate(9) hue-rotate(142deg) drop-shadow(0 0 9px rgba(0,217,255,.65));mix-blend-mode:screen}
+html[data-phx-material="apex"] .profile-gate__panel>p{color:#71858f}
+html[data-phx-material="apex"] .profile-gate__choices button{background:#010507;border:1px solid rgba(0,217,255,.14);border-radius:19px;color:#f1fbff;box-shadow:none}
+html[data-phx-material="apex"] .profile-gate__choices button span{color:#71858f;font-weight:520}
+html[data-phx-material="apex"] .profile-gate__choices button b{font-weight:430}
+html[data-phx-material="apex"] .profile-gate__choices button em{color:var(--phx-cyan)}
+html[data-phx-material="apex"] .profile-gate__choices button.active{border-color:var(--phx-green);box-shadow:inset 2px 0 0 var(--phx-green),0 0 20px rgba(0,230,118,.06)}
+
+/* WEIGHT + SAFETY DIALOGS */
+html[data-phx-material="apex"] .weight-forged-panel,
+html[data-phx-material="apex"] .forged-dialog-panel,
+html[data-phx-material="apex"] .delete-panel{background:linear-gradient(160deg,#041014,#000 72%);border-color:rgba(0,217,255,.3)}
+html[data-phx-material="apex"] .weight-forged-current{background:#010507;border:1px solid rgba(0,217,255,.16);box-shadow:inset 2px 0 0 var(--phx-cyan);border-radius:18px}
+html[data-phx-material="apex"] .weight-forged-current span,
+html[data-phx-material="apex"] .weight-forged-form label>span{color:var(--phx-cyan);font-weight:540}
+html[data-phx-material="apex"] .weight-forged-current b{color:#f5fcff;font-weight:430}
+html[data-phx-material="apex"] .weight-forged-current small{color:#71858f}
+html[data-phx-material="apex"] .weight-input-wrap,
+html[data-phx-material="apex"] .weight-forged-form input,
+html[data-phx-material="apex"] .weight-forged-form textarea{background:#000305!important;border-color:rgba(0,217,255,.18)!important;color:#f5fcff!important}
+html[data-phx-material="apex"] .weight-quick-adjust button{background:#010507;border-color:rgba(0,217,255,.24);color:var(--phx-cyan)}
+html[data-phx-material="apex"] .weight-history-item{background:#010507!important;border-color:rgba(0,217,255,.12)!important}
+html[data-phx-material="apex"] .weight-history-item strong{color:#f5fcff!important;font-weight:420!important}
+html[data-phx-material="apex"] .weight-history-item button:first-of-type{color:var(--phx-cyan)!important}
+html[data-phx-material="apex"] .weight-history-item button:last-of-type{color:var(--phx-red)!important}
+html[data-phx-material="apex"] .delete-warning,
+html[data-phx-material="apex"] .profile-switch-warning{background:rgba(255,61,99,.04);border:1px solid rgba(255,61,99,.25);color:#ffbac8;border-radius:16px}
+html[data-phx-material="apex"] .delete-phrase input,
+html[data-phx-material="apex"] .forged-dialog-input input{background:#000305;border-color:rgba(255,61,99,.26);color:#fff}
+html[data-phx-material="apex"] .forged-dialog-input span{color:var(--phx-cyan)}
+
+/* EASTER EGG / ORIGIN */
+html[data-phx-material="apex"] .phoenix-origin__backdrop{background:radial-gradient(circle at 50% 10%,rgba(0,217,255,.1),transparent 38%),rgba(0,0,0,.96)}
+html[data-phx-material="apex"] .phoenix-origin__panel{background:linear-gradient(155deg,#041014,#000 72%);border-color:rgba(0,217,255,.32)}
+html[data-phx-material="apex"] .phoenix-origin__panel::after{filter:grayscale(1) brightness(1.5) sepia(1) saturate(9) hue-rotate(142deg);opacity:.06}
+html[data-phx-material="apex"] .phoenix-origin__emblem{border-radius:50%;background:transparent;border-color:rgba(0,217,255,.36)}
+html[data-phx-material="apex"] .phoenix-origin__emblem img{filter:grayscale(1) brightness(1.85) sepia(1) saturate(9) hue-rotate(142deg) drop-shadow(0 0 9px rgba(0,217,255,.65));mix-blend-mode:screen}
+html[data-phx-material="apex"] .phoenix-origin h1 em,
+html[data-phx-material="apex"] .phoenix-origin__principles h2,
+html[data-phx-material="apex"] .phoenix-origin__core{color:var(--phx-cyan)}
+html[data-phx-material="apex"] .phoenix-origin__principles article{background:#010507;border-color:rgba(0,217,255,.11)}
+html[data-phx-material="apex"] .phoenix-origin__principles article>span{border-color:rgba(0,217,255,.34);color:var(--phx-cyan)}
+html[data-phx-material="apex"] .phoenix-origin blockquote strong:last-child{color:var(--phx-green)}
+
+/* MOTION: precise, brief and non-blocking */
+html[data-phx-material="apex"] .phx-card,
+html[data-phx-material="apex"] .home-mode,
+html[data-phx-material="apex"] .pedb-forged-card,
+html[data-phx-material="apex"] .history-session,
+html[data-phx-material="apex"] .routine-accordion{transition:border-color 140ms ease,box-shadow 140ms ease,background-color 140ms ease}
+html[data-phx-material="apex"] :where(.primary,.king,.secondary,.home-mode,.pedb-btn,.week-day):active{transform:translateY(1px);filter:brightness(1.08)}
+html[data-phx-material="apex"] .workout-saved-state{animation:apexSaved 500ms ease both}
+@keyframes apexSaved{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* RESPONSIVE GUARDRAILS */
+html[data-phx-material="apex"] :where(.exercise-complete-title,.workout-complete-title,.next-name){overflow-wrap:anywhere}
+html[data-phx-material="apex"] :where(.exercise-complete-metrics strong,.workout-complete-metrics strong){font-size:clamp(1.25rem,6.3vw,2rem);white-space:nowrap;min-width:0}
+@media(max-width:390px){
+  html[data-phx-material="apex"] .exercise-complete-metrics{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  html[data-phx-material="apex"] .workout-complete-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  html[data-phx-material="apex"] .exercise-complete-row{grid-template-columns:52px minmax(0,1fr) minmax(0,1fr)}
+  html[data-phx-material="apex"] .next-card{padding:24px 16px}
+  html[data-phx-material="apex"] .next-name{font-size:clamp(2.1rem,11vw,3.5rem)}
+}
+@media(prefers-reduced-motion:reduce){html[data-phx-material="apex"] .workout-saved-state{animation:none}}

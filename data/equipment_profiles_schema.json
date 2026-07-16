@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "profile_types": [
+    "home",
+    "gym",
+    "travel"
+  ],
+  "example": {
+    "id": "EQP-USR-000001",
+    "name": "Mi gimnasio",
+    "type": "gym",
+    "equipment_ids": [
+      "PEQ-0001"
+    ]
+  }
+}

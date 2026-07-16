@@ -1,23 +1,26 @@
 {
   "project": "PEDB",
   "name": "Phoenix Exercise DataBase",
-  "version": "3.0.0",
-  "schema_version": 2,
+  "version": "3.4.0",
+  "schema_version": 4,
   "language": "es",
   "platform_stage": "html_pwa_first",
   "future_platform": "flutter",
   "offline_first": true,
   "internet_required": false,
-  "generated_at": "2026-07-13",
+  "generated_at": "2026-07-15",
   "counts": {
-    "exercises": 677,
-    "relations": 23811,
+    "exercises": 1200,
+    "relations": 21522,
     "families": 22,
     "muscles": 14,
-    "zones": 79,
-    "equipment": 138,
-    "patterns": 88,
-    "exercise_types": 4
+    "zones": 89,
+    "equipment": 183,
+    "patterns": 111,
+    "exercise_types": 4,
+    "functions": 25,
+    "packs": 6,
+    "tags": 16
   },
   "files": [
     "exercises.json",
@@ -27,7 +30,15 @@
     "equipment.json",
     "patterns.json",
     "exercise_types.json",
-    "families.json"
+    "families.json",
+    "functions.json",
+    "anatomy.json",
+    "equipment_meta.json",
+    "packs.json",
+    "tags.json",
+    "reason_templates.json",
+    "equipment_profiles_schema.json",
+    "family_knowledge.json"
   ],
   "compatibility_contract": {
     "canonical_ids": true,
@@ -59,10 +70,35 @@
     "automatic_relations": true
   },
   "lightweight_policy": {
-    "max_relations_per_category": 12,
+    "max_relations_per_category": 6,
     "compact_relation_keys": true,
     "exercise_dna_encoding": "[technical,stability,fatigue,objective_mask]",
     "multimedia": false,
-    "lazy_loading": true
+    "lazy_loading": true,
+    "family_shared_knowledge": true,
+    "exercise_dna_v2": "[technical,stability,fatigue,objectives,axial,lumbar,rom]"
+  },
+  "features": {
+    "normalized_anatomy": true,
+    "equipment_metadata": true,
+    "virtual_packs": true,
+    "compact_tags": true,
+    "explainable_substitutions": true,
+    "equipment_profiles": true,
+    "multimedia": false,
+    "mobility_and_control": true,
+    "family_knowledge_layer": true,
+    "dna_v2": true,
+    "expanded_strength_variants": true,
+    "expanded_calisthenics": true,
+    "expanded_strongman": true,
+    "expanded_machine_catalog": true,
+    "catalog_1200_unique": true
+  },
+  "integration": {
+    "host_app": "GymTracker Phoenix 11 Alpha Build 011",
+    "validated_at": "2026-07-16",
+    "source_archive": "PEDB_HTML_First_v3_4_0",
+    "manifest_counts_normalized": true
   }
 }

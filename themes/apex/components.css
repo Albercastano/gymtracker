@@ -1,0 +1,86 @@
+/* FORGED Apex · shared component language */
+html[data-phx-material="apex"] body{
+  background:#000;
+  color:var(--phx-text-primary);
+  font-family:ui-rounded,"SF Pro Rounded","Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;
+  letter-spacing:.006em;
+}
+html[data-phx-material="apex"] body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
+  background:
+    linear-gradient(rgba(0,217,255,.018) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,217,255,.014) 1px,transparent 1px),
+    radial-gradient(circle at 50% -18%,rgba(0,150,210,.12),transparent 38%),#000;
+  background-size:32px 32px,32px 32px,auto;
+}
+html[data-phx-material="apex"] .topbar{
+  background:rgba(0,0,0,.93);border-bottom:1px solid rgba(0,217,255,.18);
+  box-shadow:0 12px 36px rgba(0,0,0,.62);backdrop-filter:blur(16px);
+}
+html[data-phx-material="apex"] .topbar::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--phx-cyan),transparent);opacity:.36}
+html[data-phx-material="apex"] .topbar-brand{background:transparent;border:0;box-shadow:none}
+html[data-phx-material="apex"] .topbar-brand img,
+html[data-phx-material="apex"] .home-brand img,
+html[data-phx-material="apex"] .data-v2__brand img,
+html[data-phx-material="apex"] .phoenix-timer__brand img{
+  filter:grayscale(1) brightness(1.85) sepia(1) saturate(9) hue-rotate(142deg) drop-shadow(0 0 9px rgba(0,217,255,.65));
+  mix-blend-mode:screen;
+}
+html[data-phx-material="apex"] .topbar-brand strong{font-weight:500;letter-spacing:.28em;color:#f8fdff}
+html[data-phx-material="apex"] .topbar-brand span{color:var(--phx-cyan);letter-spacing:.24em}
+html[data-phx-material="apex"] .dest-button,
+html[data-phx-material="apex"] .profile-button,
+html[data-phx-material="apex"] .home-material-access{
+  background:rgba(1,6,9,.82);border:1px solid rgba(0,217,255,.28);box-shadow:inset 0 0 0 1px rgba(255,255,255,.018),0 0 24px rgba(0,217,255,.04);color:#effbff;
+}
+html[data-phx-material="apex"] .profile-button span,
+html[data-phx-material="apex"] .home-material-access span{color:#7e9099}
+html[data-phx-material="apex"] .profile-button i,
+html[data-phx-material="apex"] .home-material-access em{color:var(--phx-cyan)}
+html[data-phx-material="apex"] .phx-card,
+html[data-phx-material="apex"] .phx-surface--card,
+html[data-phx-material="apex"] .phx-surface--panel{
+  background:linear-gradient(145deg,rgba(5,12,16,.96),rgba(0,2,3,.985));
+  border:1px solid rgba(78,180,209,.18);border-radius:var(--phx-radius-card);box-shadow:var(--phx-shadow-card);
+}
+html[data-phx-material="apex"] .phx-card--highlight{border-color:rgba(0,217,255,.46)}
+html[data-phx-material="apex"] .phx-card__eyebrow,
+html[data-phx-material="apex"] .eyebrow,
+html[data-phx-material="apex"] .phx-label--eyebrow{color:var(--phx-cyan);font-weight:650;letter-spacing:.18em}
+html[data-phx-material="apex"] button,
+html[data-phx-material="apex"] input,
+html[data-phx-material="apex"] select,
+html[data-phx-material="apex"] textarea{font-family:inherit}
+html[data-phx-material="apex"] .primary,
+html[data-phx-material="apex"] .king,
+html[data-phx-material="apex"] .phx-button--primary{
+  color:#001016;background:linear-gradient(180deg,#70ecff,#00b7ee 58%,#0082b0);
+  border:1px solid #8af2ff;box-shadow:0 0 0 1px rgba(0,217,255,.1),0 10px 28px rgba(0,177,229,.2),inset 0 1px 0 rgba(255,255,255,.62);
+  border-radius:18px;
+}
+html[data-phx-material="apex"] .secondary,
+html[data-phx-material="apex"] .phx-button--secondary{
+  color:#eafaff;background:rgba(2,8,11,.92);border:1px solid rgba(0,217,255,.28);box-shadow:var(--phx-shadow-control);border-radius:18px;
+}
+html[data-phx-material="apex"] .danger,
+html[data-phx-material="apex"] .forged-danger{color:#ffdce4;background:rgba(24,2,8,.94);border-color:rgba(255,61,99,.48)}
+html[data-phx-material="apex"] button:active{transform:translateY(1px);filter:brightness(1.08)}
+html[data-phx-material="apex"] input,
+html[data-phx-material="apex"] select,
+html[data-phx-material="apex"] textarea,
+html[data-phx-material="apex"] .phx-input{
+  background:#010507;border:1px solid rgba(0,217,255,.25);color:#f3fbff;border-radius:17px;box-shadow:inset 0 0 20px rgba(0,217,255,.025);
+}
+html[data-phx-material="apex"] input:focus,
+html[data-phx-material="apex"] select:focus,
+html[data-phx-material="apex"] textarea:focus{outline:1px solid var(--phx-cyan);box-shadow:0 0 0 3px rgba(0,217,255,.1)}
+html[data-phx-material="apex"] .sheet-panel,
+html[data-phx-material="apex"] .profile-gate__panel,
+html[data-phx-material="apex"] .forged-dialog__panel{
+  background:linear-gradient(155deg,#061015,#000 72%);border-color:rgba(0,217,255,.32);box-shadow:0 -24px 70px rgba(0,0,0,.82),inset 0 1px rgba(149,239,255,.06);
+}
+html[data-phx-material="apex"] .handle{background:linear-gradient(90deg,transparent,var(--phx-cyan),transparent);height:2px}
+html[data-phx-material="apex"] .toast{background:#001017;border-color:rgba(0,217,255,.55);color:#effcff}
+html[data-phx-material="apex"] .material-option.apex{border-color:rgba(0,217,255,.45);background:radial-gradient(circle at 15% 0,rgba(0,217,255,.08),transparent 35%),linear-gradient(145deg,#061116,#000)}
+html[data-phx-material="apex"] .material-option.apex.active{box-shadow:0 0 0 1px rgba(0,217,255,.38),0 0 30px rgba(0,217,255,.1)}
+@media(prefers-reduced-motion:reduce){html[data-phx-material="apex"] *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}}

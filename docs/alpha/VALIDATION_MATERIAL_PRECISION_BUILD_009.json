@@ -1,0 +1,31 @@
+{
+  "valid": true,
+  "materialId": "precision",
+  "contractVersion": "0.2.0",
+  "totalBytes": 2582,
+  "budgetKb": 28,
+  "errors": [],
+  "warnings": [],
+  "files": [
+    {
+      "path": "components.css",
+      "bytes": 1069,
+      "sha256": "70090ec9f4791384cb666e264cc4a284d2f2b2f2fcde312a0b52538c3e546a5e"
+    },
+    {
+      "path": "manifest.json",
+      "bytes": 499,
+      "sha256": "6260c4ab1dd3656bcdc9b676e08f4b4e4d5e1fc8cf62432321afbe254383559e"
+    },
+    {
+      "path": "timer.css",
+      "bytes": 42,
+      "sha256": "bfa40aaaabc5410d4c56c3a9b524f149fb17be297be04891ad3eebace3469c29"
+    },
+    {
+      "path": "tokens.css",
+      "bytes": 972,
+      "sha256": "71e7b5c901ff13e3bed2d33ce3ce5b775461f2f57dca0f511b6a665d209c483e"
+    }
+  ]
+}

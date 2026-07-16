@@ -1,0 +1,129 @@
+/*
+  FORGED APEX · UI COMPLETION 1.0 · Build 013
+  Homogeneous components, semantic states, charts, motion and responsive/accessibility guardrails.
+*/
+
+html[data-phx-material="apex"]{
+  --apex-line:rgba(0,217,255,.22);
+  --apex-line-strong:rgba(0,217,255,.62);
+  --apex-quiet:#61747c;
+  --apex-surface:#010507;
+  --apex-surface-raised:#020a0e;
+  --apex-chart:#00d9ff;
+}
+
+/* Global rhythm and scroll treatment */
+html[data-phx-material="apex"]{scrollbar-color:rgba(0,217,255,.38) #000;scrollbar-width:thin}
+html[data-phx-material="apex"] ::-webkit-scrollbar{width:7px;height:7px}
+html[data-phx-material="apex"] ::-webkit-scrollbar-track{background:#000}
+html[data-phx-material="apex"] ::-webkit-scrollbar-thumb{background:rgba(0,217,255,.28);border-radius:999px}
+html[data-phx-material="apex"] .screen.active>div,
+html[data-phx-material="apex"] .screen.active>section{animation:apexScreenIn .22s cubic-bezier(.2,.7,.2,1) both}
+@keyframes apexScreenIn{from{opacity:.01;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+/* Complete interaction state contract */
+html[data-phx-material="apex"] :is(button,[role="button"],input,select,textarea):focus-visible{
+  outline:2px solid #8ff2ff!important;outline-offset:3px!important;box-shadow:0 0 0 5px rgba(0,217,255,.12)!important;
+}
+html[data-phx-material="apex"] :is(button,[role="button"])[aria-pressed="true"],
+html[data-phx-material="apex"] :is(button,[role="tab"])[aria-selected="true"],
+html[data-phx-material="apex"] .is-selected{
+  border-color:rgba(0,230,118,.64)!important;box-shadow:0 0 0 1px rgba(0,230,118,.1),0 0 24px rgba(0,230,118,.08)!important;
+}
+html[data-phx-material="apex"] :is(button,input,select,textarea):disabled,
+html[data-phx-material="apex"] .is-disabled{opacity:.38!important;filter:saturate(.2)!important;cursor:not-allowed!important;box-shadow:none!important}
+html[data-phx-material="apex"] [aria-busy="true"],html[data-phx-material="apex"] .is-loading{position:relative;pointer-events:none;color:transparent!important}
+html[data-phx-material="apex"] [aria-busy="true"]::after,html[data-phx-material="apex"] .is-loading::after{
+  content:"";position:absolute;left:50%;top:50%;width:18px;height:18px;margin:-10px;border:2px solid rgba(0,217,255,.2);border-top-color:#00d9ff;border-radius:50%;animation:apexSpin .7s linear infinite
+}
+@keyframes apexSpin{to{transform:rotate(1turn)}}
+html[data-phx-material="apex"] .is-success,html[data-phx-material="apex"] .success{border-color:rgba(0,230,118,.46)!important;color:#b9ffdb!important}
+html[data-phx-material="apex"] .is-error,html[data-phx-material="apex"] .error{border-color:rgba(255,61,99,.48)!important;color:#ffdce5!important}
+html[data-phx-material="apex"] .warning{border-color:rgba(255,188,55,.38)!important;color:#ffe4a3!important}
+
+/* Inputs: clean wearable language, no inherited native chrome */
+html[data-phx-material="apex"] input[type="checkbox"],
+html[data-phx-material="apex"] input[type="radio"]{accent-color:#00d9ff}
+html[data-phx-material="apex"] input[type="range"]{accent-color:#00e676}
+html[data-phx-material="apex"] select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,#00d9ff 50%),linear-gradient(135deg,#00d9ff 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:34px}
+html[data-phx-material="apex"] input::placeholder,html[data-phx-material="apex"] textarea::placeholder{color:#52656d;opacity:1}
+
+/* Structural surfaces that still inherited Precision */
+html[data-phx-material="apex"] :is(.card,.week-planner,.routine-card,.settings-card,.weight-card,.history-card,.backup-card,.profile-card){
+  background:linear-gradient(160deg,rgba(3,11,15,.97),rgba(0,2,3,.99))!important;border:1px solid rgba(0,217,255,.17)!important;box-shadow:0 16px 42px rgba(0,0,0,.48),inset 0 1px 0 rgba(148,238,255,.035)!important;
+}
+html[data-phx-material="apex"] :is(.card,.week-planner,.routine-card,.settings-card,.weight-card,.history-card,.backup-card,.profile-card)::before{border-color:transparent!important}
+html[data-phx-material="apex"] :is(.week-nav,.week-summary,.week-grid,.week-actions,.routine-editor,.history-detail,.weight-history,.backup-log){min-width:0}
+html[data-phx-material="apex"] :is(.week-nav,.history-header,.block-head,.routine-head){border-bottom-color:rgba(0,217,255,.12)!important}
+
+/* Buttons and chips: one Apex language everywhere */
+html[data-phx-material="apex"] :is(.grid,.week-actions,.routine-actions,.archive-actions,.block-actions) button:not(.primary):not(.danger){
+  background:#010507;border:1px solid rgba(0,217,255,.2);color:#dcebf0;box-shadow:none;border-radius:16px
+}
+html[data-phx-material="apex"] :is(.chip,.badge,.pill,.tag,.routine-meta span,.history-kpis span,.home-last-card small){
+  background:#010507!important;border:1px solid rgba(0,217,255,.14)!important;color:#72868f!important;border-radius:999px!important;box-shadow:none!important
+}
+html[data-phx-material="apex"] :is(.active,.current,.selected)>.chip,
+html[data-phx-material="apex"] :is(.chip,.badge,.pill,.tag).active{color:#001014!important;background:#00d9ff!important;border-color:#75efff!important}
+
+/* Metric discipline: values never inherit labels or wrap unpredictably */
+html[data-phx-material="apex"] :is(.phx-metric,.data-v2__metric,.home-metrics .phx-card--compact,.history-kpis>div,.exercise-complete-metrics>div){min-width:0;overflow:hidden}
+html[data-phx-material="apex"] :is(.phx-metric__value,.data-v2__metric strong,.home-metrics .phx-metric__value,.history-kpis strong,.exercise-complete-metrics strong){
+  display:block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;letter-spacing:-.045em;line-height:.96
+}
+html[data-phx-material="apex"] :is(.phx-metric__label,.data-v2__metric span,.data-v2__metric small,.history-kpis span){white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Apex chart system: color is information, never decoration */
+html[data-phx-material="apex"] .data-v2__chart[data-metric="volume"]{--apex-chart:#00d9ff}
+html[data-phx-material="apex"] .data-v2__chart[data-metric="load"]{--apex-chart:#2489ff}
+html[data-phx-material="apex"] .data-v2__chart[data-metric="relative"]{--apex-chart:#00e676}
+html[data-phx-material="apex"] .data-v2__chart[data-metric="weight"]{--apex-chart:#ff3d63}
+html[data-phx-material="apex"] .data-v2__graph-stop{stop-color:var(--apex-chart)}
+html[data-phx-material="apex"] .data-v2__graph-line{stroke:var(--apex-chart);filter:drop-shadow(0 0 3px color-mix(in srgb,var(--apex-chart) 58%,transparent))}
+html[data-phx-material="apex"] .data-v2__graph-point{fill:#000;stroke:var(--apex-chart);filter:drop-shadow(0 0 3px var(--apex-chart))}
+html[data-phx-material="apex"] .data-v2__range{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;padding-top:12px;border-top:1px solid rgba(0,217,255,.1)}
+html[data-phx-material="apex"] .data-v2__range button{min-height:38px;border-radius:12px;background:#000;border:1px solid rgba(0,217,255,.12);color:#5d7079;font-size:.66rem;letter-spacing:.13em}
+html[data-phx-material="apex"] .data-v2__range button.active{color:#001014;background:var(--apex-chart);border-color:var(--apex-chart);box-shadow:0 0 18px color-mix(in srgb,var(--apex-chart) 18%,transparent)}
+html[data-phx-material="apex"] .data-v2__graph.is-empty{border:1px dashed rgba(0,217,255,.18);background:radial-gradient(circle,rgba(0,217,255,.035),transparent 58%)}
+
+/* Empty, error and safe-state surfaces */
+html[data-phx-material="apex"] :is(.data-v2__empty,.alt-empty,.library-empty,.empty-state,.muted:only-child){
+  background:#000!important;border:1px dashed rgba(0,217,255,.2)!important;border-radius:20px!important;color:#647780!important;text-align:center
+}
+html[data-phx-material="apex"] :is(.data-v2__empty,.alt-empty,.library-empty,.empty-state) b{color:#e4f3f7;font-weight:520}
+
+/* Dialogs / overlays: thinner and cleaner than Precision */
+html[data-phx-material="apex"] :is(.sheet-backdrop,.forged-dialog__backdrop,.profile-gate__backdrop){background:rgba(0,0,0,.86)!important;backdrop-filter:blur(12px)}
+html[data-phx-material="apex"] :is(.sheet-panel,.forged-dialog__panel,.profile-gate__panel){border-radius:26px 26px 0 0}
+html[data-phx-material="apex"] :is(.sheet-panel,.forged-dialog__panel,.profile-gate__panel)>h2{font-weight:420;letter-spacing:.02em}
+
+/* Quiet mode for dense settings and long lists */
+html[data-phx-material="apex"] #settings :is(.card,.settings-card),
+html[data-phx-material="apex"] #backups :is(.card,.backup-card){box-shadow:none!important;background:#000!important}
+html[data-phx-material="apex"] #settings label,html[data-phx-material="apex"] #backups p{color:#70838c}
+
+/* Responsive guardrails */
+@media(max-width:430px){
+  html[data-phx-material="apex"] :is(.data-v2__metrics,.home-metrics){gap:8px}
+  html[data-phx-material="apex"] .data-v2__metric{padding:14px 12px}
+  html[data-phx-material="apex"] .data-v2__metric strong{font-size:clamp(1.5rem,9vw,2.25rem)}
+  html[data-phx-material="apex"] :is(.week-summary,.history-kpis,.exercise-complete-metrics){grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:360px){
+  html[data-phx-material="apex"] :is(.data-v2__tabs,.data-v2__range){gap:3px}
+  html[data-phx-material="apex"] :is(.data-v2__tabs,.data-v2__range) button{font-size:.57rem;letter-spacing:.07em;padding-inline:5px}
+  html[data-phx-material="apex"] .data-v2__metric strong{font-size:clamp(1.35rem,8.4vw,1.9rem)}
+  html[data-phx-material="apex"] :is(.week-summary,.history-kpis,.exercise-complete-metrics){gap:5px}
+}
+@media(orientation:landscape) and (max-height:520px){
+  html[data-phx-material="apex"] .screen:not(#rest){padding-top:8px!important}
+  html[data-phx-material="apex"] :is(.data-v2__head,.home-today-card--definitive){padding-block:16px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  html[data-phx-material="apex"] *,html[data-phx-material="apex"] *::before,html[data-phx-material="apex"] *::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+}
+@media(prefers-contrast:more){
+  html[data-phx-material="apex"]{--apex-line:rgba(143,242,255,.58)}
+  html[data-phx-material="apex"] :is(.card,.phx-card,.sheet-panel,input,select,textarea,button){border-color:rgba(143,242,255,.5)!important}
+  html[data-phx-material="apex"] .muted,html[data-phx-material="apex"] small{color:#a5b5bc!important}
+}

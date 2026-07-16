@@ -1,0 +1,34 @@
+{
+  "build": "Phoenix 11 Alpha Build 012",
+  "focus": "FORGED Apex Timer Final 1.0",
+  "pedb": {
+    "exercises": 1200
+  },
+  "checks": {
+    "app_js_syntax": true,
+    "manifest_json": true,
+    "apex_manifest_json": true,
+    "audio_asset": true,
+    "svg_timer_markup": true,
+    "service_worker_audio": true,
+    "network_assets_local_only": true,
+    "all_javascript_syntax": true,
+    "pedb_exercises": 1200,
+    "pedb_relations": 21522,
+    "responsive_static_browser": {
+      "portrait_390": {
+        "horizontal_overflow": false
+      },
+      "short_360x740": {
+        "horizontal_overflow": false,
+        "fits_viewport": true
+      },
+      "landscape_844x390": {
+        "horizontal_overflow": false,
+        "dedicated_layout": true
+      }
+    },
+    "apex_material_contract": true,
+    "external_apex_assets": []
+  }
+}

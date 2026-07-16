@@ -1,0 +1,42 @@
+{
+  "build": "Phoenix 11 Alpha Build 009",
+  "materialEngine": "0.4.0",
+  "publishedMaterials": [
+    "precision",
+    "apex"
+  ],
+  "foundryPublished": false,
+  "javascriptSyntax": "passed",
+  "jsonFilesValidated": 32,
+  "serviceWorkerAssets": 43,
+  "missingServiceWorkerAssets": [],
+  "themeBytes": {
+    "precision": 2582,
+    "apex": 46003
+  },
+  "responsiveInlineBrowserReview": {
+    "viewport": "390x844",
+    "screens": [
+      "home",
+      "routines",
+      "library",
+      "blocks",
+      "history",
+      "settings",
+      "backups",
+      "forgeLab"
+    ],
+    "horizontalOverflow": false,
+    "materialOptions": [
+      "precision",
+      "apex"
+    ],
+    "note": "Rendered with an inline Chromium harness because local HTTP/file navigation is blocked by the environment."
+  },
+  "security": {
+    "network": "forbidden",
+    "materialScripts": "forbidden",
+    "fallback": "precision"
+  },
+  "generatedAt": "2026-07-16T10:03:23.279575+00:00"
+}

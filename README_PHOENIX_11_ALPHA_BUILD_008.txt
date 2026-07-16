@@ -1,22 +1,9 @@
 GYMTRACKER PHOENIX 11 ALPHA · BUILD 008
-FOUNDRY FIELD PROTOTYPE 1.0
+FORGED APEX · PROTOTIPO FUNCIONAL
 
-Objetivo:
-Probar una estética Foundry más contundente en las pantallas reales sin alterar FORGED Precision ni la lógica de entrenamiento.
+Build acumulativa. Incluye Precision, Foundry y Apex.
 
-Ámbito visual:
-- Home
-- GYM / ejercicio activo
-- Serie en curso
-- Phoenix Timer
-- DATOS
+APEX se prueba en Home, entrenamiento activo, Phoenix Timer y Datos.
+No añade imágenes, fuentes externas ni conexiones.
 
-Principios:
-- Placas mecanizadas y biseles reales.
-- Remaches solo en piezas Hero.
-- Tipografía más pesada en títulos, métricas y timer.
-- Oro viejo y calor de forja controlado.
-- CSS local, sin red ni JavaScript en el material.
-- Precision permanece como fallback seguro.
-
-Esta build es un prototipo visual Alpha. Debe evaluarse en móvil antes de extender Foundry a toda la aplicación.
+Ruta: DATOS > AJUSTES > APARIENCIA Y MATERIALES > FORGED APEX.

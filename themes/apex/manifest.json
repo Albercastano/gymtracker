@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "apex",
+  "name": "FORGED Apex",
+  "author": "Phoenix Forge",
+  "version": "0.6.0-alpha",
+  "engine": "0.3.x",
+  "status": "alpha",
+  "fallback": false,
+  "styles": [
+    "tokens.css",
+    "components.css",
+    "screens.css",
+    "extended.css",
+    "finish.css",
+    "catalog.css",
+    "timer.css",
+    "polish.css"
+  ],
+  "assetsBudgetKb": 100,
+  "capabilities": [
+    "component-contract",
+    "components",
+    "motion",
+    "timer",
+    "visual-tokens"
+  ],
+  "network": "forbidden",
+  "scripts": "forbidden",
+  "componentContract": "0.1.x"
+}

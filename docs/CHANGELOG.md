@@ -1,12 +1,27 @@
+## Phoenix 11 Alpha · Build 013 · Apex UI Completion
 
-## Phoenix 11 Alpha · Build 008 — Foundry Field Prototype 1.0
+- Homogeneización visual completa de Apex.
+- Estados semánticos y accesibilidad.
+- Gráficas Apex por métrica.
+- Rangos 4S, 3M, 6M y 1A funcionales.
+- Responsive y reducción de movimiento reforzados.
 
-- Foundry reforzado en Home, GYM, Serie, Timer y Datos.
-- Componentes Hero con placas mecanizadas, biseles y remaches estructurales.
-- Métricas y temporizador con cifras metálicas de mayor presencia.
-- Validación aislada de 360, 390 y 430 px sin desbordamiento horizontal.
-- Precision permanece intacto y como fallback seguro.
-- Material Foundry: 79 KB dentro de un presupuesto de 96 KB.
+## Phoenix 11 Alpha · Build 011 · PEDB 3.4 + Apex Phase 4
+
+- Integra 1.200 ejercicios PEDB 3.4.0 y 21.522 relaciones.
+- Corrige los recuentos de catálogos del manifiesto integrado.
+- Añade filtros de entorno y renderizado progresivo en Biblioteca.
+- Amplía Apex a la experiencia completa del catálogo.
+- Conserva ejercicios personales y relaciones del usuario al actualizar.
+
+## Phoenix 11 Alpha · Build 010 · Apex Phase 3
+
+- Apex aplicado al cierre de ejercicio y entrenamiento.
+- Informes, récords, progresión y notas en lenguaje visual Apex.
+- Transición al siguiente ejercicio rediseñada.
+- Alternativas, perfiles, peso, diálogos de seguridad y Easter egg adaptados.
+- Manifiesto, versión y caché PWA sincronizados.
+- Foundry permanece retirado temporalmente.
 
 ## 10.3 · Foundry Phase 3
 

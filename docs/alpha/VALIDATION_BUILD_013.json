@@ -1,0 +1,289 @@
+{
+  "build": "Phoenix 11 Alpha Build 013",
+  "material": "FORGED Apex 0.6.0-alpha",
+  "pedb": {
+    "exercises": 1200,
+    "relations": 21522
+  },
+  "features": [
+    "homogeneous-components",
+    "semantic-states",
+    "semantic-charts",
+    "functional-ranges",
+    "responsive-guardrails",
+    "reduced-motion"
+  ],
+  "files": {
+    "app.js": "0895a11a3386464121ec73989c00319144663b58474e1836bb2ed96609a17a18",
+    "index.html": "7ca010ec781d74b213a9aeecd8c06cd334e505afa7cf3a6e25c0362053bcf249",
+    "manifest.webmanifest": "cd5809553d788bdce49fdb4f11a4456fb243dac888b50438a7d623a0728fbe1a",
+    "sw.js": "ce0be1a021eb5ec1decc83dc7d9ca04513fcb3389f8501d34d05c2985fc7ef4b",
+    "themes/material-engine.js": "dc62dcb07f1adce21924de70664bce33133ffc6b78047c742dd3609a91f1e062",
+    "themes/apex/manifest.json": "7ca1bc9ea0e84afcdcb5b5964c4bbeb9b44ceec41f03c976ca175e8b27e51721",
+    "themes/apex/polish.css": "469e7c00a7f644d5efdc900a4944ad145657191232b8e72cba017fb74aa7bfaf"
+  },
+  "materialValidation": {
+    "valid": true,
+    "materialId": "apex",
+    "contractVersion": "0.2.0",
+    "totalBytes": 90825,
+    "budgetKb": 100,
+    "errors": [],
+    "warnings": [],
+    "files": [
+      {
+        "path": "catalog.css",
+        "bytes": 5040,
+        "sha256": "6fe314502eec6eb40bc68529395859360f414cef7a8feea5b711551814ccf67a"
+      },
+      {
+        "path": "components.css",
+        "bytes": 5491,
+        "sha256": "396bcb7cf9aef37784387ae04a6b0de1a5dcf8f708d219b44f4bbceff0efa148"
+      },
+      {
+        "path": "extended.css",
+        "bytes": 17933,
+        "sha256": "207a9b5ad6ed2ac0776fbc691db57a599675b10e0c7772d742602de0c59ca9e4"
+      },
+      {
+        "path": "finish.css",
+        "bytes": 15654,
+        "sha256": "38f45c78e21237f61993212bda39b3506a177445a389fab3c60f13bcc0b2f17f"
+      },
+      {
+        "path": "manifest.json",
+        "bytes": 580,
+        "sha256": "7ca1bc9ea0e84afcdcb5b5964c4bbeb9b44ceec41f03c976ca175e8b27e51721"
+      },
+      {
+        "path": "polish.css",
+        "bytes": 10502,
+        "sha256": "469e7c00a7f644d5efdc900a4944ad145657191232b8e72cba017fb74aa7bfaf"
+      },
+      {
+        "path": "screens.css",
+        "bytes": 13292,
+        "sha256": "b6e630f19a80c0dc412ebb2943c1adf72a55d6cd5f2481dee481b9a09e5f21c0"
+      },
+      {
+        "path": "timer.css",
+        "bytes": 21251,
+        "sha256": "94e8436f7aeb848ebcf22a2ea71b4be87aa9f1fa27025ea546a5bb5ee81c9986"
+      },
+      {
+        "path": "tokens.css",
+        "bytes": 1082,
+        "sha256": "13bbb6301dde5934c93800d73339dc04df63fb28fb0eb3fab7fdac56eb37ad52"
+      }
+    ]
+  },
+  "browserValidation": {
+    "results": [
+      {
+        "viewport": [
+          360,
+          780
+        ],
+        "screen": "home",
+        "overflow": false
+      },
+      {
+        "viewport": [
+          360,
+          780
+        ],
+        "screen": "data",
+        "overflow": false
+      },
+      {
+        "viewport": [
+          360,
+          780
+        ],
+        "screen": "settings",
+        "overflow": false
+      },
+      {
+        "viewport": [
+          360,
+          780
+        ],
+        "screen": "routines",
+        "overflow": false
+      },
+      {
+        "viewport": [
+          360,
+          780
+        ],
+        "screen": "history",
+        "overflow": false
+      },
+      {
+        "viewport": [
+          360,
+          780
+        ],
+        "screen": "data-range",
+        "range": "1y"
+      },
+      {
+        "viewport": [
+          360,
+          780
+        ],
+        "screen": "timer",
+        "overflow": false
+      },
+      {
+        "viewport": [
+          360,
+          780
+        ],
+        "errors": [
+          "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+        ]
+      },
+      {
+        "viewport": [
+          390,
+          844
+        ],
+        "screen": "home",
+        "overflow": false
+      },
+      {
+        "viewport": [
+          390,
+          844
+        ],
+        "screen": "data",
+        "overflow": false
+      },
+      {
+        "viewport": [
+          390,
+          844
+        ],
+        "screen": "settings",
+        "overflow": false
+      },
+      {
+        "viewport": [
+          390,
+          844
+        ],
+        "screen": "routines",
+        "overflow": false
+      },
+      {
+        "viewport": [
+          390,
+          844
+        ],
+        "screen": "history",
+        "overflow": false
+      },
+      {
+        "viewport": [
+          390,
+          844
+        ],
+        "screen": "data-range",
+        "range": "1y"
+      },
+      {
+        "viewport": [
+          390,
+          844
+        ],
+        "screen": "timer",
+        "overflow": false
+      },
+      {
+        "viewport": [
+          390,
+          844
+        ],
+        "errors": [
+          "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+        ]
+      },
+      {
+        "viewport": [
+          430,
+          900
+        ],
+        "screen": "home",
+        "overflow": false
+      },
+      {
+        "viewport": [
+          430,
+          900
+        ],
+        "screen": "data",
+        "overflow": false
+      },
+      {
+        "viewport": [
+          430,
+          900
+        ],
+        "screen": "settings",
+        "overflow": false
+      },
+      {
+        "viewport": [
+          430,
+          900
+        ],
+        "screen": "routines",
+        "overflow": false
+      },
+      {
+        "viewport": [
+          430,
+          900
+        ],
+        "screen": "history",
+        "overflow": false
+      },
+      {
+        "viewport": [
+          430,
+          900
+        ],
+        "screen": "data-range",
+        "range": "1y"
+      },
+      {
+        "viewport": [
+          430,
+          900
+        ],
+        "screen": "timer",
+        "overflow": false
+      },
+      {
+        "viewport": [
+          430,
+          900
+        ],
+        "errors": [
+          "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+        ]
+      }
+    ]
+  },
+  "browserValidationNote": "Inline Chromium harness cannot access localStorage; screen rendering, range controls and overflow checks still executed.",
+  "checks": {
+    "javascriptSyntax": true,
+    "jsonSyntax": true,
+    "materialContract": true,
+    "apexCssBytes": 90245,
+    "horizontalOverflowDetected": false,
+    "dataRangesFunctional": true
+  }
+}

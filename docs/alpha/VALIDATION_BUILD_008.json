@@ -1,27 +1,77 @@
 {
   "build": "Phoenix 11 Alpha Build 008",
-  "name": "Foundry Field Prototype 1.0",
-  "javascriptSyntax": true,
-  "jsonSyntax": true,
-  "cssBraceIssues": [],
-  "serviceWorkerMissingAssets": [],
-  "missingMaterialStyles": [],
-  "foundryBytes": 79049,
-  "foundryBudgetBytes": 98304,
-  "foundryWithinBudget": true,
-  "isolatedVisualRender": {
-    "homeViewport": "390x844",
-    "homeHorizontalOverflow": false,
-    "timerCenterDeltaPx": -0.008,
-    "timerHorizontalOverflow": false,
-    "testedWidths": [
-      360,
-      390,
-      430
+  "name": "FORGED Apex Functional Prototype",
+  "valid": true,
+  "checks": {
+    "javascriptSyntax": true,
+    "manifestJson": true,
+    "materialContract": true,
+    "materialEngineCertificate": true,
+    "actionBindings": {
+      "called": 127,
+      "missing": 0
+    },
+    "staticVisualReview": {
+      "viewports": [
+        "360x800",
+        "390x844",
+        "430x932"
+      ],
+      "screens": [
+        "home",
+        "gym",
+        "series",
+        "timer",
+        "data"
+      ],
+      "horizontalOverflows": 0
+    },
+    "networkForbidden": true,
+    "scriptsForbidden": true,
+    "newImages": false,
+    "newFonts": false
+  },
+  "material": {
+    "id": "apex",
+    "version": "0.1.0-alpha",
+    "totalBytes": 28050,
+    "budgetKb": 96,
+    "files": [
+      {
+        "path": "components.css",
+        "bytes": 5491,
+        "sha256": "396bcb7cf9aef37784387ae04a6b0de1a5dcf8f708d219b44f4bbceff0efa148"
+      },
+      {
+        "path": "manifest.json",
+        "bytes": 504,
+        "sha256": "bf0b38ca54821e666ec80bf88391742a7eae3f3778895a5fa5386508f79c4287"
+      },
+      {
+        "path": "screens.css",
+        "bytes": 13292,
+        "sha256": "b6e630f19a80c0dc412ebb2943c1adf72a55d6cd5f2481dee481b9a09e5f21c0"
+      },
+      {
+        "path": "timer.css",
+        "bytes": 7681,
+        "sha256": "f822aeee71083c31630b1f51c4aafe66a9b59d6ab2b547c95e8be7066571b430"
+      },
+      {
+        "path": "tokens.css",
+        "bytes": 1082,
+        "sha256": "13bbb6301dde5934c93800d73339dc04df63fb28fb0eb3fab7fdac56eb37ad52"
+      }
     ]
   },
-  "notes": [
-    "La prueba visual fue aislada con el marcado real de Home y Timer; el entorno bloquea navegación a servidor local.",
-    "La validación final sigue siendo necesaria en la PWA publicada."
-  ]
+  "limitations": [
+    "El entorno no permite navegar a un servidor local para ejecutar la PWA completa.",
+    "La comprobación visual se realizó con el marcado real de las pantallas y las hojas CSS reales en Chromium.",
+    "La validación final del cambio de material, persistencia y tacto corresponde al despliegue móvil."
+  ],
+  "pedbIncluded": {
+    "version": "3.0.0",
+    "exercises": 677,
+    "relations": 23811
+  }
 }

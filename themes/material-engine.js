@@ -1,6 +1,6 @@
 "use strict";
 (function(){
-  const ENGINE_VERSION="0.3.1";
+  const ENGINE_VERSION="0.4.3";
   const FALLBACK="precision";
   const registry=Object.freeze({
     precision:Object.freeze({
@@ -8,10 +8,10 @@
       styles:Object.freeze(["tokens.css","components.css","timer.css"]),assetsBudgetKb:28,
       capabilities:Object.freeze(["visual-tokens","components","timer","component-contract"]),network:"forbidden",scripts:"forbidden"
     }),
-    foundry:Object.freeze({
-      schemaVersion:1,id:"foundry",name:"FORGED Foundry",author:"Phoenix Forge",version:"0.8.0-alpha",engine:"0.3.x",componentContract:"0.1.x",status:"alpha",fallback:false,
-      styles:Object.freeze(["tokens.css","components.css","timer.css","visual-core.css","field-prototype.css"]),assetsBudgetKb:96,
-      capabilities:Object.freeze(["visual-tokens","components","timer","component-contract"]),network:"forbidden",scripts:"forbidden"
+    apex:Object.freeze({
+      schemaVersion:1,id:"apex",name:"FORGED Apex",author:"Phoenix Forge",version:"0.6.0-alpha",engine:"0.3.x",componentContract:"0.1.x",status:"alpha",fallback:false,
+      styles:Object.freeze(["tokens.css","components.css","screens.css","extended.css","finish.css","catalog.css","timer.css","polish.css"]),assetsBudgetKb:100,
+      capabilities:Object.freeze(["visual-tokens","components","timer","motion","component-contract"]),network:"forbidden",scripts:"forbidden"
     })
   });
   const contract=window.PhoenixMaterialContract;

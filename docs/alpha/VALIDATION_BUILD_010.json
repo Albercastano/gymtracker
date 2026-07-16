@@ -1,0 +1,19 @@
+{
+  "build": "Phoenix 11 Alpha Build 010",
+  "material": "FORGED Apex 0.3.0-alpha",
+  "base": "Build 009",
+  "foundryIncluded": false,
+  "apexStyles": [
+    "tokens.css",
+    "components.css",
+    "screens.css",
+    "extended.css",
+    "finish.css",
+    "timer.css"
+  ],
+  "pedbOfficialExercises": 677,
+  "notes": [
+    "PEDB 1200 no está presente en la fuente disponible",
+    "Precision permanece como fallback"
+  ]
+}

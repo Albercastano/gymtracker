@@ -1,34 +1,89 @@
 {
   "passed": true,
   "issues": [],
-  "added_in_v3": 76,
-  "counts": {
-    "exercises": 677,
-    "relations": 23811,
-    "families": 22,
-    "muscles": 14,
-    "zones": 79,
-    "equipment": 138,
-    "patterns": 88,
-    "exercise_types": 4
+  "version": "3.4.0",
+  "exercise_count": 1200,
+  "added": 309,
+  "relations": 21522,
+  "duplicate_checks": {
+    "exact": 0,
+    "normalized": 0,
+    "canonical_signature": 0
   },
-  "compatibility": {
-    "previous_exercise_ids_preserved": true,
-    "user_exercises_supported": true,
-    "html_first": true,
-    "flutter_ready": true
-  },
-  "size_bytes": {
-    "equipment.json": 6474,
-    "exercise_types.json": 169,
-    "exercises.json": 288596,
-    "families.json": 987,
-    "manifest.json": 1651,
-    "muscles.json": 560,
-    "patterns.json": 4422,
-    "relations.json": 2346425,
-    "search_index.json": 105498,
-    "user_relation_rules.json": 435,
-    "zones.json": 3791
+  "rejected_candidates": 11,
+  "rejected_sample": [
+    {
+      "candidate": "Press con mancuernas en banco a 45 grados",
+      "reason": "near_duplicate",
+      "matches": "Press con mancuernas en banco a 15 grados"
+    },
+    {
+      "candidate": "Cruce de poleas descendente unilateral con pausa",
+      "reason": "near_duplicate",
+      "matches": "Cruce de poleas ascendente unilateral con pausa"
+    },
+    {
+      "candidate": "Cruce de poleas ascendente bilateral con pausa",
+      "reason": "near_duplicate",
+      "matches": "Cruce de poleas ascendente unilateral con pausa"
+    },
+    {
+      "candidate": "Remo con mancuernas apoyado en banco inclinado a 45 grados",
+      "reason": "near_duplicate",
+      "matches": "Remo con mancuernas apoyado en banco inclinado a 30 grados"
+    },
+    {
+      "candidate": "Face pull con rotación externa",
+      "reason": "duplicate_normalized_or_signature"
+    },
+    {
+      "candidate": "Rotación externa de hombro con banda a 45 grados",
+      "reason": "near_duplicate",
+      "matches": "Rotación externa de hombro con banda a 0 grados"
+    },
+    {
+      "candidate": "Rotación externa de hombro con polea a 90 grados",
+      "reason": "near_duplicate",
+      "matches": "Rotación externa de hombro con polea a 0 grados"
+    },
+    {
+      "candidate": "Curl inclinado con mancuernas a 60 grados",
+      "reason": "near_duplicate",
+      "matches": "Curl inclinado con mancuernas a 30 grados"
+    },
+    {
+      "candidate": "Extensión de tríceps en polea con barra V",
+      "reason": "near_duplicate",
+      "matches": "Extensión de tríceps en polea con barra"
+    },
+    {
+      "candidate": "Hip thrust con pies elevados",
+      "reason": "duplicate_normalized_or_signature"
+    },
+    {
+      "candidate": "Aducción de cadera con banda de pie",
+      "reason": "duplicate_normalized_or_signature"
+    }
+  ],
+  "sha256": {
+    "anatomy.json": "800eef847b446deb7ca464e171f4189cca8043ba9f7d3808dd3fea3098be08d6",
+    "equipment.json": "bcd541f051bb4efa59f71a0b43231460672b51b10e8068dfb7ac64be84bc11b8",
+    "equipment_meta.json": "d4e116c6426852e42074232c72a6ce67fda9903c0d6493ad3579b74f72307867",
+    "equipment_profiles_schema.json": "52a6f68ef107d3f0f989a93db33b4f86b2b7b8b219ce98143175deecd2c42703",
+    "exercise_types.json": "6cb86bd50d508df7fb719678e5a6c6af9b8336680ad9bdff13e5bf1dee26c082",
+    "exercises.json": "98314d9323e758eea1a8ce87dd992609fb0323f4e71927f18f9921a73decebfc",
+    "families.json": "7ef296d89c0264ce973c32646838c1ea5bc6e3674daf033bbac5e25e46d11544",
+    "family_knowledge.json": "10f5dcbde184e4cbe53f9b7df1cbc8ea6c14805cd2c3f6ce65bc90ac7510f5ed",
+    "functions.json": "5874520f905f8973d6eaaf66c188a62a1702bbd1969dd196f59a3eb8dc8923b4",
+    "manifest.json": "8662d1116fe93196f13b5b2136def3a37d689a5141f377c9ed97213fa1e02a8b",
+    "muscles.json": "84d79651bad010cfe3ee0572c2424f97d10e8733b6c5381de69ae3e5f4d977fd",
+    "packs.json": "bc0c385b27576e9bf30619f98a2f56812d7a6e792fba68ff28db1716c8059948",
+    "patterns.json": "3c17a63ad57e2098cef251a50c4dbb335058b21d24aaba7b2fc7c51ab5e4aadc",
+    "reason_templates.json": "74d2421009234512341e19191af7adb08f332056b3a5925e9caac3e332843724",
+    "relations.json": "6da20a5dc9f0fd10453153dd14a5daa1c663880728fd496721cb68cc7ad8719f",
+    "search_index.json": "5ed7d323fa58f7d62661a7a391c5d61a15d632074db9cb39fe56991496826364",
+    "tags.json": "6819cdc5c5091f9374af579b5c4331411d8c46f6c3d1a537950848869e68c7f8",
+    "user_relation_rules.json": "80cd6dda554ae9c845c5c9aef2d05fb4f5c83f1d74f17cedb7e09ae99c9bfa13",
+    "zones.json": "e35eb2d2882d0623839611ab39dee32f39fc07f235a9b21d3503fd21a8307088"
   }
 }

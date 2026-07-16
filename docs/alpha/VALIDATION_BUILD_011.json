@@ -1,0 +1,72 @@
+{
+  "build": "Phoenix 11 Alpha Build 011",
+  "pedb": {
+    "version": "3.4.0",
+    "exercises": 1200,
+    "relations": 21522,
+    "duplicate_exercise_ids": 0,
+    "duplicate_normalized_names": 0,
+    "duplicate_relation_ids": 0,
+    "referential_integrity": true,
+    "source_validation_passed": true,
+    "issues": [],
+    "manifest_counts_corrected": true,
+    "actual_catalog_counts": {
+      "exercises": 1200,
+      "relations": 21522,
+      "families": 22,
+      "muscles": 14,
+      "zones": 89,
+      "equipment": 183,
+      "patterns": 111,
+      "exercise_types": 4,
+      "functions": 25,
+      "packs": 6,
+      "tags": 16
+    },
+    "sha256": {
+      "anatomy.json": "800eef847b446deb7ca464e171f4189cca8043ba9f7d3808dd3fea3098be08d6",
+      "equipment.json": "bcd541f051bb4efa59f71a0b43231460672b51b10e8068dfb7ac64be84bc11b8",
+      "equipment_meta.json": "d4e116c6426852e42074232c72a6ce67fda9903c0d6493ad3579b74f72307867",
+      "equipment_profiles_schema.json": "52a6f68ef107d3f0f989a93db33b4f86b2b7b8b219ce98143175deecd2c42703",
+      "exercise_types.json": "6cb86bd50d508df7fb719678e5a6c6af9b8336680ad9bdff13e5bf1dee26c082",
+      "exercises.json": "98314d9323e758eea1a8ce87dd992609fb0323f4e71927f18f9921a73decebfc",
+      "families.json": "7ef296d89c0264ce973c32646838c1ea5bc6e3674daf033bbac5e25e46d11544",
+      "family_knowledge.json": "10f5dcbde184e4cbe53f9b7df1cbc8ea6c14805cd2c3f6ce65bc90ac7510f5ed",
+      "functions.json": "5874520f905f8973d6eaaf66c188a62a1702bbd1969dd196f59a3eb8dc8923b4",
+      "manifest.json": "42b7ff933fc4d96122523aa6ba3f3bd2ef6db212343a94b17112aa8bade3f213",
+      "muscles.json": "84d79651bad010cfe3ee0572c2424f97d10e8733b6c5381de69ae3e5f4d977fd",
+      "packs.json": "bc0c385b27576e9bf30619f98a2f56812d7a6e792fba68ff28db1716c8059948",
+      "patterns.json": "3c17a63ad57e2098cef251a50c4dbb335058b21d24aaba7b2fc7c51ab5e4aadc",
+      "reason_templates.json": "74d2421009234512341e19191af7adb08f332056b3a5925e9caac3e332843724",
+      "relations.json": "6da20a5dc9f0fd10453153dd14a5daa1c663880728fd496721cb68cc7ad8719f",
+      "search_index.json": "5ed7d323fa58f7d62661a7a391c5d61a15d632074db9cb39fe56991496826364",
+      "tags.json": "6819cdc5c5091f9374af579b5c4331411d8c46f6c3d1a537950848869e68c7f8",
+      "user_relation_rules.json": "80cd6dda554ae9c845c5c9aef2d05fb4f5c83f1d74f17cedb7e09ae99c9bfa13",
+      "zones.json": "e35eb2d2882d0623839611ab39dee32f39fc07f235a9b21d3503fd21a8307088"
+    }
+  },
+  "apex": {
+    "phase": 4,
+    "version": "0.4.0-alpha",
+    "focus": [
+      "PEDB catalog density",
+      "progressive rendering",
+      "scope filters",
+      "Apex catalog cards"
+    ],
+    "foundry_included": false,
+    "precision_fallback": true,
+    "contract_valid": true,
+    "total_bytes": 66734,
+    "budget_kb": 100
+  },
+  "passed": true,
+  "runtime_validation": {
+    "javascript_syntax": true,
+    "json_parse": true,
+    "service_worker_assets_present": true,
+    "offline_bundle_counts_verified": true,
+    "browser_visual_test": "not_executed_environment_blocks_local_pages"
+  }
+}

@@ -17,6 +17,7 @@ const App={
   backLock:false,
   navigationReady:false,
   dataMetric:"volume",
+  dataRange:"4w",
   openRoutineId:null,
   routineAccordionInitialized:false,
   planningWeekStart:null,
@@ -34,6 +35,9 @@ const App={
   editingWeightId:null,
   audioCtx:null,
   audioUnlocked:false,
+  audioEl:null,
+  audioUnlocking:false,
+  lastTimerAnnouncement:null,
 
 
   async init(){
@@ -371,7 +375,8 @@ const App={
     if(!["normal","large","xl"].includes(this.data.settings.fontScale))this.data.settings.fontScale="normal";
     if(!["auto","portrait","landscape"].includes(this.data.settings.timerOrientation))this.data.settings.timerOrientation="auto";
     if(window.PhoenixMaterialEngine&&!window.PhoenixMaterialEngine.isSupported(this.data.settings.uiMaterial))this.data.settings.uiMaterial=window.PhoenixMaterialEngine.fallback;
-    else if(!window.PhoenixMaterialEngine&&!["precision","foundry"].includes(this.data.settings.uiMaterial))this.data.settings.uiMaterial="precision";
+    else if(!window.PhoenixMaterialEngine&&!["precision","apex"].includes(this.data.settings.uiMaterial))this.data.settings.uiMaterial="precision";
+    if(this.data.settings.uiMaterial==="foundry")this.data.settings.uiMaterial="precision";
     this.data.settings.defaultRest=Math.max(0,Number(this.data.settings.defaultRest)||90);
     this.data.settings.sound=this.data.settings.sound!==false;
     this.data.settings.vibration=this.data.settings.vibration!==false;
@@ -644,7 +649,7 @@ const App={
     const weekVolume=weekSessions.reduce((sum,s)=>sum+(Number(s.volume)||0),0);
     const bodyWeight=Number(this.data.profile?.bodyWeight)||0;
     const uiMaterial=this.data.settings?.uiMaterial||"precision";
-    const uiMaterialShort=uiMaterial==="foundry"?"FOUNDRY":"PRECISION";
+    const uiMaterialShort=uiMaterial==="apex"?"APEX":"PRECISION";
     const activeRoutine=active?this.getRoutine(active.routineId):null;
     const activeExercise=active?this.currentExercise():null;
 
@@ -681,7 +686,7 @@ const App={
     document.getElementById("home").innerHTML=`<div class="home-phoenix home-definitive">${storageNotice}
       <section class="home-brand home-brand--forged" aria-label="GymTracker Phoenix">
         <div class="home-brand__plate"><img src="icon-512.png" alt="" aria-hidden="true"></div>
-        <div class="home-brand__copy"><div class="home-brand__name">GYMTRACKER</div><div class="home-brand__sub">PHOENIX · FORGED</div></div>
+        <div class="home-brand__copy"><div class="home-brand__name">GYMTRACKER</div><div class="home-brand__sub">${uiMaterial==="apex"?"PHOENIX · APEX":"PHOENIX · FORGED"}</div></div>
         <button type="button" class="home-material-access" onclick="App.openMaterialSettings()" aria-label="Cambiar material visual">
           <span>MATERIAL</span><b data-material-short>${uiMaterialShort}</b><em aria-hidden="true">›</em>
         </button>
@@ -996,6 +1001,7 @@ const App={
     this.ensureAudioReady();
     this.active.restPaused=false;
     this.active.restPausedLeft=0;
+    this.lastTimerAnnouncement=null;
     this.saveActive();
     this.renderRest();
     this.runRestTimer()
@@ -1063,12 +1069,26 @@ const App={
           <div class="phoenix-timer__screw phoenix-timer__screw--bl"></div><div class="phoenix-timer__screw phoenix-timer__screw--br"></div>
           <div class="phoenix-timer__plate">PHOENIX TIMER</div>
           <div id="phoenixTimerRing" class="phoenix-timer__ring" style="--progress:1">
+            <svg class="phoenix-timer__svg" viewBox="0 0 120 120" aria-hidden="true">
+              <defs>
+                <linearGradient id="apexTimerGradient" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#00d9ff"></stop>
+                  <stop offset="56%" stop-color="#00d9ff"></stop>
+                  <stop offset="100%" stop-color="#00e676"></stop>
+                </linearGradient>
+              </defs>
+              <circle class="phoenix-timer__svg-track" cx="60" cy="60" r="53" pathLength="100"></circle>
+              <circle id="phoenixTimerArc" class="phoenix-timer__svg-arc" cx="60" cy="60" r="53" pathLength="100"></circle>
+              <circle class="phoenix-timer__svg-inner" cx="60" cy="60" r="45" pathLength="100"></circle>
+            </svg>
             <div class="phoenix-timer__ticks" aria-hidden="true"></div>
             <div class="phoenix-timer__core">
-              <span class="phoenix-timer__hourglass" aria-hidden="true">⌛</span>
-              <div id="restTime" class="phoenix-timer__time">00:00</div>
+              <span class="phoenix-timer__hourglass" aria-hidden="true">◷</span>
+              <div id="restTime" class="phoenix-timer__time" role="timer" aria-live="off">00:00</div>
               <div class="phoenix-timer__next">SIGUIENTE · SERIE ${nextSeries}/${e.sets}</div>
               <div id="phoenixTimerState" class="phoenix-timer__state">DESCANSO</div>
+              <div class="phoenix-timer__telemetry"><span id="phoenixTimerPercent">100%</span><i></i><span id="phoenixTimerTotal">${this.formatDuration(this.active.restTotal||0)} TOTAL</span></div>
+              <span id="phoenixTimerLive" class="sr-only" aria-live="polite"></span>
             </div>
             <div class="phoenix-timer__spark" aria-hidden="true"></div>
           </div>
@@ -1082,7 +1102,7 @@ const App={
         </div>
         <button class="phoenix-timer__skip" onclick="App.skipRest()"><span>»</span> SALTAR DESCANSO</button>
         <footer class="phoenix-timer__footer">
-          <button type="button" onclick="App.toggleTimerSound()"><span>◖))</span><div><small>SONIDO</small><b id="timerSoundStatus">${soundOn?"ACTIVADO":"DESACTIVADO"}</b></div></button>
+          <button type="button" onclick="App.toggleTimerSound()"><span>◖))</span><div><small>SONIDO</small><b id="timerSoundStatus">${soundOn?"ACTIVADO":"DESACTIVADO"}</b><em id="timerAudioReady">${soundOn?(this.audioUnlocked?"LISTO":"TOCA PARA ACTIVAR"):"OFF"}</em></div></button>
           <button type="button" onclick="App.toggleTimerVibration()"><span>▣</span><div><small>VIBRACIÓN</small><b id="timerVibrationStatus">${vibrationOn?"ACTIVADA":"DESACTIVADA"}</b></div></button>
         </footer>
       </section>
@@ -1101,14 +1121,25 @@ const App={
     const ring=document.getElementById("phoenixTimerRing");
     const state=document.getElementById("phoenixTimerState");
     const pulse=document.getElementById("phoenixTimerPulse");
+    const arc=document.getElementById("phoenixTimerArc");
+    const percent=document.getElementById("phoenixTimerPercent");
+    const totalEl=document.getElementById("phoenixTimerTotal");
+    const live=document.getElementById("phoenixTimerLive");
     if(ring)ring.style.setProperty("--progress",String(progress));
+    if(arc)arc.style.strokeDashoffset=String(100-(progress*100));
+    if(percent)percent.textContent=`${Math.round(progress*100)}%`;
+    if(totalEl)totalEl.textContent=`${this.formatDuration(total)} TOTAL`;
+    if(live&&[10,5,3,2,1,0].includes(t)&&this.lastTimerAnnouncement!==t){
+      live.textContent=t===0?"Descanso terminado":`${t} segundos`;
+      this.lastTimerAnnouncement=t;
+    }
     if(timer){
       timer.classList.toggle("is-warning",t>0&&t<=10);
       timer.classList.toggle("is-finished",t===0);
       timer.classList.toggle("is-paused",Boolean(this.active?.restPaused));
     }
     if(state)state.textContent=t===0?"LISTO":this.active?.restPaused?"PAUSADO":"DESCANSO";
-    if(pulse)pulse.textContent=t===0?"SIGUIENTE SERIE":t<=10?"PULSO DORADO":"PRECISIÓN FORGED";
+    if(pulse){const mat=this.data?.settings?.uiMaterial||"precision";pulse.textContent=t===0?"SIGUIENTE SERIE":t<=10?(mat==="apex"?"ALERTA APEX":"PULSO DORADO"):(mat==="apex"?"SEÑAL APEX":"PRECISIÓN FORGED")};
   },
 
   adjustRest(delta){
@@ -1172,44 +1203,83 @@ const App={
   },
 
   bindAudioUnlock(){
-    const unlock=()=>this.ensureAudioReady();
+    const unlock=()=>this.unlockAudio();
     document.addEventListener("pointerdown",unlock,{passive:true});
     document.addEventListener("touchstart",unlock,{passive:true});
     document.addEventListener("keydown",unlock);
   },
 
-  ensureAudioReady(){
-    if(!this.data?.settings?.sound)return null;
+  async unlockAudio(){
+    if(!this.data?.settings?.sound)return false;
+    if(this.audioUnlocking)return this.audioUnlocked;
+    this.audioUnlocking=true;
+    let ready=false;
     try{
       const AudioCtx=window.AudioContext||window.webkitAudioContext;
-      if(!AudioCtx)return null;
-      if(!this.audioCtx||this.audioCtx.state==="closed")this.audioCtx=new AudioCtx();
-      if(this.audioCtx.state==="suspended")this.audioCtx.resume?.().catch(()=>{});
-      this.audioUnlocked=true;
-      return this.audioCtx
-    }catch(e){return null}
+      if(AudioCtx){
+        if(!this.audioCtx||this.audioCtx.state==="closed")this.audioCtx=new AudioCtx();
+        if(this.audioCtx.state==="suspended")await this.audioCtx.resume();
+        const gain=this.audioCtx.createGain();
+        gain.gain.value=.00001;
+        const osc=this.audioCtx.createOscillator();
+        osc.frequency.value=220;osc.connect(gain);gain.connect(this.audioCtx.destination);
+        osc.start();osc.stop(this.audioCtx.currentTime+.012);
+        ready=this.audioCtx.state==="running";
+      }
+      if(!this.audioEl){
+        this.audioEl=new Audio("audio/phoenix-apex-ready.wav");
+        this.audioEl.preload="auto";
+        this.audioEl.playsInline=true;
+      }
+      // Unlock the persistent media element inside a genuine user gesture.
+      const previousVolume=this.audioEl.volume;
+      this.audioEl.volume=0;
+      try{await this.audioEl.play();this.audioEl.pause();this.audioEl.currentTime=0;ready=true}catch(e){}
+      this.audioEl.volume=previousVolume||.82;
+    }catch(e){}
+    this.audioUnlocked=ready;
+    this.audioUnlocking=false;
+    this.updateAudioReadyIndicator();
+    return ready;
   },
 
-  beep(){
+  ensureAudioReady(){
+    this.unlockAudio();
+    return this.audioCtx;
+  },
+
+  updateAudioReadyIndicator(){
+    const el=document.getElementById("timerAudioReady");
+    if(el)el.textContent=!this.data?.settings?.sound?"OFF":this.audioUnlocked?"LISTO":"TOCA PARA ACTIVAR";
+  },
+
+  async beep(){
     if(!this.data?.settings?.sound)return;
-    const ctx=this.ensureAudioReady();
-    if(!ctx)return;
+    await this.unlockAudio();
+    let mediaPlayed=false;
+    try{
+      if(!this.audioEl){this.audioEl=new Audio("audio/phoenix-apex-ready.wav");this.audioEl.preload="auto";this.audioEl.playsInline=true}
+      this.audioEl.pause();this.audioEl.currentTime=0;this.audioEl.volume=.88;
+      await this.audioEl.play();mediaPlayed=true;
+    }catch(e){}
+    if(mediaPlayed)return;
+    const ctx=this.audioCtx;
+    if(!ctx||ctx.state!=="running")return;
     try{
       const now=ctx.currentTime;
       const master=ctx.createGain();
       master.gain.setValueAtTime(.0001,now);
-      master.gain.exponentialRampToValueAtTime(.24,now+.025);
-      master.gain.exponentialRampToValueAtTime(.0001,now+1.15);
+      master.gain.exponentialRampToValueAtTime(.22,now+.02);
+      master.gain.exponentialRampToValueAtTime(.0001,now+1.05);
       master.connect(ctx.destination);
-      [392,523.25,659.25].forEach((frequency,index)=>{
-        const osc=ctx.createOscillator();
-        const gain=ctx.createGain();
+      [440,554.37,659.25].forEach((frequency,index)=>{
+        const osc=ctx.createOscillator(),gain=ctx.createGain();
         osc.type=index===0?"triangle":"sine";
         osc.frequency.setValueAtTime(frequency,now);
         gain.gain.setValueAtTime(.0001,now);
-        gain.gain.exponentialRampToValueAtTime(index===0?.17:.1,now+.02+(index*.035));
-        gain.gain.exponentialRampToValueAtTime(.0001,now+.55+(index*.18));
-        osc.connect(gain);gain.connect(master);osc.start(now+(index*.035));osc.stop(now+1.2);
+        gain.gain.exponentialRampToValueAtTime(index===0?.15:.09,now+.02+(index*.04));
+        gain.gain.exponentialRampToValueAtTime(.0001,now+.48+(index*.17));
+        osc.connect(gain);gain.connect(master);osc.start(now+(index*.04));osc.stop(now+1.1);
       });
     }catch(e){}
   },
@@ -1217,8 +1287,9 @@ const App={
   toggleTimerSound(){
     this.data.settings.sound=!this.data.settings.sound;
     this.save();
-    if(this.data.settings.sound){this.ensureAudioReady();this.beep()}
+    if(this.data.settings.sound){this.unlockAudio();this.beep()}else{this.audioUnlocked=false}
     const el=document.getElementById("timerSoundStatus");if(el)el.textContent=this.data.settings.sound?"ACTIVADO":"DESACTIVADO";
+    this.updateAudioReadyIndicator();
     this.toast(`Sonido ${this.data.settings.sound?"activado":"desactivado"}`)
   },
 
@@ -1246,7 +1317,7 @@ const App={
     document.documentElement.removeAttribute('data-phx-material-preview');document.body?.classList.remove('phx-material-preview');
     const engine=window.PhoenixMaterialEngine;
     if(engine&&!engine.isSupported(material)){this.toast("Material no compatible");return}
-    if(!engine&&!["precision","foundry"].includes(material))return;
+    if(!engine&&!["precision","apex"].includes(material))return;
     this.data.settings.uiMaterial=material;
     if(engine)engine.apply(material,{source:"settings"});else this.applyUiSettings();
     this.save();
@@ -1258,9 +1329,9 @@ const App={
       if(state)state.textContent=active?'MATERIAL ACTIVO':'APLICAR MATERIAL';
     });
     const manifest=engine?.getManifest?.(material);
-    document.querySelectorAll('[data-material-current]').forEach(el=>el.textContent=manifest?.name||(material==='foundry'?'FORGED Foundry':'FORGED Precision'));
-    document.querySelectorAll('[data-material-short]').forEach(el=>el.textContent=material==='foundry'?'FOUNDRY':'PRECISION');
-    this.toast(material==='foundry'?'FORGED Foundry aplicado':'FORGED Precision aplicado');
+    document.querySelectorAll('[data-material-current]').forEach(el=>el.textContent=manifest?.name||(material==='apex'?'FORGED Apex':'FORGED Precision'));
+    document.querySelectorAll('[data-material-short]').forEach(el=>el.textContent=material==='apex'?'APEX':'PRECISION');
+    this.toast(material==='apex'?'FORGED Apex aplicado':'FORGED Precision aplicado');
     if(this.currentScreen==="forgeLab"){
       requestAnimationFrame(()=>{
         this.updateForgeLabMaterialState();
@@ -1272,7 +1343,7 @@ const App={
   previewUiMaterial(material){
     const engine=window.PhoenixMaterialEngine;
     if(engine&&!engine.isSupported(material)){this.toast("Material no compatible");return}
-    if(!engine&&!['precision','foundry'].includes(material))return;
+    if(!engine&&!['precision','apex'].includes(material))return;
     if(!this.materialPreviewOriginal)this.materialPreviewOriginal=this.data?.settings?.uiMaterial||'precision';
     this.materialPreview=material;
     document.documentElement.dataset.phxMaterialPreview='true';
@@ -1280,7 +1351,7 @@ const App={
     if(engine)engine.apply(material,{source:'preview'});
     else{document.documentElement.dataset.phxMaterial=material;document.body.dataset.phxMaterial=material}
     const manifest=engine?.getManifest?.(material);
-    const name=manifest?.name||(material==='foundry'?'FORGED Foundry':'FORGED Precision');
+    const name=manifest?.name||(material==='apex'?'FORGED Apex':'FORGED Precision');
     const nameEl=document.getElementById('forgePreviewName');if(nameEl)nameEl.textContent=name;
     const apply=document.getElementById('forgeApplyPreview');if(apply)apply.disabled=false;
     const cancel=document.getElementById('forgeCancelPreview');if(cancel)cancel.disabled=false;
@@ -1333,7 +1404,7 @@ const App={
     const certificate=engine?.validate?.(active);
     const controls=[...root.querySelectorAll('button:not([disabled]),input,select')];
     const tiny=controls.filter(el=>{const r=el.getBoundingClientRect();return r.width<44||r.height<44});
-    const overflow=[...root.querySelectorAll('.phx-card,.foundry-core__plate,.quality-state-card,.quality-intensity')].filter(el=>el.scrollWidth>el.clientWidth+2);
+    const overflow=[...root.querySelectorAll('.phx-card,.apex-core__card,.quality-state-card,.quality-intensity')].filter(el=>el.scrollWidth>el.clientWidth+2);
     const nativeDialogs=[...document.querySelectorAll('[onclick*="alert("],[onclick*="prompt("],[onclick*="confirm("]')];
     const semantic=window.PhoenixComponentRuntime?.report?.();
     const persisted=(this.data?.settings?.uiMaterial||'precision')===active||Boolean(this.materialPreview);
@@ -1351,7 +1422,7 @@ const App={
     if(score)score.textContent=`${passed}/${checks.length}`;
     if(state){state.textContent=passed===checks.length?'APROBADO':passed>=checks.length-1?'REVISAR':'BLOQUEADO';state.className=passed===checks.length?'valid':passed>=checks.length-1?'warning':'invalid'}
     if(list)list.innerHTML=checks.map(item=>`<div class="forge-quality-check ${item.ok?'ok':'fail'}"><i>${item.ok?'✓':'!'}</i><div><b>${this.escape(item.name)}</b><span>${this.escape(item.detail)}</span></div></div>`).join('');
-    this.lastForgeQualityReport={build:'007',material:active,viewport:`${innerWidth}x${innerHeight}`,passed,total:checks.length,checks:checks.map(x=>({name:x.name,ok:x.ok,detail:x.detail})),at:new Date().toISOString()};
+    this.lastForgeQualityReport={build:'009',material:active,viewport:`${innerWidth}x${innerHeight}`,passed,total:checks.length,checks:checks.map(x=>({name:x.name,ok:x.ok,detail:x.detail})),at:new Date().toISOString()};
     this.toast(passed===checks.length?'Quality Gate superado':'Quality Gate: hay puntos por revisar');
   },
 
@@ -1892,6 +1963,12 @@ const App={
     this.renderData(false)
   },
 
+  setDataRange(range){
+    const allowed=new Set(["4w","3m","6m","1y"]);
+    this.dataRange=allowed.has(range)?range:"4w";
+    this.renderData(false)
+  },
+
   renderData(withHistory=true){
     const sessions=(this.data.sessions||[]).slice().sort((a,b)=>new Date(a.endedAt||a.date)-new Date(b.endedAt||b.date));
     const now=Date.now(), weekAgo=now-(7*24*60*60*1000);
@@ -1903,13 +1980,16 @@ const App={
     const weekMinutes=Math.round(weekSessions.reduce((sum,s)=>sum+(Number(s.durationMs)||0),0)/60000);
     const bodyWeight=Number(this.data.profile?.bodyWeight)||0;
     const uiMaterial=this.data.settings?.uiMaterial||"precision";
-    const uiMaterialName=uiMaterial==="foundry"?"FORGED Foundry":"FORGED Precision";
+    const uiMaterialName=uiMaterial==="apex"?"FORGED Apex":"FORGED Precision";
     const allMax=Math.max(0,...sessions.map(maxLoad));
     const relative=bodyWeight&&allMax?allMax/bodyWeight:0;
     const latest=sessions[sessions.length-1];
     const latestName=latest?.routineName||"Sin sesiones";
     const latestDate=latest?new Date(latest.endedAt||latest.date).toLocaleDateString('es-ES',{day:'2-digit',month:'short'}):"—";
     const metric=this.dataMetric||"volume";
+    const range=this.dataRange||"4w";
+    const rangeDays={"4w":28,"3m":92,"6m":184,"1y":366};
+    const rangeCutoff=now-(rangeDays[range]||28)*24*60*60*1000;
     const labels={volume:"Volumen",load:"Carga",relative:"Fuerza relativa",weight:"Peso corporal"};
     let source=[];
     if(metric==="weight") source=(this.data.weights||[]).map(x=>({date:new Date(x.date),value:Number(x.weight)||0}));
@@ -1917,7 +1997,13 @@ const App={
       date:new Date(s.endedAt||s.date),
       value:metric==="load"?maxLoad(s):metric==="relative"?(bodyWeight?maxLoad(s)/bodyWeight:0):(Number(s.volume)||0)
     }));
-    source=source.filter(x=>Number.isFinite(x.value)&&x.value>0).slice(-8);
+    source=source.filter(x=>Number.isFinite(x.value)&&x.value>0&&x.date.getTime()>=rangeCutoff);
+    if(source.length>12){
+      const sampled=[];
+      const step=(source.length-1)/11;
+      for(let i=0;i<12;i++)sampled.push(source[Math.round(i*step)]);
+      source=sampled;
+    }
     const values=source.map(x=>x.value);
     const min=values.length?Math.min(...values):0,max=values.length?Math.max(...values):1,span=Math.max(1,max-min);
     const points=values.map((v,i)=>`${10+(i*(80/Math.max(1,values.length-1)))},${82-((v-min)/span)*58}`).join(' ');
@@ -1926,7 +2012,7 @@ const App={
     const recent=sessions.slice(-3).reverse();
     document.getElementById("data").innerHTML=`<div class="data-v2">
       <section class="data-v2__head phx-card phx-card--highlight">
-        <div class="data-v2__brand"><span class="data-v2__plate"><img src="icon-512.png" alt=""></span><div><small>GYMTRACKER</small><b>PHOENIX · DATA</b></div></div>
+        <div class="data-v2__brand"><span class="data-v2__plate"><img src="icon-512.png" alt=""></span><div><small>GYMTRACKER</small><b>${uiMaterial==="apex"?"PHOENIX · APEX DATA":"PHOENIX · DATA"}</b></div></div>
         <div class="eyebrow">DATOS</div>
         <h1>Tu progreso,<br><em>sin ruido.</em></h1>
         <p>Lo que has hecho. Lo que estás mejorando.</p>
@@ -1940,18 +2026,18 @@ const App={
         <div class="data-v2__metric"><span>TIEMPO</span><strong>${weekMinutes}</strong><small>minutos</small></div>
       </section>
 
-      <section class="data-v2__chart phx-card">
+      <section class="data-v2__chart phx-card" data-metric="${metric}" data-range="${range}">
         <div class="data-v2__chart-head"><div><span>PROGRESO</span><h2>${labels[metric]}</h2></div><strong>${endValue?formatValue(endValue):'—'}</strong></div>
-        <div class="data-v2__tabs" role="tablist">
-          <button class="${metric==='load'?'active':''}" onclick="App.setDataMetric('load')">CARGA</button>
-          <button class="${metric==='relative'?'active':''}" onclick="App.setDataMetric('relative')">RELATIVA</button>
-          <button class="${metric==='volume'?'active':''}" onclick="App.setDataMetric('volume')">VOLUMEN</button>
-          <button class="${metric==='weight'?'active':''}" onclick="App.setDataMetric('weight')">PESO</button>
+        <div class="data-v2__tabs" role="tablist" aria-label="Métrica de progreso">
+          <button role="tab" aria-selected="${metric==='load'}" class="${metric==='load'?'active':''}" onclick="App.setDataMetric('load')">CARGA</button>
+          <button role="tab" aria-selected="${metric==='relative'}" class="${metric==='relative'?'active':''}" onclick="App.setDataMetric('relative')">RELATIVA</button>
+          <button role="tab" aria-selected="${metric==='volume'}" class="${metric==='volume'?'active':''}" onclick="App.setDataMetric('volume')">VOLUMEN</button>
+          <button role="tab" aria-selected="${metric==='weight'}" class="${metric==='weight'?'active':''}" onclick="App.setDataMetric('weight')">PESO</button>
         </div>
         <div class="data-v2__graph ${values.length?'':'is-empty'}">
-          ${values.length?`<svg viewBox="0 0 100 92" preserveAspectRatio="none" aria-label="Gráfica de ${labels[metric]}"><defs><linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d8b35e" stop-opacity=".32"/><stop offset="1" stop-color="#d8b35e" stop-opacity="0"/></linearGradient></defs><path d="M10 82 L ${points.replaceAll(' ',', L ')} L90 88 L10 88 Z" fill="url(#chartFill)"/><polyline points="${points}" fill="none" stroke="#f0cc78" stroke-width="2.2" vector-effect="non-scaling-stroke"/><circle cx="${points.split(' ').at(-1).split(',')[0]}" cy="${points.split(' ').at(-1).split(',')[1]}" r="2.7" fill="#fff0b8" stroke="#7a4c0e" stroke-width="1.2"/></svg>`:`<div><b>Aún no hay datos suficientes</b><span>Completa sesiones para ver la evolución.</span></div>`}
+          ${values.length?`<svg viewBox="0 0 100 92" preserveAspectRatio="none" aria-label="Gráfica de ${labels[metric]}"><defs><linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1"><stop class="data-v2__graph-stop" offset="0" stop-opacity=".30"/><stop class="data-v2__graph-stop" offset="1" stop-opacity="0"/></linearGradient></defs><path class="data-v2__graph-fill" d="M10 82 L ${points.replaceAll(' ',', L ')} L90 88 L10 88 Z" fill="url(#chartFill)"/><polyline class="data-v2__graph-line" points="${points}" fill="none" stroke-width="2.2" vector-effect="non-scaling-stroke"/><circle class="data-v2__graph-point" cx="${points.split(' ').at(-1).split(',')[0]}" cy="${points.split(' ').at(-1).split(',')[1]}" r="2.7" stroke-width="1.2"/></svg>`:`<div><b>Aún no hay datos suficientes</b><span>Completa sesiones para ver la evolución.</span></div>`}
         </div>
-        <div class="data-v2__range"><button class="active">4S</button><button>3M</button><button>6M</button><button>1A</button></div>
+        <div class="data-v2__range" role="tablist" aria-label="Periodo de la gráfica"><button role="tab" aria-selected="${range==='4w'}" class="${range==='4w'?'active':''}" onclick="App.setDataRange('4w')">4S</button><button role="tab" aria-selected="${range==='3m'}" class="${range==='3m'?'active':''}" onclick="App.setDataRange('3m')">3M</button><button role="tab" aria-selected="${range==='6m'}" class="${range==='6m'?'active':''}" onclick="App.setDataRange('6m')">6M</button><button role="tab" aria-selected="${range==='1y'}" class="${range==='1y'?'active':''}" onclick="App.setDataRange('1y')">1A</button></div>
       </section>
 
       <section class="data-v2__insights">
@@ -2409,35 +2495,84 @@ const App={
 
   renderLibrary(selectMode=false){
     this.librarySelectMode=selectMode;
-    document.getElementById("library").innerHTML=`<div class="card"><div class="eyebrow">BIBLIOTECA ${this.pedbReady?`· PEDB ${this.pedbManifest?.version||""}`:this.pedbError?"· ERROR DE CARGA":"· CARGANDO PEDB"}</div><div class="title">EJERCICIOS</div><div class="library-toolbar"><input id="librarySearch" placeholder="Buscar por nombre, sinónimo o etiqueta…" oninput="App.updateLibraryView()"><button class="secondary" onclick="App.openPersonalExercise()">＋ Personal</button><button class="secondary" onclick="App.openPEDBCsvImporter()">Importar CSV</button></div><div id="libraryTabs" class="library-tabs"></div><div id="libraryList" class="list"></div></div>`;
     this.libraryGroup="Todos";
+    this.libraryScope="all";
+    this.libraryVisibleLimit=60;
+    const count=Number(this.pedbManifest?.counts?.exercises||this.pedbExercises?.length||0);
+    const relations=Number(this.pedbManifest?.counts?.relations||0);
+    document.getElementById("library").innerHTML=`<div class="card library-shell">
+      <div class="library-catalog-hero">
+        <div><div class="eyebrow" id="libraryCatalogEyebrow">BIBLIOTECA ${this.pedbReady?`· PEDB ${this.pedbManifest?.version||""}`:this.pedbError?"· ERROR DE CARGA":"· CARGANDO PEDB"}</div><div class="title">EJERCICIOS</div><p>Catálogo oficial local, sin multimedia ni conexión.</p></div>
+        <div class="library-catalog-metrics"><article><span>EJERCICIOS</span><b id="libraryExerciseCount">${count||"—"}</b></article><article><span>RELACIONES</span><b id="libraryRelationCount">${relations||"—"}</b></article></div>
+      </div>
+      <div class="library-toolbar"><input id="librarySearch" placeholder="Buscar nombre, sinónimo, etiqueta o material…" oninput="App.resetLibraryLimit();App.updateLibraryView()"><button class="secondary" onclick="App.openPersonalExercise()">＋ Personal</button><button class="secondary" onclick="App.openPEDBCsvImporter()">Importar CSV</button></div>
+      <div class="library-scope" id="libraryScope">
+        <button class="active" data-scope="all" onclick="App.setLibraryScope('all')">TODOS</button>
+        <button data-scope="home" onclick="App.setLibraryScope('home')">CASA</button>
+        <button data-scope="gym" onclick="App.setLibraryScope('gym')">GIMNASIO</button>
+        <button data-scope="bodyweight" onclick="App.setLibraryScope('bodyweight')">PESO CORPORAL</button>
+        <button data-scope="machine" onclick="App.setLibraryScope('machine')">MÁQUINAS</button>
+      </div>
+      <div id="libraryTabs" class="library-tabs"></div>
+      <div id="libraryResults" class="library-results" aria-live="polite"></div>
+      <div id="libraryList" class="list"></div>
+    </div>`;
     this.updateLibraryView();
     this.show("library",selectMode?"Rutinas":"Datos")
   },
 
+  resetLibraryLimit(){this.libraryVisibleLimit=60},
+
   updateLibraryView(){
-    const input=(document.getElementById("librarySearch")?.value||"").trim().toLocaleLowerCase("es");
+    const listNode=document.getElementById("libraryList");
+    const tabsNode=document.getElementById("libraryTabs");
+    if(!listNode||!tabsNode)return;
+    const input=this.normalizeExerciseName(document.getElementById("librarySearch")?.value||"");
     const all=this.allExercises();
-    const groups=["Todos","Favoritos","Recientes",...new Set(all.map(e=>e.group))];
-    document.getElementById("libraryTabs").innerHTML=groups.map(g=>`<button class="${g===this.libraryGroup?"active":""}" onclick="App.setLibraryGroup('${g.replaceAll("'","\'")}')">${g}</button>`).join("");
+    const countNode=document.getElementById("libraryExerciseCount");
+    const relationNode=document.getElementById("libraryRelationCount");
+    const eyebrowNode=document.getElementById("libraryCatalogEyebrow");
+    if(countNode)countNode.textContent=String(this.pedbReady?this.pedbExercises.length:all.length||"—");
+    if(relationNode)relationNode.textContent=String(this.pedbReady?Number(this.pedbManifest?.counts?.relations||0)||"—":"—");
+    if(eyebrowNode)eyebrowNode.textContent=`BIBLIOTECA ${this.pedbReady?`· PEDB ${this.pedbManifest?.version||""}`:this.pedbError?"· ERROR DE CARGA":"· CARGANDO PEDB"}`;
+    const groups=["Todos","Favoritos","Recientes",...new Set(all.map(e=>e.group).filter(Boolean))];
+    tabsNode.innerHTML=groups.map(g=>`<button class="${g===this.libraryGroup?"active":""}" onclick="App.setLibraryGroup('${g.replaceAll("'","\'")}')">${g}</button>`).join("");
+    document.querySelectorAll("#libraryScope [data-scope]").forEach(button=>button.classList.toggle("active",button.dataset.scope===this.libraryScope));
     let list=all;
     if(this.libraryGroup==="Favoritos")list=list.filter(e=>this.data.favoriteExerciseIds.includes(e.id));
     else if(this.libraryGroup==="Recientes")list=this.data.recentExerciseIds.map(id=>all.find(e=>e.id===id)).filter(Boolean);
     else if(this.libraryGroup!=="Todos")list=list.filter(e=>e.group===this.libraryGroup);
+    if(this.libraryScope==="home")list=list.filter(e=>e.pedb?.home_suitable===true);
+    else if(this.libraryScope==="gym")list=list.filter(e=>e.pedb&&!e.pedb.home_suitable);
+    else if(this.libraryScope==="bodyweight")list=list.filter(e=>e.pedb?.bodyweight===true);
+    else if(this.libraryScope==="machine")list=list.filter(e=>e.pedb?.machine_based===true);
     if(input)list=list.filter(e=>{
-      const p=e.pedb;return e.name.toLocaleLowerCase("es").includes(input)||e.group.toLocaleLowerCase("es").includes(input)||
-      (p?.synonyms_es||[]).some(x=>x.toLocaleLowerCase("es").includes(input))||(p?.tags||[]).some(x=>x.toLocaleLowerCase("es").includes(input))
+      const p=e.pedb||{};
+      const equipment=(p.equipment_ids||[]).map(id=>this.pedbMeta.equipment.get(id)?.name_es||"");
+      const haystack=[e.name,e.group,...(p.synonyms_es||[]),...(p.tags||[]),...equipment,p.level].map(x=>this.normalizeExerciseName(x)).join(" ");
+      return haystack.includes(input)
     });
-    list=list.slice(0,80);
-    document.getElementById("libraryList").innerHTML=list.length?list.map(e=>this.exerciseLibraryCard(e)).join(""):`<div class="muted">Sin resultados.</div>`
+    const total=list.length;
+    const limit=Math.max(60,Number(this.libraryVisibleLimit)||60);
+    const visible=list.slice(0,limit);
+    const resultNode=document.getElementById("libraryResults");
+    if(resultNode)resultNode.innerHTML=`<span><b>${total}</b> resultados</span><span>Mostrando ${Math.min(total,visible.length)}</span>`;
+    const cards=visible.map(e=>this.exerciseLibraryCard(e)).join("");
+    const more=total>visible.length?`<button class="library-load-more" onclick="App.showMoreLibrary()"><span>CARGAR MÁS</span><b>${Math.min(60,total-visible.length)} ejercicios</b></button>`:"";
+    listNode.innerHTML=total?cards+more:`<div class="library-empty"><b>Sin resultados</b><span>Prueba otro nombre, grupo o filtro.</span></div>`
   },
 
-  setLibraryGroup(group){this.libraryGroup=group;this.updateLibraryView()},
+  setLibraryGroup(group){this.libraryGroup=group;this.resetLibraryLimit();this.updateLibraryView()},
+  setLibraryScope(scope){this.libraryScope=scope;this.resetLibraryLimit();this.updateLibraryView()},
+  showMoreLibrary(){this.libraryVisibleLimit=(Number(this.libraryVisibleLimit)||60)+60;this.updateLibraryView()},
 
   exerciseLibraryCard(e){
     const fav=this.data.favoriteExerciseIds.includes(e.id);
-    const typeName=e.pedb?this.pedbMeta.types.get(e.pedb.type_id)?.name_es||"Ejercicio":e.size==="large"?"Músculo grande":"Músculo pequeño";
-    const detail=e.pedb?`${e.group} · ${typeName}${e.pedb.home_suitable?" · Casa":""}`:`${e.group} · ${typeName}`;
+    const pedb=e.pedb||{};
+    const typeName=e.pedb?this.pedbMeta.types.get(pedb.type_id)?.name_es||"Ejercicio":e.size==="large"?"Músculo grande":"Músculo pequeño";
+    const pattern=this.pedbMeta.patterns.get(pedb.pattern_id)?.name_es||"";
+    const environment=pedb.home_suitable?"CASA + GYM":"GIMNASIO";
+    const detail=[e.group,typeName,pattern].filter(Boolean).join(" · ");
     const code=e.id||"PHX-EX";
     const primaryAction=this.librarySelectMode?`App.addLibraryExerciseToRoutine('${e.id}')`:`App.previewExercise('${e.id}')`;
     const primaryText=this.librarySelectMode?"AÑADIR":"VER FICHA";
@@ -2445,7 +2580,7 @@ const App={
       <div class="pedb-forged-card__metal" aria-hidden="true"></div>
       <header><div><span>PEDB</span><small>${this.escape(code)}</small></div><button class="pedb-fav ${fav?'active':''}" onclick="App.toggleFavorite('${e.id}')" aria-label="${fav?'Quitar de favoritos':'Añadir a favoritos'}">${fav?'★':'☆'}</button></header>
       <section><h3>${this.escape(e.name)}</h3><p>${this.escape(detail)}</p></section>
-      <div class="pedb-forged-card__chips"><span>${e.official?'OFICIAL':'PERSONAL'}</span><span>${e.sets}×${e.reps}</span><span>${e.rest}s</span></div>
+      <div class="pedb-forged-card__chips"><span>${e.official?'OFICIAL':'PERSONAL'}</span><span>${this.escape(environment)}</span>${pedb.level?`<span>${this.escape(pedb.level.toUpperCase())}</span>`:""}<span>${e.sets}×${e.reps}</span><span>${e.rest}s</span></div>
       <footer><button class="pedb-btn pedb-btn--graphite" onclick="App.previewExercise('${e.id}')">VER</button><button class="pedb-btn pedb-btn--gold" onclick="${primaryAction}">${primaryText}</button></footer>
     </article>`
   },
@@ -2468,8 +2603,9 @@ const App={
       <article><span>REPETICIONES</span><b>${e.reps||'—'}</b></article>
       <article><span>DESCANSO</span><b>${e.rest||0}s</b></article>
       <article><span>ENTORNO</span><b>${pedb.home_suitable?'Casa / Gym':'Gym'}</b></article>`;
-    const tags=[...(pedb.tags||[]),...(equipmentText?[equipmentText]:[])].filter(Boolean).slice(0,10);
-    document.getElementById("exercisePreviewTags").innerHTML=tags.length?tags.map(t=>`<span>${t}</span>`).join(''):`<span>Ficha oficial Phoenix</span>`;
+    const patternText=this.pedbMeta?.patterns?.get?.(pedb.pattern_id)?.name_es||"";
+    const tags=[pedb.level,patternText,pedb.home_suitable?"Casa + gimnasio":"Gimnasio",...(pedb.tags||[]),...(equipmentText?[equipmentText]:[])].filter(Boolean).slice(0,14);
+    document.getElementById("exercisePreviewTags").innerHTML=tags.length?tags.map(t=>`<span>${this.escape(String(t))}</span>`).join(''):`<span>Ficha oficial Phoenix</span>`;
     const sheet=document.getElementById("exercisePreviewSheet");sheet?.classList.add("show");sheet?.setAttribute("aria-hidden","false")
   },
   closeExercisePreview(){
@@ -2976,16 +3112,16 @@ const App={
 
   renderForgeLab(withHistory=true){
     const material=this.data?.settings?.uiMaterial||"precision";
-    const materialName=window.PhoenixMaterialEngine?.getManifest?.(material)?.name||(material==="foundry"?"FORGED Foundry":"FORGED Precision");
+    const materialName=window.PhoenixMaterialEngine?.getManifest?.(material)?.name||(material==="apex"?"FORGED Apex":"FORGED Precision");
     const screen=document.getElementById("forgeLab");
     if(!screen)return;
     screen.innerHTML=`<div class="forge-lab">
       <section class="forge-lab__hero phx-card phx-card--highlight">
-        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 008</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.3</span></div>
+        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 013</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.4.3</span></div>
         <p>Banco de pruebas visual. Los mismos componentes se comparan bajo cada material sin tocar datos ni lógica de entrenamiento.</p>
         <div class="forge-lab__material-bar" role="group" aria-label="Material del laboratorio">
           <button type="button" class="forge-lab__material ${material==='precision'?'active':''}" data-ui-material="precision" aria-pressed="${material==='precision'}" onclick="App.previewUiMaterial('precision')"><span>PRECISION</span><small>Vista previa segura</small></button>
-          <button type="button" class="forge-lab__material ${material==='foundry'?'active':''}" data-ui-material="foundry" aria-pressed="${material==='foundry'}" onclick="App.previewUiMaterial('foundry')"><span>FOUNDRY</span><small>Vista previa segura</small></button>
+          <button type="button" class="forge-lab__material ${material==='apex'?'active':''}" data-ui-material="apex" aria-pressed="${material==='apex'}" onclick="App.previewUiMaterial('apex')"><span>APEX</span><small>ALPHA · COBERTURA AMPLIADA</small></button>
         </div>
         <div class="forge-lab__active"><span>MATERIAL GUARDADO</span><b data-material-current>${this.escape(materialName)}</b><small>Visual-only · Local-only · Fallback Precision</small></div>
         <div class="forge-lab__preview-console" id="forgePreviewConsole">
@@ -3032,20 +3168,20 @@ const App={
           <div><span>ETIQUETAS</span><b id="forgeComponentLabels">—</b></div>
           <div><span>RUNTIME</span><b id="forgeComponentRuntime">—</b></div>
         </div>
-        <p>Foundry y futuras Creaciones de la Forja estilizan componentes semánticos <code>phx-*</code>, no pantallas ni datos.</p>
+        <p>Apex y futuras Creaciones de la Forja estilizan componentes semánticos <code>phx-*</code>, no pantallas ni datos.</p>
         <button type="button" class="secondary" onclick="App.refreshForgeComponentCoverage()">REESCANEAR COMPONENTES</button>
       </section>
 
-      <section class="forge-lab__visual-core phx-card" aria-label="Foundry Visual Core 1.0">
-        <div class="forge-lab__visual-core-head"><div><span>FOUNDRY VISUAL CORE 1.0</span><h2>Ocho componentes con auténtico punch</h2></div><b>BUILD 008</b></div>
-        <p class="muted">Núcleo de validación industrial: más masa, bisel, profundidad y contraste. Sin imágenes pesadas ni cambios en la lógica.</p>
-        <div class="foundry-core__grid">
-          <article class="foundry-core__plate"><h3>01 · BOTONES MECANIZADOS</h3><div class="foundry-core__button-stack"><button class="foundry-core__button foundry-core__button--primary phx-button phx-button--primary" onclick="App.toast('Pulsador primario Foundry')">COMENZAR ENTRENAMIENTO</button><button class="foundry-core__button phx-button phx-button--secondary" onclick="App.toast('Pulsador secundario Foundry')">VER DETALLES</button></div></article>
-          <article class="foundry-core__plate foundry-core__metric-card"><h3>02 · MÉTRICA MECANIZADA</h3><strong class="foundry-core__metric-value">12.480</strong><span class="foundry-core__metric-unit">kg · volumen semanal</span></article>
-          <article class="foundry-core__panel"><h3>03 · PANEL DE FORJA</h3><p>Una pieza estructural para decisiones importantes, con profundidad física y acciones claras.</p><div class="foundry-core__panel-actions"><button class="phx-button phx-button--primary">CONFIRMAR</button><button class="phx-button phx-button--secondary">CANCELAR</button></div></article>
-          <article class="foundry-core__plate"><h3>04 · FILA DE RUTINA</h3><div class="foundry-core__routine-list"><div class="foundry-core__routine"><span class="foundry-core__routine-index">1</span><div><h4>PRESS BANCA</h4><p>4 × 8 · 82,5 kg · 90 s</p></div><span class="foundry-core__routine-state">✓</span></div><div class="foundry-core__routine"><span class="foundry-core__routine-index">2</span><div><h4>REMO CON BARRA</h4><p>4 × 10 · 70 kg · 90 s</p></div><span class="foundry-core__routine-state">›</span></div></div></article>
-          <article class="foundry-core__timer phx-card foundry-core__hero"><h3>05 · PHOENIX TIMER</h3><div class="forge-lab__timer-chassis"><i class="forge-lab__bolt bolt-a"></i><i class="forge-lab__bolt bolt-b"></i><i class="forge-lab__bolt bolt-c"></i><i class="forge-lab__bolt bolt-d"></i><div class="forge-lab__timer-ring" style="--lab-progress:.68"><div><strong>01:30</strong><span>DESCANSO</span></div></div></div><div class="forge-lab__timer-controls"><button class="phx-button phx-button--secondary">−30</button><button class="phx-button phx-button--primary">PAUSA</button><button class="phx-button phx-button--secondary">+30</button></div></article>
-          <article class="foundry-core__pedb-wrap"><div class="foundry-core__pedb foundry-core__plate"><div class="foundry-core__pedb-head"><div class="foundry-core__code"><span>PEDB</span><b>PEX-00125</b></div><div><h4>PRESS BANCA</h4><p>Pectoral · Empuje horizontal · Compuesto</p></div></div><div class="foundry-core__chips"><span>4 SERIES</span><span>8 REPS</span><span>90 S</span></div><div class="foundry-core__pedb-actions"><button class="phx-button phx-button--secondary">VER FICHA</button><button class="phx-button phx-button--primary">AÑADIR</button></div></div></article>
+      <section class="forge-lab__visual-core phx-card" aria-label="Apex Visual Core 0.2">
+        <div class="forge-lab__visual-core-head"><div><span>APEX VISUAL CORE 0.2</span><h2>Componentes ultratecnológicos de referencia</h2></div><b>BUILD 009</b></div>
+        <p class="muted">Negro absoluto, líneas finas, números limpios y color funcional. Sin imágenes pesadas ni cambios en la lógica.</p>
+        <div class="apex-core__grid">
+          <article class="apex-core__card apex-core__actions"><span>01 · ACCIONES</span><h3>Control limpio</h3><button class="phx-button phx-button--primary" onclick="App.toast('Acción primaria Apex')">COMENZAR ENTRENAMIENTO</button><button class="phx-button phx-button--secondary" onclick="App.toast('Acción secundaria Apex')">VER DETALLES</button></article>
+          <article class="apex-core__card apex-core__metric"><span>02 · MÉTRICA</span><strong>12.480</strong><small>KG · VOLUMEN SEMANAL</small><i style="--apex-level:72%"></i></article>
+          <article class="apex-core__card apex-core__panel"><span>03 · PANEL</span><h3>Decisión precisa</h3><p>Una superficie silenciosa con jerarquía inequívoca.</p><div><button class="phx-button phx-button--primary">CONFIRMAR</button><button class="phx-button phx-button--secondary">CANCELAR</button></div></article>
+          <article class="apex-core__card apex-core__routine"><span>04 · RUTINA</span><div><em>01</em><p><b>PRESS BANCA</b><small>4 × 8 · 82,5 KG · 90 S</small></p><i>✓</i></div><div><em>02</em><p><b>REMO CON BARRA</b><small>4 × 10 · 70 KG · 90 S</small></p><i>›</i></div></article>
+          <article class="apex-core__card apex-core__timer"><span>05 · PHOENIX TIMER</span><div class="apex-core__timer-ring" style="--apex-progress:68%"><strong>01:30</strong><small>DESCANSO</small></div><div class="apex-core__timer-actions"><button>−30</button><button>Ⅱ</button><button>+30</button></div></article>
+          <article class="apex-core__card apex-core__pedb"><span>06 · PEDB</span><small>PEX-00125</small><h3>PRESS BANCA</h3><p>PECTORAL · EMPUJE HORIZONTAL</p><div class="apex-core__chips"><i>4 SERIES</i><i>8 REPS</i><i>90 S</i></div><div><button class="phx-button phx-button--secondary">VER FICHA</button><button class="phx-button phx-button--primary">AÑADIR</button></div></article>
         </div>
       </section>
 
@@ -3115,7 +3251,7 @@ const App={
         <div class="quality-state-grid">
           <article class="quality-state-card"><span>NORMAL</span><button class="phx-button phx-button--primary">COMENZAR</button><small>Acción disponible</small></article>
           <article class="quality-state-card is-pressed"><span>PULSADO</span><button class="phx-button phx-button--primary">COMENZAR</button><small>Desplazamiento físico</small></article>
-          <article class="quality-state-card is-selected"><span>SELECCIONADO</span><button class="phx-button phx-button--secondary">FOUNDRY ACTIVO</button><small>Forma + texto + color</small></article>
+          <article class="quality-state-card is-selected"><span>SELECCIONADO</span><button class="phx-button phx-button--secondary">APEX ACTIVO</button><small>Forma + texto + color</small></article>
           <article class="quality-state-card is-focus"><span>FOCO</span><button class="phx-button phx-button--secondary">CONTINUAR</button><small>Visible con teclado</small></article>
           <article class="quality-state-card is-loading"><span>CARGANDO</span><button class="phx-button phx-button--secondary" disabled><i></i>PROCESANDO</button><small>Sin bloquear navegación</small></article>
           <article class="quality-state-card is-disabled"><span>DESACTIVADO</span><button class="phx-button phx-button--secondary" disabled>NO DISPONIBLE</button><small>Contraste accesible</small></article>
@@ -3133,8 +3269,8 @@ const App={
         </div>
       </section>
 
-      <section class="forge-lab__quality-gate phx-card" aria-label="Foundry Quality Gate">
-        <div class="forge-lab__certificate-head"><div><span>FOUNDRY QUALITY GATE 1.0</span><h2>Puerta de calidad</h2></div><b id="forgeQualityState">PENDIENTE</b></div>
+      <section class="forge-lab__quality-gate phx-card" aria-label="Material Quality Gate">
+        <div class="forge-lab__certificate-head"><div><span>MATERIAL QUALITY GATE 1.1</span><h2>Puerta de calidad</h2></div><b id="forgeQualityState">PENDIENTE</b></div>
         <div class="forge-quality-score"><strong id="forgeQualityScore">—</strong><span>COMPROBACIONES SUPERADAS</span></div>
         <div id="forgeQualityChecks" class="forge-quality-checks"><p>Ejecuta la auditoría con el dispositivo y material actuales.</p></div>
         <div class="forge-quality-actions"><button type="button" class="primary" onclick="App.runForgeQualityGate()">EJECUTAR QUALITY GATE</button><button type="button" class="secondary" onclick="App.restorePrecisionMaterial()">PRECISION DE EMERGENCIA</button></div>
@@ -3175,7 +3311,7 @@ const App={
       button.classList.toggle('active',active);
       button.setAttribute('aria-pressed',String(active));
     });
-    document.querySelectorAll('#forgeLab [data-material-current]').forEach(el=>el.textContent=manifest?.name||(material==='foundry'?'FORGED Foundry':'FORGED Precision'));
+    document.querySelectorAll('#forgeLab [data-material-current]').forEach(el=>el.textContent=manifest?.name||(material==='apex'?'FORGED Apex':'FORGED Precision'));
     const materialEl=document.getElementById("forgeMaterialDiagnostic");if(materialEl)materialEl.textContent=material.toUpperCase();
     this.updateForgeLabMaterialCertificate();
   },
@@ -3254,16 +3390,16 @@ const App={
     const timerOrientation=this.data.settings.timerOrientation||"auto";
     const uiMaterial=this.data.settings.uiMaterial||"precision";
     document.getElementById("settings").innerHTML=`<div class="card settings-definitive"><div class="eyebrow">AJUSTES</div>
-      <section id="materialSettingsSection" class="settings-section material-settings material-settings--alpha"><div class="engine-badge"><span>PHX SKIN ENGINE</span><b>0.3 ALPHA</b></div><h3>Apariencia y materiales</h3>
+      <section id="materialSettingsSection" class="settings-section material-settings material-settings--alpha"><div class="engine-badge"><span>PHX SKIN ENGINE</span><b>0.4 ALPHA</b></div><h3>Apariencia y materiales</h3>
         <p class="material-intro">Elige el material visual. No cambia datos, rutinas ni funcionamiento.</p>
         <div class="material-selector" role="group" aria-label="Material de la interfaz">
           <button type="button" class="material-option precision ${uiMaterial==='precision'?'active':''}" data-ui-material="precision" aria-pressed="${uiMaterial==='precision'}" onclick="App.setUiMaterial('precision')">
             <span class="material-swatch" aria-hidden="true"><i></i><i></i><i></i></span>
             <span class="material-copy"><b>FORGED Precision</b><small>Minimalista · técnica · material seguro</small><em class="material-state">${uiMaterial==='precision'?'MATERIAL ACTIVO':'APLICAR MATERIAL'}</em></span>
           </button>
-          <button type="button" class="material-option foundry ${uiMaterial==='foundry'?'active':''}" data-ui-material="foundry" aria-pressed="${uiMaterial==='foundry'}" onclick="App.setUiMaterial('foundry')">
+          <button type="button" class="material-option apex ${uiMaterial==='apex'?'active':''}" data-ui-material="apex" aria-pressed="${uiMaterial==='apex'}" onclick="App.setUiMaterial('apex')">
             <span class="material-swatch" aria-hidden="true"><i></i><i></i><i></i></span>
-            <span class="material-copy"><b>FORGED Foundry <mark>ALPHA</mark></b><small>Acero mecanizado · industrial · robusta</small><em class="material-state">${uiMaterial==='foundry'?'MATERIAL ACTIVO':'APLICAR MATERIAL'}</em></span>
+            <span class="material-copy"><b>FORGED Apex <mark>ALPHA</mark></b><small>Negro absoluto · líneas finas · cian, verde y rojo</small><em class="material-state">${uiMaterial==='apex'?'MATERIAL ACTIVO':'APLICAR MATERIAL'}</em></span>
           </button>
         </div>
         <div class="material-safety-actions"><button type="button" class="secondary" onclick="App.restorePrecisionMaterial()">RESTAURAR FORGED PRECISION</button><button type="button" class="secondary" onclick="App.renderForgeLab()">VISTA PREVIA EN FORGE LAB</button></div>
@@ -3388,7 +3524,7 @@ const App={
     const payload={
       format:"GymTracker Phoenix Backup",
       schema_version:1,
-      app_version:"11 Alpha Build 008",
+      app_version:"11 Alpha Build 013",
       profile:{id:this.activeProfileId,name:this.activeProfile()?.name||this.activeProfileId},
       exportedAt:new Date().toISOString(),
       counts:{

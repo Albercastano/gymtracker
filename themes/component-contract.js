@@ -9,7 +9,7 @@
     metric:Object.freeze({className:"phx-metric",variants:Object.freeze(["standard","hero"])}),
     progress:Object.freeze({className:"phx-progress",variants:Object.freeze(["standard","success","warning"])}),
     label:Object.freeze({className:"phx-label",variants:Object.freeze(["eyebrow","caption"])}),
-    timer:Object.freeze({className:"phx-timer",variants:Object.freeze(["precision","foundry"])}),
+    timer:Object.freeze({className:"phx-timer",variants:Object.freeze(["precision","apex"])}),
   });
   const allowedBase=new Set(Object.values(definitions).map(item=>item.className));
   function isSemanticClass(value){return typeof value==="string"&&(allowedBase.has(value)||value.startsWith("phx-button--")||value.startsWith("phx-surface--")||value.startsWith("phx-input--")||value.startsWith("phx-chip--")||value.startsWith("phx-metric--")||value.startsWith("phx-progress--")||value.startsWith("phx-label--")||value.startsWith("phx-timer--"))}
