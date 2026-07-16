@@ -1,0 +1,24 @@
+{
+  "build": "030",
+  "name": "Vektor Functional Preview 0.1",
+  "passed": 13,
+  "total": 13,
+  "allPassed": true,
+  "jsonFiles": 59,
+  "javascriptFiles": 26,
+  "checks": {
+    "build_stamp": true,
+    "sw_version": true,
+    "vektor_registry": true,
+    "vektor_manifest": true,
+    "vektor_css": true,
+    "selector": true,
+    "forge_preview": true,
+    "sw_assets": true,
+    "contract_08": true,
+    "json_valid": true,
+    "javascript_syntax": true,
+    "exercises_1200": true,
+    "relations_21522": true
+  }
+}

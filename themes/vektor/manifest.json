@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "vektor",
+  "name": "FORGED Vektor",
+  "author": "Phoenix Forge",
+  "version": "0.1.0-alpha",
+  "engine": "0.8.x",
+  "status": "alpha",
+  "fallback": false,
+  "styles": [
+    "vektor.css"
+  ],
+  "assetsBudgetKb": 82,
+  "capabilities": [
+    "visual-tokens",
+    "components",
+    "timer",
+    "motion",
+    "component-contract",
+    "responsive",
+    "accessibility-states"
+  ],
+  "network": "forbidden",
+  "scripts": "forbidden",
+  "componentContract": "0.1.x"
+}

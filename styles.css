@@ -1693,3 +1693,10 @@ html[data-phx-material-preview="true"] .forge-lab__preview-console{animation:phx
   .material-option{padding:12px}
   .material-swatch{height:84px}
 }
+\n/* Build 030 · FORGED Vektor selector */
+.material-option.vektor{background:linear-gradient(145deg,#1a1e1f,#080a0b);border-color:#445052}
+.material-option.vektor .material-swatch{background:linear-gradient(145deg,#252b2c,#080a0b);border-color:#667274;border-radius:8px}
+.material-option.vektor .material-swatch i:nth-child(1){background:#ff7a1a}.material-option.vektor .material-swatch i:nth-child(2){background:#697577}.material-option.vektor .material-swatch i:nth-child(3){background:#f4f1ea}
+.material-option.vektor mark{background:#42200d;color:#ffad70;border:1px solid #7c3a12}
+.material-option.vektor.active{border-color:#ff7a1a;box-shadow:0 0 0 1px rgba(255,122,26,.2),0 18px 38px rgba(0,0,0,.42)}
+@media(max-width:760px){.material-selector{grid-template-columns:1fr!important}.material-option{min-width:0;max-width:100%}}

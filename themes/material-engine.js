@@ -1,6 +1,6 @@
 "use strict";
 (function(){
-  const ENGINE_VERSION="0.7.0";
+  const ENGINE_VERSION="0.8.0";
   const BOOT_DEFAULT="apex";
   const FALLBACK="precision";
   const registry=Object.freeze({
@@ -13,6 +13,11 @@
       schemaVersion:1,id:"apex",name:"FORGED Apex",author:"Phoenix Forge",version:"1.0.0",engine:"0.7.x",componentContract:"0.1.x",status:"stable",fallback:false,
       styles:Object.freeze(["apex.css"]),assetsBudgetKb:96,
       capabilities:Object.freeze(["visual-tokens","components","timer","motion","component-contract","full-app-coverage","responsive","accessibility-states"]),network:"forbidden",scripts:"forbidden"
+    }),
+    vektor:Object.freeze({
+      schemaVersion:1,id:"vektor",name:"FORGED Vektor",author:"Phoenix Forge",version:"0.1.0-alpha",engine:"0.8.x",componentContract:"0.1.x",status:"alpha",fallback:false,
+      styles:Object.freeze(["vektor.css"]),assetsBudgetKb:82,
+      capabilities:Object.freeze(["visual-tokens","components","timer","motion","component-contract","responsive","accessibility-states"]),network:"forbidden",scripts:"forbidden"
     })
   });
   const contract=window.PhoenixMaterialContract;

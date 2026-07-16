@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "phx://schemas/material-manifest-0.2.json",
-  "title": "PHX Material Manifest 0.2",
+  "$id": "phx://schemas/material-manifest-0.4.json",
+  "title": "PHX Material Manifest 0.4",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -45,7 +45,8 @@
     "engine": {
       "enum": [
         "0.3.x",
-        "0.7.x"
+        "0.7.x",
+        "0.8.x"
       ]
     },
     "status": {
@@ -85,7 +86,10 @@
           "icons",
           "motion",
           "sound-theme",
-          "component-contract"
+          "component-contract",
+          "full-app-coverage",
+          "responsive",
+          "accessibility-states"
         ]
       }
     },

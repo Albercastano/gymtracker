@@ -1504,7 +1504,7 @@ const App={
     document.documentElement.removeAttribute('data-phx-material-preview');document.body?.classList.remove('phx-material-preview');
     const engine=window.PhoenixMaterialEngine;
     if(engine&&!engine.isSupported(material)){this.toast("Material no compatible");return}
-    if(!engine&&!["precision","apex"].includes(material))return;
+    if(!engine&&!["precision","apex","vektor"].includes(material))return;
     this.data.settings.uiMaterial=material;
     if(engine)engine.apply(material,{source:"settings"});else this.applyUiSettings();
     this.save();
@@ -1516,9 +1516,9 @@ const App={
       if(state)state.textContent=active?'MATERIAL ACTIVO':'APLICAR MATERIAL';
     });
     const manifest=engine?.getManifest?.(material);
-    document.querySelectorAll('[data-material-current]').forEach(el=>el.textContent=manifest?.name||(material==='apex'?'FORGED Apex':'FORGED Precision'));
-    document.querySelectorAll('[data-material-short]').forEach(el=>el.textContent=material==='apex'?'APEX':'PRECISION');
-    this.toast(material==='apex'?'FORGED Apex aplicado':'FORGED Precision aplicado');
+    document.querySelectorAll('[data-material-current]').forEach(el=>el.textContent=manifest?.name||(material==='apex'?'FORGED Apex':material==='vektor'?'FORGED Vektor':'FORGED Precision'));
+    document.querySelectorAll('[data-material-short]').forEach(el=>el.textContent=material==='apex'?'APEX':material==='vektor'?'VEKTOR':'PRECISION');
+    this.toast(material==='apex'?'FORGED Apex aplicado':material==='vektor'?'FORGED Vektor aplicado':'FORGED Precision aplicado');
     if(this.currentScreen==="forgeLab"){
       requestAnimationFrame(()=>{
         this.updateForgeLabMaterialState();
@@ -1542,7 +1542,7 @@ const App={
   previewUiMaterial(material){
     const engine=window.PhoenixMaterialEngine;
     if(engine&&!engine.isSupported(material)){this.toast("Material no compatible");return}
-    if(!engine&&!['precision','apex'].includes(material))return;
+    if(!engine&&!['precision','apex','vektor'].includes(material))return;
     if(!this.materialPreviewOriginal)this.materialPreviewOriginal=this.data?.settings?.uiMaterial||'precision';
     this.materialPreview=material;
     document.documentElement.dataset.phxMaterialPreview='true';
@@ -1550,7 +1550,7 @@ const App={
     if(engine)engine.apply(material,{source:'preview'});
     else{document.documentElement.dataset.phxMaterial=material;document.body.dataset.phxMaterial=material}
     const manifest=engine?.getManifest?.(material);
-    const name=manifest?.name||(material==='apex'?'FORGED Apex':'FORGED Precision');
+    const name=manifest?.name||(material==='apex'?'FORGED Apex':material==='vektor'?'FORGED Vektor':'FORGED Precision');
     const nameEl=document.getElementById('forgePreviewName');if(nameEl)nameEl.textContent=name;
     const apply=document.getElementById('forgeApplyPreview');if(apply)apply.disabled=false;
     const cancel=document.getElementById('forgeCancelPreview');if(cancel)cancel.disabled=false;
@@ -2157,7 +2157,7 @@ const App={
     const weekMinutes=Math.round(weekSessions.reduce((sum,s)=>sum+(Number(s.durationMs)||0),0)/60000);
     const bodyWeight=Number(this.data.profile?.bodyWeight)||0;
     const uiMaterial=this.data.settings?.uiMaterial||"precision";
-    const uiMaterialName=uiMaterial==="apex"?"FORGED Apex":"FORGED Precision";
+    const uiMaterialName=uiMaterial==="apex"?"FORGED Apex":uiMaterial==="vektor"?"FORGED Vektor":"FORGED Precision";
     const allMax=Math.max(0,...sessions.map(maxLoad));
     const relative=bodyWeight&&allMax?allMax/bodyWeight:0;
     const latest=sessions[sessions.length-1];
@@ -3301,11 +3301,12 @@ const App={
     if(!screen)return;
     screen.innerHTML=`<div class="forge-lab">
       <section class="forge-lab__hero phx-card phx-card--highlight">
-        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 021</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.5.1</span></div>
+        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 030</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.8.0</span></div>
         <p>Banco de pruebas visual. Los mismos componentes se comparan bajo cada material sin tocar datos ni lógica de entrenamiento.</p>
         <div class="forge-lab__material-bar" role="group" aria-label="Material del laboratorio">
           <button type="button" class="forge-lab__material ${material==='precision'?'active':''}" data-ui-material="precision" aria-pressed="${material==='precision'}" onclick="App.previewUiMaterial('precision')"><span>PRECISION</span><small>Vista previa segura</small></button>
           <button type="button" class="forge-lab__material ${material==='apex'?'active':''}" data-ui-material="apex" aria-pressed="${material==='apex'}" onclick="App.previewUiMaterial('apex')"><span>APEX</span><small>1.0 · SKIN COMPLETA</small></button>
+          <button type="button" class="forge-lab__material ${material==='vektor'?'active':''}" data-ui-material="vektor" aria-pressed="${material==='vektor'}" onclick="App.previewUiMaterial('vektor')"><span>VEKTOR</span><small>0.1 · ALPHA FUNCIONAL</small></button>
         </div>
         <div class="forge-lab__active"><span>MATERIAL GUARDADO</span><b data-material-current>${this.escape(materialName)}</b><small>Visual-only · Local-only · Fallback Precision</small></div>
         <div class="forge-lab__preview-console" id="forgePreviewConsole">
@@ -3539,7 +3540,7 @@ const App={
       button.classList.toggle('active',active);
       button.setAttribute('aria-pressed',String(active));
     });
-    document.querySelectorAll('#forgeLab [data-material-current]').forEach(el=>el.textContent=manifest?.name||(material==='apex'?'FORGED Apex':'FORGED Precision'));
+    document.querySelectorAll('#forgeLab [data-material-current]').forEach(el=>el.textContent=manifest?.name||(material==='apex'?'FORGED Apex':material==='vektor'?'FORGED Vektor':'FORGED Precision'));
     const materialEl=document.getElementById("forgeMaterialDiagnostic");if(materialEl)materialEl.textContent=material.toUpperCase();
     this.updateForgeLabMaterialCertificate();
   },
@@ -3628,6 +3629,10 @@ const App={
           <button type="button" class="material-option apex ${uiMaterial==='apex'?'active':''}" data-ui-material="apex" aria-pressed="${uiMaterial==='apex'}" onclick="App.setUiMaterial('apex')">
             <span class="material-swatch" aria-hidden="true"><i></i><i></i><i></i></span>
             <span class="material-copy"><b>FORGED Apex <mark>1.0</mark></b><small>Negro absoluto · líneas finas · cian, verde y rojo</small><em class="material-state">${uiMaterial==='apex'?'MATERIAL ACTIVO':'APLICAR MATERIAL'}</em></span>
+          </button>
+          <button type="button" class="material-option vektor ${uiMaterial==='vektor'?'active':''}" data-ui-material="vektor" aria-pressed="${uiMaterial==='vektor'}" onclick="App.setUiMaterial('vektor')">
+            <span class="material-swatch" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="material-copy"><b>FORGED Vektor <mark>0.1</mark></b><small>Instrumental · angular · acero y naranja técnico</small><em class="material-state">${uiMaterial==='vektor'?'MATERIAL ACTIVO':'APLICAR MATERIAL'}</em></span>
           </button>
         </div>
         <div class="material-safety-actions"><button type="button" class="secondary" onclick="App.restorePrecisionMaterial()">RESTAURAR FORGED PRECISION</button><button type="button" class="secondary" onclick="App.renderForgeLab()">VISTA PREVIA EN FORGE LAB</button><button type="button" class="secondary" onclick="App.repairApexInstallation()">REPARAR CACHÉ APEX</button></div>
