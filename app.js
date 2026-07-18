@@ -235,7 +235,7 @@ const App={
 
   registerServiceWorker(){
     if(!("serviceWorker" in navigator)||!/^https?:$/.test(location.protocol))return;
-    navigator.serviceWorker.register("sw.js?v=034",{updateViaCache:"none"}).then(async registration=>{
+    navigator.serviceWorker.register("sw.js?v=036",{updateViaCache:"none"}).then(async registration=>{
       try{await registration.update()}catch(_){}
       this.swRegistration=registration;
       registration.update().catch(()=>{});
@@ -526,6 +526,7 @@ const App={
     this.data.settings.vibration=this.data.settings.vibration!==false;
     this.data.profile=this.data.profile||{bodyWeight:null};
     this.data.profile.environmentEquipment=(this.data.profile.environmentEquipment&&typeof this.data.profile.environmentEquipment==="object")?this.data.profile.environmentEquipment:{home:["bodyweight"],street:["bodyweight","pullup_bar","parallel_bars","bench"]};
+    this.data.profile.environmentPreference=["closest","faster","no_equipment","calisthenics"].includes(this.data.profile.environmentPreference)?this.data.profile.environmentPreference:"closest";
     this.data.routines=Array.isArray(this.data.routines)?this.data.routines:[];
     this.data.weekPlan=this.data.weekPlan||{};
     this.data.weeklyPlans=(this.data.weeklyPlans&&typeof this.data.weeklyPlans==="object")?this.data.weeklyPlans:{};
@@ -899,6 +900,7 @@ const App={
     const sheet=document.getElementById("trainingEnvironmentSheet");
     document.getElementById("trainingEnvironmentRoutine").textContent=r.name;
     document.getElementById("trainingEnvironmentChooser").hidden=false;
+    document.querySelectorAll("[data-environment-preference]").forEach(button=>button.classList.toggle("active",button.dataset.environmentPreference===(this.data.profile.environmentPreference||"closest")));
     document.getElementById("trainingEnvironmentPreview").hidden=true;
     document.getElementById("trainingEnvironmentLoading").hidden=true;
     sheet?.classList.add("show");document.body.classList.add("sheet-open");
@@ -913,38 +915,116 @@ const App={
   environmentLabel(environment){return ({gym:"Gimnasio",home:"Casa",street:"Calle"})[environment]||"Gimnasio"},
   environmentReason(environment){return environment==="home"?"En casa":environment==="street"?"En la calle":"Máquina ocupada"},
 
-  streetSuitable(exercise){
+  environmentEquipmentCatalog(){return [
+    {id:"bodyweight",name:"Sin material / peso corporal",home:true,street:true},{id:"dumbbells",name:"Mancuernas",home:true},{id:"bands",name:"Bandas elásticas",home:true,street:true},{id:"barbell",name:"Barra y discos",home:true},{id:"bench",name:"Banco",home:true,street:true},{id:"kettlebell",name:"Kettlebell",home:true},{id:"rings",name:"Anillas",home:true,street:true},{id:"suspension",name:"TRX / suspensión",home:true,street:true},{id:"pullup_bar",name:"Barra de dominadas",home:true,street:true},{id:"low_bar",name:"Barra baja",street:true},{id:"parallel_bars",name:"Paralelas",street:true},{id:"box",name:"Cajón / escalón",home:true,street:true},{id:"wall",name:"Pared",home:true,street:true},{id:"rope",name:"Cuerda",street:true}
+  ]},
+
+  availableEnvironmentEquipment(environment){
+    const current=this.data.profile.environmentEquipment?.[environment];
+    return new Set(Array.isArray(current)&&current.length?current:["bodyweight"])
+  },
+
+  exerciseFitsEnvironment(exercise,environment,{strictEquipment=true}={}){
     if(!exercise)return false;
-    const equipment=(exercise.equipment_ids||[]).map(id=>(this.pedbMeta.equipment.get(id)?.name_es||"").toLowerCase());
-    const tags=(exercise.tags||[]).map(x=>String(x).toLowerCase());
-    const allowed=/peso corporal|barra de dominadas|barra baja|paralelas|anillas|banda|suspensión|trx|banco|soporte|pared|suelo|obstáculo|cajón|poste/;
-    const blocked=/máquina|polea|prensa|multipower|mancuerna|kettlebell|disco|barra y rack|barra y banco|barra y discos|landmine|trineo|yoke|ghd/;
-    if(equipment.some(name=>blocked.test(name)))return false;
-    return Boolean(exercise.bodyweight||tags.includes("calistenia")||equipment.every(name=>allowed.test(name)));
-  },
-
-  exerciseFitsEnvironment(exercise,environment){
     if(environment==="gym")return true;
-    if(environment==="home")return Boolean(exercise?.home_suitable);
-    if(environment==="street")return this.streetSuitable(exercise);
-    return true
+    if(!Array.isArray(exercise.environment_ids)||!exercise.environment_ids.includes(environment))return false;
+    if(!strictEquipment)return true;
+    const required=(exercise.equipment_keys||[]).filter(x=>x!=="other");
+    if(!required.length||required.includes("bodyweight"))return true;
+    const available=this.availableEnvironmentEquipment(environment);
+    return required.some(x=>available.has(x));
   },
 
-  async environmentAlternativesForItem(item,environment,limit=8){
+  equipmentCompatibility(exercise,environment){
+    if(environment==="gym")return {ok:true,score:10,label:"material de gimnasio"};
+    const required=(exercise?.equipment_keys||[]).filter(x=>x!=="other");
+    if(!required.length||required.includes("bodyweight"))return {ok:true,score:14,label:"sin material"};
+    const available=this.availableEnvironmentEquipment(environment),matches=required.filter(x=>available.has(x));
+    return {ok:matches.length>0,score:matches.length?12:-30,label:matches.length?"material disponible":"material no disponible"}
+  },
+
+  environmentPreferenceLabel(preference){return ({closest:"Lo más parecido",faster:"Más rápido",no_equipment:"Sin material",calisthenics:"Más calistenia"})[preference]||"Lo más parecido"},
+
+  setEnvironmentPreference(preference){
+    if(!["closest","faster","no_equipment","calisthenics"].includes(preference))return;
+    this.data.profile.environmentPreference=preference;this.save();
+    document.querySelectorAll("[data-environment-preference]").forEach(button=>button.classList.toggle("active",button.dataset.environmentPreference===preference));
+  },
+
+  estimateEnvironmentDuration(routine,items){
+    let seconds=0;
+    (routine?.items||[]).forEach((item,index)=>{
+      const adapted=items?.[index]||{};
+      const sets=Math.max(1,Number(adapted.targetSets)||Number(item.sets)||3),rest=Math.max(0,Number(adapted.targetRest)||Number(item.rest)||this.data.settings.defaultRest||90);
+      const reps=Math.max(1,Number(adapted.targetReps)||Number(item.reps)||10);
+      const working=item.type==="time"?Math.max(20,reps):Math.max(28,Math.min(70,18+reps*2.2));
+      seconds+=sets*working+Math.max(0,sets-1)*rest;
+    });
+    seconds+=Math.max(0,(items?.length||0)-1)*30;
+    return Math.max(1,Math.round(seconds/60))
+  },
+
+  environmentPrescription(source,replacement,item,preference="closest"){
+    const originalSets=Math.max(1,Number(item?.sets)||3),originalReps=Math.max(1,Number(item?.reps)||10),originalRest=Math.max(20,Number(item?.rest)||this.data.settings.defaultRest||90);
+    let sets=originalSets,reps=originalReps,rest=originalRest,note="Objetivo original conservado";
+    if(!replacement||replacement.id===source?.id)return {targetSets:sets,targetReps:reps,targetRest:rest,prescriptionNote:note};
+    const sourceBody=Boolean(source?.bodyweight),replacementBody=Boolean(replacement?.bodyweight);
+    const sourceMachine=Boolean(source?.machine_based),replacementMachine=Boolean(replacement?.machine_based);
+    if(replacementBody&&!sourceBody){reps=Math.max(originalReps+4,Math.round(originalReps*1.6));rest=Math.max(45,originalRest-15);note="Más repeticiones para compensar la menor carga externa"}
+    else if(!replacementBody&&sourceBody){reps=Math.max(5,Math.round(originalReps*.72));rest=originalRest+15;note="Menos repeticiones y más descanso por mayor carga externa"}
+    else if(sourceMachine&&!replacementMachine){reps=Math.max(originalReps+2,Math.round(originalReps*1.25));note="Rango ajustado por mayor demanda de estabilidad"}
+    if(preference==="faster"){sets=Math.max(2,originalSets-1);rest=Math.max(30,Math.round(rest*.72));note+=" · sesión abreviada"}
+    if(preference==="calisthenics"&&replacementBody){reps=Math.max(reps,12);note+=" · enfoque calisténico"}
+    return {targetSets:sets,targetReps:reps,targetRest:rest,prescriptionNote:note}
+  },
+
+  environmentEquivalenceLabel(score){return score>=88?"Equivalencia alta":score>=72?"Equivalencia aceptable":"Alternativa de emergencia"},
+
+  async environmentAlternativesForItem(item,environment,limit=8,context={}){
     if(!item)return[];
     const source=await this.findPedbExerciseForItem(item);
     if(!source||!this.pedbReady)return[];
+    const preference=context.preference||this.data.profile.environmentPreference||"closest";
+    const usedPatterns=new Set(context.usedPatterns||[]),usedMuscles=new Set(context.usedMuscles||[]),usedNames=new Set(context.usedNames||[]);
     const rows=this.pedbExercises.filter(e=>e.id!==source.id&&this.exerciseFitsEnvironment(e,environment)).map(e=>{
-      let score=0;
-      if(source.pattern_id&&e.pattern_id===source.pattern_id)score+=55;
-      if(source.muscle_id&&e.muscle_id===source.muscle_id)score+=38;
-      if(source.zone_id&&e.zone_id===source.zone_id)score+=12;
-      if(source.type_id&&e.type_id===source.type_id)score+=5;
-      if(environment!=="gym"&&e.bodyweight)score+=5;
-      if(score<55)return null;
-      return {id:e.id,name:e.name_es,score,reason:`${this.environmentLabel(environment)} · ${e.pattern_id===source.pattern_id?"mismo patrón":"mismo músculo"} · PEDB`}
+      let score=0,criteria=[];
+      if(source.pattern_id&&e.pattern_id===source.pattern_id){score+=46;criteria.push("mismo patrón")}
+      if(source.muscle_id&&e.muscle_id===source.muscle_id){score+=32;criteria.push("mismo músculo")}
+      if(source.zone_id&&e.zone_id===source.zone_id){score+=10;criteria.push("misma zona")}
+      if(source.type_id&&e.type_id===source.type_id)score+=4;
+      const equipment=this.equipmentCompatibility(e,environment);score+=equipment.score;
+      if(environment!=="gym"&&e.bodyweight)score+=4;
+      if(preference==="no_equipment")score+=(e.bodyweight||!(e.equipment_keys||[]).filter(x=>x!=="bodyweight"&&x!=="other").length)?22:-80;
+      if(preference==="calisthenics")score+=e.bodyweight?18:-8;
+      if(preference==="faster")score+=(e.bodyweight||["bands","dumbbells","kettlebell"].some(x=>(e.equipment_keys||[]).includes(x)))?10:0;
+      if(usedNames.has(e.name_es))score-=80;
+      if(usedPatterns.has(e.pattern_id)&&e.pattern_id!==source.pattern_id)score-=14;
+      if(usedMuscles.has(e.muscle_id)&&e.muscle_id!==source.muscle_id)score-=8;
+      if(score<54||!equipment.ok)return null;
+      const prescription=this.environmentPrescription(source,e,item,preference),bounded=Math.min(99,Math.max(55,score));
+      return {id:e.id,name:e.name_es,score:bounded,equivalence:this.environmentEquivalenceLabel(bounded),reason:`${this.environmentLabel(environment)} · ${criteria.slice(0,2).join(" + ")||"equivalencia muscular"} · ${equipment.label}`,equipment:e.equipment_keys||[],patternId:e.pattern_id,muscleId:e.muscle_id,...prescription}
     }).filter(Boolean).sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name,"es"));
     return rows.slice(0,limit)
+  },
+
+  openEnvironmentEquipment(){
+    const environment=this.pendingEnvironmentPlan?.environment||"home";
+    if(environment==="gym")return this.toast("El gimnasio usa el material completo");
+    document.getElementById("trainingEnvironmentChooser").hidden=true;
+    document.getElementById("trainingEnvironmentPreview").hidden=true;
+    const panel=document.getElementById("trainingEnvironmentEquipment");panel.hidden=false;
+    document.getElementById("environmentEquipmentTitle").textContent=`Material para ${this.environmentLabel(environment)}`;
+    const selected=this.availableEnvironmentEquipment(environment);
+    document.getElementById("environmentEquipmentOptions").innerHTML=this.environmentEquipmentCatalog().filter(x=>x[environment]).map(x=>`<label><input type="checkbox" value="${x.id}" ${selected.has(x.id)?"checked":""}><span>${this.escape(x.name)}</span></label>`).join("")
+  },
+
+  saveEnvironmentEquipment(){
+    const environment=this.pendingEnvironmentPlan?.environment||"home";
+    const values=[...document.querySelectorAll("#environmentEquipmentOptions input:checked")].map(x=>x.value);
+    if(!values.includes("bodyweight"))values.unshift("bodyweight");
+    this.data.profile.environmentEquipment[environment]=[...new Set(values)];this.save();
+    document.getElementById("trainingEnvironmentEquipment").hidden=true;
+    this.selectTrainingEnvironment(environment);this.toast("Material actualizado")
   },
 
   async selectTrainingEnvironment(environment){
@@ -952,17 +1032,20 @@ const App={
     document.getElementById("trainingEnvironmentChooser").hidden=true;
     document.getElementById("trainingEnvironmentPreview").hidden=true;
     document.getElementById("trainingEnvironmentLoading").hidden=false;
-    const items=[];
+    const preference=this.data.profile.environmentPreference||"closest",items=[],usedPatterns=[],usedMuscles=[],usedNames=[];
     for(let index=0;index<r.items.length;index++){
-      const item=r.items[index];
-      const source=await this.findPedbExerciseForItem(item);
+      const item=r.items[index],source=await this.findPedbExerciseForItem(item);
       let selected=null;
-      if(environment!=="gym"&&source&&!this.exerciseFitsEnvironment(source,environment)){
-        selected=(await this.environmentAlternativesForItem(item,environment,1))[0]||null;
+      const originalFits=environment==="gym"||this.exerciseFitsEnvironment(source,environment);
+      if(environment!=="gym"&&source&&(!originalFits||preference!=="closest")){
+        const candidates=await this.environmentAlternativesForItem(item,environment,8,{preference,usedPatterns,usedMuscles,usedNames});
+        selected=!originalFits?candidates[0]||null:(preference!=="closest"&&candidates[0]?.score>=86?candidates[0]:null);
       }
-      items.push({index,originalName:item.name,originalId:source?.id||item.exercise_id||item.libraryId||null,selectedName:selected?.name||item.name,selectedId:selected?.id||null,reason:selected?.reason||`${this.environmentLabel(environment)} · ejercicio original`,changed:Boolean(selected)});
+      const exercise=selected||source,prescription=this.environmentPrescription(source,exercise,item,preference);
+      if(exercise?.pattern_id)usedPatterns.push(exercise.pattern_id);if(exercise?.muscle_id)usedMuscles.push(exercise.muscle_id);usedNames.push(selected?.name||item.name);
+      items.push({index,originalName:item.name,originalId:source?.id||item.exercise_id||item.libraryId||null,selectedName:selected?.name||item.name,selectedId:selected?.id||null,reason:selected?.reason||`${this.environmentLabel(environment)} · ejercicio original`,equivalence:selected?.equivalence||"Objetivo original",score:selected?.score||100,changed:Boolean(selected),...prescription});
     }
-    this.pendingEnvironmentPlan={routineId:r.id,environment,items};
+    this.pendingEnvironmentPlan={routineId:r.id,environment,preference,items,estimatedMinutes:this.estimateEnvironmentDuration(r,items)};
     this.renderTrainingEnvironmentPreview();
   },
 
@@ -972,8 +1055,9 @@ const App={
     document.getElementById("trainingEnvironmentLoading").hidden=true;
     document.getElementById("trainingEnvironmentPreview").hidden=false;
     document.getElementById("trainingEnvironmentPreviewTitle").textContent=`Entreno en ${this.environmentLabel(plan.environment)}`;
-    document.getElementById("trainingEnvironmentSummary").textContent=plan.environment==="gym"?"Rutina original, preparada para gimnasio.":`${changed} ejercicio${changed===1?"":"s"} adaptado${changed===1?"":"s"} mediante PEDB.`;
-    document.getElementById("trainingEnvironmentExercises").innerHTML=plan.items.map((x,i)=>`<article class="environment-exercise ${x.changed?'changed':''}"><span>${String(i+1).padStart(2,'0')}</span><div><small>${x.changed?this.escape(x.originalName):'EJERCICIO'}</small><strong>${this.escape(x.selectedName)}</strong><em>${this.escape(x.reason)}</em></div><button type="button" onclick="App.openEnvironmentExerciseAlternatives(${i})">CAMBIAR</button></article>`).join("");
+    document.getElementById("trainingEnvironmentSummary").textContent=(plan.environment==="gym"?"Rutina original, preparada para gimnasio.":`${changed} ejercicio${changed===1?"":"s"} adaptado${changed===1?"":"s"} mediante PEDB.`)+` · Duración estimada: ${plan.estimatedMinutes} min.`;
+    const equip=document.getElementById("trainingEnvironmentEquipmentButton");if(equip)equip.hidden=plan.environment==="gym";
+    document.getElementById("trainingEnvironmentExercises").innerHTML=plan.items.map((x,i)=>`<article class="environment-exercise ${x.changed?'changed':''}"><span>${String(i+1).padStart(2,'0')}</span><div><small>${x.changed?this.escape(x.originalName):'EJERCICIO'}</small><strong>${this.escape(x.selectedName)}</strong><em>${this.escape(x.reason)}</em><div class="environment-prescription"><b>${x.targetSets} × ${x.targetReps}</b><span>${x.targetRest}s descanso</span><i>${this.escape(x.equivalence)} · ${this.escape(x.prescriptionNote)}</i></div></div><button type="button" onclick="App.openEnvironmentExerciseAlternatives(${i})">CAMBIAR</button></article>`).join("");
   },
 
   async openEnvironmentExerciseAlternatives(index){
@@ -983,19 +1067,22 @@ const App={
     host.innerHTML=`<div class="environment-alt-loading"><b>Buscando en PEDB</b><small>Solo alternativas para ${this.environmentLabel(plan.environment).toLowerCase()}</small></div>`;
     const routine=this.getRoutine(plan.routineId),sourceItem=routine?.items?.[index];
     const alternatives=await this.environmentAlternativesForItem(sourceItem,plan.environment,12);
-    host.innerHTML=`<div class="environment-alt-head"><button onclick="App.renderTrainingEnvironmentPreview()">‹ VOLVER</button><div><small>SUSTITUIR</small><strong>${this.escape(item.selectedName)}</strong></div></div>${alternatives.length?alternatives.map(x=>`<button class="environment-alt-option" onclick="App.useEnvironmentAlternative(${index},'${encodeURIComponent(x.name)}','${x.id}')"><span><b>${this.escape(x.name)}</b><small>${this.escape(x.reason)}</small></span><em>${Math.round(x.score)}%</em></button>`).join(""):`<div class="alt-empty"><b>Sin alternativa equivalente.</b><small>PEDB no ha encontrado una opción suficientemente cercana para este entorno.</small></div>`}`;
+    host.innerHTML=`<div class="environment-alt-head"><button onclick="App.renderTrainingEnvironmentPreview()">‹ VOLVER</button><div><small>SUSTITUIR</small><strong>${this.escape(item.selectedName)}</strong></div></div>${alternatives.length?alternatives.map(x=>`<button class="environment-alt-option" onclick="App.useEnvironmentAlternative(${index},'${encodeURIComponent(x.name)}','${x.id}')"><span><b>${this.escape(x.name)}</b><small>${this.escape(x.reason)} · ${this.escape(x.equivalence)}</small><i>${x.targetSets}×${x.targetReps} · ${x.targetRest}s</i></span><em>${Math.round(x.score)}%</em></button>`).join(""):`<div class="alt-empty"><b>Sin alternativa equivalente.</b><small>PEDB no ha encontrado una opción suficientemente cercana para este entorno.</small></div>`}`;
   },
 
-  useEnvironmentAlternative(index,encodedName,exerciseId){
+  async useEnvironmentAlternative(index,encodedName,exerciseId){
     const plan=this.pendingEnvironmentPlan,item=plan?.items?.[index];if(!item)return;
+    const routine=this.getRoutine(plan.routineId),sourceItem=routine?.items?.[index],source=await this.findPedbExerciseForItem(sourceItem),replacement=this.pedbExercises.find(e=>e.id===exerciseId)||null;
     item.selectedName=decodeURIComponent(encodedName);item.selectedId=exerciseId||null;item.changed=item.selectedName!==item.originalName;item.reason=`${this.environmentLabel(plan.environment)} · alternativa elegida · PEDB`;
-    this.renderTrainingEnvironmentPreview();
+    const scoreData=(await this.environmentAlternativesForItem(sourceItem,plan.environment,40,{preference:plan.preference})).find(x=>x.id===exerciseId);
+    Object.assign(item,scoreData?{score:scoreData.score,equivalence:scoreData.equivalence,targetSets:scoreData.targetSets,targetReps:scoreData.targetReps,targetRest:scoreData.targetRest,prescriptionNote:scoreData.prescriptionNote}:this.environmentPrescription(source,replacement,sourceItem,plan.preference));
+    plan.estimatedMinutes=this.estimateEnvironmentDuration(routine,plan.items);this.renderTrainingEnvironmentPreview();
   },
 
   confirmEnvironmentWorkout(){
     const plan=this.pendingEnvironmentPlan,r=this.getRoutine(plan?.routineId);if(!plan||!r)return;
-    const overrides={};plan.items.forEach(x=>{if(x.changed)overrides[String(x.index)]={name:x.selectedName,reason:x.reason,exerciseId:x.selectedId||null,originalName:x.originalName,selectedAt:new Date().toISOString()}});
-    this.active={id:"s"+Date.now(),routineId:r.id,date:new Date().toISOString(),exerciseIndex:0,setIndex:0,currentSets:[],completedExercises:[],exerciseProgress:{},exerciseOverrides:overrides,trainingEnvironment:plan.environment,startedAt:Date.now(),phase:"gym",restEndsAt:null,restLeft:0,restPaused:false,restPausedLeft:0};
+    const overrides={};plan.items.forEach(x=>{if(x.changed)overrides[String(x.index)]={name:x.selectedName,reason:x.reason,exerciseId:x.selectedId||null,originalName:x.originalName,targetSets:x.targetSets,targetReps:x.targetReps,targetRest:x.targetRest,equivalence:x.equivalence,prescriptionNote:x.prescriptionNote,selectedAt:new Date().toISOString()}});
+    this.active={id:"s"+Date.now(),routineId:r.id,date:new Date().toISOString(),exerciseIndex:0,setIndex:0,currentSets:[],completedExercises:[],exerciseProgress:{},exerciseOverrides:overrides,trainingEnvironment:plan.environment,environmentEquipment:[...(this.data.profile.environmentEquipment?.[plan.environment]||[])],estimatedDurationMinutes:plan.estimatedMinutes,environmentPreference:plan.preference,startedAt:Date.now(),phase:"gym",restEndsAt:null,restLeft:0,restPaused:false,restPausedLeft:0};
     this.saveActive();this.closeTrainingEnvironment();this.renderGym();this.toast(`Entreno preparado · ${this.environmentLabel(plan.environment)}`)
   },
 
@@ -1018,7 +1105,7 @@ const App={
     const base=this.currentPlannedExercise();
     if(!base)return null;
     const override=this.currentOverride();
-    return override?{...base,name:override.name,libraryId:override.exerciseId||base.libraryId,exercise_id:override.exerciseId||base.exercise_id,exercise_name_snapshot:override.name,originalName:base.name,alternativeReason:override.reason||"Alternativa"}:base
+    return override?{...base,name:override.name,sets:Number(override.targetSets)||base.sets,reps:Number(override.targetReps)||base.reps,rest:Number(override.targetRest)||base.rest,libraryId:override.exerciseId||base.libraryId,exercise_id:override.exerciseId||base.exercise_id,exercise_name_snapshot:override.name,originalName:base.name,alternativeReason:override.reason||"Alternativa",equivalence:override.equivalence,prescriptionNote:override.prescriptionNote}:base
   },
   completedSeriesForCurrent(){return Math.min(Number(this.active?.setIndex)||0,Number(this.currentExercise()?.sets)||0)},
 
@@ -3415,7 +3502,7 @@ const App={
     if(!screen)return;
     screen.innerHTML=`<div class="forge-lab">
       <section class="forge-lab__hero phx-card phx-card--highlight">
-        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 034</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.9.0</span></div>
+        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 036</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.9.0</span></div>
         <p>Banco de pruebas visual. Los mismos componentes se comparan bajo cada material sin tocar datos ni lógica de entrenamiento.</p>
         <div class="forge-lab__material-bar" role="group" aria-label="Material del laboratorio">
           <button type="button" class="forge-lab__material ${material==='precision'?'active':''}" data-ui-material="precision" aria-pressed="${material==='precision'}" onclick="App.previewUiMaterial('precision')"><span>PRECISION</span><small>Vista previa segura</small></button>

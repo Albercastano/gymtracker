@@ -1,0 +1,88 @@
+{
+  "build": "036",
+  "name": "Environment Training Engine 0.3 · Session Adaptation",
+  "passed": true,
+  "checks_passed": 15,
+  "checks_total": 15,
+  "checks": [
+    {
+      "name": "Build 036 visible",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Service worker 036",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Quick preferences",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Preference persisted",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Prescription adaptation",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Equivalence tiers",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Global session balance",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Progression isolation",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Routine protected",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Responsive UI",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "PEDB exercises",
+      "passed": true,
+      "detail": "1200"
+    },
+    {
+      "name": "PEDB relations",
+      "passed": true,
+      "detail": "21522"
+    },
+    {
+      "name": "JSON valid",
+      "passed": true,
+      "detail": "64"
+    },
+    {
+      "name": "app.js syntax",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "sw.js syntax",
+      "passed": true,
+      "detail": ""
+    }
+  ],
+  "limitations": [
+    "No physical Android/PWA session test was run.",
+    "PEDB difficulty is inferred from current metadata because no dedicated difficulty scale exists yet."
+  ]
+}

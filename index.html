@@ -6,9 +6,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#000000">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; form-action 'self'; connect-src 'self'; img-src 'self' data: blob:; media-src 'self' data: blob:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'">
-  <title>GymTracker Phoenix 11 Alpha · Build 034 · Environment Training Engine</title>
+  <title>GymTracker Phoenix 11 Alpha · Build 036 · Environment Training Engine 0.3 · Session Adaptation</title>
   <script>
-    // Build 034 bootstrap: Apex is painted immediately and stale Foundry links are neutralized.
+    // Build 036 bootstrap: Apex is painted immediately and stale Foundry links are neutralized.
     document.documentElement.dataset.phxMaterial="apex";
     document.documentElement.dataset.material="apex";
     document.documentElement.dataset.phxBuild="032";
@@ -22,13 +22,13 @@
       }
     }catch(_){/* storage may be unavailable during first paint */}
   </script>
-  <link rel="manifest" href="manifest.webmanifest?v=034">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=034">
-  <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png?v=034">
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=034">
-  <link rel="stylesheet" href="styles.css?v=034">
-  <link rel="stylesheet" href="themes/semantic-bridge.css?v=034">
-  <link rel="stylesheet" href="themes/apex/apex.css?v=034" data-phx-apex-bootstrap>
+  <link rel="manifest" href="manifest.webmanifest?v=036">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=036">
+  <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png?v=036">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=036">
+  <link rel="stylesheet" href="styles.css?v=036">
+  <link rel="stylesheet" href="themes/semantic-bridge.css?v=036">
+  <link rel="stylesheet" href="themes/apex/apex.css?v=036" data-phx-apex-bootstrap>
 </head>
 <body>
   <section id="splash" class="splash">
@@ -73,7 +73,7 @@
     <button id="destButton" class="dest-button" onclick="App.goDestination()">Inicio</button>
     <button type="button" class="topbar-brand phoenix-easter-trigger" data-phoenix-easter aria-label="GymTracker Phoenix">
       <img src="icon-512.png" alt="" aria-hidden="true">
-      <div class="topbar-brand__copy"><strong>GYMTRACKER</strong><span>PHOENIX</span><small class="build-stamp" aria-label="Versión instalada Build 034">BUILD 034</small></div>
+      <div class="topbar-brand__copy"><strong>GYMTRACKER</strong><span>PHOENIX</span><small class="build-stamp" aria-label="Versión instalada Build 036">BUILD 036</small></div>
     </button>
     <button id="profileButton" class="profile-button profile-trigger" type="button" onclick="App.openProfileGate()" aria-haspopup="dialog" aria-expanded="false" aria-controls="profileGate">
       <span>PERFIL ACTIVO</span>
@@ -128,15 +128,29 @@
       <h2 id="trainingEnvironmentTitle">¿Dónde entrenas hoy?</h2>
       <p class="training-environment-routine">Rutina: <b id="trainingEnvironmentRoutine"></b></p>
       <section id="trainingEnvironmentChooser" class="training-environment-chooser">
+        <div class="environment-preference-block"><div><span>PRIORIDAD DE HOY</span><small>Phoenix ajustará toda la sesión, no solo cada ejercicio.</small></div><div class="environment-preference-options">
+          <button type="button" data-environment-preference="closest" class="active" onclick="App.setEnvironmentPreference('closest')">LO MÁS PARECIDO</button>
+          <button type="button" data-environment-preference="faster" onclick="App.setEnvironmentPreference('faster')">MÁS RÁPIDO</button>
+          <button type="button" data-environment-preference="no_equipment" onclick="App.setEnvironmentPreference('no_equipment')">SIN MATERIAL</button>
+          <button type="button" data-environment-preference="calisthenics" onclick="App.setEnvironmentPreference('calisthenics')">MÁS CALISTENIA</button>
+        </div></div>
         <button type="button" class="environment-choice environment-choice--gym" onclick="App.selectTrainingEnvironment('gym')"><span>01</span><div><b>GIMNASIO</b><small>Rutina prevista y alternativas de gimnasio</small></div><em>→</em></button>
         <button type="button" class="environment-choice environment-choice--home" onclick="App.selectTrainingEnvironment('home')"><span>02</span><div><b>CASA</b><small>Phoenix adapta la sesión con PEDB</small></div><em>→</em></button>
         <button type="button" class="environment-choice environment-choice--street" onclick="App.selectTrainingEnvironment('street')"><span>03</span><div><b>CALLE</b><small>Calistenia, barras, paralelas y suelo</small></div><em>→</em></button>
+      </section>
+      <section id="trainingEnvironmentEquipment" class="training-environment-equipment" hidden>
+        <div class="eyebrow">MATERIAL DEL PERFIL</div><h3 id="environmentEquipmentTitle">Material disponible</h3>
+        <p>Phoenix solo propondrá ejercicios que puedas realizar con este material.</p>
+        <div id="environmentEquipmentOptions" class="environment-equipment-options"></div>
+        <button type="button" class="king small-king" onclick="App.saveEnvironmentEquipment()">GUARDAR Y RECALCULAR</button>
+        <button type="button" class="secondary" onclick="App.selectTrainingEnvironment(App.pendingEnvironmentPlan?.environment||'home')">Cancelar</button>
       </section>
       <section id="trainingEnvironmentLoading" class="training-environment-loading" hidden><span></span><b>ADAPTANDO RUTINA</b><small>PEDB está conservando patrones y músculos</small></section>
       <section id="trainingEnvironmentPreview" class="training-environment-preview" hidden>
         <header><div><div class="eyebrow">RUTINA PROPUESTA</div><h3 id="trainingEnvironmentPreviewTitle"></h3></div><span>PEDB</span></header>
         <p id="trainingEnvironmentSummary"></p>
         <div id="trainingEnvironmentExercises" class="training-environment-exercises"></div>
+        <button id="trainingEnvironmentEquipmentButton" type="button" class="secondary" onclick="App.openEnvironmentEquipment()">CONFIGURAR MATERIAL DISPONIBLE</button>
         <button type="button" class="king small-king" onclick="App.confirmEnvironmentWorkout()">COMENZAR ENTRENAMIENTO</button>
         <button type="button" class="secondary" onclick="App.startWorkout(App.pendingEnvironmentRoutineId)">Cambiar entorno</button>
       </section>
@@ -330,31 +344,31 @@
   </div>
 
   <input id="pedbCsvInput" type="file" accept=".csv,text/csv" hidden onchange="App.importPersonalExercisesCsv(this)">
-  <script src="core/network-gate.js?v=034"></script>
-  <script src="core/sync-provider.js?v=034"></script>
-  <script src="themes/material-contract.js?v=034"></script>
-  <script src="themes/token-contract.js?v=034"></script>
-  <script src="themes/component-contract.js?v=034"></script>
-  <script src="themes/material-engine.js?v=034"></script>
-  <script src="themes/component-runtime.js?v=034"></script>
-  <script src="forge/contracts/shape-contract.js?v=034"></script>
-  <script src="forge/core/forge-action-bus.js?v=034"></script>
-  <script src="forge/core/forge-view-model.js?v=034"></script>
-  <script src="forge/core/forge-diagnostics.js?v=034"></script>
-  <script src="forge/renderers/home-renderer.js?v=034"></script>
-  <script src="forge/instruments/instrument-registry.js?v=034"></script>
-  <script src="forge/renderers/workout-renderer.js?v=034"></script>
-  <script src="forge/renderers/set-renderer.js?v=034"></script>
-  <script src="forge/renderers/rest-renderer.js?v=034"></script>
-  <script src="forge/renderers/exercise-summary-renderer.js?v=034"></script>
-  <script src="forge/renderers/workout-summary-renderer.js?v=034"></script>
-  <script src="forge/renderers/data-renderer.js?v=034"></script>
-  <script src="forge/renderers/history-renderer.js?v=034"></script>
-  <script src="forge/engine/shape-engine.js?v=034"></script>
-  <script src="js/pedb-bundle.js?v=034"></script>
-  <script src="js/pedb-db.js?v=034"></script>
-  <script src="js/pedb-loader.js?v=034"></script>
-  <script src="app.js?v=034"></script>
+  <script src="core/network-gate.js?v=036"></script>
+  <script src="core/sync-provider.js?v=036"></script>
+  <script src="themes/material-contract.js?v=036"></script>
+  <script src="themes/token-contract.js?v=036"></script>
+  <script src="themes/component-contract.js?v=036"></script>
+  <script src="themes/material-engine.js?v=036"></script>
+  <script src="themes/component-runtime.js?v=036"></script>
+  <script src="forge/contracts/shape-contract.js?v=036"></script>
+  <script src="forge/core/forge-action-bus.js?v=036"></script>
+  <script src="forge/core/forge-view-model.js?v=036"></script>
+  <script src="forge/core/forge-diagnostics.js?v=036"></script>
+  <script src="forge/renderers/home-renderer.js?v=036"></script>
+  <script src="forge/instruments/instrument-registry.js?v=036"></script>
+  <script src="forge/renderers/workout-renderer.js?v=036"></script>
+  <script src="forge/renderers/set-renderer.js?v=036"></script>
+  <script src="forge/renderers/rest-renderer.js?v=036"></script>
+  <script src="forge/renderers/exercise-summary-renderer.js?v=036"></script>
+  <script src="forge/renderers/workout-summary-renderer.js?v=036"></script>
+  <script src="forge/renderers/data-renderer.js?v=036"></script>
+  <script src="forge/renderers/history-renderer.js?v=036"></script>
+  <script src="forge/engine/shape-engine.js?v=036"></script>
+  <script src="js/pedb-bundle.js?v=036"></script>
+  <script src="js/pedb-db.js?v=036"></script>
+  <script src="js/pedb-loader.js?v=036"></script>
+  <script src="app.js?v=036"></script>
 
   <div id="nextExerciseOverlay" class="next-overlay" aria-hidden="true">
     <div class="next-card">

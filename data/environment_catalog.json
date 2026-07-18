@@ -1,0 +1,104 @@
+{
+  "version": "0.2.0",
+  "build": "035",
+  "environments": [
+    {
+      "id": "gym",
+      "name_es": "Gimnasio"
+    },
+    {
+      "id": "home",
+      "name_es": "Casa"
+    },
+    {
+      "id": "street",
+      "name_es": "Calle"
+    }
+  ],
+  "equipment": [
+    {
+      "id": "bodyweight",
+      "name_es": "Sin material / peso corporal",
+      "home": true,
+      "street": true
+    },
+    {
+      "id": "dumbbells",
+      "name_es": "Mancuernas",
+      "home": true,
+      "street": false
+    },
+    {
+      "id": "bands",
+      "name_es": "Bandas elásticas",
+      "home": true,
+      "street": true
+    },
+    {
+      "id": "barbell",
+      "name_es": "Barra y discos",
+      "home": true,
+      "street": false
+    },
+    {
+      "id": "bench",
+      "name_es": "Banco",
+      "home": true,
+      "street": true
+    },
+    {
+      "id": "kettlebell",
+      "name_es": "Kettlebell",
+      "home": true,
+      "street": false
+    },
+    {
+      "id": "rings",
+      "name_es": "Anillas",
+      "home": true,
+      "street": true
+    },
+    {
+      "id": "suspension",
+      "name_es": "TRX / suspensión",
+      "home": true,
+      "street": true
+    },
+    {
+      "id": "pullup_bar",
+      "name_es": "Barra de dominadas",
+      "home": true,
+      "street": true
+    },
+    {
+      "id": "low_bar",
+      "name_es": "Barra baja",
+      "home": false,
+      "street": true
+    },
+    {
+      "id": "parallel_bars",
+      "name_es": "Paralelas",
+      "home": false,
+      "street": true
+    },
+    {
+      "id": "box",
+      "name_es": "Cajón / escalón",
+      "home": true,
+      "street": true
+    },
+    {
+      "id": "wall",
+      "name_es": "Pared",
+      "home": true,
+      "street": true
+    },
+    {
+      "id": "rope",
+      "name_es": "Cuerda",
+      "home": false,
+      "street": true
+    }
+  ]
+}
