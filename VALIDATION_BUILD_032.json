@@ -1,0 +1,101 @@
+{
+  "build": "032",
+  "name": "Material Identity Overhaul 1.0",
+  "cumulative_from": "031",
+  "summary": {
+    "passed": 16,
+    "failed": 0,
+    "total": 16
+  },
+  "checks": [
+    {
+      "name": "Build visible",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "name": "Build meta",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "name": "Service worker registration",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "name": "Service worker cache",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "name": "Apex identity CSS",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "name": "Vektor identity CSS",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "name": "Apex circular timer",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "name": "Vektor rectangular timer",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "name": "Igor selector",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "name": "Igor migration",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "name": "PEDB exercises",
+      "status": "pass",
+      "detail": "1200"
+    },
+    {
+      "name": "PEDB relations",
+      "status": "pass",
+      "detail": "21522"
+    },
+    {
+      "name": "JavaScript syntax",
+      "status": "pass",
+      "detail": "26 files checked with node --check"
+    },
+    {
+      "name": "JSON validity",
+      "status": "pass",
+      "detail": "60 files parsed"
+    },
+    {
+      "name": "CSS brace balance",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "name": "Design targets packaged",
+      "status": "pass",
+      "detail": ""
+    }
+  ],
+  "limitations": [
+    "No se completó una prueba visual automatizada en Chromium dentro del entorno: el proceso headless no produjo captura.",
+    "Pendiente prueba física en Android y ciclo publicado del service worker."
+  ],
+  "scope": [
+    "Apex: Home, entrenamiento y PHX Signature Timer",
+    "Vektor: Home, entrenamiento y PHX Signature Timer",
+    "Sin cambios destructivos de datos"
+  ]
+}

@@ -970,3 +970,67 @@ html[data-phx-material="apex"] .phoenix-timer__controls button{border-radius:999
 html[data-phx-material="apex"] .phoenix-timer__controls button:last-child{box-shadow:inset 0 0 0 1px rgba(255,59,99,.18)}
 html[data-phx-material="apex"] .material-option.apex.active{box-shadow:0 0 0 1px var(--apex-green),0 0 30px rgba(0,240,138,.12),inset 0 1px rgba(255,255,255,.08)}
 html[data-phx-material="apex"] .data-v2__graph{background:repeating-linear-gradient(0deg,rgba(0,229,255,.035) 0 1px,transparent 1px 22px),repeating-linear-gradient(90deg,rgba(0,229,255,.035) 0 1px,transparent 1px 22px),#000506}
+
+/* BUILD 032 · APEX MATERIAL IDENTITY OVERHAUL
+   Obsidian glass, precision reticles, luminous edges. */
+html[data-phx-material="apex"]{
+  --apex-glass:linear-gradient(145deg,rgba(7,21,27,.88),rgba(0,4,6,.96) 62%,rgba(0,12,16,.9));
+  --apex-grid:repeating-linear-gradient(0deg,rgba(0,217,255,.025) 0 1px,transparent 1px 24px),repeating-linear-gradient(90deg,rgba(0,217,255,.022) 0 1px,transparent 1px 24px);
+}
+html[data-phx-material="apex"] body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background:radial-gradient(circle at 50% -15%,rgba(0,217,255,.11),transparent 38%),linear-gradient(180deg,rgba(0,217,255,.025),transparent 24%);mix-blend-mode:screen}
+html[data-phx-material="apex"] :where(.home-today-card--definitive,.exercise-stage,.gym-target-card,.gym-context-card,.set-card,.data-v2__metric,.data-v2__chart){
+  position:relative;isolation:isolate;overflow:hidden;background:var(--apex-grid),var(--apex-glass)!important;border:1px solid rgba(75,226,255,.22)!important;border-radius:26px!important;box-shadow:inset 0 1px 0 rgba(199,248,255,.075),inset 0 -18px 45px rgba(0,0,0,.22),0 18px 55px rgba(0,0,0,.5),0 0 0 1px rgba(0,217,255,.018)!important;backdrop-filter:blur(14px) saturate(1.12)
+}
+html[data-phx-material="apex"] :where(.home-today-card--definitive,.exercise-stage,.gym-target-card)::after{content:"";position:absolute;inset:9px;z-index:-1;pointer-events:none;border:1px solid rgba(0,217,255,.07);border-radius:20px;background:linear-gradient(135deg,rgba(255,255,255,.035),transparent 28%)}
+html[data-phx-material="apex"] .home-today-card--definitive::before{left:11%;right:11%;height:1px;background:linear-gradient(90deg,transparent,var(--phx-cyan) 22%,var(--phx-green) 78%,transparent);box-shadow:0 0 18px rgba(0,217,255,.45)}
+html[data-phx-material="apex"] .home-mode{border-radius:28px!important;background:var(--apex-grid),linear-gradient(145deg,rgba(4,14,18,.96),rgba(0,3,5,.99))!important;border-width:1px!important;box-shadow:inset 0 1px rgba(255,255,255,.045),0 17px 46px rgba(0,0,0,.48)!important}
+html[data-phx-material="apex"] .home-mode strong{font-weight:320!important;letter-spacing:.15em;text-shadow:0 0 22px currentColor}
+html[data-phx-material="apex"] .home-mode--gym{border-color:rgba(0,217,255,.58)!important}
+html[data-phx-material="apex"] .home-mode--data{border-color:rgba(0,230,118,.4)!important}
+html[data-phx-material="apex"] .home-mode::after{content:"";position:absolute;width:8px;height:8px;right:18px;bottom:18px;border-radius:50%;background:currentColor;box-shadow:0 0 14px currentColor;opacity:.7}
+html[data-phx-material="apex"] .exercise-stage__index{font-weight:250!important;color:rgba(232,251,255,.92);text-shadow:0 0 18px rgba(0,217,255,.18)}
+html[data-phx-material="apex"] .exercise-stage__progress span{border-radius:50%!important;border-color:rgba(0,217,255,.25)!important;background:#010608!important}
+html[data-phx-material="apex"] .exercise-stage__progress span.current{border-color:var(--phx-cyan)!important;box-shadow:0 0 0 4px rgba(0,217,255,.08),0 0 18px rgba(0,217,255,.28)!important}
+html[data-phx-material="apex"] .exercise-stage__progress span.done{background:var(--phx-green)!important;color:#00150a!important;border-color:var(--phx-green)!important}
+html[data-phx-material="apex"] .gym-target-grid strong{font-weight:260!important;color:#f5fdff;text-shadow:0 0 18px rgba(0,217,255,.15)}
+html[data-phx-material="apex"] .gym-primary-action{border-radius:999px!important;background:linear-gradient(90deg,#00b9dd,#00d9ff 50%,#00e676)!important;box-shadow:0 4px 0 #006c81,0 16px 42px rgba(0,217,255,.22),inset 0 1px rgba(255,255,255,.55)!important}
+/* Apex signature timer remains circular, but becomes layered obsidian glass. */
+html[data-phx-material="apex"] .phoenix-timer__instrument{background:radial-gradient(circle at 50% 42%,rgba(0,217,255,.04),transparent 48%),var(--apex-grid);border:1px solid rgba(0,217,255,.1);border-radius:30px;box-shadow:inset 0 1px rgba(255,255,255,.03)}
+html[data-phx-material="apex"] .phoenix-timer__ring{border-radius:50%!important;outline:1px solid rgba(0,217,255,.08);outline-offset:12px}
+html[data-phx-material="apex"] .phoenix-timer__ring::after{content:"";position:absolute;inset:-20px;border-radius:50%;pointer-events:none;background:repeating-conic-gradient(from -90deg,rgba(0,217,255,.18) 0 .35deg,transparent .35deg 5deg);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 1px),#000 0);mask:radial-gradient(farthest-side,transparent calc(100% - 1px),#000 0);opacity:.5}
+html[data-phx-material="apex"] .phoenix-timer__time{font-weight:220!important;letter-spacing:.025em!important}
+html[data-phx-material="apex"] .phoenix-timer__controls button{background:radial-gradient(circle at 50% 30%,rgba(0,217,255,.055),transparent 48%),#010507!important;backdrop-filter:blur(10px)}
+
+
+/* BUILD 033 · APEX MATERIAL SYSTEM ROLLOUT */
+html[data-phx-material="apex"] .data-v2__metric,
+html[data-phx-material="apex"] .data-v2__chart,
+html[data-phx-material="apex"] .data-v2__session,
+html[data-phx-material="apex"] .history-session,
+html[data-phx-material="apex"] .routine-accordion,
+html[data-phx-material="apex"] .week-planner,
+html[data-phx-material="apex"] .settings-section{
+  background:linear-gradient(155deg,rgba(10,18,24,.86),rgba(2,6,9,.94));
+  border:1px solid rgba(0,229,255,.22);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 16px 34px rgba(0,0,0,.32);
+  backdrop-filter:blur(9px);
+}
+html[data-phx-material="apex"] .data-v2__metric,
+html[data-phx-material="apex"] .settings-section{border-radius:20px}
+html[data-phx-material="apex"] .history-session,
+html[data-phx-material="apex"] .routine-accordion,
+html[data-phx-material="apex"] .week-planner{border-radius:24px;position:relative;overflow:hidden}
+html[data-phx-material="apex"] .history-session::before,
+html[data-phx-material="apex"] .routine-accordion::before,
+html[data-phx-material="apex"] .week-planner::before{
+ content:"";position:absolute;inset:0;pointer-events:none;opacity:.16;
+ background-image:linear-gradient(rgba(0,229,255,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.12) 1px,transparent 1px);background-size:24px 24px;
+ mask-image:linear-gradient(135deg,#000,transparent 72%);
+}
+html[data-phx-material="apex"] .data-v2__metric strong,
+html[data-phx-material="apex"] .history-kpis strong{color:#eafcff;text-shadow:0 0 18px rgba(0,229,255,.18)}
+html[data-phx-material="apex"] .data-v2__tabs button.active,
+html[data-phx-material="apex"] .data-v2__range button.active,
+html[data-phx-material="apex"] .week-day.today{border-color:#00e5ff;box-shadow:0 0 0 1px rgba(0,229,255,.25),0 0 24px rgba(0,229,255,.12)}
+html[data-phx-material="apex"] .settings-section h3,
+html[data-phx-material="apex"] .routine-name{color:#8ff6ff}
