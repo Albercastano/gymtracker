@@ -53,6 +53,7 @@ const App={
     this.updateProfileChrome();
     this.bindPhoenixEasterEgg();
     this.bindAudioUnlock();
+    this.bindEnvironmentControls();
     this.enhanceAccessibility();
     this.registerServiceWorker();
     history.replaceState({phoenix:true,screen:"home",destination:"Inicio"},"","#home");
@@ -80,6 +81,26 @@ const App={
     });
   },
 
+
+
+  bindEnvironmentControls(){
+    if(this.environmentControlsBound)return;
+    this.environmentControlsBound=true;
+    document.addEventListener("click",event=>{
+      const preference=event.target.closest?.("[data-environment-preference]");
+      if(preference){
+        event.preventDefault();
+        this.setEnvironmentPreference(preference.dataset.environmentPreference);
+        return;
+      }
+      const choice=event.target.closest?.("[data-training-environment]");
+      if(choice){
+        event.preventDefault();
+        event.stopPropagation();
+        this.selectTrainingEnvironment(choice.dataset.trainingEnvironment);
+      }
+    });
+  },
 
   registerForgeBridge(){
     try{
@@ -235,7 +256,7 @@ const App={
 
   registerServiceWorker(){
     if(!("serviceWorker" in navigator)||!/^https?:$/.test(location.protocol))return;
-    navigator.serviceWorker.register("sw.js?v=036",{updateViaCache:"none"}).then(async registration=>{
+    navigator.serviceWorker.register("sw.js?v=037",{updateViaCache:"none"}).then(async registration=>{
       try{await registration.update()}catch(_){}
       this.swRegistration=registration;
       registration.update().catch(()=>{});
@@ -1028,25 +1049,42 @@ const App={
   },
 
   async selectTrainingEnvironment(environment){
-    const r=this.getRoutine(this.pendingEnvironmentRoutineId);if(!r)return;
-    document.getElementById("trainingEnvironmentChooser").hidden=true;
-    document.getElementById("trainingEnvironmentPreview").hidden=true;
-    document.getElementById("trainingEnvironmentLoading").hidden=false;
-    const preference=this.data.profile.environmentPreference||"closest",items=[],usedPatterns=[],usedMuscles=[],usedNames=[];
-    for(let index=0;index<r.items.length;index++){
-      const item=r.items[index],source=await this.findPedbExerciseForItem(item);
-      let selected=null;
-      const originalFits=environment==="gym"||this.exerciseFitsEnvironment(source,environment);
-      if(environment!=="gym"&&source&&(!originalFits||preference!=="closest")){
-        const candidates=await this.environmentAlternativesForItem(item,environment,8,{preference,usedPatterns,usedMuscles,usedNames});
-        selected=!originalFits?candidates[0]||null:(preference!=="closest"&&candidates[0]?.score>=86?candidates[0]:null);
+    if(!["gym","home","street"].includes(environment))return;
+    const r=this.getRoutine(this.pendingEnvironmentRoutineId);
+    if(!r||!Array.isArray(r.items)||!r.items.length){this.toast("No hay una rutina válida para adaptar.");return}
+    const chooser=document.getElementById("trainingEnvironmentChooser");
+    const preview=document.getElementById("trainingEnvironmentPreview");
+    const loading=document.getElementById("trainingEnvironmentLoading");
+    chooser.hidden=true;preview.hidden=true;loading.hidden=false;
+    document.querySelectorAll("[data-training-environment]").forEach(button=>button.disabled=true);
+    try{
+      // Gimnasio no debe depender de que PEDB haya terminado de cargar.
+      const preference=this.data.profile.environmentPreference||"closest",items=[],usedPatterns=[],usedMuscles=[],usedNames=[];
+      for(let index=0;index<r.items.length;index++){
+        const item=r.items[index];
+        const source=environment==="gym"?null:await this.findPedbExerciseForItem(item);
+        let selected=null;
+        const originalFits=environment==="gym"||this.exerciseFitsEnvironment(source,environment);
+        if(environment!=="gym"&&source&&(!originalFits||preference!=="closest")){
+          const candidates=await this.environmentAlternativesForItem(item,environment,8,{preference,usedPatterns,usedMuscles,usedNames});
+          selected=!originalFits?candidates[0]||null:(preference!=="closest"&&candidates[0]?.score>=86?candidates[0]:null);
+        }
+        const exercise=selected||source,prescription=this.environmentPrescription(source,exercise,item,preference);
+        if(exercise?.pattern_id)usedPatterns.push(exercise.pattern_id);
+        if(exercise?.muscle_id)usedMuscles.push(exercise.muscle_id);
+        usedNames.push(selected?.name||item.name);
+        const unresolved=environment!=="gym"&&!source;
+        items.push({index,originalName:item.name,originalId:source?.id||item.exercise_id||item.libraryId||null,selectedName:selected?.name||item.name,selectedId:selected?.id||null,reason:selected?.reason||(unresolved?`${this.environmentLabel(environment)} · PEDB no encontró coincidencia; se conserva el ejercicio`:`${this.environmentLabel(environment)} · ejercicio original`),equivalence:selected?.equivalence||(unresolved?"Pendiente de revisión PEDB":"Objetivo original"),score:selected?.score||100,changed:Boolean(selected),...prescription});
       }
-      const exercise=selected||source,prescription=this.environmentPrescription(source,exercise,item,preference);
-      if(exercise?.pattern_id)usedPatterns.push(exercise.pattern_id);if(exercise?.muscle_id)usedMuscles.push(exercise.muscle_id);usedNames.push(selected?.name||item.name);
-      items.push({index,originalName:item.name,originalId:source?.id||item.exercise_id||item.libraryId||null,selectedName:selected?.name||item.name,selectedId:selected?.id||null,reason:selected?.reason||`${this.environmentLabel(environment)} · ejercicio original`,equivalence:selected?.equivalence||"Objetivo original",score:selected?.score||100,changed:Boolean(selected),...prescription});
+      this.pendingEnvironmentPlan={routineId:r.id,environment,preference,items,estimatedMinutes:this.estimateEnvironmentDuration(r,items)};
+      this.renderTrainingEnvironmentPreview();
+    }catch(error){
+      console.error("Environment Engine",error);
+      loading.hidden=true;chooser.hidden=false;
+      this.toast("No se pudo adaptar la rutina. Prueba de nuevo.");
+    }finally{
+      document.querySelectorAll("[data-training-environment]").forEach(button=>button.disabled=false);
     }
-    this.pendingEnvironmentPlan={routineId:r.id,environment,preference,items,estimatedMinutes:this.estimateEnvironmentDuration(r,items)};
-    this.renderTrainingEnvironmentPreview();
   },
 
   renderTrainingEnvironmentPreview(){
@@ -3502,7 +3540,7 @@ const App={
     if(!screen)return;
     screen.innerHTML=`<div class="forge-lab">
       <section class="forge-lab__hero phx-card phx-card--highlight">
-        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 036</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.9.0</span></div>
+        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 037</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.9.0</span></div>
         <p>Banco de pruebas visual. Los mismos componentes se comparan bajo cada material sin tocar datos ni lógica de entrenamiento.</p>
         <div class="forge-lab__material-bar" role="group" aria-label="Material del laboratorio">
           <button type="button" class="forge-lab__material ${material==='precision'?'active':''}" data-ui-material="precision" aria-pressed="${material==='precision'}" onclick="App.previewUiMaterial('precision')"><span>PRECISION</span><small>Vista previa segura</small></button>

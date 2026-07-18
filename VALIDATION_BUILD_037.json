@@ -1,0 +1,82 @@
+{
+  "build": "037",
+  "name": "Environment Action Repair 1.0",
+  "result": "PASS",
+  "passed": 14,
+  "total": 14,
+  "checks": [
+    {
+      "name": "JavaScript válido: app.js",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript válido: sw.js",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "JSON válidos",
+      "passed": true,
+      "detail": "66 válidos"
+    },
+    {
+      "name": "Listeners delegados de entorno",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Botón gym enlazado",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Botón home enlazado",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Botón street enlazado",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Selector sin onclick frágil",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Gimnasio independiente de PEDB",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Recuperación de errores",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Build visible",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Service worker 037",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "PEDB 1.200 ejercicios",
+      "passed": true,
+      "detail": "1200"
+    },
+    {
+      "name": "PEDB 21.522 relaciones",
+      "passed": true,
+      "detail": "21522"
+    }
+  ],
+  "limitations": [
+    "Validación estática; pendiente prueba física en Android."
+  ]
+}

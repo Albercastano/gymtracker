@@ -1702,7 +1702,7 @@ html[data-phx-material-preview="true"] .forge-lab__preview-console{animation:phx
 @media(max-width:760px){.material-selector{grid-template-columns:1fr!important}.material-option{min-width:0;max-width:100%}}
 
 
-/* Build 036 · Environment Training Engine */
+/* Build 037 · Environment Training Engine */
 .training-environment-panel{max-height:min(92vh,900px);overflow:auto;padding-bottom:max(24px,env(safe-area-inset-bottom))}
 .training-environment-routine{margin:-4px 0 18px;color:var(--muted)}
 .training-environment-routine b{color:var(--ink)}
@@ -1719,15 +1719,20 @@ html[data-phx-material-preview="true"] .forge-lab__preview-console{animation:phx
 .environment-alt-loading,.environment-alt-head{padding:16px;border:1px solid var(--line);border-radius:14px}.environment-alt-loading small,.environment-alt-head small{display:block;color:var(--muted)}.environment-alt-head{display:flex;align-items:center;gap:12px}.environment-alt-option{width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px;border:1px solid var(--line);border-radius:13px;background:var(--panel);color:var(--ink);text-align:left}.environment-alt-option span{min-width:0}.environment-alt-option b,.environment-alt-option small{display:block;overflow-wrap:anywhere}.environment-alt-option small{margin-top:3px;color:var(--muted)}.environment-alt-option em{font-style:normal;color:var(--gold);font-weight:900}
 @media(max-width:390px){.environment-choice{grid-template-columns:36px minmax(0,1fr) 18px;padding:13px}.environment-choice>span{width:34px;height:34px}.environment-exercise{grid-template-columns:28px minmax(0,1fr)}.environment-exercise button{grid-column:2;width:100%}}
 
-/* Build 036 · Environment Training Engine 0.2 */
+/* Build 037 · Environment Training Engine 0.2 */
 .training-environment-equipment{display:grid;gap:12px}.training-environment-equipment h3{margin:0;font-size:25px}.training-environment-equipment p{margin:0;color:var(--muted)}
 .environment-equipment-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:6px 0 10px}.environment-equipment-options label{min-width:0;display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--line);border-radius:13px;background:var(--panel);font-size:12px;font-weight:800}.environment-equipment-options input{width:19px;height:19px;accent-color:var(--gold);flex:0 0 auto}.environment-equipment-options span{overflow-wrap:anywhere}
 @media(max-width:430px){.environment-equipment-options{grid-template-columns:1fr}}
 
-/* Build 036 · Environment Training Engine 0.3 · Session Adaptation */
+/* Build 037 · Environment Training Engine 0.3 · Session Adaptation */
 .environment-preference-block{display:grid;gap:10px;padding:14px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(145deg,color-mix(in srgb,var(--panel) 92%,var(--gold) 8%),var(--bg))}
 .environment-preference-block>div:first-child span{display:block;color:var(--gold);font-size:10px;font-weight:1000;letter-spacing:.13em}.environment-preference-block>div:first-child small{display:block;margin-top:4px;color:var(--muted);line-height:1.35}
 .environment-preference-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.environment-preference-options button{min-width:0;min-height:40px;padding:8px;border:1px solid var(--line);border-radius:11px;background:var(--panel);color:var(--muted);font-size:9px;font-weight:1000;letter-spacing:.05em}.environment-preference-options button.active{border-color:var(--gold);color:var(--ink);box-shadow:inset 0 -2px 0 color-mix(in srgb,var(--gold) 72%,transparent)}
 .environment-prescription{display:grid;grid-template-columns:auto auto;gap:3px 9px;margin-top:8px;padding-top:7px;border-top:1px solid var(--line)}.environment-prescription b{color:var(--gold);font-size:12px}.environment-prescription span{color:var(--ink);font-size:11px}.environment-prescription i{grid-column:1/-1;color:var(--muted);font-size:10px;font-style:normal;line-height:1.35}
 .environment-alt-option span>i{display:block;margin-top:4px;color:var(--gold);font-size:10px;font-style:normal}
 @media(max-width:390px){.environment-preference-options{grid-template-columns:1fr}.environment-prescription{grid-template-columns:1fr}.environment-prescription i{grid-column:1}}
+
+/* Build 037 · Environment Action Repair */
+.environment-choice:disabled{opacity:.62;cursor:wait;filter:saturate(.72)}
+.environment-choice:active{transform:translateY(2px)}
+.training-environment-loading:not([hidden]){display:grid}
