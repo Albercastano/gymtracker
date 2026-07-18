@@ -235,7 +235,7 @@ const App={
 
   registerServiceWorker(){
     if(!("serviceWorker" in navigator)||!/^https?:$/.test(location.protocol))return;
-    navigator.serviceWorker.register("sw.js?v=033",{updateViaCache:"none"}).then(async registration=>{
+    navigator.serviceWorker.register("sw.js?v=034",{updateViaCache:"none"}).then(async registration=>{
       try{await registration.update()}catch(_){}
       this.swRegistration=registration;
       registration.update().catch(()=>{});
@@ -525,6 +525,7 @@ const App={
     this.data.settings.sound=this.data.settings.sound!==false;
     this.data.settings.vibration=this.data.settings.vibration!==false;
     this.data.profile=this.data.profile||{bodyWeight:null};
+    this.data.profile.environmentEquipment=(this.data.profile.environmentEquipment&&typeof this.data.profile.environmentEquipment==="object")?this.data.profile.environmentEquipment:{home:["bodyweight"],street:["bodyweight","pullup_bar","parallel_bars","bench"]};
     this.data.routines=Array.isArray(this.data.routines)?this.data.routines:[];
     this.data.weekPlan=this.data.weekPlan||{};
     this.data.weeklyPlans=(this.data.weeklyPlans&&typeof this.data.weeklyPlans==="object")?this.data.weeklyPlans:{};
@@ -621,6 +622,7 @@ const App={
     this.active.restPausedLeft=Math.max(0,Number(this.active.restPausedLeft)||0);
     this.active.restTotal=Math.max(Number(this.active.restTotal)||0,Number(this.active.restLeft)||0,Number(this.active.restPausedLeft)||0);
     this.active.phase=["gym","series","rest","summary"].includes(this.active.phase)?this.active.phase:"gym";
+    this.active.trainingEnvironment=["gym","home","street"].includes(this.active.trainingEnvironment)?this.active.trainingEnvironment:"gym";
 
     if(this.active.phase==="rest" && Number(this.active.restEndsAt)>0){
       this.active.restLeft=Math.max(0,Math.ceil((Number(this.active.restEndsAt)-Date.now())/1000));
@@ -892,9 +894,109 @@ const App={
   startWorkout(routineId){
     const r=this.getRoutine(routineId);
     if(!r||!r.items.length){this.toast("No hay una rutina válida para hoy.");return}
-    this.active={id:"s"+Date.now(),routineId:r.id,date:new Date().toISOString(),exerciseIndex:0,setIndex:0,currentSets:[],completedExercises:[],exerciseProgress:{},exerciseOverrides:{},startedAt:Date.now(),phase:"gym",restEndsAt:null,restLeft:0,restPaused:false,restPausedLeft:0};
-    this.saveActive();
-    this.renderGym()
+    this.pendingEnvironmentRoutineId=r.id;
+    this.pendingEnvironmentPlan=null;
+    const sheet=document.getElementById("trainingEnvironmentSheet");
+    document.getElementById("trainingEnvironmentRoutine").textContent=r.name;
+    document.getElementById("trainingEnvironmentChooser").hidden=false;
+    document.getElementById("trainingEnvironmentPreview").hidden=true;
+    document.getElementById("trainingEnvironmentLoading").hidden=true;
+    sheet?.classList.add("show");document.body.classList.add("sheet-open");
+  },
+
+  closeTrainingEnvironment(){
+    document.getElementById("trainingEnvironmentSheet")?.classList.remove("show");
+    document.body.classList.remove("sheet-open");
+    this.pendingEnvironmentRoutineId=null;this.pendingEnvironmentPlan=null;this.environmentAltIndex=null;
+  },
+
+  environmentLabel(environment){return ({gym:"Gimnasio",home:"Casa",street:"Calle"})[environment]||"Gimnasio"},
+  environmentReason(environment){return environment==="home"?"En casa":environment==="street"?"En la calle":"Máquina ocupada"},
+
+  streetSuitable(exercise){
+    if(!exercise)return false;
+    const equipment=(exercise.equipment_ids||[]).map(id=>(this.pedbMeta.equipment.get(id)?.name_es||"").toLowerCase());
+    const tags=(exercise.tags||[]).map(x=>String(x).toLowerCase());
+    const allowed=/peso corporal|barra de dominadas|barra baja|paralelas|anillas|banda|suspensión|trx|banco|soporte|pared|suelo|obstáculo|cajón|poste/;
+    const blocked=/máquina|polea|prensa|multipower|mancuerna|kettlebell|disco|barra y rack|barra y banco|barra y discos|landmine|trineo|yoke|ghd/;
+    if(equipment.some(name=>blocked.test(name)))return false;
+    return Boolean(exercise.bodyweight||tags.includes("calistenia")||equipment.every(name=>allowed.test(name)));
+  },
+
+  exerciseFitsEnvironment(exercise,environment){
+    if(environment==="gym")return true;
+    if(environment==="home")return Boolean(exercise?.home_suitable);
+    if(environment==="street")return this.streetSuitable(exercise);
+    return true
+  },
+
+  async environmentAlternativesForItem(item,environment,limit=8){
+    if(!item)return[];
+    const source=await this.findPedbExerciseForItem(item);
+    if(!source||!this.pedbReady)return[];
+    const rows=this.pedbExercises.filter(e=>e.id!==source.id&&this.exerciseFitsEnvironment(e,environment)).map(e=>{
+      let score=0;
+      if(source.pattern_id&&e.pattern_id===source.pattern_id)score+=55;
+      if(source.muscle_id&&e.muscle_id===source.muscle_id)score+=38;
+      if(source.zone_id&&e.zone_id===source.zone_id)score+=12;
+      if(source.type_id&&e.type_id===source.type_id)score+=5;
+      if(environment!=="gym"&&e.bodyweight)score+=5;
+      if(score<55)return null;
+      return {id:e.id,name:e.name_es,score,reason:`${this.environmentLabel(environment)} · ${e.pattern_id===source.pattern_id?"mismo patrón":"mismo músculo"} · PEDB`}
+    }).filter(Boolean).sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name,"es"));
+    return rows.slice(0,limit)
+  },
+
+  async selectTrainingEnvironment(environment){
+    const r=this.getRoutine(this.pendingEnvironmentRoutineId);if(!r)return;
+    document.getElementById("trainingEnvironmentChooser").hidden=true;
+    document.getElementById("trainingEnvironmentPreview").hidden=true;
+    document.getElementById("trainingEnvironmentLoading").hidden=false;
+    const items=[];
+    for(let index=0;index<r.items.length;index++){
+      const item=r.items[index];
+      const source=await this.findPedbExerciseForItem(item);
+      let selected=null;
+      if(environment!=="gym"&&source&&!this.exerciseFitsEnvironment(source,environment)){
+        selected=(await this.environmentAlternativesForItem(item,environment,1))[0]||null;
+      }
+      items.push({index,originalName:item.name,originalId:source?.id||item.exercise_id||item.libraryId||null,selectedName:selected?.name||item.name,selectedId:selected?.id||null,reason:selected?.reason||`${this.environmentLabel(environment)} · ejercicio original`,changed:Boolean(selected)});
+    }
+    this.pendingEnvironmentPlan={routineId:r.id,environment,items};
+    this.renderTrainingEnvironmentPreview();
+  },
+
+  renderTrainingEnvironmentPreview(){
+    const plan=this.pendingEnvironmentPlan;if(!plan)return;
+    const changed=plan.items.filter(x=>x.changed).length;
+    document.getElementById("trainingEnvironmentLoading").hidden=true;
+    document.getElementById("trainingEnvironmentPreview").hidden=false;
+    document.getElementById("trainingEnvironmentPreviewTitle").textContent=`Entreno en ${this.environmentLabel(plan.environment)}`;
+    document.getElementById("trainingEnvironmentSummary").textContent=plan.environment==="gym"?"Rutina original, preparada para gimnasio.":`${changed} ejercicio${changed===1?"":"s"} adaptado${changed===1?"":"s"} mediante PEDB.`;
+    document.getElementById("trainingEnvironmentExercises").innerHTML=plan.items.map((x,i)=>`<article class="environment-exercise ${x.changed?'changed':''}"><span>${String(i+1).padStart(2,'0')}</span><div><small>${x.changed?this.escape(x.originalName):'EJERCICIO'}</small><strong>${this.escape(x.selectedName)}</strong><em>${this.escape(x.reason)}</em></div><button type="button" onclick="App.openEnvironmentExerciseAlternatives(${i})">CAMBIAR</button></article>`).join("");
+  },
+
+  async openEnvironmentExerciseAlternatives(index){
+    const plan=this.pendingEnvironmentPlan,item=plan?.items?.[index];if(!item)return;
+    this.environmentAltIndex=index;
+    const host=document.getElementById("trainingEnvironmentExercises");
+    host.innerHTML=`<div class="environment-alt-loading"><b>Buscando en PEDB</b><small>Solo alternativas para ${this.environmentLabel(plan.environment).toLowerCase()}</small></div>`;
+    const routine=this.getRoutine(plan.routineId),sourceItem=routine?.items?.[index];
+    const alternatives=await this.environmentAlternativesForItem(sourceItem,plan.environment,12);
+    host.innerHTML=`<div class="environment-alt-head"><button onclick="App.renderTrainingEnvironmentPreview()">‹ VOLVER</button><div><small>SUSTITUIR</small><strong>${this.escape(item.selectedName)}</strong></div></div>${alternatives.length?alternatives.map(x=>`<button class="environment-alt-option" onclick="App.useEnvironmentAlternative(${index},'${encodeURIComponent(x.name)}','${x.id}')"><span><b>${this.escape(x.name)}</b><small>${this.escape(x.reason)}</small></span><em>${Math.round(x.score)}%</em></button>`).join(""):`<div class="alt-empty"><b>Sin alternativa equivalente.</b><small>PEDB no ha encontrado una opción suficientemente cercana para este entorno.</small></div>`}`;
+  },
+
+  useEnvironmentAlternative(index,encodedName,exerciseId){
+    const plan=this.pendingEnvironmentPlan,item=plan?.items?.[index];if(!item)return;
+    item.selectedName=decodeURIComponent(encodedName);item.selectedId=exerciseId||null;item.changed=item.selectedName!==item.originalName;item.reason=`${this.environmentLabel(plan.environment)} · alternativa elegida · PEDB`;
+    this.renderTrainingEnvironmentPreview();
+  },
+
+  confirmEnvironmentWorkout(){
+    const plan=this.pendingEnvironmentPlan,r=this.getRoutine(plan?.routineId);if(!plan||!r)return;
+    const overrides={};plan.items.forEach(x=>{if(x.changed)overrides[String(x.index)]={name:x.selectedName,reason:x.reason,exerciseId:x.selectedId||null,originalName:x.originalName,selectedAt:new Date().toISOString()}});
+    this.active={id:"s"+Date.now(),routineId:r.id,date:new Date().toISOString(),exerciseIndex:0,setIndex:0,currentSets:[],completedExercises:[],exerciseProgress:{},exerciseOverrides:overrides,trainingEnvironment:plan.environment,startedAt:Date.now(),phase:"gym",restEndsAt:null,restLeft:0,restPaused:false,restPausedLeft:0};
+    this.saveActive();this.closeTrainingEnvironment();this.renderGym();this.toast(`Entreno preparado · ${this.environmentLabel(plan.environment)}`)
   },
 
   resumeWorkout(){
@@ -938,7 +1040,7 @@ const App={
     const remaining=Math.max(0,e.sets-completed);
     document.getElementById("gym").innerHTML=`<div class="focus gym-complete-screen">
       <section class="gym-status-strip">
-        <div><span>SESIÓN</span><strong>${r.name}</strong></div>
+        <div><span>SESIÓN · ${this.environmentLabel(this.active.trainingEnvironment||"gym").toUpperCase()}</span><strong>${r.name}</strong></div>
         <div class="gym-status-strip__progress"><i style="width:${progress}%"></i></div>
         <div><span>PROGRESO</span><strong>${progress}%</strong></div>
       </section>
@@ -1930,6 +2032,7 @@ const App={
       date:this.active.date,
       routineId:r.id,
       routineName:r.name,
+      trainingEnvironment:this.active.trainingEnvironment||"gym",
       startedAt:this.active.startedAt,
       endedAt:Date.now(),
       exercises
@@ -2056,6 +2159,13 @@ const App={
         if(sameMuscle)score+=28;
         if(sameZone)score+=12;
         if(e.bodyweight)score+=8
+      }else if(reason==="En la calle"){
+        if(!this.streetSuitable(e))return null;
+        score+=68;
+        if(samePattern)score+=34;
+        if(sameMuscle)score+=28;
+        if(sameZone)score+=10;
+        if(e.bodyweight)score+=8
       }else if(reason==="Otra zona"){
         if(!sameMuscle||!differentZone)return null;
         score+=60;
@@ -2069,12 +2179,13 @@ const App={
         if(!e.machine_based)score+=5;
         if(score<55)return null
       }
-      return {id:e.id,name:e.name_es,reason:reason==="En casa"?"Mismo patrón, apto para casa":reason==="Otra zona"?"Mismo músculo, otra zona":"Mismo patrón con otro material",recommended:score>=90,score}
+      return {id:e.id,name:e.name_es,reason:reason==="En casa"?"Mismo patrón, apto para casa":reason==="En la calle"?"Mismo patrón, apto para calle":reason==="Otra zona"?"Mismo músculo, otra zona":"Mismo patrón con otro material",recommended:score>=90,score}
     }).filter(Boolean).sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name,"es"));
     return rows.slice(0,expanded?18:6)
   },
 
-  async alternativeOptions(reason="Máquina ocupada",expanded=false){
+  async alternativeOptions(reason=null,expanded=false){
+    reason=reason||this.environmentReason(this.active?.trainingEnvironment||"gym");
     const planned=this.currentPlannedExercise();if(!planned)return[];
     const result=[];
     const seen=new Set([this.normalizeExerciseName(planned.name)]);
@@ -2108,7 +2219,8 @@ const App={
     return result.slice(0,expanded?18:6)
   },
 
-  async openAlternatives(reason="Máquina ocupada",expanded=false){
+  async openAlternatives(reason=null,expanded=false){
+    reason=reason||this.environmentReason(this.active?.trainingEnvironment||"gym");
     const planned=this.currentPlannedExercise();if(!planned)return;
     this.altReason=reason;this.pedbAltExpanded=expanded;
     document.getElementById("altCurrent").innerHTML=`<strong>${planned.name}</strong><span>${reason}${this.pedbReady?" · PEDB":""}</span>`;
@@ -3303,7 +3415,7 @@ const App={
     if(!screen)return;
     screen.innerHTML=`<div class="forge-lab">
       <section class="forge-lab__hero phx-card phx-card--highlight">
-        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 033</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.9.0</span></div>
+        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 034</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.9.0</span></div>
         <p>Banco de pruebas visual. Los mismos componentes se comparan bajo cada material sin tocar datos ni lógica de entrenamiento.</p>
         <div class="forge-lab__material-bar" role="group" aria-label="Material del laboratorio">
           <button type="button" class="forge-lab__material ${material==='precision'?'active':''}" data-ui-material="precision" aria-pressed="${material==='precision'}" onclick="App.previewUiMaterial('precision')"><span>PRECISION</span><small>Vista previa segura</small></button>

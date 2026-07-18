@@ -1,0 +1,87 @@
+{
+  "build": "034",
+  "name": "Environment Training Engine 0.1",
+  "passed": 15,
+  "total": 15,
+  "checks": [
+    {
+      "name": "Visible Build 034",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Service worker 034",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Cache Build 034",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Selector 3 environments",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "PEDB environment planner",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Environment preview",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Per-exercise alternatives",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Original routine untouched",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Environment saved in session",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Street filtered alternatives",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Responsive CSS",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "PEDB 1200 exercises",
+      "ok": true,
+      "detail": "1200"
+    },
+    {
+      "name": "PEDB 21522 relations",
+      "ok": true,
+      "detail": "21522"
+    },
+    {
+      "name": "JavaScript syntax",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "JSON valid",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "limitations": [
+    "No physical Android test executed",
+    "Street suitability in 0.1 uses PEDB equipment/tags heuristic until a dedicated outdoor_suitable field exists"
+  ]
+}

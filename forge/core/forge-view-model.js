@@ -73,7 +73,7 @@
       screen:"gym",generatedAt:new Date().toISOString(),profile:{id:app.activeProfileId||"alberto",name:app.activeProfile?.()?.name||"Alberto"},
       state:{activeWorkout:true,phase:active.phase||"gym",alternative:Boolean(override)},
       components:{
-        "session-progress":{routineName:routine.name,currentExercise:(Number(active.exerciseIndex)||0)+1,totalExercises,progress},
+        "session-progress":{routineName:routine.name,environment:active.trainingEnvironment||"gym",environmentLabel:app.environmentLabel?.(active.trainingEnvironment||"gym")||"Gimnasio",currentExercise:(Number(active.exerciseIndex)||0)+1,totalExercises,progress},
         "exercise-stage":{name:exercise.name,originalName:exercise.originalName||null,alternativeReason:override?.reason||null,currentExercise:(Number(active.exerciseIndex)||0)+1,totalExercises,sets:Number(exercise.sets)||0,completed},
         "target-instrument":{mode:exercise.mode||"reps",reps:Number(exercise.reps)||0,weight:Number(exercise.weight)||0,rest:Number(exercise.rest)||0},
         "workout-context":{completed,totalSets:Number(exercise.sets)||0,remaining:Math.max(0,(Number(exercise.sets)||0)-completed),previous:previous?{reps:Number(previous.reps)||0,weight:Number(previous.weight)||0}:null},
