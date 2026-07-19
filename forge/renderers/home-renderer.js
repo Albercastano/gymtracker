@@ -1,6 +1,6 @@
 "use strict";
 (function(){
-  const VERSION="0.3.0";
+  const VERSION="0.4.0";
   const ACTION_ATTRIBUTE="data-forge-action";
   const REGION_VARIANTS=new Set(["precision-flow","precision-actions","precision-metrics"]);
 
@@ -16,8 +16,8 @@
     const id=String(context.materialId||"precision");
     return {
       id,
-      short:id==="apex"?"APEX":"PRECISION",
-      subtitle:id==="apex"?"PHOENIX · APEX":"PHOENIX · FORGED"
+      short:id==="apex"?"APEX":id==="vektor"?"VEKTOR":"PRECISION",
+      subtitle:id==="apex"?"PHOENIX · APEX":id==="vektor"?"PHOENIX · VEKTOR":"PHOENIX · FORGED"
     };
   }
 
@@ -55,12 +55,19 @@
     },
     "start-workout-action":({data})=>{
       const active=data?.mode==="resume";
-      const actionName=active?"resume-workout":"start-continuity-workout";
+      const ready=Boolean(data?.routineId);
+      const environment=data?.environment||"gym";
+      const environmentLabel=environment==="home"?"Casa":environment==="street"?"Calle":"Gimnasio";
+      const actionName=active?"resume-workout":ready?"start-continuity-workout":"open-routines";
       const routineId=escapeHtml(data?.routineId||"");
-      return `<button class="home-mode home-mode--gym ${active?"has-active":""}" ${action(actionName,active?"Continuar entrenamiento":"Comenzar entrenamiento",`data-routine-id="${routineId}"`)} data-forge-component="start-workout-action">
+      const title=active?"CONTINUAR":"ENTRENO";
+      const context=active?"Sesión activa":ready?`${environmentLabel} seleccionado`:"Sin rutina prevista";
+      const prompt=active?"Continuar ahora":ready?"COMENZAR":"ELEGIR RUTINA";
+      return `<button class="home-mode home-mode--gym ${active?"has-active":""} ${ready?"has-routine":"is-empty"}" ${action(actionName,active?"Continuar entrenamiento":ready?`Comenzar entrenamiento en ${environmentLabel.toLowerCase()}`:"Elegir rutina",`data-routine-id="${routineId}"`)} data-forge-component="start-workout-action">
         <span class="home-mode__kicker">${active?"SESIÓN ACTIVA":"PHOENIX CONTINUITY"}</span>
-        <strong>${active?"CONTINUAR":`COMENZAR EN ${(data?.environment||"gym")==="home"?"CASA":(data?.environment||"gym")==="street"?"CALLE":"GIMNASIO"}`}</strong>
-        <small>${active?"Continuar ahora":data?.routineId?"Sesión preparada":"Seleccionar rutina"}</small>
+        <strong>${title}</strong>
+        <small class="home-mode__context">${context}</small>
+        <span class="home-mode__cta">${prompt}</span>
       </button>`;
     },
     "open-data-action":()=>`<button class="home-mode home-mode--data" ${action("open-data","Abrir datos e historial")} data-forge-component="open-data-action">

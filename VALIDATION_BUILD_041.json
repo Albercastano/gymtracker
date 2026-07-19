@@ -1,0 +1,72 @@
+{
+  "build": "041",
+  "name": "HOME_ACTION_REFINEMENT",
+  "passed": true,
+  "checks": [
+    {
+      "name": "Sintaxis JavaScript",
+      "passed": true,
+      "detail": "26 archivos"
+    },
+    {
+      "name": "JSON válidos",
+      "passed": true,
+      "detail": "70 archivos"
+    },
+    {
+      "name": "Titular corto ENTRENO",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Contexto por entorno",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Estado sin rutina",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Acción corta COMENZAR",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Estado sesión activa",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Responsive Home",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Vektor identificado en Home",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Build 041 visible",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Service worker 041",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "PEDB 1.200 ejercicios",
+      "passed": true,
+      "detail": "1200"
+    },
+    {
+      "name": "PEDB 21.522 relaciones",
+      "passed": true,
+      "detail": "21522"
+    }
+  ]
+}

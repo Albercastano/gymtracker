@@ -278,7 +278,7 @@ const App={
 
   registerServiceWorker(){
     if(!("serviceWorker" in navigator)||!/^https?:$/.test(location.protocol))return;
-    navigator.serviceWorker.register("sw.js?v=040",{updateViaCache:"none"}).then(async registration=>{
+    navigator.serviceWorker.register("sw.js?v=041",{updateViaCache:"none"}).then(async registration=>{
       try{await registration.update()}catch(_){}
       this.swRegistration=registration;
       registration.update().catch(()=>{});
@@ -899,10 +899,11 @@ const App={
       </section>
 
       <section class="home-mode-switch" aria-label="Acciones principales">
-        <button class="home-mode home-mode--gym ${active?'has-active':''}" onclick="${active?'App.resumeWorkout()':`App.startWorkout('${r?.id||""}')`}">
-          <span class="home-mode__kicker">${active?'SESIÓN ACTIVA':'ENTRENAR'}</span>
-          <strong>GYM</strong>
-          <small>${active?'Continuar ahora':r?'Comenzar entrenamiento':'Seleccionar rutina'}</small>
+        <button class="home-mode home-mode--gym ${active?'has-active':''} ${r?'has-routine':'is-empty'}" onclick="${active?'App.resumeWorkout()':r?`App.startWorkout('${r.id}')`:'App.renderRoutines()'}">
+          <span class="home-mode__kicker">${active?'SESIÓN ACTIVA':'PHOENIX CONTINUITY'}</span>
+          <strong>${active?'CONTINUAR':'ENTRENO'}</strong>
+          <small class="home-mode__context">${active?'Sesión activa':r?'Gimnasio seleccionado':'Sin rutina prevista'}</small>
+          <span class="home-mode__cta">${active?'CONTINUAR AHORA':r?'COMENZAR':'ELEGIR RUTINA'}</span>
         </button>
         <button class="home-mode home-mode--data" onclick="App.renderData()">
           <span class="home-mode__kicker">PROGRESO</span>
