@@ -39,7 +39,7 @@
           estimatedMinutes:app.continuityHomePlan?.estimatedMinutes||app.estimateRoutineMinutes?.(routine)||0,
           continuity:{environment:app.continuityHomeEnvironment||"gym",busy:Boolean(app.continuityHomeBusy),plan:clone(app.continuityHomePlan)}
         },
-        "start-workout-action":{enabled:Boolean(routine||active),routineId:active?.routineId||routine?.id||null,mode:active?"resume":"continuity",environment:app.continuityHomeEnvironment||"gym"},
+        "start-workout-action":{enabled:Boolean(routine||active),routineId:active?.routineId||routine?.id||null,mode:active?"resume":"continuity",environment:app.continuityHomeEnvironment||"gym",busy:Boolean(app.continuityHomeBusy),unresolved:app.continuityHomePlan?.items?.filter?.(item=>item.unresolved)?.length||0,adapted:app.continuityHomePlan?.items?.filter?.(item=>item.changed)?.length||0},
         "open-data-action":{enabled:true},
         "weekly-progress":{
           sessions:weekSessions.length,

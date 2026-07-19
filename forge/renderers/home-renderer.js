@@ -48,8 +48,8 @@
         <div class="home-continuity__choices" role="group" aria-label="Entorno de entrenamiento">
           ${[["gym","GIMNASIO"],["home","CASA"],["street","CALLE"]].map(([id,label])=>`<button type="button" class="${environment===id?"active":""}" ${action("select-home-environment",`Entrenar en ${label.toLowerCase()}`,`data-environment="${id}"`)}>${label}</button>`).join("")}
         </div>
-        <div class="home-continuity__status ${c.busy?"is-busy":""}">${c.busy?`<strong>PREPARANDO ${envLabel}</strong><span>PEDB está conservando la intención de la sesión…</span>`:plan?`<strong>${envLabel} SELECCIONADA</strong><span>${changed} ejercicio${changed===1?"":"s"} adaptado${changed===1?"":"s"} · Objetivo conservado ${number(plan.objectiveScore)}% · ${number(plan.estimatedMinutes)} min${unresolved?` · ${unresolved} pendiente${unresolved===1?"":"s"}`:""}</span>`:`<strong>GIMNASIO SELECCIONADO</strong><span>Rutina prevista · Objetivo original conservado</span>`}</div>
-        ${plan&&changed?`<button type="button" class="home-continuity__review" ${action("review-continuity-plan","Revisar cambios de adaptación")}>REVISAR CAMBIOS</button>`:""}
+        <div class="home-continuity__status ${c.busy?"is-busy":""} ${unresolved?"has-pending":""}">${c.busy?`<strong>PREPARANDO ${envLabel}</strong><span>PEDB está conservando la intención de la sesión…</span>`:plan?`<strong>${envLabel} SELECCIONADA</strong><span>${changed} ejercicio${changed===1?"":"s"} adaptado${changed===1?"":"s"} · Objetivo conservado ${number(plan.objectiveScore)}% · ${number(plan.estimatedMinutes)} min${unresolved?` · ${unresolved} pendiente${unresolved===1?"":"s"}`:""}</span>`:`<strong>GIMNASIO SELECCIONADO</strong><span>Rutina prevista · Objetivo original conservado</span>`}</div>
+        ${plan&&(changed||unresolved)?`<button type="button" class="home-continuity__review" ${action("review-continuity-plan","Revisar cambios de adaptación")}>REVISAR CAMBIOS</button>`:""}
       </div>`:"";
       return `<section class="phx-card phx-card--highlight home-today-card home-today-card--definitive ${active?"is-active":""}" aria-labelledby="today-title" data-forge-component="workout-today"><div class="phx-card__eyebrow">${eyebrow}</div><div id="today-title" class="phx-card__hero-title">${title}</div><div class="home-summary">${meta}</div>${continuity}${active?`<div class="home-active-actions"><button class="home-continue" ${action("resume-workout","Continuar entrenamiento")}>CONTINUAR</button><button class="home-discard" ${action("discard-workout","Descartar entrenamiento")}>Descartar</button></div>`:""}</section>`;
     },
@@ -58,12 +58,13 @@
       const ready=Boolean(data?.routineId);
       const environment=data?.environment||"gym";
       const environmentLabel=environment==="home"?"Casa":environment==="street"?"Calle":"Gimnasio";
-      const actionName=active?"resume-workout":ready?"start-continuity-workout":"open-routines";
+      const unresolved=number(data?.unresolved),busy=Boolean(data?.busy);
+      const actionName=active?"resume-workout":ready?(unresolved?"review-continuity-plan":"start-continuity-workout"):"open-routines";
       const routineId=escapeHtml(data?.routineId||"");
-      const title=active?"CONTINUAR":"ENTRENO";
-      const context=active?"Sesión activa":ready?`${environmentLabel} seleccionado`:"Sin rutina prevista";
-      const prompt=active?"Continuar ahora":ready?"COMENZAR":"ELEGIR RUTINA";
-      return `<button class="home-mode home-mode--gym ${active?"has-active":""} ${ready?"has-routine":"is-empty"}" ${action(actionName,active?"Continuar entrenamiento":ready?`Comenzar entrenamiento en ${environmentLabel.toLowerCase()}`:"Elegir rutina",`data-routine-id="${routineId}"`)} data-forge-component="start-workout-action">
+      const title=active?"CONTINUAR":"SESIÓN";
+      const context=active?"Sesión activa":ready?(busy?"Preparando adaptación":unresolved?`${unresolved} ejercicio${unresolved===1?"":"s"} pendiente${unresolved===1?"":"s"}`:`${environmentLabel} seleccionado`):"Sin rutina prevista";
+      const prompt=active?"Continuar ahora":ready?(busy?"PREPARANDO":unresolved?"REVISAR":"COMENZAR"):"ELEGIR RUTINA";
+      return `<button class="home-mode home-mode--gym ${active?"has-active":""} ${ready?"has-routine":"is-empty"} ${unresolved?"has-pending":""} ${busy?"is-busy":""}" ${busy?'disabled aria-disabled="true"':action(actionName,active?"Continuar entrenamiento":ready?(unresolved?"Revisar ejercicios pendientes":`Comenzar entrenamiento en ${environmentLabel.toLowerCase()}`):"Elegir rutina",`data-routine-id="${routineId}"`)} data-forge-component="start-workout-action">
         <span class="home-mode__kicker">${active?"SESIÓN ACTIVA":"PHOENIX CONTINUITY"}</span>
         <strong>${title}</strong>
         <small class="home-mode__context">${context}</small>

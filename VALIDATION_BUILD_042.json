@@ -1,0 +1,83 @@
+{
+  "build": "042",
+  "name": "Continuity Resolution Fix 1.0",
+  "passed": true,
+  "checks_passed": 14,
+  "checks_total": 14,
+  "checks": [
+    {
+      "name": "Sintaxis JavaScript",
+      "passed": true,
+      "detail": "26 archivos"
+    },
+    {
+      "name": "JSON válidos",
+      "passed": true,
+      "detail": "70 archivos"
+    },
+    {
+      "name": "Build 042 visible",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Service worker 042",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Titular SESIÓN",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Sin corte de titular",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Pendientes fuerzan revisión",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Bloqueo durante adaptación",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Revisión visible con 0 adaptados",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "ViewModel transmite pendientes",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Vínculos PEDB obsoletos reparables",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Aliases críticos corregidos",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "PEDB ejercicios conservados",
+      "passed": true,
+      "detail": "1200"
+    },
+    {
+      "name": "PEDB relaciones conservadas",
+      "passed": true,
+      "detail": "21522"
+    }
+  ],
+  "notes": [
+    "Validación estática y de contratos.",
+    "La comprobación física final debe realizarse en Android/PWA con una rutina que contenga vínculos PEDB heredados."
+  ]
+}

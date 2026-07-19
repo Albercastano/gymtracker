@@ -278,7 +278,7 @@ const App={
 
   registerServiceWorker(){
     if(!("serviceWorker" in navigator)||!/^https?:$/.test(location.protocol))return;
-    navigator.serviceWorker.register("sw.js?v=041",{updateViaCache:"none"}).then(async registration=>{
+    navigator.serviceWorker.register("sw.js?v=042",{updateViaCache:"none"}).then(async registration=>{
       try{await registration.update()}catch(_){}
       this.swRegistration=registration;
       registration.update().catch(()=>{});
@@ -899,11 +899,11 @@ const App={
       </section>
 
       <section class="home-mode-switch" aria-label="Acciones principales">
-        <button class="home-mode home-mode--gym ${active?'has-active':''} ${r?'has-routine':'is-empty'}" onclick="${active?'App.resumeWorkout()':r?`App.startWorkout('${r.id}')`:'App.renderRoutines()'}">
+        <button class="home-mode home-mode--gym ${active?'has-active':''} ${r?'has-routine':'is-empty'} ${this.continuityHomePlan?.items?.some(x=>x.unresolved)?'has-pending':''}" onclick="${active?'App.resumeWorkout()':r?(this.continuityHomePlan?.items?.some(x=>x.unresolved)?'App.reviewContinuityPlan()':`App.startContinuityWorkout('${r.id}')`):'App.renderRoutines()'}">
           <span class="home-mode__kicker">${active?'SESIÓN ACTIVA':'PHOENIX CONTINUITY'}</span>
-          <strong>${active?'CONTINUAR':'ENTRENO'}</strong>
-          <small class="home-mode__context">${active?'Sesión activa':r?'Gimnasio seleccionado':'Sin rutina prevista'}</small>
-          <span class="home-mode__cta">${active?'CONTINUAR AHORA':r?'COMENZAR':'ELEGIR RUTINA'}</span>
+          <strong>${active?'CONTINUAR':'SESIÓN'}</strong>
+          <small class="home-mode__context">${active?'Sesión activa':r?(this.continuityHomePlan?.items?.some(x=>x.unresolved)?`${this.continuityHomePlan.items.filter(x=>x.unresolved).length} ejercicios pendientes`:`${this.environmentLabel(this.continuityHomeEnvironment||"gym")} seleccionado`):'Sin rutina prevista'}</small>
+          <span class="home-mode__cta">${active?'CONTINUAR AHORA':r?(this.continuityHomePlan?.items?.some(x=>x.unresolved)?'REVISAR':'COMENZAR'):'ELEGIR RUTINA'}</span>
         </button>
         <button class="home-mode home-mode--data" onclick="App.renderData()">
           <span class="home-mode__kicker">PROGRESO</span>
@@ -2361,9 +2361,20 @@ const App={
 
   async findPedbExerciseForItem(item){
     if(!this.pedbReady||!item)return null;
+    const itemName=item.name||item.exercise_name_snapshot||"";
+    const target=this.normalizeExerciseName(itemName);
     const direct=item.exercise_id||item.libraryId;
-    if(/^(PEX|USR-EX)-/.test(direct||""))return this.pedbExercise(direct);
-    return this.matchPedbByName(item.name||item.exercise_name_snapshot)||null
+    if(/^(PEX|USR-EX)-/.test(direct||"")){
+      const linked=await this.pedbExercise(direct);
+      if(linked){
+        const linkedNames=[linked.name_es,...(linked.synonyms_es||[])].map(x=>this.normalizeExerciseName(x)).filter(Boolean);
+        const targetTokens=target.split(" " ).filter(Boolean);
+        const compatibleName=linkedNames.some(name=>name===target||target===name||targetTokens.every(token=>name.split(" " ).some(candidate=>candidate===token||candidate.startsWith(token)||token.startsWith(candidate))));
+        if(compatibleName)return linked;
+        console.warn("PEDB: vínculo obsoleto reparado",{item:itemName,direct,linked:linked.name_es});
+      }
+    }
+    return this.matchPedbByName(itemName)||null
   },
 
   configuredAlternativeNames(name){
@@ -2944,9 +2955,11 @@ const App={
       "remo barra":"PEX-000073",
       "remo con barra":"PEX-000073",
       "press inclinado":"PEX-000144",
-      "press militar":"PEX-000102",
-      "sentadilla":"PEX-000086",
-      "peso muerto rumano":"PEX-000095"
+      "press militar":"PEX-000111",
+      "sentadilla":"PEX-000050",
+      "peso muerto rumano":"PEX-000126",
+      "zancada inversa":"PEX-000053",
+      "zancadas inversas":"PEX-000053"
     };
     const aliasId=aliases[target];
     if(aliasId){
@@ -2982,10 +2995,18 @@ const App={
 
   linkExistingRoutinesToPEDB(){
     let changed=false;
+    const byId=new Map((this.pedbExercises||[]).map(exercise=>[exercise.id,exercise]));
     (this.data.routines||[]).forEach(r=>(r.items||[]).forEach(item=>{
-      if(/^(PEX|USR-EX)-/.test(item.exercise_id||""))return;
-      const match=this.matchPedbByName(item.name||item.exercise_name_snapshot);
-      if(match){
+      const itemName=item.name||item.exercise_name_snapshot||"";
+      const target=this.normalizeExerciseName(itemName);
+      const direct=item.exercise_id||item.libraryId;
+      const linked=byId.get(direct);
+      const linkedNames=linked?[linked.name_es,...(linked.synonyms_es||[])].map(x=>this.normalizeExerciseName(x)).filter(Boolean):[];
+      const tokens=target.split(" " ).filter(Boolean);
+      const linkValid=linkedNames.some(name=>name===target||tokens.every(token=>name.split(" " ).some(candidate=>candidate===token||candidate.startsWith(token)||token.startsWith(candidate))));
+      if(linkValid)return;
+      const match=this.matchPedbByName(itemName);
+      if(match&&match.id!==direct){
         item.exercise_id=match.id;
         item.libraryId=match.id;
         item.exercise_name_snapshot=item.exercise_name_snapshot||item.name||match.name_es;
@@ -3665,7 +3686,7 @@ const App={
     if(!screen)return;
     screen.innerHTML=`<div class="forge-lab">
       <section class="forge-lab__hero phx-card phx-card--highlight">
-        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 038</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.9.0</span></div>
+        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 042</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.9.0</span></div>
         <p>Banco de pruebas visual. Los mismos componentes se comparan bajo cada material sin tocar datos ni lógica de entrenamiento.</p>
         <div class="forge-lab__material-bar" role="group" aria-label="Material del laboratorio">
           <button type="button" class="forge-lab__material ${material==='precision'?'active':''}" data-ui-material="precision" aria-pressed="${material==='precision'}" onclick="App.previewUiMaterial('precision')"><span>PRECISION</span><small>Vista previa segura</small></button>
