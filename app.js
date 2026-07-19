@@ -48,12 +48,14 @@ const App={
     const origin=document.getElementById("phoenixOrigin");
     if(origin){origin.hidden=true;origin.classList.remove("show");origin.setAttribute("aria-hidden","true")}
     this.load();
+    this.restoreContinuityPreparation();
     this.registerForgeBridge();
     this.applyUiSettings();
     this.updateProfileChrome();
     this.bindPhoenixEasterEgg();
     this.bindAudioUnlock();
     this.bindEnvironmentControls();
+    this.bindLibraryControls();
     this.enhanceAccessibility();
     this.registerServiceWorker();
     history.replaceState({phoenix:true,screen:"home",destination:"Inicio"},"","#home");
@@ -98,6 +100,26 @@ const App={
         event.preventDefault();
         event.stopPropagation();
         this.selectTrainingEnvironment(choice.dataset.trainingEnvironment);
+      }
+    });
+  },
+
+  bindLibraryControls(){
+    if(this.libraryControlsBound)return;
+    this.libraryControlsBound=true;
+    document.addEventListener("click",event=>{
+      const scope=event.target.closest?.("[data-library-scope]");
+      if(scope){
+        event.preventDefault();
+        event.stopPropagation();
+        this.setLibraryScope(scope.dataset.libraryScope);
+        return;
+      }
+      const group=event.target.closest?.("[data-library-group]");
+      if(group){
+        event.preventDefault();
+        event.stopPropagation();
+        this.setLibraryGroup(group.dataset.libraryGroup);
       }
     });
   },
@@ -256,7 +278,7 @@ const App={
 
   registerServiceWorker(){
     if(!("serviceWorker" in navigator)||!/^https?:$/.test(location.protocol))return;
-    navigator.serviceWorker.register("sw.js?v=037",{updateViaCache:"none"}).then(async registration=>{
+    navigator.serviceWorker.register("sw.js?v=040",{updateViaCache:"none"}).then(async registration=>{
       try{await registration.update()}catch(_){}
       this.swRegistration=registration;
       registration.update().catch(()=>{});
@@ -288,7 +310,7 @@ const App={
       const keys=await window.caches?.keys?.()||[];
       await Promise.all(keys.filter(key=>key.startsWith("gymtracker-phoenix")).map(key=>window.caches.delete(key)));
       this.data.settings.uiMaterial="apex";this.save();
-      location.replace(`index.html?v=021&apexrepair=${Date.now()}#settings`);
+      location.replace(`index.html?v=038&apexrepair=${Date.now()}#settings`);
     }catch(error){this.reportError(error)}
   },
 
@@ -913,6 +935,67 @@ const App={
     this.show("home","Inicio",{history:withHistory})
   },
 
+  continuityStorageKey(){return `phx_continuity_${this.activeProfileId||"alberto"}`},
+  persistContinuityPreparation(){
+    try{sessionStorage.setItem(this.continuityStorageKey(),JSON.stringify({environment:this.continuityHomeEnvironment||"gym",plan:this.continuityHomePlan||null}))}catch(_){ }
+  },
+  restoreContinuityPreparation(){
+    this.continuityHomeEnvironment="gym";this.continuityHomePlan=null;this.continuityHomeBusy=false;
+    try{const raw=sessionStorage.getItem(this.continuityStorageKey()),saved=raw?JSON.parse(raw):null;if(saved&&["gym","home","street"].includes(saved.environment)){this.continuityHomeEnvironment=saved.environment;this.continuityHomePlan=saved.plan||null}}catch(_){ }
+  },
+  clearContinuityPreparation(){try{sessionStorage.removeItem(this.continuityStorageKey())}catch(_){ }this.continuityHomePlan=null;this.continuityHomeEnvironment="gym"},
+
+  async buildContinuityPlan(routine,environment){
+    if(!routine||!Array.isArray(routine.items)||!routine.items.length)return null;
+    const preference=this.data.profile.environmentPreference||"closest",items=[],usedPatterns=[],usedMuscles=[],usedNames=[];
+    for(let index=0;index<routine.items.length;index++){
+      const item=routine.items[index];
+      const source=environment==="gym"?await this.findPedbExerciseForItem(item):await this.findPedbExerciseForItem(item);
+      const originalFits=environment==="gym"||this.exerciseFitsEnvironment(source,environment);
+      let selected=null;
+      if(environment!=="gym"&&source&&(!originalFits||preference!=="closest")){
+        const candidates=await this.environmentAlternativesForItem(item,environment,8,{preference,usedPatterns,usedMuscles,usedNames});
+        selected=candidates[0]||null;
+      }
+      const unresolved=environment!=="gym"&&(!source||(!originalFits&&!selected));
+      const exercise=selected||(originalFits?source:null),prescription=this.environmentPrescription(source,exercise||source,item,preference);
+      if(exercise?.pattern_id)usedPatterns.push(exercise.pattern_id);if(exercise?.muscle_id)usedMuscles.push(exercise.muscle_id);if(exercise?.name_es)usedNames.push(exercise.name_es);
+      items.push({index,originalName:item.name,originalId:source?.id||item.exercise_id||item.libraryId||null,selectedName:selected?.name||(originalFits?item.name:"SIN ALTERNATIVA"),selectedId:selected?.id||(originalFits?source?.id:null),reason:selected?.reason||(unresolved?`${this.environmentLabel(environment)} · sin sustitución válida`:`${this.environmentLabel(environment)} · objetivo original conservado`),equivalence:selected?.equivalence||(unresolved?"Requiere revisión":"Objetivo conservado"),score:selected?.score||(unresolved?0:100),changed:Boolean(selected),unresolved,...prescription});
+    }
+    const scores=items.filter(x=>!x.unresolved).map(x=>Number(x.score)||0);
+    const objectiveScore=scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length):0;
+    return {routineId:routine.id,plannedWorkoutId:routine.id,sourceVersion:1,environment,preference,context:{environment,availableEquipment:[...(this.data.profile.environmentEquipment?.[environment]||[])]},items,adaptedExercises:items.filter(x=>x.changed).map(x=>({plannedExerciseId:x.originalId,performedExerciseId:x.selectedId,reason:x.reason,score:x.score,automatic:true})),estimatedMinutes:this.estimateEnvironmentDuration(routine,items),objectiveScore,createdAt:new Date().toISOString()};
+  },
+
+  async selectHomeTrainingEnvironment(environment){
+    if(!["gym","home","street"].includes(environment))return;
+    const routine=this.todayRoutine();if(!routine)return this.toast("No hay una rutina válida para hoy.");
+    this.continuityHomeEnvironment=environment;this.continuityHomeBusy=true;this.continuityHomePlan=null;this.renderHome(false);
+    try{this.continuityHomePlan=await this.buildContinuityPlan(routine,environment)}
+    catch(error){console.error("Continuity Engine",error);this.toast("No se pudo preparar la adaptación.")}
+    finally{this.continuityHomeBusy=false;this.persistContinuityPreparation();this.renderHome(false)}
+  },
+
+  async startContinuityWorkout(routineId){
+    const routine=this.getRoutine(routineId)||this.todayRoutine();if(!routine)return this.toast("No hay una rutina válida para hoy.");
+    const environment=this.continuityHomeEnvironment||"gym";
+    let plan=this.continuityHomePlan;
+    if(!plan||plan.routineId!==routine.id||plan.environment!==environment)plan=await this.buildContinuityPlan(routine,environment);
+    if(!plan)return this.toast("No se pudo preparar la sesión.");
+    if(plan.items.some(x=>x.unresolved)){this.continuityHomePlan=plan;this.toast("Revisa las sustituciones pendientes.");return this.reviewContinuityPlan()}
+    this.pendingEnvironmentPlan=plan;this.confirmEnvironmentWorkout();this.continuityHomePlan=null;this.continuityHomeEnvironment="gym";
+  },
+
+  reviewContinuityPlan(){
+    const plan=this.continuityHomePlan,routine=this.getRoutine(plan?.routineId);if(!plan||!routine)return;
+    this.pendingEnvironmentRoutineId=routine.id;this.pendingEnvironmentPlan=plan;
+    document.getElementById("trainingEnvironmentRoutine").textContent=routine.name;
+    document.getElementById("trainingEnvironmentChooser").hidden=true;
+    document.getElementById("trainingEnvironmentEquipment").hidden=true;
+    document.getElementById("trainingEnvironmentSheet")?.classList.add("show");document.body.classList.add("sheet-open");
+    this.renderTrainingEnvironmentPreview();
+  },
+
   startWorkout(routineId){
     const r=this.getRoutine(routineId);
     if(!r||!r.items.length){this.toast("No hay una rutina válida para hoy.");return}
@@ -945,23 +1028,28 @@ const App={
     return new Set(Array.isArray(current)&&current.length?current:["bodyweight"])
   },
 
+  requiredEnvironmentEquipment(exercise){
+    const keys=[...new Set((exercise?.equipment_keys||[]).filter(x=>x&&x!=="other"&&x!=="bodyweight"))];
+    return keys
+  },
+
   exerciseFitsEnvironment(exercise,environment,{strictEquipment=true}={}){
     if(!exercise)return false;
     if(environment==="gym")return true;
     if(!Array.isArray(exercise.environment_ids)||!exercise.environment_ids.includes(environment))return false;
     if(!strictEquipment)return true;
-    const required=(exercise.equipment_keys||[]).filter(x=>x!=="other");
-    if(!required.length||required.includes("bodyweight"))return true;
+    const required=this.requiredEnvironmentEquipment(exercise);
+    if(!required.length)return true;
     const available=this.availableEnvironmentEquipment(environment);
-    return required.some(x=>available.has(x));
+    return required.every(x=>available.has(x));
   },
 
   equipmentCompatibility(exercise,environment){
     if(environment==="gym")return {ok:true,score:10,label:"material de gimnasio"};
-    const required=(exercise?.equipment_keys||[]).filter(x=>x!=="other");
-    if(!required.length||required.includes("bodyweight"))return {ok:true,score:14,label:"sin material"};
-    const available=this.availableEnvironmentEquipment(environment),matches=required.filter(x=>available.has(x));
-    return {ok:matches.length>0,score:matches.length?12:-30,label:matches.length?"material disponible":"material no disponible"}
+    const required=this.requiredEnvironmentEquipment(exercise);
+    if(!required.length)return {ok:true,score:14,label:"sin material"};
+    const available=this.availableEnvironmentEquipment(environment),missing=required.filter(x=>!available.has(x));
+    return {ok:missing.length===0,score:missing.length? -35:12,label:missing.length?`falta ${missing.join(", ")}`:"material disponible",missing}
   },
 
   environmentPreferenceLabel(preference){return ({closest:"Lo más parecido",faster:"Más rápido",no_equipment:"Sin material",calisthenics:"Más calistenia"})[preference]||"Lo más parecido"},
@@ -1001,29 +1089,47 @@ const App={
 
   environmentEquivalenceLabel(score){return score>=88?"Equivalencia alta":score>=72?"Equivalencia aceptable":"Alternativa de emergencia"},
 
+  environmentFallbackMuscles(muscleId){
+    const map={"PMU-0009":["PMU-0007"],"PMU-0007":["PMU-0009"],"PMU-0011":["PMU-0013"],"PMU-0013":["PMU-0011"]};
+    return new Set(map[muscleId]||[])
+  },
+
   async environmentAlternativesForItem(item,environment,limit=8,context={}){
     if(!item)return[];
     const source=await this.findPedbExerciseForItem(item);
     if(!source||!this.pedbReady)return[];
     const preference=context.preference||this.data.profile.environmentPreference||"closest";
     const usedPatterns=new Set(context.usedPatterns||[]),usedMuscles=new Set(context.usedMuscles||[]),usedNames=new Set(context.usedNames||[]);
+    const fallbackMuscles=this.environmentFallbackMuscles(source.muscle_id);
     const rows=this.pedbExercises.filter(e=>e.id!==source.id&&this.exerciseFitsEnvironment(e,environment)).map(e=>{
       let score=0,criteria=[];
-      if(source.pattern_id&&e.pattern_id===source.pattern_id){score+=46;criteria.push("mismo patrón")}
-      if(source.muscle_id&&e.muscle_id===source.muscle_id){score+=32;criteria.push("mismo músculo")}
-      if(source.zone_id&&e.zone_id===source.zone_id){score+=10;criteria.push("misma zona")}
-      if(source.type_id&&e.type_id===source.type_id)score+=4;
+      const samePattern=Boolean(source.pattern_id&&e.pattern_id===source.pattern_id);
+      const sameMuscle=Boolean(source.muscle_id&&e.muscle_id===source.muscle_id);
+      const sameZone=Boolean(source.zone_id&&e.zone_id===source.zone_id);
+      const sameFamily=Boolean(source.family_id&&e.family_id===source.family_id);
+      const relatedMuscle=fallbackMuscles.has(e.muscle_id);
+      if(samePattern){score+=48;criteria.push("mismo patrón")}
+      if(sameMuscle){score+=34;criteria.push("mismo músculo")}
+      if(sameZone){score+=12;criteria.push("misma zona")}
+      if(sameFamily){score+=10;criteria.push("misma familia")}
+      if(relatedMuscle){score+=18;criteria.push("cadena muscular próxima")}
+      if(source.type_id&&e.type_id===source.type_id)score+=5;
+      const sourceTags=new Set(source.tags||[]),tagOverlap=(e.tags||[]).filter(tag=>sourceTags.has(tag)).length;
+      score+=Math.min(10,tagOverlap*2);
       const equipment=this.equipmentCompatibility(e,environment);score+=equipment.score;
-      if(environment!=="gym"&&e.bodyweight)score+=4;
-      if(preference==="no_equipment")score+=(e.bodyweight||!(e.equipment_keys||[]).filter(x=>x!=="bodyweight"&&x!=="other").length)?22:-80;
-      if(preference==="calisthenics")score+=e.bodyweight?18:-8;
+      if(environment!=="gym"&&e.bodyweight)score+=6;
+      if(preference==="no_equipment")score+=this.requiredEnvironmentEquipment(e).length? -90:24;
+      if(preference==="calisthenics")score+=e.bodyweight?20:-10;
       if(preference==="faster")score+=(e.bodyweight||["bands","dumbbells","kettlebell"].some(x=>(e.equipment_keys||[]).includes(x)))?10:0;
-      if(usedNames.has(e.name_es))score-=80;
-      if(usedPatterns.has(e.pattern_id)&&e.pattern_id!==source.pattern_id)score-=14;
-      if(usedMuscles.has(e.muscle_id)&&e.muscle_id!==source.muscle_id)score-=8;
-      if(score<54||!equipment.ok)return null;
-      const prescription=this.environmentPrescription(source,e,item,preference),bounded=Math.min(99,Math.max(55,score));
-      return {id:e.id,name:e.name_es,score:bounded,equivalence:this.environmentEquivalenceLabel(bounded),reason:`${this.environmentLabel(environment)} · ${criteria.slice(0,2).join(" + ")||"equivalencia muscular"} · ${equipment.label}`,equipment:e.equipment_keys||[],patternId:e.pattern_id,muscleId:e.muscle_id,...prescription}
+      if(usedNames.has(e.name_es))score-=90;
+      if(usedPatterns.has(e.pattern_id)&&e.pattern_id!==source.pattern_id)score-=12;
+      if(usedMuscles.has(e.muscle_id)&&e.muscle_id!==source.muscle_id)score-=6;
+      if(!equipment.ok)return null;
+      const viable=samePattern||sameMuscle||sameZone||sameFamily||relatedMuscle||tagOverlap>=2;
+      if(!viable||score<34)return null;
+      const prescription=this.environmentPrescription(source,e,item,preference),bounded=Math.min(99,Math.max(45,score));
+      const tier=bounded>=80?"Equivalencia alta":bounded>=62?"Equivalencia aceptable":"Alternativa de emergencia";
+      return {id:e.id,name:e.name_es,score:bounded,equivalence:tier,reason:`${this.environmentLabel(environment)} · ${criteria.slice(0,2).join(" + ")||"alternativa PEDB"} · ${equipment.label}`,equipment:e.equipment_keys||[],patternId:e.pattern_id,muscleId:e.muscle_id,...prescription}
     }).filter(Boolean).sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name,"es"));
     return rows.slice(0,limit)
   },
@@ -1069,12 +1175,12 @@ const App={
           const candidates=await this.environmentAlternativesForItem(item,environment,8,{preference,usedPatterns,usedMuscles,usedNames});
           selected=!originalFits?candidates[0]||null:(preference!=="closest"&&candidates[0]?.score>=86?candidates[0]:null);
         }
-        const exercise=selected||source,prescription=this.environmentPrescription(source,exercise,item,preference);
+        const unresolved=environment!=="gym"&&(!source||(!originalFits&&!selected));
+        const exercise=selected||(originalFits?source:null),prescription=this.environmentPrescription(source,exercise||source,item,preference);
         if(exercise?.pattern_id)usedPatterns.push(exercise.pattern_id);
         if(exercise?.muscle_id)usedMuscles.push(exercise.muscle_id);
         usedNames.push(selected?.name||item.name);
-        const unresolved=environment!=="gym"&&!source;
-        items.push({index,originalName:item.name,originalId:source?.id||item.exercise_id||item.libraryId||null,selectedName:selected?.name||item.name,selectedId:selected?.id||null,reason:selected?.reason||(unresolved?`${this.environmentLabel(environment)} · PEDB no encontró coincidencia; se conserva el ejercicio`:`${this.environmentLabel(environment)} · ejercicio original`),equivalence:selected?.equivalence||(unresolved?"Pendiente de revisión PEDB":"Objetivo original"),score:selected?.score||100,changed:Boolean(selected),...prescription});
+        items.push({index,originalName:item.name,originalId:source?.id||item.exercise_id||item.libraryId||null,selectedName:selected?.name||(originalFits?item.name:"SIN ALTERNATIVA"),selectedId:selected?.id||null,reason:selected?.reason||(unresolved?`${this.environmentLabel(environment)} · el ejercicio original no es compatible y PEDB no encontró sustitución válida`:`${this.environmentLabel(environment)} · ejercicio original compatible`),equivalence:selected?.equivalence||(unresolved?"Requiere revisión":"Objetivo original"),score:selected?.score||(unresolved?0:100),changed:Boolean(selected),unresolved,...prescription});
       }
       this.pendingEnvironmentPlan={routineId:r.id,environment,preference,items,estimatedMinutes:this.estimateEnvironmentDuration(r,items)};
       this.renderTrainingEnvironmentPreview();
@@ -1089,13 +1195,15 @@ const App={
 
   renderTrainingEnvironmentPreview(){
     const plan=this.pendingEnvironmentPlan;if(!plan)return;
-    const changed=plan.items.filter(x=>x.changed).length;
+    const changed=plan.items.filter(x=>x.changed).length,unresolved=plan.items.filter(x=>x.unresolved).length;
     document.getElementById("trainingEnvironmentLoading").hidden=true;
     document.getElementById("trainingEnvironmentPreview").hidden=false;
     document.getElementById("trainingEnvironmentPreviewTitle").textContent=`Entreno en ${this.environmentLabel(plan.environment)}`;
-    document.getElementById("trainingEnvironmentSummary").textContent=(plan.environment==="gym"?"Rutina original, preparada para gimnasio.":`${changed} ejercicio${changed===1?"":"s"} adaptado${changed===1?"":"s"} mediante PEDB.`)+` · Duración estimada: ${plan.estimatedMinutes} min.`;
+    document.getElementById("trainingEnvironmentSummary").textContent=(plan.environment==="gym"?"Rutina original, preparada para gimnasio.":`${changed} ejercicio${changed===1?"":"s"} adaptado${changed===1?"":"s"} mediante PEDB.${unresolved?` ${unresolved} pendiente${unresolved===1?"":"s"} de resolver.`:""}`)+` · Duración estimada: ${plan.estimatedMinutes} min.`;
+    const startButton=document.querySelector("#trainingEnvironmentPreview .king");
+    if(startButton){startButton.disabled=unresolved>0;startButton.setAttribute("aria-disabled",String(unresolved>0));startButton.textContent=unresolved?"RESUELVE LAS SUSTITUCIONES":"COMENZAR ENTRENAMIENTO"}
     const equip=document.getElementById("trainingEnvironmentEquipmentButton");if(equip)equip.hidden=plan.environment==="gym";
-    document.getElementById("trainingEnvironmentExercises").innerHTML=plan.items.map((x,i)=>`<article class="environment-exercise ${x.changed?'changed':''}"><span>${String(i+1).padStart(2,'0')}</span><div><small>${x.changed?this.escape(x.originalName):'EJERCICIO'}</small><strong>${this.escape(x.selectedName)}</strong><em>${this.escape(x.reason)}</em><div class="environment-prescription"><b>${x.targetSets} × ${x.targetReps}</b><span>${x.targetRest}s descanso</span><i>${this.escape(x.equivalence)} · ${this.escape(x.prescriptionNote)}</i></div></div><button type="button" onclick="App.openEnvironmentExerciseAlternatives(${i})">CAMBIAR</button></article>`).join("");
+    document.getElementById("trainingEnvironmentExercises").innerHTML=plan.items.map((x,i)=>`<article class="environment-exercise ${x.changed?'changed':''} ${x.unresolved?'unresolved':''}"><span>${String(i+1).padStart(2,'0')}</span><div><small>${x.changed?this.escape(x.originalName):'EJERCICIO'}</small><strong>${this.escape(x.selectedName)}</strong><em>${this.escape(x.reason)}</em><div class="environment-prescription"><b>${x.targetSets} × ${x.targetReps}</b><span>${x.targetRest}s descanso</span><i>${this.escape(x.equivalence)} · ${this.escape(x.prescriptionNote)}</i></div></div><button type="button" onclick="App.openEnvironmentExerciseAlternatives(${i})">CAMBIAR</button></article>`).join("");
   },
 
   async openEnvironmentExerciseAlternatives(index){
@@ -1111,7 +1219,7 @@ const App={
   async useEnvironmentAlternative(index,encodedName,exerciseId){
     const plan=this.pendingEnvironmentPlan,item=plan?.items?.[index];if(!item)return;
     const routine=this.getRoutine(plan.routineId),sourceItem=routine?.items?.[index],source=await this.findPedbExerciseForItem(sourceItem),replacement=this.pedbExercises.find(e=>e.id===exerciseId)||null;
-    item.selectedName=decodeURIComponent(encodedName);item.selectedId=exerciseId||null;item.changed=item.selectedName!==item.originalName;item.reason=`${this.environmentLabel(plan.environment)} · alternativa elegida · PEDB`;
+    item.selectedName=decodeURIComponent(encodedName);item.selectedId=exerciseId||null;item.changed=item.selectedName!==item.originalName;item.unresolved=false;item.reason=`${this.environmentLabel(plan.environment)} · alternativa elegida · PEDB`;
     const scoreData=(await this.environmentAlternativesForItem(sourceItem,plan.environment,40,{preference:plan.preference})).find(x=>x.id===exerciseId);
     Object.assign(item,scoreData?{score:scoreData.score,equivalence:scoreData.equivalence,targetSets:scoreData.targetSets,targetReps:scoreData.targetReps,targetRest:scoreData.targetRest,prescriptionNote:scoreData.prescriptionNote}:this.environmentPrescription(source,replacement,sourceItem,plan.preference));
     plan.estimatedMinutes=this.estimateEnvironmentDuration(routine,plan.items);this.renderTrainingEnvironmentPreview();
@@ -1119,9 +1227,10 @@ const App={
 
   confirmEnvironmentWorkout(){
     const plan=this.pendingEnvironmentPlan,r=this.getRoutine(plan?.routineId);if(!plan||!r)return;
+    if(plan.items.some(x=>x.unresolved)){this.toast("Resuelve primero los ejercicios sin alternativa");return}
     const overrides={};plan.items.forEach(x=>{if(x.changed)overrides[String(x.index)]={name:x.selectedName,reason:x.reason,exerciseId:x.selectedId||null,originalName:x.originalName,targetSets:x.targetSets,targetReps:x.targetReps,targetRest:x.targetRest,equivalence:x.equivalence,prescriptionNote:x.prescriptionNote,selectedAt:new Date().toISOString()}});
-    this.active={id:"s"+Date.now(),routineId:r.id,date:new Date().toISOString(),exerciseIndex:0,setIndex:0,currentSets:[],completedExercises:[],exerciseProgress:{},exerciseOverrides:overrides,trainingEnvironment:plan.environment,environmentEquipment:[...(this.data.profile.environmentEquipment?.[plan.environment]||[])],estimatedDurationMinutes:plan.estimatedMinutes,environmentPreference:plan.preference,startedAt:Date.now(),phase:"gym",restEndsAt:null,restLeft:0,restPaused:false,restPausedLeft:0};
-    this.saveActive();this.closeTrainingEnvironment();this.renderGym();this.toast(`Entreno preparado · ${this.environmentLabel(plan.environment)}`)
+    this.active={id:"s"+Date.now(),routineId:r.id,date:new Date().toISOString(),exerciseIndex:0,setIndex:0,currentSets:[],completedExercises:[],exerciseProgress:{},exerciseOverrides:overrides,trainingEnvironment:plan.environment,environmentEquipment:[...(this.data.profile.environmentEquipment?.[plan.environment]||[])],estimatedDurationMinutes:plan.estimatedMinutes,environmentPreference:plan.preference,continuity:{plannedWorkoutId:plan.plannedWorkoutId||r.id,sourceVersion:plan.sourceVersion||1,objectiveScore:plan.objectiveScore||100,adaptedExercises:plan.adaptedExercises||[],createdAt:plan.createdAt||new Date().toISOString()},startedAt:Date.now(),phase:"gym",restEndsAt:null,restLeft:0,restPaused:false,restPausedLeft:0};
+    this.saveActive();this.clearContinuityPreparation();this.closeTrainingEnvironment();this.renderGym();this.toast(`Entreno preparado · ${this.environmentLabel(plan.environment)}`)
   },
 
   resumeWorkout(){
@@ -2158,6 +2267,10 @@ const App={
       routineId:r.id,
       routineName:r.name,
       trainingEnvironment:this.active.trainingEnvironment||"gym",
+      plannedExerciseCount:r.items?.length||0,
+      performedExerciseCount:exercises.length,
+      adaptedExerciseCount:this.active.continuity?.adaptedExercises?.length||0,
+      continuity:this.active.continuity||null,
       startedAt:this.active.startedAt,
       endedAt:Date.now(),
       exercises
@@ -2923,11 +3036,12 @@ const App={
       </div>
       <div class="library-toolbar"><input id="librarySearch" placeholder="Buscar nombre, sinónimo, etiqueta o material…" oninput="App.resetLibraryLimit();App.updateLibraryView()"><button class="secondary" onclick="App.openPersonalExercise()">＋ Personal</button><button class="secondary" onclick="App.openPEDBCsvImporter()">Importar CSV</button></div>
       <div class="library-scope" id="libraryScope">
-        <button class="active" data-scope="all" onclick="App.setLibraryScope('all')">TODOS</button>
-        <button data-scope="home" onclick="App.setLibraryScope('home')">CASA</button>
-        <button data-scope="gym" onclick="App.setLibraryScope('gym')">GIMNASIO</button>
-        <button data-scope="bodyweight" onclick="App.setLibraryScope('bodyweight')">PESO CORPORAL</button>
-        <button data-scope="machine" onclick="App.setLibraryScope('machine')">MÁQUINAS</button>
+        <button type="button" class="active" data-scope="all" data-library-scope="all"><span>TODO</span><small>1200 ejercicios</small></button>
+        <button type="button" data-scope="home" data-library-scope="home"><span>CASA</span><small>Material doméstico</small></button>
+        <button type="button" data-scope="street" data-library-scope="street"><span>CALLE</span><small>Barras y suelo</small></button>
+        <button type="button" data-scope="gym" data-library-scope="gym"><span>GIMNASIO</span><small>Equipamiento completo</small></button>
+        <button type="button" data-scope="bodyweight" data-library-scope="bodyweight"><span>PESO CORPORAL</span><small>Sin carga externa</small></button>
+        <button type="button" data-scope="machine" data-library-scope="machine"><span>MÁQUINAS</span><small>Guiados y poleas</small></button>
       </div>
       <div id="libraryTabs" class="library-tabs"></div>
       <div id="libraryResults" class="library-results" aria-live="polite"></div>
@@ -2952,14 +3066,24 @@ const App={
     if(relationNode)relationNode.textContent=String(this.pedbReady?Number(this.pedbManifest?.counts?.relations||0)||"—":"—");
     if(eyebrowNode)eyebrowNode.textContent=`BIBLIOTECA ${this.pedbReady?`· PEDB ${this.pedbManifest?.version||""}`:this.pedbError?"· ERROR DE CARGA":"· CARGANDO PEDB"}`;
     const groups=["Todos","Favoritos","Recientes",...new Set(all.map(e=>e.group).filter(Boolean))];
-    tabsNode.innerHTML=groups.map(g=>`<button class="${g===this.libraryGroup?"active":""}" onclick="App.setLibraryGroup('${g.replaceAll("'","\'")}')">${g}</button>`).join("");
+    tabsNode.innerHTML=groups.map(g=>`<button type="button" class="${g===this.libraryGroup?"active":""}" data-library-group="${this.escape(g)}">${this.escape(g)}</button>`).join("");
     document.querySelectorAll("#libraryScope [data-scope]").forEach(button=>button.classList.toggle("active",button.dataset.scope===this.libraryScope));
     let list=all;
     if(this.libraryGroup==="Favoritos")list=list.filter(e=>this.data.favoriteExerciseIds.includes(e.id));
     else if(this.libraryGroup==="Recientes")list=this.data.recentExerciseIds.map(id=>all.find(e=>e.id===id)).filter(Boolean);
     else if(this.libraryGroup!=="Todos")list=list.filter(e=>e.group===this.libraryGroup);
-    if(this.libraryScope==="home")list=list.filter(e=>e.pedb?.home_suitable===true);
-    else if(this.libraryScope==="gym")list=list.filter(e=>e.pedb&&!e.pedb.home_suitable);
+    const supportsEnvironment=(exercise,environment)=>{
+      const pedb=exercise.pedb||{};
+      const explicit=Array.isArray(pedb.environment_ids)?pedb.environment_ids:[];
+      if(explicit.length)return explicit.includes(environment);
+      if(environment==="home")return pedb.home_suitable===true;
+      if(environment==="street")return pedb.street_suitable===true;
+      if(environment==="gym")return pedb.gym_suitable!==false;
+      return true;
+    };
+    if(this.libraryScope==="home")list=list.filter(e=>supportsEnvironment(e,"home"));
+    else if(this.libraryScope==="street")list=list.filter(e=>supportsEnvironment(e,"street"));
+    else if(this.libraryScope==="gym")list=list.filter(e=>supportsEnvironment(e,"gym"));
     else if(this.libraryScope==="bodyweight")list=list.filter(e=>e.pedb?.bodyweight===true);
     else if(this.libraryScope==="machine")list=list.filter(e=>e.pedb?.machine_based===true);
     if(input)list=list.filter(e=>{
@@ -3540,7 +3664,7 @@ const App={
     if(!screen)return;
     screen.innerHTML=`<div class="forge-lab">
       <section class="forge-lab__hero phx-card phx-card--highlight">
-        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 037</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.9.0</span></div>
+        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 038</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.9.0</span></div>
         <p>Banco de pruebas visual. Los mismos componentes se comparan bajo cada material sin tocar datos ni lógica de entrenamiento.</p>
         <div class="forge-lab__material-bar" role="group" aria-label="Material del laboratorio">
           <button type="button" class="forge-lab__material ${material==='precision'?'active':''}" data-ui-material="precision" aria-pressed="${material==='precision'}" onclick="App.previewUiMaterial('precision')"><span>PRECISION</span><small>Vista previa segura</small></button>

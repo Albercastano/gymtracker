@@ -1,6 +1,6 @@
 "use strict";
 (function(){
-  const VERSION="0.3.0";
+  const VERSION="0.4.0";
   function clone(value){return value==null?value:JSON.parse(JSON.stringify(value))}
   function freeze(value){
     if(value&&typeof value==="object"&&!Object.isFrozen(value)){
@@ -36,9 +36,10 @@
           currentExercise:active?Math.min((Number(active.exerciseIndex)||0)+1,activeRoutine?.items?.length||1):0,
           totalExercises:activeRoutine?.items?.length||totalExercises,
           totalSets,
-          estimatedMinutes:app.estimateRoutineMinutes?.(routine)||0
+          estimatedMinutes:app.continuityHomePlan?.estimatedMinutes||app.estimateRoutineMinutes?.(routine)||0,
+          continuity:{environment:app.continuityHomeEnvironment||"gym",busy:Boolean(app.continuityHomeBusy),plan:clone(app.continuityHomePlan)}
         },
-        "start-workout-action":{enabled:Boolean(routine||active),routineId:active?.routineId||routine?.id||null,mode:active?"resume":"start"},
+        "start-workout-action":{enabled:Boolean(routine||active),routineId:active?.routineId||routine?.id||null,mode:active?"resume":"continuity",environment:app.continuityHomeEnvironment||"gym"},
         "open-data-action":{enabled:true},
         "weekly-progress":{
           sessions:weekSessions.length,

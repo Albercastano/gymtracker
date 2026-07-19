@@ -1,8 +1,8 @@
 "use strict";
 (function(){
-  const VERSION="0.6.0";
+  const VERSION="0.7.0";
   const allowed=new Set([
-    "start-workout","resume-workout","discard-workout","open-home","open-data","open-history","open-weight","open-material-settings","open-library","open-routines","open-blocks","save-set","change-weight","change-reps","pause-timer","resume-timer","skip-rest","change-exercise","finish-workout","begin-set","pause-workout","return-workout","adjust-rest","toggle-timer-sound","toggle-timer-vibration","edit-current-set","complete-exercise","save-workout-notes","copy-workout-report","share-workout-report","set-data-metric","set-data-range","toggle-history-session","delete-history-session"
+    "start-workout","select-home-environment","start-continuity-workout","review-continuity-plan","resume-workout","discard-workout","open-home","open-data","open-history","open-weight","open-material-settings","open-library","open-routines","open-blocks","save-set","change-weight","change-reps","pause-timer","resume-timer","skip-rest","change-exercise","finish-workout","begin-set","pause-workout","return-workout","adjust-rest","toggle-timer-sound","toggle-timer-vibration","edit-current-set","complete-exercise","save-workout-notes","copy-workout-report","share-workout-report","set-data-metric","set-data-range","toggle-history-session","delete-history-session"
   ]);
   const handlers=new Map();
   const audit=[];
@@ -34,6 +34,9 @@
     if(!app||typeof app!=="object")throw new TypeError("Forge Action Bus: núcleo Phoenix no disponible");
     const bind=(name,fn)=>register(name,fn,{replace:true});
     bind("start-workout",({routineId})=>app.startWorkout(String(routineId||"")));
+    bind("select-home-environment",({environment})=>app.selectHomeTrainingEnvironment?.(String(environment||"gym")));
+    bind("start-continuity-workout",({routineId})=>app.startContinuityWorkout?.(String(routineId||"")));
+    bind("review-continuity-plan",()=>app.reviewContinuityPlan?.());
     bind("resume-workout",()=>app.resumeWorkout());
     bind("discard-workout",()=>app.discardWorkout());
     bind("open-home",()=>app.renderHome());

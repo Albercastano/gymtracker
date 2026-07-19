@@ -1,6 +1,6 @@
 "use strict";
 (function(){
-  const VERSION="0.2.0";
+  const VERSION="0.3.0";
   const ACTION_ATTRIBUTE="data-forge-action";
   const REGION_VARIANTS=new Set(["precision-flow","precision-actions","precision-metrics"]);
 
@@ -36,30 +36,31 @@
       ?`<section class="system-alert" role="alert" data-forge-component="storage-status"><strong>GUARDADO EN PAUSA</strong><span>El dispositivo no permite guardar ahora. Libera espacio antes de cerrar GymTracker.</span></section>`
       :"",
     "workout-today":({data})=>{
-      const active=data?.status==="active";
-      const ready=data?.status==="ready";
+      const active=data?.status==="active",ready=data?.status==="ready";
       const eyebrow=active?"ENTRENAMIENTO EN CURSO":"HOY TOCA";
       const title=escapeHtml(data?.title||(ready?"Rutina":"DESCANSO"));
-      const meta=active
-        ?`<span>${number(data?.currentExercise)}/${Math.max(1,number(data?.totalExercises))} ejercicios</span><span>${escapeHtml(data?.exerciseName||"Sesión activa")}</span><span class="estimated-time">Toca para continuar</span>`
-        :ready
-          ?`<span>${number(data?.totalExercises)} ejercicios</span><span>${number(data?.totalSets)} series</span><span class="estimated-time">~${number(data?.estimatedMinutes)} min</span>`
-          :`<span>Sin rutina asignada</span>`;
-      return `<section class="phx-card phx-card--highlight home-today-card home-today-card--definitive ${active?"is-active":""}" aria-labelledby="today-title" data-forge-component="workout-today">
-        <div class="phx-card__eyebrow">${eyebrow}</div>
-        <div id="today-title" class="phx-card__hero-title">${title}</div>
-        <div class="home-summary">${meta}</div>
-        ${active?`<div class="home-active-actions"><button class="home-continue" ${action("resume-workout","Continuar entrenamiento")}>CONTINUAR</button><button class="home-discard" ${action("discard-workout","Descartar entrenamiento")}>Descartar</button></div>`:""}
-      </section>`;
+      const c=data?.continuity||{},environment=c.environment||"gym",plan=c.plan||null;
+      const changed=plan?.items?.filter?.(x=>x.changed)?.length||0,unresolved=plan?.items?.filter?.(x=>x.unresolved)?.length||0;
+      const envLabel=environment==="home"?"CASA":environment==="street"?"CALLE":"GIMNASIO";
+      const meta=active?`<span>${number(data?.currentExercise)}/${Math.max(1,number(data?.totalExercises))} ejercicios</span><span>${escapeHtml(data?.exerciseName||"Sesión activa")}</span><span class="estimated-time">Toca para continuar</span>`:ready?`<span>${number(data?.totalExercises)} ejercicios</span><span>${number(data?.totalSets)} series</span><span class="estimated-time">~${number(data?.estimatedMinutes)} min</span>`:`<span>Sin rutina asignada</span>`;
+      const continuity=(!active&&ready)?`<div class="home-continuity" data-continuity-environment="${environment}">
+        <div class="home-continuity__question">¿Dónde entrenas hoy?</div>
+        <div class="home-continuity__choices" role="group" aria-label="Entorno de entrenamiento">
+          ${[["gym","GIMNASIO"],["home","CASA"],["street","CALLE"]].map(([id,label])=>`<button type="button" class="${environment===id?"active":""}" ${action("select-home-environment",`Entrenar en ${label.toLowerCase()}`,`data-environment="${id}"`)}>${label}</button>`).join("")}
+        </div>
+        <div class="home-continuity__status ${c.busy?"is-busy":""}">${c.busy?`<strong>PREPARANDO ${envLabel}</strong><span>PEDB está conservando la intención de la sesión…</span>`:plan?`<strong>${envLabel} SELECCIONADA</strong><span>${changed} ejercicio${changed===1?"":"s"} adaptado${changed===1?"":"s"} · Objetivo conservado ${number(plan.objectiveScore)}% · ${number(plan.estimatedMinutes)} min${unresolved?` · ${unresolved} pendiente${unresolved===1?"":"s"}`:""}</span>`:`<strong>GIMNASIO SELECCIONADO</strong><span>Rutina prevista · Objetivo original conservado</span>`}</div>
+        ${plan&&changed?`<button type="button" class="home-continuity__review" ${action("review-continuity-plan","Revisar cambios de adaptación")}>REVISAR CAMBIOS</button>`:""}
+      </div>`:"";
+      return `<section class="phx-card phx-card--highlight home-today-card home-today-card--definitive ${active?"is-active":""}" aria-labelledby="today-title" data-forge-component="workout-today"><div class="phx-card__eyebrow">${eyebrow}</div><div id="today-title" class="phx-card__hero-title">${title}</div><div class="home-summary">${meta}</div>${continuity}${active?`<div class="home-active-actions"><button class="home-continue" ${action("resume-workout","Continuar entrenamiento")}>CONTINUAR</button><button class="home-discard" ${action("discard-workout","Descartar entrenamiento")}>Descartar</button></div>`:""}</section>`;
     },
     "start-workout-action":({data})=>{
       const active=data?.mode==="resume";
-      const actionName=active?"resume-workout":"start-workout";
+      const actionName=active?"resume-workout":"start-continuity-workout";
       const routineId=escapeHtml(data?.routineId||"");
       return `<button class="home-mode home-mode--gym ${active?"has-active":""}" ${action(actionName,active?"Continuar entrenamiento":"Comenzar entrenamiento",`data-routine-id="${routineId}"`)} data-forge-component="start-workout-action">
-        <span class="home-mode__kicker">${active?"SESIÓN ACTIVA":"ENTRENAR"}</span>
-        <strong>GYM</strong>
-        <small>${active?"Continuar ahora":data?.routineId?"Comenzar entrenamiento":"Seleccionar rutina"}</small>
+        <span class="home-mode__kicker">${active?"SESIÓN ACTIVA":"PHOENIX CONTINUITY"}</span>
+        <strong>${active?"CONTINUAR":`COMENZAR EN ${(data?.environment||"gym")==="home"?"CASA":(data?.environment||"gym")==="street"?"CALLE":"GIMNASIO"}`}</strong>
+        <small>${active?"Continuar ahora":data?.routineId?"Sesión preparada":"Seleccionar rutina"}</small>
       </button>`;
     },
     "open-data-action":()=>`<button class="home-mode home-mode--data" ${action("open-data","Abrir datos e historial")} data-forge-component="open-data-action">
@@ -110,7 +111,7 @@
       if(!trigger||!target.contains(trigger))return;
       event.preventDefault();
       const name=trigger.getAttribute(ACTION_ATTRIBUTE);
-      const payload={routineId:trigger.dataset.routineId||undefined};
+      const payload={routineId:trigger.dataset.routineId||undefined,environment:trigger.dataset.environment||undefined};
       trigger.setAttribute("aria-busy","true");
       try{await window.PhoenixForgeActionBus?.dispatch?.(name,payload)}
       catch(error){console.warn("Phoenix Forge Home action failed",name,error)}

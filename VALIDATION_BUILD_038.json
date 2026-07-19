@@ -1,0 +1,62 @@
+{
+  "build": "038",
+  "name": "Environment Engine Runtime Repair 2.0",
+  "passed": 10,
+  "total": 10,
+  "checks": [
+    {
+      "name": "Build visible 038",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Service worker 038",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Hidden runtime fix",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Strict equipment compatibility",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Unresolved exercises blocked",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Emergency PEDB ranking",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "No old forced repair URL",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "PEDB exercises",
+      "ok": true,
+      "detail": "1200"
+    },
+    {
+      "name": "PEDB relations",
+      "ok": true,
+      "detail": "21522"
+    },
+    {
+      "name": "JS syntax",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "notes": [
+    "Validated candidate fallback for Peso muerto rumano con barra in Calle using default street equipment.",
+    "Physical Android test still required."
+  ]
+}

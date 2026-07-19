@@ -1,4 +1,4 @@
-GYMTRACKER PHOENIX 11 ALPHA · BUILD 037
+GYMTRACKER PHOENIX 11 ALPHA · BUILD 038
 ENVIRONMENT ACTION REPAIR 1.0
 
 - Corrige los botones Gimnasio, Casa y Calle mediante listeners delegados.
