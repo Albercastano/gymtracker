@@ -49,6 +49,7 @@ const App={
     if(origin){origin.hidden=true;origin.classList.remove("show");origin.setAttribute("aria-hidden","true")}
     this.load();
     this.restoreContinuityPreparation();
+    this.restoreQuickTimer();
     this.registerForgeBridge();
     this.applyUiSettings();
     this.updateProfileChrome();
@@ -278,7 +279,7 @@ const App={
 
   registerServiceWorker(){
     if(!("serviceWorker" in navigator)||!/^https?:$/.test(location.protocol))return;
-    navigator.serviceWorker.register("sw.js?v=042",{updateViaCache:"none"}).then(async registration=>{
+    navigator.serviceWorker.register("sw.js?v=043",{updateViaCache:"none"}).then(async registration=>{
       try{await registration.update()}catch(_){}
       this.swRegistration=registration;
       registration.update().catch(()=>{});
@@ -636,12 +637,15 @@ const App={
     if(!this.active||typeof this.active!=="object"){this.active=null;this.saveActive();return}
     const r=this.getRoutine(this.active.routineId);
     if(!r||!Array.isArray(r.items)||!r.items.length){this.active=null;this.saveActive();return}
+    this.active.sessionItems=Array.isArray(this.active.sessionItems)&&this.active.sessionItems.length
+      ?this.active.sessionItems.map(item=>({...item}))
+      :r.items.map(item=>({...item}));
 
     let exerciseIndex=Number(this.active.exerciseIndex);
-    if(!Number.isInteger(exerciseIndex)||exerciseIndex<0||exerciseIndex>=r.items.length)exerciseIndex=0;
+    if(!Number.isInteger(exerciseIndex)||exerciseIndex<0||exerciseIndex>=this.active.sessionItems.length)exerciseIndex=0;
     this.active.exerciseIndex=exerciseIndex;
 
-    const e=r.items[exerciseIndex];
+    const e=this.active.sessionItems[exerciseIndex];
     let setIndex=Number(this.active.setIndex);
     if(!Number.isInteger(setIndex)||setIndex<0||setIndex>e.sets)setIndex=0;
     this.active.setIndex=setIndex;
@@ -901,7 +905,7 @@ const App={
       <section class="home-mode-switch" aria-label="Acciones principales">
         <button class="home-mode home-mode--gym ${active?'has-active':''} ${r?'has-routine':'is-empty'} ${this.continuityHomePlan?.items?.some(x=>x.unresolved)?'has-pending':''}" onclick="${active?'App.resumeWorkout()':r?(this.continuityHomePlan?.items?.some(x=>x.unresolved)?'App.reviewContinuityPlan()':`App.startContinuityWorkout('${r.id}')`):'App.renderRoutines()'}">
           <span class="home-mode__kicker">${active?'SESIÓN ACTIVA':'PHOENIX CONTINUITY'}</span>
-          <strong>${active?'CONTINUAR':'SESIÓN'}</strong>
+          <strong>${active?'CONTINUAR':'ENTRENO'}</strong>
           <small class="home-mode__context">${active?'Sesión activa':r?(this.continuityHomePlan?.items?.some(x=>x.unresolved)?`${this.continuityHomePlan.items.filter(x=>x.unresolved).length} ejercicios pendientes`:`${this.environmentLabel(this.continuityHomeEnvironment||"gym")} seleccionado`):'Sin rutina prevista'}</small>
           <span class="home-mode__cta">${active?'CONTINUAR AHORA':r?(this.continuityHomePlan?.items?.some(x=>x.unresolved)?'REVISAR':'COMENZAR'):'ELEGIR RUTINA'}</span>
         </button>
@@ -1230,7 +1234,7 @@ const App={
     const plan=this.pendingEnvironmentPlan,r=this.getRoutine(plan?.routineId);if(!plan||!r)return;
     if(plan.items.some(x=>x.unresolved)){this.toast("Resuelve primero los ejercicios sin alternativa");return}
     const overrides={};plan.items.forEach(x=>{if(x.changed)overrides[String(x.index)]={name:x.selectedName,reason:x.reason,exerciseId:x.selectedId||null,originalName:x.originalName,targetSets:x.targetSets,targetReps:x.targetReps,targetRest:x.targetRest,equivalence:x.equivalence,prescriptionNote:x.prescriptionNote,selectedAt:new Date().toISOString()}});
-    this.active={id:"s"+Date.now(),routineId:r.id,date:new Date().toISOString(),exerciseIndex:0,setIndex:0,currentSets:[],completedExercises:[],exerciseProgress:{},exerciseOverrides:overrides,trainingEnvironment:plan.environment,environmentEquipment:[...(this.data.profile.environmentEquipment?.[plan.environment]||[])],estimatedDurationMinutes:plan.estimatedMinutes,environmentPreference:plan.preference,continuity:{plannedWorkoutId:plan.plannedWorkoutId||r.id,sourceVersion:plan.sourceVersion||1,objectiveScore:plan.objectiveScore||100,adaptedExercises:plan.adaptedExercises||[],createdAt:plan.createdAt||new Date().toISOString()},startedAt:Date.now(),phase:"gym",restEndsAt:null,restLeft:0,restPaused:false,restPausedLeft:0};
+    this.active={id:"s"+Date.now(),routineId:r.id,date:new Date().toISOString(),exerciseIndex:0,setIndex:0,currentSets:[],completedExercises:[],exerciseProgress:{},sessionItems:r.items.map(item=>({...item})),exerciseOverrides:overrides,trainingEnvironment:plan.environment,environmentEquipment:[...(this.data.profile.environmentEquipment?.[plan.environment]||[])],estimatedDurationMinutes:plan.estimatedMinutes,environmentPreference:plan.preference,continuity:{plannedWorkoutId:plan.plannedWorkoutId||r.id,sourceVersion:plan.sourceVersion||1,objectiveScore:plan.objectiveScore||100,adaptedExercises:plan.adaptedExercises||[],createdAt:plan.createdAt||new Date().toISOString()},startedAt:Date.now(),phase:"gym",restEndsAt:null,restLeft:0,restPaused:false,restPausedLeft:0};
     this.saveActive();this.clearContinuityPreparation();this.closeTrainingEnvironment();this.renderGym();this.toast(`Entreno preparado · ${this.environmentLabel(plan.environment)}`)
   },
 
@@ -1246,7 +1250,11 @@ const App={
     this.openForgedDialog({eyebrow:"ENTRENAMIENTO EN CURSO",title:"Descartar entrenamiento",message:"Se eliminará la sesión que está abierta. El historial anterior no se modificará.",confirmText:"DESCARTAR",danger:true,onConfirm:()=>{this.active=null;this.saveActive();this.renderHome(false)}})
   },
 
-  currentRoutine(){return this.active?this.getRoutine(this.active.routineId):null},
+  currentRoutine(){
+    if(!this.active)return null;
+    const base=this.getRoutine(this.active.routineId);if(!base)return null;
+    return Array.isArray(this.active.sessionItems)&&this.active.sessionItems.length?{...base,items:this.active.sessionItems}:base
+  },
   currentPlannedExercise(){return this.currentRoutine()?.items[this.active.exerciseIndex]},
   currentOverride(){return this.active?.exerciseOverrides?.[String(this.active.exerciseIndex)]||null},
   currentExercise(){
@@ -1256,6 +1264,48 @@ const App={
     return override?{...base,name:override.name,sets:Number(override.targetSets)||base.sets,reps:Number(override.targetReps)||base.reps,rest:Number(override.targetRest)||base.rest,libraryId:override.exerciseId||base.libraryId,exercise_id:override.exerciseId||base.exercise_id,exercise_name_snapshot:override.name,originalName:base.name,alternativeReason:override.reason||"Alternativa",equivalence:override.equivalence,prescriptionNote:override.prescriptionNote}:base
   },
   completedSeriesForCurrent(){return Math.min(Number(this.active?.setIndex)||0,Number(this.currentExercise()?.sets)||0)},
+
+  postponeCurrentExercise(reason="manual_reorder"){
+    if(!this.active)return;
+    this.normalizeActive();
+    if((this.active.currentSets?.length||0)>0||Number(this.active.setIndex)>0){this.toast("No puedes posponerlo después de iniciar sus series");return}
+    const items=this.active.sessionItems||[];const index=Number(this.active.exerciseIndex)||0;
+    if(items.length<2||index>=items.length-1){this.toast("Este ejercicio ya está al final");return}
+    const [moved]=items.splice(index,1);items.push(moved);
+    const oldOverrides={...(this.active.exerciseOverrides||{})},nextOverrides={};
+    Object.entries(oldOverrides).forEach(([key,value])=>{const i=Number(key);if(i===index)nextOverrides[String(items.length-1)]=value;else if(i>index)nextOverrides[String(i-1)]=value;else nextOverrides[String(i)]=value});
+    this.active.exerciseOverrides=nextOverrides;
+    this.active.postponedExercises=Array.isArray(this.active.postponedExercises)?this.active.postponedExercises:[];
+    this.active.postponedExercises.push({name:moved?.name||"Ejercicio",reason,at:new Date().toISOString()});
+    this.active.setIndex=0;this.active.currentSets=[];this.active.phase="gym";this.saveActive();
+    this.toast(`${moved?.name||"Ejercicio"} queda para después`);this.renderGym(false)
+  },
+
+  openMachineBusyMenu(){
+    this.openAlternatives("Máquina ocupada");
+    this.toast("Elige una alternativa o usa Dejar para después")
+  },
+
+  quickTimerKey(){return `phx_quick_timer_${this.activeProfileId||"alberto"}`},
+  restoreQuickTimer(){
+    this.quickTimer=null;try{const raw=localStorage.getItem(this.quickTimerKey());if(raw)this.quickTimer=JSON.parse(raw)}catch(_){ }
+    if(this.quickTimer?.running&&this.quickTimer.endAt<=Date.now()){this.quickTimer.running=false;this.quickTimer.remaining=0}
+    this.updateQuickTimerButton();if(this.quickTimer?.running)this.startQuickTimerTicker()
+  },
+  persistQuickTimer(){try{this.quickTimer?localStorage.setItem(this.quickTimerKey(),JSON.stringify(this.quickTimer)):localStorage.removeItem(this.quickTimerKey())}catch(_){ }},
+  openQuickTimer(){
+    if(this.active?.phase==="rest"){this.resumeRest();return}
+    const sheet=document.getElementById("quickTimerSheet");sheet?.classList.add("show");sheet?.setAttribute("aria-hidden","false");document.body.classList.add("sheet-open");this.renderQuickTimer()
+  },
+  closeQuickTimer(){document.getElementById("quickTimerSheet")?.classList.remove("show");document.getElementById("quickTimerSheet")?.setAttribute("aria-hidden","true");document.body.classList.remove("sheet-open")},
+  setQuickTimer(seconds){this.quickTimer={total:Number(seconds)||60,remaining:Number(seconds)||60,running:true,endAt:Date.now()+(Number(seconds)||60)*1000};this.persistQuickTimer();this.startQuickTimerTicker();this.renderQuickTimer();this.updateQuickTimerButton()},
+  toggleQuickTimer(){if(!this.quickTimer)return this.setQuickTimer(60);if(this.quickTimer.running){this.quickTimer.remaining=Math.max(0,Math.ceil((this.quickTimer.endAt-Date.now())/1000));this.quickTimer.running=false}else{if(this.quickTimer.remaining<=0)this.quickTimer.remaining=this.quickTimer.total||60;this.quickTimer.running=true;this.quickTimer.endAt=Date.now()+this.quickTimer.remaining*1000;this.startQuickTimerTicker()}this.persistQuickTimer();this.renderQuickTimer();this.updateQuickTimerButton()},
+  adjustQuickTimer(delta){if(!this.quickTimer)this.quickTimer={total:60,remaining:60,running:false,endAt:0};const current=this.quickTimer.running?Math.max(0,Math.ceil((this.quickTimer.endAt-Date.now())/1000)):this.quickTimer.remaining;this.quickTimer.remaining=Math.max(0,current+Number(delta||0));this.quickTimer.total=Math.max(this.quickTimer.total||0,this.quickTimer.remaining);if(this.quickTimer.running)this.quickTimer.endAt=Date.now()+this.quickTimer.remaining*1000;this.persistQuickTimer();this.renderQuickTimer();this.updateQuickTimerButton()},
+  resetQuickTimer(){this.quickTimer=null;clearInterval(this.quickTimerInterval);this.quickTimerInterval=null;this.persistQuickTimer();this.renderQuickTimer();this.updateQuickTimerButton()},
+  startQuickTimerTicker(){if(this.quickTimerInterval)return;this.quickTimerInterval=setInterval(()=>{if(!this.quickTimer?.running){clearInterval(this.quickTimerInterval);this.quickTimerInterval=null;return}this.quickTimer.remaining=Math.max(0,Math.ceil((this.quickTimer.endAt-Date.now())/1000));if(this.quickTimer.remaining<=0){this.quickTimer.running=false;clearInterval(this.quickTimerInterval);this.quickTimerInterval=null;this.persistQuickTimer();this.updateQuickTimerButton();this.renderQuickTimer();this.toast("PHX Timer finalizado");try{navigator.vibrate?.([180,80,240])}catch(_){ }return}this.updateQuickTimerButton();if(document.getElementById("quickTimerSheet")?.classList.contains("show"))this.renderQuickTimer()},1000)},
+  quickTimerText(){const value=this.quickTimer?.running?Math.max(0,Math.ceil((this.quickTimer.endAt-Date.now())/1000)):Math.max(0,Number(this.quickTimer?.remaining)||0),m=Math.floor(value/60),sec=value%60;return `${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`},
+  updateQuickTimerButton(){const b=document.getElementById("quickTimerButton"),v=document.getElementById("quickTimerValue");if(!b||!v)return;const active=Boolean(this.quickTimer&&(this.quickTimer.running||this.quickTimer.remaining>0));b.classList.toggle("is-active",active);v.textContent=active?this.quickTimerText():"RELOJ"},
+  renderQuickTimer(){const host=document.getElementById("quickTimerPanel");if(!host)return;const active=Boolean(this.quickTimer);host.innerHTML=`<div class="handle"></div><div class="quick-timer-kicker">PHX SIGNATURE TIMER</div><div class="quick-timer-value">${active?this.quickTimerText():"00:00"}</div><div class="quick-timer-presets">${[30,60,90,120,180].map(s=>`<button onclick="App.setQuickTimer(${s})">${s<60?s+' s':(s/60)+' min'}</button>`).join("")}</div><div class="quick-timer-controls"><button onclick="App.adjustQuickTimer(-30)">−30</button><button class="quick-timer-main" onclick="App.toggleQuickTimer()">${this.quickTimer?.running?"PAUSAR":"INICIAR"}</button><button onclick="App.adjustQuickTimer(30)">+30</button></div><button class="quick-timer-reset" onclick="App.resetQuickTimer()">REINICIAR</button>`},
 
   renderGym(withHistory=true){
     if(!this.active){this.renderHome();return}
@@ -1318,6 +1368,10 @@ const App={
         </div>
       </section>
 
+      <div class="gym-flow-actions">
+        <button class="gym-machine-action" onclick="App.openMachineBusyMenu()"><span>MÁQUINA OCUPADA</span><small>Alternativa o cambiar orden</small></button>
+        <button class="gym-postpone-action" onclick="App.postponeCurrentExercise('manual_reorder')"><span>DEJAR PARA DESPUÉS</span><small>Pasa al final de la sesión</small></button>
+      </div>
       <button class="gym-primary-action" onclick="App.beginSet()"><span>${completed?"CONTINUAR":"INICIAR"} SERIE</span><b>›</b></button>
       <button class="gym-exit-action" onclick="App.pauseWorkout()">Salir sin terminar</button>
     </div>`;
@@ -3686,7 +3740,7 @@ const App={
     if(!screen)return;
     screen.innerHTML=`<div class="forge-lab">
       <section class="forge-lab__hero phx-card phx-card--highlight">
-        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 042</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.9.0</span></div>
+        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 043</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.9.0</span></div>
         <p>Banco de pruebas visual. Los mismos componentes se comparan bajo cada material sin tocar datos ni lógica de entrenamiento.</p>
         <div class="forge-lab__material-bar" role="group" aria-label="Material del laboratorio">
           <button type="button" class="forge-lab__material ${material==='precision'?'active':''}" data-ui-material="precision" aria-pressed="${material==='precision'}" onclick="App.previewUiMaterial('precision')"><span>PRECISION</span><small>Vista previa segura</small></button>

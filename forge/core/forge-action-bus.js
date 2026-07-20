@@ -1,8 +1,8 @@
 "use strict";
 (function(){
-  const VERSION="0.7.0";
+  const VERSION="0.8.0";
   const allowed=new Set([
-    "start-workout","select-home-environment","start-continuity-workout","review-continuity-plan","resume-workout","discard-workout","open-home","open-data","open-history","open-weight","open-material-settings","open-library","open-routines","open-blocks","save-set","change-weight","change-reps","pause-timer","resume-timer","skip-rest","change-exercise","finish-workout","begin-set","pause-workout","return-workout","adjust-rest","toggle-timer-sound","toggle-timer-vibration","edit-current-set","complete-exercise","save-workout-notes","copy-workout-report","share-workout-report","set-data-metric","set-data-range","toggle-history-session","delete-history-session"
+    "start-workout","select-home-environment","start-continuity-workout","review-continuity-plan","resume-workout","discard-workout","open-home","open-data","open-history","open-weight","open-material-settings","open-library","open-routines","open-blocks","save-set","change-weight","change-reps","pause-timer","resume-timer","skip-rest","change-exercise","postpone-exercise","machine-busy","finish-workout","begin-set","pause-workout","return-workout","adjust-rest","toggle-timer-sound","toggle-timer-vibration","edit-current-set","complete-exercise","save-workout-notes","copy-workout-report","share-workout-report","set-data-metric","set-data-range","toggle-history-session","delete-history-session"
   ]);
   const handlers=new Map();
   const audit=[];
@@ -59,6 +59,8 @@
     bind("toggle-timer-sound",()=>app.toggleTimerSound?.());
     bind("toggle-timer-vibration",()=>app.toggleTimerVibration?.());
     bind("change-exercise",()=>app.openAlternatives?.("Máquina ocupada"));
+    bind("postpone-exercise",()=>app.postponeCurrentExercise?.("manual_reorder"));
+    bind("machine-busy",()=>app.openMachineBusyMenu?.());
     bind("finish-workout",()=>app.finishWorkout?.());
     bind("return-workout",()=>app.renderGym?.());
     bind("edit-current-set",({index,field,value})=>app.editCurrentSet?.(Number(index),String(field||""),Number(value)));
