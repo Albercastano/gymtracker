@@ -1,14 +1,14 @@
 {
   "project": "PEDB",
   "name": "Phoenix Exercise DataBase",
-  "version": "3.4.0",
-  "schema_version": 4,
+  "version": "3.5.0",
+  "schema_version": 5,
   "language": "es",
   "platform_stage": "html_pwa_first",
   "future_platform": "flutter",
   "offline_first": true,
   "internet_required": false,
-  "generated_at": "2026-07-15",
+  "generated_at": "2026-07-21",
   "counts": {
     "exercises": 1200,
     "relations": 21522,
@@ -100,5 +100,10 @@
     "validated_at": "2026-07-16",
     "source_archive": "PEDB_HTML_First_v3_4_0",
     "manifest_counts_normalized": true
-  }
+  },
+  "changes": [
+    "environment compatibility refresh",
+    "equipment keys refresh",
+    "continuity resolver support"
+  ]
 }

@@ -61,7 +61,7 @@
       const unresolved=number(data?.unresolved),busy=Boolean(data?.busy);
       const actionName=active?"resume-workout":ready?(unresolved?"review-continuity-plan":"start-continuity-workout"):"open-routines";
       const routineId=escapeHtml(data?.routineId||"");
-      const title=active?"CONTINUAR":"SESIÓN";
+      const title=active?"CONTINUAR":"ENTRENO";
       const context=active?"Sesión activa":ready?(busy?"Preparando adaptación":unresolved?`${unresolved} ejercicio${unresolved===1?"":"s"} pendiente${unresolved===1?"":"s"}`:`${environmentLabel} seleccionado`):"Sin rutina prevista";
       const prompt=active?"Continuar ahora":ready?(busy?"PREPARANDO":unresolved?"REVISAR":"COMENZAR"):"ELEGIR RUTINA";
       return `<button class="home-mode home-mode--gym ${active?"has-active":""} ${ready?"has-routine":"is-empty"} ${unresolved?"has-pending":""} ${busy?"is-busy":""}" ${busy?'disabled aria-disabled="true"':action(actionName,active?"Continuar entrenamiento":ready?(unresolved?"Revisar ejercicios pendientes":`Comenzar entrenamiento en ${environmentLabel.toLowerCase()}`):"Elegir rutina",`data-routine-id="${routineId}"`)} data-forge-component="start-workout-action">

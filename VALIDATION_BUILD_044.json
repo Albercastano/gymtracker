@@ -1,0 +1,80 @@
+{
+  "build": "044",
+  "name": "Continuity Resolver + Home Sync 1.0",
+  "generated_at": "2026-07-21",
+  "checks": [
+    {
+      "name": "Build 044 visible",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "name": "Service worker 044",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "name": "Resources v044",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "name": "Home renderer uses ENTRENO",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "name": "Continuity waits for PEDB",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "name": "PEDB forced refresh",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "name": "Emergency resolver",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "name": "Street floor fallback",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "name": "Rebuild stale plan",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "name": "Home cards balanced",
+      "status": "pass",
+      "detail": ""
+    },
+    {
+      "name": "PEDB exercises",
+      "status": "pass",
+      "detail": "1200"
+    },
+    {
+      "name": "PEDB relations",
+      "status": "pass",
+      "detail": "21522"
+    },
+    {
+      "name": "JavaScript syntax",
+      "status": "pass",
+      "detail": "26 files"
+    },
+    {
+      "name": "JSON validity",
+      "status": "pass",
+      "detail": "71 files"
+    }
+  ],
+  "passed": 14,
+  "total": 14,
+  "result": "PASS"
+}
