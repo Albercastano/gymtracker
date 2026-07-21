@@ -280,7 +280,7 @@ const App={
 
   registerServiceWorker(){
     if(!("serviceWorker" in navigator)||!/^https?:$/.test(location.protocol))return;
-    navigator.serviceWorker.register("sw.js?v=044",{updateViaCache:"none"}).then(async registration=>{
+    navigator.serviceWorker.register("sw.js?v=046",{updateViaCache:"none"}).then(async registration=>{
       try{await registration.update()}catch(_){}
       this.swRegistration=registration;
       registration.update().catch(()=>{});
@@ -492,6 +492,48 @@ const App={
     if(!id||id===this.activeProfileId){this.closeProfileConfirm();return}
     this.performProfileSwitch(id);
   },
+  weightRecoveryCandidates(){
+    const candidates=[];
+    for(let i=0;i<localStorage.length;i++){
+      const key=localStorage.key(i)||"";
+      if(!key.includes(DB_KEY))continue;
+      if(this.activeProfileId!=="alberto"&&!key.includes(`profile_${this.activeProfileId}`))continue;
+      if(this.activeProfileId==="alberto"&&/profile_(?!alberto)/.test(key))continue;
+      let raw=null;try{raw=JSON.parse(localStorage.getItem(key)||"null")}catch(_){continue}
+      const payload=raw?.data&&typeof raw.data==="object"?raw.data:raw;
+      if(!payload||typeof payload!=="object")continue;
+      const list=Array.isArray(payload.weights)?payload.weights:[];
+      list.forEach((entry,index)=>{
+        const weight=Number(entry?.weight);
+        if(weight>=20&&weight<=400)candidates.push({weight,date:entry.date||raw?.createdAt||new Date().toISOString(),note:entry.note||`Recuperado de ${key}`,source:key,index})
+      });
+      const direct=Number(payload.profile?.bodyWeight??payload.bodyWeight);
+      if(direct>=20&&direct<=400)candidates.push({weight:direct,date:raw?.createdAt||new Date().toISOString(),note:`Recuperado de ${key}`,source:key,index:-1})
+    }
+    const unique=new Map();
+    candidates.forEach(c=>{const day=this.isoDate(c.date);const k=`${day}_${c.weight.toFixed(1)}`;if(!unique.has(k))unique.set(k,c)});
+    return [...unique.values()].sort((a,b)=>new Date(a.date)-new Date(b.date))
+  },
+
+  recoverWeightHistory(){
+    this.data.weights=Array.isArray(this.data.weights)?this.data.weights:[];
+    const valid=this.data.weights.filter(x=>Number(x?.weight)>=20&&Number(x?.weight)<=400);
+    if(valid.length){this.data.weights=valid;return {recovered:0,source:"current"}}
+    const profileWeight=Number(this.data.profile?.bodyWeight);
+    const candidates=this.weightRecoveryCandidates();
+    const recovered=[];
+    candidates.forEach((c,index)=>recovered.push({id:`w_recovered_${Date.now()}_${index}`,date:new Date(c.date).toISOString(),weight:Number(c.weight.toFixed(1)),note:c.note||"Peso recuperado",profileId:this.activeProfileId,recovered:true,recoverySource:c.source}));
+    if(!recovered.length&&profileWeight>=20&&profileWeight<=400){
+      recovered.push({id:`w_recovered_profile_${Date.now()}`,date:new Date().toISOString(),weight:Number(profileWeight.toFixed(1)),note:"Historial reconstruido desde el peso actual",profileId:this.activeProfileId,recovered:true,recoverySource:"profile.bodyWeight"})
+    }
+    if(recovered.length){
+      this.data.weights=recovered;
+      this.data.weightRecovery={at:new Date().toISOString(),count:recovered.length,sources:[...new Set(recovered.map(x=>x.recoverySource))]};
+      return {recovered:recovered.length,source:"local"}
+    }
+    return {recovered:0,source:"none"}
+  },
+
   loadProfileData(){
     try{this.data=JSON.parse(localStorage.getItem(this.profileDbKey(this.activeProfileId)))}catch(e){this.data=null}
     if(!this.data)this.data=this.defaults();
@@ -585,17 +627,22 @@ const App={
     }
     this.data.trainingBlocks=Array.isArray(this.data.trainingBlocks)?this.data.trainingBlocks:[];
     this.data.sessions=Array.isArray(this.data.sessions)?this.data.sessions:[];
-    this.data.weights=(Array.isArray(this.data.weights)?this.data.weights:[]).map((entry,index)=>({
+    const rawWeights=Array.isArray(this.data.weights)?this.data.weights:[];
+    this.data.weights=rawWeights.map((entry,index)=>({
       ...entry,
       id:entry.id||`w_legacy_${index}_${Math.abs(new Date(entry.date||0).getTime())}`,
       date:entry.date||new Date().toISOString(),
       weight:Number(entry.weight)||0,
       note:String(entry.note||""),
       profileId:entry.profileId||this.activeProfileId
-    })).filter(entry=>entry.weight>0);
+    })).filter(entry=>entry.weight>=20&&entry.weight<=400);
+    this.recoverWeightHistory();
     if(this.data.weights.length){
       const latest=this.data.weights.slice().sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
       this.data.profile.bodyWeight=Number(latest.weight)||this.data.profile.bodyWeight||null;
+    }else{
+      const direct=Number(this.data.profile.bodyWeight);
+      this.data.profile.bodyWeight=direct>=20&&direct<=400?direct:null;
     }
     this.data.alternatives=this.data.alternatives||{};
     this.data.library=Array.isArray(this.data.library)?this.data.library:this.defaults().library;
@@ -615,6 +662,8 @@ const App={
 
   save(){
     try{
+      const weightSnapshot={profileId:this.activeProfileId,updatedAt:new Date().toISOString(),bodyWeight:this.data.profile?.bodyWeight??null,weights:Array.isArray(this.data.weights)?this.data.weights:[]};
+      localStorage.setItem(`${this.profileDbKey(this.activeProfileId)}_weight_journal`,JSON.stringify(weightSnapshot));
       localStorage.setItem(this.profileDbKey(this.activeProfileId),JSON.stringify(this.data));
       this.storageHealthy=true;this.lastSaveAt=Date.now();return true
     }catch(error){
@@ -2409,7 +2458,8 @@ const App={
     this.lastCompletedSession=session;
     const workoutHost=document.getElementById("workoutSummary");
     if(!window.PhoenixShapeEngine?.render?.("workout-summary",workoutHost,this,{source:"finish-workout"})){
-      workoutHost.innerHTML=`<div class="focus workout-complete-forged"><section class="workout-complete-hero"><div class="eyebrow">ENTRENAMIENTO COMPLETADO</div><div class="workout-complete-title">${r.name.toUpperCase()}</div><div class="workout-saved-state">✓ SESIÓN GUARDADA</div></section><section class="workout-complete-metrics"><div><strong>${exercises.length}</strong><span>ejercicios</span></div><div><strong>${session.totalSets}</strong><span>series</span></div><div><strong>${durationMin}</strong><span>minutos</span></div><div><strong>${Math.round(session.volume)}</strong><span>kg volumen</span></div></section><button class="workout-complete-home" onclick="App.renderHome()"><span>FINALIZAR Y VOLVER</span><b>✓</b></button></div>`;
+      const plainReport=this.workoutReportText(session).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+      workoutHost.innerHTML=`<div class="focus workout-complete-forged"><section class="workout-complete-hero"><div class="eyebrow">ENTRENAMIENTO COMPLETADO</div><div class="workout-complete-title">${r.name.toUpperCase()}</div><div class="workout-saved-state">✓ SESIÓN GUARDADA</div></section><section class="workout-complete-metrics"><div><strong>${exercises.length}</strong><span>ejercicios</span></div><div><strong>${session.totalSets}</strong><span>series</span></div><div><strong>${durationMin}</strong><span>minutos</span></div><div><strong>${Math.round(session.volume)}</strong><span>kg volumen</span></div></section><section class="workout-complete-report workout-report-plain-card"><div class="workout-complete-report__head"><span>RESULTADO COPIABLE</span><b>Listo para copiar</b></div><textarea id="workoutReportPlainText" class="workout-report-plain" readonly>${plainReport}</textarea><div class="workout-share-grid"><button class="workout-complete-copy" onclick="App.copyLastWorkoutReport()">COPIAR PARA ENTRENADOR</button><button class="workout-complete-copy" onclick="App.shareLastWorkoutReport()">COMPARTIR RESUMEN</button></div></section><button class="workout-complete-home" onclick="App.renderHome()"><span>FINALIZAR Y VOLVER</span><b>✓</b></button></div>`;
     }
 
     this.renderProgressionSummary();
@@ -2594,10 +2644,7 @@ const App={
   restorePlannedExercise(){if(!this.active)return;delete this.active.exerciseOverrides[String(this.active.exerciseIndex)];this.saveActive();this.closeAlternatives();this.renderGym(false)},
 
   renderData(withHistory=true){
-    const target=document.getElementById("data");
-    const ok=window.PhoenixShapeEngine?.render?.("data",target,this,{source:"app"});
-    if(!ok)return this.renderDataLegacy(withHistory);
-    this.show("data","Inicio",{history:withHistory});
+    this.renderDataLegacy(withHistory);
   },
 
   setDataMetric(metric){
@@ -2652,12 +2699,12 @@ const App={
     const endValue=values.length?values[values.length-1]:0;
     const formatValue=v=>metric==="relative"?`${v.toFixed(2)}×`:metric==="weight"?`${v.toFixed(1)} kg`:metric==="load"?`${Math.round(v)} kg`:`${Math.round(v).toLocaleString('es-ES')} kg`;
     const recent=sessions.slice(-3).reverse();
-    document.getElementById("data").innerHTML=`<div class="data-v2">
+    document.getElementById("data").innerHTML=`<div class="data-v2 data-v2--grouped">
       <section class="data-v2__head phx-card phx-card--highlight">
-        <div class="data-v2__brand"><span class="data-v2__plate"><img src="icon-512.png" alt=""></span><div><small>GYMTRACKER</small><b>${uiMaterial==="apex"?"PHOENIX · APEX DATA":"PHOENIX · DATA"}</b></div></div>
+        <div class="data-v2__brand"><span class="data-v2__plate"><img src="icon-512.png" alt=""></span><div><small>GYMTRACKER</small><b>${uiMaterial==="apex"?"PHOENIX · APEX DATA":uiMaterial==="vektor"?"PHOENIX · VEKTOR DATA":"PHOENIX · DATA"}</b></div></div>
         <div class="eyebrow">DATOS</div>
-        <h1>Tu progreso,<br><em>sin ruido.</em></h1>
-        <p>Lo que has hecho. Lo que estás mejorando.</p>
+        <h1>Datos<br><em>ordenados.</em></h1>
+        <p>Resumen arriba. Evolución en el centro. Herramientas agrupadas abajo.</p>
         <div class="data-v2__latest"><span>ÚLTIMO</span><b>${latestName}</b><small>${latestDate}</small></div>
       </section>
 
@@ -2682,17 +2729,34 @@ const App={
         <div class="data-v2__range" role="tablist" aria-label="Periodo de la gráfica"><button role="tab" aria-selected="${range==='4w'}" class="${range==='4w'?'active':''}" onclick="App.setDataRange('4w')">4S</button><button role="tab" aria-selected="${range==='3m'}" class="${range==='3m'?'active':''}" onclick="App.setDataRange('3m')">3M</button><button role="tab" aria-selected="${range==='6m'}" class="${range==='6m'?'active':''}" onclick="App.setDataRange('6m')">6M</button><button role="tab" aria-selected="${range==='1y'}" class="${range==='1y'?'active':''}" onclick="App.setDataRange('1y')">1A</button></div>
       </section>
 
-      <section class="data-v2__insights">
-        <button onclick="App.renderHistory()"><span>HISTORIAL</span><b>Sesiones y detalle</b><em>›</em></button>
-        <button onclick="App.setDataMetric('relative')"><span>FUERZA RELATIVA</span><b>${relative?relative.toFixed(2)+'×':'Sin peso corporal'}</b><em>›</em></button>
-        <button onclick="App.openWeightSheet()"><span>PESO CORPORAL</span><b>${bodyWeight?bodyWeight.toFixed(1)+' kg':'Registrar peso'}</b><em>›</em></button>
-        <button onclick="App.renderHistory()"><span>PR REALES</span><b>${allMax?Math.round(allMax)+' kg':'Sin registros'}</b><em>›</em></button>
-        <button onclick="App.renderRoutines()"><span>PLANIFICACIÓN</span><b>Semana y rutinas</b><em>›</em></button>
-        <button onclick="App.renderBlocks()"><span>BLOQUES</span><b>Progresión por semanas</b><em>›</em></button>
-        <button class="data-v2__material-access" onclick="App.openMaterialSettings()"><span>MATERIAL DE INTERFAZ</span><b data-material-current>${uiMaterialName}</b><em>›</em></button>
-        <button onclick="App.renderSettings()"><span>AJUSTES</span><b>Entrenamiento, pantalla y datos</b><em>›</em></button>
-        <button onclick="App.renderLibrary(false)"><span>BIBLIOTECA PEDB</span><b>Ejercicios, búsqueda y favoritos</b><em>›</em></button>
-        <button onclick="App.renderBackups()"><span>BACKUP</span><b>Tus datos contigo</b><em>›</em></button>
+      <section class="data-v2__groups">
+        <article class="data-v2__group phx-card">
+          <div class="data-v2__section-title"><div><span>ESTADO ACTUAL</span><h2>Lo importante primero</h2></div></div>
+          <div class="data-v2__insights data-v2__insights--grouped">
+            <button onclick="App.renderHistory()"><span>HISTORIAL</span><b>Sesiones y detalle</b><em>›</em></button>
+            <button onclick="App.openWeightSheet()"><span>PESO CORPORAL</span><b>${bodyWeight?bodyWeight.toFixed(1)+' kg':'Registrar peso'}</b><em>›</em></button>
+            <button onclick="App.setDataMetric('relative')"><span>FUERZA RELATIVA</span><b>${relative?relative.toFixed(2)+'×':'Sin peso corporal'}</b><em>›</em></button>
+            <button onclick="App.renderHistory()"><span>PR REALES</span><b>${allMax?Math.round(allMax)+' kg':'Sin registros'}</b><em>›</em></button>
+          </div>
+        </article>
+
+        <article class="data-v2__group phx-card">
+          <div class="data-v2__section-title"><div><span>ENTRENAMIENTO</span><h2>Planificación y biblioteca</h2></div></div>
+          <div class="data-v2__insights data-v2__insights--grouped">
+            <button onclick="App.renderRoutines()"><span>RUTINAS</span><b>Semana y plantillas</b><em>›</em></button>
+            <button onclick="App.renderBlocks()"><span>BLOQUES</span><b>Progresión por semanas</b><em>›</em></button>
+            <button onclick="App.renderLibrary(false)"><span>BIBLIOTECA PEDB</span><b>Ejercicios y favoritos</b><em>›</em></button>
+          </div>
+        </article>
+
+        <article class="data-v2__group phx-card">
+          <div class="data-v2__section-title"><div><span>DATOS Y SISTEMA</span><h2>Guardar, ajustar, personalizar</h2></div></div>
+          <div class="data-v2__insights data-v2__insights--grouped">
+            <button onclick="App.renderBackups()"><span>BACKUP</span><b>Guardar y restaurar datos</b><em>›</em></button>
+            <button onclick="App.renderSettings()"><span>AJUSTES</span><b>Pantalla, entreno y datos</b><em>›</em></button>
+            <button class="data-v2__material-access" onclick="App.openMaterialSettings()"><span>MATERIAL DE INTERFAZ</span><b data-material-current>${uiMaterialName}</b><em>›</em></button>
+          </div>
+        </article>
       </section>
 
       <section class="data-v2__recent">
@@ -3738,7 +3802,8 @@ const App={
   renderWeightHistorySheet(){
     const list=document.getElementById("weightHistoryList");if(!list)return;
     const entries=(this.data.weights||[]).slice().sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,20);
-    list.innerHTML=entries.length?entries.map(entry=>`<article class="weight-history-item ${entry.id===this.editingWeightId?'active':''}"><div><span>${new Date(entry.date).toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'})}</span><b>${Number(entry.weight).toFixed(1)} kg</b><small>${this.escape(entry.note||'Sin nota')}</small></div><div><button type="button" onclick="App.editWeightEntry('${entry.id}')">EDITAR</button><button type="button" class="danger-mini" onclick="App.requestDeleteWeightEntry('${entry.id}')">BORRAR</button></div></article>`).join(''):`<div class="weight-history-empty">Todavía no hay registros de peso.</div>`;
+    const recovered=this.data.weightRecovery?.count?`<div class="weight-recovery-note"><b>PESO RECUPERADO</b><span>${this.data.weightRecovery.count} registro${this.data.weightRecovery.count===1?'':'s'} reconstruido${this.data.weightRecovery.count===1?'':'s'} desde copias locales.</span></div>`:"";
+    list.innerHTML=recovered+(entries.length?entries.map(entry=>`<article class="weight-history-item ${entry.id===this.editingWeightId?'active':''}"><div><span>${new Date(entry.date).toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'})}</span><b>${Number(entry.weight).toFixed(1)} kg</b><small>${this.escape(entry.note||'Sin nota')}</small></div><div><button type="button" onclick="App.editWeightEntry('${entry.id}')">EDITAR</button><button type="button" class="danger-mini" onclick="App.requestDeleteWeightEntry('${entry.id}')">BORRAR</button></div></article>`).join(''):`<div class="weight-history-empty">Todavía no hay registros de peso.</div>`);
   },
   editWeightEntry(id){this.openWeightSheet(id)},
   requestDeleteWeightEntry(id){
@@ -3793,7 +3858,7 @@ const App={
     if(!screen)return;
     screen.innerHTML=`<div class="forge-lab">
       <section class="forge-lab__hero phx-card phx-card--highlight">
-        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 044</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.9.0</span></div>
+        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 046</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.9.0</span></div>
         <p>Banco de pruebas visual. Los mismos componentes se comparan bajo cada material sin tocar datos ni lógica de entrenamiento.</p>
         <div class="forge-lab__material-bar" role="group" aria-label="Material del laboratorio">
           <button type="button" class="forge-lab__material ${material==='precision'?'active':''}" data-ui-material="precision" aria-pressed="${material==='precision'}" onclick="App.previewUiMaterial('precision')"><span>PRECISION</span><small>Vista previa segura</small></button>
