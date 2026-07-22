@@ -43,6 +43,7 @@ const App={
   modalObserver:null,
   swRegistration:null,
   swReloading:false,
+  exerciseTimerInterval:null,
 
 
   async init(){
@@ -280,7 +281,7 @@ const App={
 
   registerServiceWorker(){
     if(!("serviceWorker" in navigator)||!/^https?:$/.test(location.protocol))return;
-    navigator.serviceWorker.register("sw.js?v=046",{updateViaCache:"none"}).then(async registration=>{
+    navigator.serviceWorker.register("sw.js?v=051",{updateViaCache:"none"}).then(async registration=>{
       try{await registration.update()}catch(_){}
       this.swRegistration=registration;
       registration.update().catch(()=>{});
@@ -627,6 +628,22 @@ const App={
     }
     this.data.trainingBlocks=Array.isArray(this.data.trainingBlocks)?this.data.trainingBlocks:[];
     this.data.sessions=Array.isArray(this.data.sessions)?this.data.sessions:[];
+    // DATA-014: cada serie conserva el ejercicio realmente ejecutado. Las
+    // sesiones antiguas reciben una identidad compatible sin alterar resultados.
+    this.data.sessions.forEach(session=>{
+      (session.exercises||[]).forEach(exercise=>{
+        const plannedName=exercise.plannedName||exercise.originalName||exercise.name||"Ejercicio";
+        const plannedId=exercise.plannedExerciseId||exercise.exerciseId||null;
+        (exercise.sets||[]).forEach((set,index)=>{
+          set.set=Number(set.set)||index+1;
+          set.plannedExerciseId=set.plannedExerciseId||plannedId;
+          set.plannedExerciseName=set.plannedExerciseName||plannedName;
+          set.performedExerciseId=set.performedExerciseId||exercise.exerciseId||plannedId;
+          set.performedExerciseName=set.performedExerciseName||exercise.name||plannedName;
+          set.substitutionReason=set.substitutionReason??exercise.alternativeReason??null;
+        });
+      });
+    });
     const rawWeights=Array.isArray(this.data.weights)?this.data.weights:[];
     this.data.weights=rawWeights.map((entry,index)=>({
       ...entry,
@@ -702,6 +719,7 @@ const App={
 
     this.active.currentSets=Array.isArray(this.active.currentSets)?this.active.currentSets:[];
     this.active.currentSets=this.active.currentSets.slice(0,e.sets).map((s,i)=>({
+      ...s,
       set:i+1,
       reps:Number.isFinite(Number(s.reps))?Number(s.reps):e.reps,
       weight:Number.isFinite(Number(s.weight))?Number(s.weight):e.weight,
@@ -719,8 +737,23 @@ const App={
     this.active.restPaused=Boolean(this.active.restPaused);
     this.active.restPausedLeft=Math.max(0,Number(this.active.restPausedLeft)||0);
     this.active.restTotal=Math.max(Number(this.active.restTotal)||0,Number(this.active.restLeft)||0,Number(this.active.restPausedLeft)||0);
-    this.active.phase=["gym","series","rest","summary"].includes(this.active.phase)?this.active.phase:"gym";
+    this.active.phase=["mode-select","free-menu","gym","series","exercise-countdown","exercise-timer","rest","summary"].includes(this.active.phase)?this.active.phase:"gym";
+    if(!["automatic","free"].includes(this.active.executionMode)){
+      this.active.executionMode=this.active.phase==="mode-select"?null:"automatic";
+    }
     this.active.trainingEnvironment=["gym","home","street"].includes(this.active.trainingEnvironment)?this.active.trainingEnvironment:"gym";
+    this.active.exerciseTimerTarget=Math.max(1,Number(this.active.exerciseTimerTarget)||Number(e.reps)||1);
+    this.active.exerciseTimerPaused=Boolean(this.active.exerciseTimerPaused);
+    this.active.exerciseTimerPausedLeft=Math.max(0,Number(this.active.exerciseTimerPausedLeft)||0);
+    if(this.active.phase==="exercise-countdown"&&Number(this.active.exerciseCountdownEndsAt)>0&&Date.now()>=Number(this.active.exerciseCountdownEndsAt)){
+      this.active.phase="exercise-timer";
+      this.active.exerciseTimerStartedAt=Date.now();
+      this.active.exerciseTimerEndsAt=Date.now()+this.active.exerciseTimerTarget*1000;
+      this.active.exerciseTimerPaused=false;
+    }
+    if(this.active.phase==="exercise-timer"&&!this.active.exerciseTimerPaused&&Number(this.active.exerciseTimerEndsAt)>0&&Date.now()>=Number(this.active.exerciseTimerEndsAt)){
+      this.active.timedSetResult=this.active.exerciseTimerTarget;
+    }
 
     if(this.active.phase==="rest" && Number(this.active.restEndsAt)>0){
       this.active.restLeft=Math.max(0,Math.ceil((Number(this.active.restEndsAt)-Date.now())/1000));
@@ -957,7 +990,7 @@ const App={
           <span class="home-mode__kicker">${active?'SESIÓN ACTIVA':'PHOENIX CONTINUITY'}</span>
           <strong>${active?'CONTINUAR':'ENTRENO'}</strong>
           <small class="home-mode__context">${active?'Sesión activa':r?(this.continuityHomePlan?.items?.some(x=>x.unresolved)?`${this.continuityHomePlan.items.filter(x=>x.unresolved).length} ejercicios pendientes`:`${this.environmentLabel(this.continuityHomeEnvironment||"gym")} seleccionado`):'Sin rutina prevista'}</small>
-          <span class="home-mode__cta">${active?'CONTINUAR AHORA':r?(this.continuityHomePlan?.items?.some(x=>x.unresolved)?'REVISAR':'COMENZAR'):'ELEGIR RUTINA'}</span>
+          <span class="home-mode__cta">${active?'CONTINUAR AHORA':r?(this.continuityHomePlan?.items?.some(x=>x.unresolved)?'REVISAR':'FOCUS'):'ELEGIR RUTINA'}</span>
         </button>
         <button class="home-mode home-mode--data" onclick="App.renderData()">
           <span class="home-mode__kicker">PROGRESO</span>
@@ -1330,18 +1363,80 @@ const App={
     const plan=this.pendingEnvironmentPlan,r=this.getRoutine(plan?.routineId);if(!plan||!r)return;
     if(plan.items.some(x=>x.unresolved)){this.toast("Resuelve primero los ejercicios sin alternativa");return}
     const overrides={};plan.items.forEach(x=>{if(x.changed)overrides[String(x.index)]={name:x.selectedName,reason:x.reason,exerciseId:x.selectedId||null,originalName:x.originalName,targetSets:x.targetSets,targetReps:x.targetReps,targetRest:x.targetRest,equivalence:x.equivalence,prescriptionNote:x.prescriptionNote,selectedAt:new Date().toISOString()}});
-    this.active={id:"s"+Date.now(),routineId:r.id,date:new Date().toISOString(),exerciseIndex:0,setIndex:0,currentSets:[],completedExercises:[],exerciseProgress:{},sessionItems:r.items.map(item=>({...item})),exerciseOverrides:overrides,trainingEnvironment:plan.environment,environmentEquipment:[...(this.data.profile.environmentEquipment?.[plan.environment]||[])],estimatedDurationMinutes:plan.estimatedMinutes,environmentPreference:plan.preference,continuity:{plannedWorkoutId:plan.plannedWorkoutId||r.id,sourceVersion:plan.sourceVersion||1,objectiveScore:plan.objectiveScore||100,adaptedExercises:plan.adaptedExercises||[],createdAt:plan.createdAt||new Date().toISOString()},startedAt:Date.now(),phase:"gym",restEndsAt:null,restLeft:0,restPaused:false,restPausedLeft:0};
-    this.saveActive();this.clearContinuityPreparation();this.closeTrainingEnvironment();this.renderGym();this.toast(`Entreno preparado · ${this.environmentLabel(plan.environment)}`)
+    this.active={id:"s"+Date.now(),routineId:r.id,date:new Date().toISOString(),exerciseIndex:0,setIndex:0,currentSets:[],completedExercises:[],exerciseProgress:{},sessionItems:r.items.map(item=>({...item})),exerciseOverrides:overrides,trainingEnvironment:plan.environment,environmentEquipment:[...(this.data.profile.environmentEquipment?.[plan.environment]||[])],estimatedDurationMinutes:plan.estimatedMinutes,environmentPreference:plan.preference,continuity:{plannedWorkoutId:plan.plannedWorkoutId||r.id,sourceVersion:plan.sourceVersion||1,objectiveScore:plan.objectiveScore||100,adaptedExercises:plan.adaptedExercises||[],createdAt:plan.createdAt||new Date().toISOString()},executionMode:null,startedAt:Date.now(),phase:"mode-select",restEndsAt:null,restLeft:0,restPaused:false,restPausedLeft:0};
+    this.saveActive();this.clearContinuityPreparation();this.closeTrainingEnvironment();this.renderFocusModeChooser();this.toast(`Entreno preparado · ${this.environmentLabel(plan.environment)}`)
   },
 
   resumeWorkout(){
     this.normalizeActive();
     if(!this.active){this.renderHome();return}
+    if(this.active.phase==="mode-select"||!this.active.executionMode){this.renderFocusModeChooser();return}
+    if(this.active.phase==="free-menu"){this.renderFreeExerciseMenu();return}
+    if(this.active.phase==="exercise-countdown"){this.resumeTimedSetCountdown();return}
+    if(this.active.phase==="exercise-timer"){this.resumeTimedExercise();return}
     if(this.active.phase==="rest"){this.resumeRest();return}
     if(this.active.phase==="series"){this.beginSet();return}
     if(this.active.phase==="summary"){this.renderExerciseSummary();return}
     this.renderGym()
   },
+  renderFocusModeChooser(){
+    if(!this.active){this.renderHome();return}
+    const r=this.currentRoutine();
+    const host=document.getElementById("gym");
+    host.innerHTML=`<div class="focus focus-mode-screen">
+      <section class="focus-mode-hero"><div class="eyebrow">FOCUS</div><h1>¿CÓMO QUIERES ENTRENAR?</h1><p>${r?.name||"Entrenamiento"}</p></section>
+      <section class="focus-mode-options">
+        <button onclick="App.selectExecutionMode('automatic')"><span>AUTOMÁTICO</span><strong>Seguir el orden cargado</strong><small>Phoenix enlaza cada ejercicio y muestra el resumen intermedio.</small><b>›</b></button>
+        <button onclick="App.selectExecutionMode('free')"><span>LIBRE</span><strong>Elegir el siguiente ejercicio</strong><small>Vuelves a la lista de pendientes después de completar cada ejercicio.</small><b>›</b></button>
+      </section>
+      <button class="gym-exit-action" onclick="App.pauseWorkout()">Volver al inicio</button>
+    </div>`;
+    this.active.phase="mode-select";this.saveActive();this.show("gym","Inicio")
+  },
+
+  selectExecutionMode(mode){
+    if(!this.active||!["automatic","free"].includes(mode))return;
+    this.active.executionMode=mode;
+    this.active.phase=mode==="free"?"free-menu":"gym";
+    this.saveActive();
+    if(mode==="free")this.renderFreeExerciseMenu();else this.renderGym(false)
+  },
+
+  completedExerciseIndexes(){return new Set((this.active?.completedExercises||[]).map(x=>Number(x.exerciseIndex)).filter(Number.isInteger))},
+
+  renderFreeExerciseMenu(){
+    if(!this.active){this.renderHome();return}
+    const r=this.currentRoutine(),done=this.completedExerciseIndexes();
+    if(done.size>=r.items.length){this.finishWorkout();return}
+    const pending=r.items.map((item,index)=>({item,index})).filter(x=>!done.has(x.index));
+    const completed=r.items.map((item,index)=>({item,index})).filter(x=>done.has(x.index));
+    document.getElementById("gym").innerHTML=`<div class="focus free-focus-menu">
+      <section class="free-focus-head"><div class="eyebrow">FOCUS · LIBRE</div><h1>${pending.length} EJERCICIO${pending.length===1?"":"S"} PENDIENTE${pending.length===1?"":"S"}</h1><p>Elige cuál haces ahora.</p></section>
+      <section class="free-focus-list">${pending.map(({item,index})=>{const ov=this.active.exerciseOverrides?.[String(index)],name=ov?.name||item.name;return `<button onclick="App.selectFreeExercise(${index})"><span>${String(index+1).padStart(2,"0")}</span><div><strong>${name}</strong><small>${item.sets} series · ${item.mode==="time"?item.reps+' s':item.reps+' reps'}${ov?` · sustituye a ${item.name}`:""}</small></div><b>›</b></button>`}).join("")}</section>
+      ${completed.length?`<details class="free-focus-completed"><summary>HECHOS · ${completed.length}</summary>${completed.map(({item,index})=>`<div><span>✓</span><strong>${item.name}</strong></div>`).join("")}</details>`:""}
+      <button class="gym-exit-action" onclick="App.pauseWorkout()">Salir sin terminar</button>
+    </div>`;
+    this.active.phase="free-menu";this.saveActive();this.show("gym","Inicio")
+  },
+
+  selectFreeExercise(index){
+    if(!this.active||this.active.executionMode!=="free")return;
+    const i=Number(index),r=this.currentRoutine();
+    if(!Number.isInteger(i)||i<0||i>=r.items.length||this.completedExerciseIndexes().has(i))return;
+    this.active.exerciseIndex=i;this.active.setIndex=0;this.active.currentSets=[];this.active.phase="gym";this.saveActive();this.renderGym(false)
+  },
+
+  completeExerciseFree(){
+    if(!this.active)return;
+    const e=this.currentExercise(),planned=this.currentPlannedExercise();
+    const completedEntry={plannedName:planned?.name||e.originalName||e.name,plannedExerciseId:planned?.exercise_id||planned?.libraryId||null,name:planned?.name||e.originalName||e.name,exerciseId:planned?.exercise_id||planned?.libraryId||null,mode:e.mode||"reps",alternativeReason:null,exerciseIndex:this.active.exerciseIndex,sets:(this.active.currentSets||[]).map((x,index)=>({...x,set:Number(x.set)||index+1,plannedExerciseId:x.plannedExerciseId||planned?.exercise_id||planned?.libraryId||null,plannedExerciseName:x.plannedExerciseName||planned?.name||e.originalName||e.name,performedExerciseId:x.performedExerciseId||e.exercise_id||e.libraryId||null,performedExerciseName:x.performedExerciseName||e.name,substitutionReason:x.substitutionReason??e.alternativeReason??null}))};
+    const existing=this.active.completedExercises.findIndex(x=>x.exerciseIndex===this.active.exerciseIndex);
+    if(existing>=0)this.active.completedExercises[existing]=completedEntry;else this.active.completedExercises.push(completedEntry);
+    this.active.exerciseProgress[String(this.active.exerciseIndex)]={...completedEntry,sets:completedEntry.sets.map(x=>({...x}))};
+    this.active.setIndex=0;this.active.currentSets=[];this.active.phase="free-menu";this.saveActive();
+    if(this.completedExerciseIndexes().size>=this.currentRoutine().items.length)this.finishWorkout();else this.renderFreeExerciseMenu()
+  },
+
   discardWorkout(){
     this.openForgedDialog({eyebrow:"ENTRENAMIENTO EN CURSO",title:"Descartar entrenamiento",message:"Se eliminará la sesión que está abierta. El historial anterior no se modificará.",confirmText:"DESCARTAR",danger:true,onConfirm:()=>{this.active=null;this.saveActive();this.renderHome(false)}})
   },
@@ -1405,6 +1500,8 @@ const App={
 
   renderGym(withHistory=true){
     if(!this.active){this.renderHome();return}
+    if(!this.active.executionMode||this.active.phase==="mode-select"){this.renderFocusModeChooser();return}
+    if(this.active.executionMode==="free"&&this.active.phase==="free-menu"){this.renderFreeExerciseMenu();return}
     const target=document.getElementById("gym");
     const rendered=target&&window.PhoenixShapeEngine?.render?.("gym",target,this,{source:"app"});
     if(!rendered)return this.renderGymLegacy(withHistory);
@@ -1548,12 +1645,159 @@ const App={
     this.buzz(18)
   },
 
+  clearExerciseTimerInterval(){
+    if(this.exerciseTimerInterval){clearInterval(this.exerciseTimerInterval);this.exerciseTimerInterval=null}
+  },
+
+  timedClock(value){
+    const seconds=Math.max(0,Math.ceil(Number(value)||0)),m=Math.floor(seconds/60),s=seconds%60;
+    return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`
+  },
+
+  renderTimedSetReady(){
+    this.clearExerciseTimerInterval();
+    const e=this.currentExercise(),r=this.currentRoutine();if(!e||!this.active)return;
+    this.active.phase="series";
+    this.active.exerciseTimerTarget=Math.max(1,Number(e.reps)||1);
+    this.active.exerciseTimerPaused=false;
+    this.active.exerciseTimerPausedLeft=0;
+    this.active.exerciseTimerEndsAt=null;
+    this.active.exerciseCountdownEndsAt=null;
+    this.active.timedSetResult=null;
+    this.saveActive();
+    document.getElementById("series").innerHTML=`<div class="focus timed-set-screen timed-set-screen--ready">
+      <section class="timed-set-head"><div class="eyebrow">${r?.name||"FOCUS"} · EJERCICIO ${this.active.exerciseIndex+1}/${r?.items?.length||1}</div><h1>${e.name.toUpperCase()}</h1><p>SERIE ${this.active.setIndex+1}/${e.sets}</p></section>
+      <section class="timed-set-dial"><span>TIEMPO PROGRAMADO</span><strong>${this.timedClock(e.reps)}</strong><small>${Number(e.reps)||0} segundos</small></section>
+      <button class="timed-set-start" onclick="App.startTimedSetCountdown()"><span>A POR ELLO</span><b>▶</b></button>
+      <button class="set-alternative-forged" onclick="App.openAlternatives()"><b>⇄</b><span>CAMBIAR EJERCICIO</span></button>
+      <button class="set-back" onclick="App.renderGym()">Volver al ejercicio</button>
+    </div>`;
+    this.show("series","Ejercicio")
+  },
+
+  startTimedSetCountdown(){
+    const e=this.currentExercise();if(!e||!this.active)return;
+    this.clearExerciseTimerInterval();
+    this.active.phase="exercise-countdown";
+    this.active.exerciseTimerTarget=Math.max(1,Number(e.reps)||1);
+    this.active.exerciseCountdownEndsAt=Date.now()+3000;
+    this.active.exerciseTimerPaused=false;
+    this.active.exerciseTimerPausedLeft=0;
+    this.saveActive();
+    this.renderTimedSetCountdown();
+    this.runTimedSetCountdown()
+  },
+
+  renderTimedSetCountdown(){
+    if(!this.active)return;
+    const left=Math.max(0,Math.ceil((Number(this.active.exerciseCountdownEndsAt||Date.now())-Date.now())/1000));
+    const number=Math.max(1,left);
+    document.getElementById("series").innerHTML=`<div class="focus timed-set-screen timed-set-screen--countdown">
+      <section class="timed-countdown"><span>PREPÁRATE</span><strong id="timedCountdownNumber">${number}</strong><small>La serie comienza automáticamente</small></section>
+      <button class="set-back" onclick="App.cancelTimedSetCountdown()">Cancelar</button>
+    </div>`;
+    this.show("series","Ejercicio")
+  },
+
+  runTimedSetCountdown(){
+    this.clearExerciseTimerInterval();
+    let last=null;
+    const tick=()=>{
+      if(!this.active||this.active.phase!=="exercise-countdown"){this.clearExerciseTimerInterval();return}
+      const left=Math.max(0,Math.ceil((Number(this.active.exerciseCountdownEndsAt)-Date.now())/1000));
+      if(left!==last&&left>0){last=left;const node=document.getElementById("timedCountdownNumber");if(node)node.textContent=left;this.buzz(24)}
+      if(left<=0){this.clearExerciseTimerInterval();this.beginTimedExercise()}
+    };
+    tick();this.exerciseTimerInterval=setInterval(tick,100)
+  },
+
+  resumeTimedSetCountdown(){
+    if(!this.active)return;
+    if(Date.now()>=Number(this.active.exerciseCountdownEndsAt||0)){this.beginTimedExercise();return}
+    this.renderTimedSetCountdown();this.runTimedSetCountdown()
+  },
+
+  cancelTimedSetCountdown(){
+    this.clearExerciseTimerInterval();
+    if(!this.active)return;
+    this.active.phase="series";this.active.exerciseCountdownEndsAt=null;this.saveActive();this.renderTimedSetReady()
+  },
+
+  beginTimedExercise(){
+    if(!this.active)return;
+    const target=Math.max(1,Number(this.active.exerciseTimerTarget)||Number(this.currentExercise()?.reps)||1);
+    this.active.phase="exercise-timer";
+    this.active.exerciseTimerStartedAt=Date.now();
+    this.active.exerciseTimerEndsAt=Date.now()+target*1000;
+    this.active.exerciseTimerPaused=false;
+    this.active.exerciseTimerPausedLeft=0;
+    this.active.exerciseCountdownEndsAt=null;
+    this.saveActive();
+    this.renderTimedExercise();this.runTimedExercise();this.buzz([60,40,100])
+  },
+
+  timedExerciseRemaining(){
+    if(!this.active)return 0;
+    if(this.active.exerciseTimerPaused)return Math.max(0,Number(this.active.exerciseTimerPausedLeft)||0);
+    return Math.max(0,Math.ceil((Number(this.active.exerciseTimerEndsAt||Date.now())-Date.now())/1000))
+  },
+
+  renderTimedExercise(){
+    if(!this.active)return;
+    const e=this.currentExercise(),remaining=this.timedExerciseRemaining(),target=Math.max(1,Number(this.active.exerciseTimerTarget)||1),progress=Math.max(0,Math.min(100,((target-remaining)/target)*100));
+    document.getElementById("series").innerHTML=`<div class="focus timed-set-screen timed-set-screen--running">
+      <section class="timed-set-head"><div class="eyebrow">FOCUS · SERIE ${this.active.setIndex+1}/${e.sets}</div><h1>${e.name.toUpperCase()}</h1><p>${this.active.exerciseTimerPaused?"PAUSADO":"EN CURSO"}</p></section>
+      <section class="timed-running-dial" style="--timed-progress:${progress}%"><span>${this.active.exerciseTimerPaused?"PAUSA":"TIEMPO RESTANTE"}</span><strong id="timedExerciseClock">${this.timedClock(remaining)}</strong><small>${target} s programados</small></section>
+      <div class="timed-running-actions"><button onclick="App.toggleTimedExercisePause()">${this.active.exerciseTimerPaused?"REANUDAR":"PAUSA"}</button><button onclick="App.finishTimedExercise(true)">TERMINAR ANTES</button></div>
+    </div>`;
+    this.show("series","Ejercicio")
+  },
+
+  runTimedExercise(){
+    this.clearExerciseTimerInterval();
+    const tick=()=>{
+      if(!this.active||this.active.phase!=="exercise-timer"||this.active.exerciseTimerPaused){this.clearExerciseTimerInterval();return}
+      const remaining=this.timedExerciseRemaining(),node=document.getElementById("timedExerciseClock");if(node)node.textContent=this.timedClock(remaining);
+      const target=Math.max(1,Number(this.active.exerciseTimerTarget)||1),dial=document.querySelector(".timed-running-dial");if(dial)dial.style.setProperty("--timed-progress",`${Math.max(0,Math.min(100,((target-remaining)/target)*100))}%`);
+      if(remaining<=0){this.clearExerciseTimerInterval();this.finishTimedExercise(false)}
+    };
+    tick();this.exerciseTimerInterval=setInterval(tick,250)
+  },
+
+  resumeTimedExercise(){
+    if(!this.active)return;
+    if(!this.active.exerciseTimerPaused&&this.timedExerciseRemaining()<=0){this.finishTimedExercise(false);return}
+    this.renderTimedExercise();if(!this.active.exerciseTimerPaused)this.runTimedExercise()
+  },
+
+  toggleTimedExercisePause(){
+    if(!this.active||this.active.phase!=="exercise-timer")return;
+    if(this.active.exerciseTimerPaused){
+      const left=Math.max(1,Number(this.active.exerciseTimerPausedLeft)||1);this.active.exerciseTimerPaused=false;this.active.exerciseTimerEndsAt=Date.now()+left*1000;this.active.exerciseTimerPausedLeft=0;this.saveActive();this.renderTimedExercise();this.runTimedExercise()
+    }else{
+      this.active.exerciseTimerPausedLeft=this.timedExerciseRemaining();this.active.exerciseTimerPaused=true;this.clearExerciseTimerInterval();this.saveActive();this.renderTimedExercise()
+    }
+  },
+
+  finishTimedExercise(early=false){
+    if(!this.active)return;
+    this.clearExerciseTimerInterval();
+    const target=Math.max(1,Number(this.active.exerciseTimerTarget)||1),remaining=this.timedExerciseRemaining();
+    const completed=early?Math.max(1,target-remaining):target;
+    this.active.timedSetResult=completed;
+    this.active.exerciseTimerPaused=false;this.active.exerciseTimerPausedLeft=0;this.active.exerciseTimerEndsAt=null;this.active.exerciseCountdownEndsAt=null;
+    this.saveActive();
+    this.buzz([160,70,220]);
+    this.finishSet()
+  },
+
   beginSet(){
     this.releaseTimerOrientation();
     this.normalizeActive();
     const exercise=this.currentExercise();
     if(!exercise||!this.active)return this.renderHome();
     if(this.active.setIndex>=exercise.sets){this.renderExerciseSummary();return}
+    if(exercise.mode==="time"){this.renderTimedSetReady();return}
     this.active.phase="series";this.active.restEndsAt=null;this.active.restLeft=0;this.saveActive();
     const target=document.getElementById("series");
     const rendered=window.PhoenixShapeEngine?.render?.("series",target,this,{source:"beginSet"})===true;
@@ -1619,24 +1863,33 @@ const App={
     if(!e||!this.active)return;
     if(this.active.setIndex>=e.sets){this.renderExerciseSummary();return}
 
+    const planned=this.currentPlannedExercise();
     const completedSet={
       set:this.active.setIndex+1,
-      reps:Number(e.reps)||0,
+      reps:e.mode==="time"?Math.max(1,Number(this.active.timedSetResult)||Number(e.reps)||0):Number(e.reps)||0,
+      durationSeconds:e.mode==="time"?Math.max(1,Number(this.active.timedSetResult)||Number(e.reps)||0):null,
       weight:Number(e.weight)||0,
       mode:e.mode||"reps",
+      plannedExerciseId:planned?.exercise_id||planned?.libraryId||null,
+      plannedExerciseName:planned?.name||e.originalName||e.name,
+      performedExerciseId:e.exercise_id||e.libraryId||null,
+      performedExerciseName:e.name,
+      substitutionReason:e.alternativeReason||null,
       completedAt:new Date().toISOString()
     };
 
     this.active.currentSets.push(completedSet);
+    this.active.timedSetResult=null;
     this.active.setIndex=this.active.currentSets.length;
 
     // Guardado duradero por ejercicio. No depende del peso externo ni de pulsar
     // correctamente la transición al ejercicio siguiente.
     const progressKey=String(this.active.exerciseIndex);
     this.active.exerciseProgress[progressKey]={
-      plannedName:e.originalName||e.name,
-      name:e.name,
-      exerciseId:e.libraryId||null,
+      plannedName:planned?.name||e.originalName||e.name,
+      plannedExerciseId:planned?.exercise_id||planned?.libraryId||null,
+      name:planned?.name||e.originalName||e.name,
+      exerciseId:planned?.exercise_id||planned?.libraryId||null,
       mode:e.mode||"reps",
       alternativeReason:e.alternativeReason||null,
       sets:this.active.currentSets.map(x=>({...x}))
@@ -1646,7 +1899,8 @@ const App={
     this.saveActive(); // guardado inmediatamente después de cada serie
 
     if(this.active.setIndex>=e.sets){
-      this.renderExerciseSummary();
+      if(this.active.executionMode==="free")this.completeExerciseFree();
+      else this.renderExerciseSummary();
       return;
     }
     this.startRest(Number(e.rest)||0)
@@ -2194,13 +2448,23 @@ const App={
     const e=this.currentExercise();
     if(!e||!this.active)return;
 
+    const planned=this.currentPlannedExercise();
     const completedEntry={
-      plannedName:e.originalName||e.name,
-      name:e.name,
-      exerciseId:e.libraryId||null,
+      plannedName:planned?.name||e.originalName||e.name,
+      plannedExerciseId:planned?.exercise_id||planned?.libraryId||null,
+      name:planned?.name||e.originalName||e.name,
+      exerciseId:planned?.exercise_id||planned?.libraryId||null,
       mode:e.mode||"reps",
-      alternativeReason:e.alternativeReason||null,
-      sets:this.active.currentSets.map(x=>({...x}))
+      alternativeReason:null,
+      sets:this.active.currentSets.map((x,index)=>({
+        ...x,
+        set:Number(x.set)||index+1,
+        plannedExerciseId:x.plannedExerciseId||planned?.exercise_id||planned?.libraryId||null,
+        plannedExerciseName:x.plannedExerciseName||planned?.name||e.originalName||e.name,
+        performedExerciseId:x.performedExerciseId||e.exercise_id||e.libraryId||null,
+        performedExerciseName:x.performedExerciseName||e.name,
+        substitutionReason:x.substitutionReason??e.alternativeReason??null
+      }))
     };
 
     const existingIndex=this.active.completedExercises.findIndex(
@@ -2264,7 +2528,17 @@ const App={
         byIndex.set(index,{
           ...entry,
           exerciseIndex:index,
-          sets:entry.sets.map(s=>({...s,weight:Number(s.weight)||0,reps:Number(s.reps)||0}))
+          sets:entry.sets.map((s,i)=>({
+            ...s,
+            set:Number(s.set)||i+1,
+            weight:Number(s.weight)||0,
+            reps:Number(s.reps)||0,
+            plannedExerciseId:s.plannedExerciseId||entry.plannedExerciseId||entry.exerciseId||null,
+            plannedExerciseName:s.plannedExerciseName||entry.plannedName||entry.name||"Ejercicio",
+            performedExerciseId:s.performedExerciseId||entry.exerciseId||null,
+            performedExerciseName:s.performedExerciseName||entry.name||entry.plannedName||"Ejercicio",
+            substitutionReason:s.substitutionReason??entry.alternativeReason??null
+          }))
         })
       }
     });
@@ -2276,7 +2550,17 @@ const App={
         byIndex.set(index,{
           ...entry,
           exerciseIndex:index,
-          sets:entry.sets.map(s=>({...s,weight:Number(s.weight)||0,reps:Number(s.reps)||0}))
+          sets:entry.sets.map((s,i)=>({
+            ...s,
+            set:Number(s.set)||i+1,
+            weight:Number(s.weight)||0,
+            reps:Number(s.reps)||0,
+            plannedExerciseId:s.plannedExerciseId||entry.plannedExerciseId||entry.exerciseId||null,
+            plannedExerciseName:s.plannedExerciseName||entry.plannedName||entry.name||"Ejercicio",
+            performedExerciseId:s.performedExerciseId||entry.exerciseId||null,
+            performedExerciseName:s.performedExerciseName||entry.name||entry.plannedName||"Ejercicio",
+            substitutionReason:s.substitutionReason??entry.alternativeReason??null
+          }))
         })
       }
     });
@@ -2291,21 +2575,43 @@ const App={
         exerciseId:e?.libraryId||null,
         mode:e?.mode||"reps",
         alternativeReason:e?.alternativeReason||null,
-        sets:this.active.currentSets.map(s=>({
+        sets:this.active.currentSets.map((s,i)=>({
           ...s,
+          set:Number(s.set)||i+1,
           weight:Number(s.weight)||0,
-          reps:Number(s.reps)||0
+          reps:Number(s.reps)||0,
+          plannedExerciseId:s.plannedExerciseId||this.currentPlannedExercise()?.exercise_id||this.currentPlannedExercise()?.libraryId||null,
+          plannedExerciseName:s.plannedExerciseName||e?.originalName||e?.name||"Ejercicio",
+          performedExerciseId:s.performedExerciseId||e?.exercise_id||e?.libraryId||null,
+          performedExerciseName:s.performedExerciseName||e?.name||"Ejercicio",
+          substitutionReason:s.substitutionReason??e?.alternativeReason??null
         }))
       })
     }
 
     return [...byIndex.values()]
       .sort((a,b)=>a.exerciseIndex-b.exerciseIndex)
-      .map(entry=>({
-        ...entry,
-        plannedName:entry.plannedName||routine?.items?.[entry.exerciseIndex]?.name||entry.name,
-        name:entry.name||routine?.items?.[entry.exerciseIndex]?.name||"Ejercicio"
-      }))
+      .map(entry=>{
+        const planned=routine?.items?.[entry.exerciseIndex];
+        const plannedName=entry.plannedName||planned?.name||entry.name||"Ejercicio";
+        const plannedId=entry.plannedExerciseId||planned?.exercise_id||planned?.libraryId||entry.exerciseId||null;
+        return {
+          ...entry,
+          plannedName,
+          plannedExerciseId:plannedId,
+          name:plannedName,
+          exerciseId:plannedId,
+          sets:(entry.sets||[]).map((set,index)=>({
+            ...set,
+            set:Number(set.set)||index+1,
+            plannedExerciseId:set.plannedExerciseId||plannedId,
+            plannedExerciseName:set.plannedExerciseName||plannedName,
+            performedExerciseId:set.performedExerciseId||plannedId,
+            performedExerciseName:set.performedExerciseName||plannedName,
+            substitutionReason:set.substitutionReason??null
+          }))
+        }
+      })
   },
 
   progressionSuggestionsFor(session,routine){
@@ -2418,6 +2724,7 @@ const App={
       routineId:r.id,
       routineName:r.name,
       trainingEnvironment:this.active.trainingEnvironment||"gym",
+      executionMode:this.active.executionMode||"automatic",
       plannedExerciseCount:r.items?.length||0,
       performedExerciseCount:exercises.length,
       adaptedExerciseCount:this.active.continuity?.adaptedExercises?.length||0,
@@ -2441,16 +2748,16 @@ const App={
     this.saveActive();
 
     const durationMin=Math.max(1,Math.round(session.durationMs/60000));
-    const alternatives=exercises.filter(e=>e.plannedName&&e.plannedName!==e.name).length;
+    const alternatives=exercises.reduce((count,e)=>count+(e.sets||[]).filter(s=>s.performedExerciseName&&s.performedExerciseName!==s.plannedExerciseName).length,0);
     const prReport=(session.prs||[]).map(pr=>`<div class="workout-pr-row"><span>PR</span><div><strong>${pr.name}</strong><small>${pr.detail}</small></div><b>${pr.label}</b></div>`).join("");
     const exerciseReport=exercises.map((e,idx)=>{
       const series=e.sets.map((s,i)=>{
-        const repsLabel=e.mode==="time"?`${s.reps} s`:`${s.reps} reps`;
-        const weightLabel=(Number(s.weight)||0)>0?`${Number(s.weight)} kg`:`Peso corporal`;
-        return `<div class="workout-complete-set"><span>S${i+1}</span><b>${weightLabel}</b><em>${repsLabel}</em></div>`
+        const repsLabel=(s.mode||e.mode)==="time"?`${s.reps} s`:`${s.reps} reps`;
+        const loadLabel=(Number(s.weight)||0)>0?`${Number(s.weight)} kg × ${repsLabel}`:`Peso corporal × ${repsLabel}`;
+        return `<div class="workout-complete-set workout-complete-set--identity"><span>S${i+1}</span><b>${s.performedExerciseName||e.plannedName}</b><em>${loadLabel}</em></div>`
       }).join("");
       return `<section class="workout-complete-exercise">
-        <div class="workout-complete-exercise__head"><span>${String(idx+1).padStart(2,"0")}</span><div><strong>${e.name}</strong>${e.plannedName&&e.plannedName!==e.name?`<small>Sustituye a ${e.plannedName}${e.alternativeReason?` · ${e.alternativeReason}`:""}</small>`:""}</div></div>
+        <div class="workout-complete-exercise__head"><span>${String(idx+1).padStart(2,"0")}</span><div><strong>${e.plannedName||e.name} · PLANIFICADO</strong></div></div>
         <div class="workout-complete-sets">${series}</div>
       </section>`
     }).join("");
@@ -2478,15 +2785,17 @@ const App={
       ""
     ];
     session.exercises.forEach((e,idx)=>{
-      lines.push(`${idx+1}. ${e.name}`);
-      if(e.plannedName&&e.plannedName!==e.name){
-        lines.push(`   Sustituye a ${e.plannedName}${e.alternativeReason?` (${e.alternativeReason})`:""}`)
-      }
+      const plannedName=e.plannedName||e.name||"Ejercicio";
+      lines.push(`${plannedName.toUpperCase()} · PLANIFICADO`,"");
       e.sets.forEach((s,i)=>{
-        const weight=(Number(s.weight)||0)>0?`${Number(s.weight)} kg`:"Peso corporal";
-        const unit=e.mode==="time"?" s":" reps";
-        lines.push(`   S${i+1}: ${weight} × ${Number(s.reps)||0}${unit}`)
-      })
+        const performed=s.performedExerciseName||plannedName;
+        const value=(Number(s.weight)||0)>0
+          ?`${Number(s.weight)} kg × ${Number(s.reps)||0}`
+          :`Peso corporal × ${Number(s.reps)||0}`;
+        const suffix=(s.mode||e.mode)==="time"?" s":"";
+        lines.push(`S${i+1} · ${performed} · ${value}${suffix}`)
+      });
+      if(idx<session.exercises.length-1)lines.push("");
     });
     if((session.prs||[]).length){
       lines.push("",`PR: ${(session.prs||[]).map(x=>`${x.name} · ${x.label}`).join(" | ")}`)
@@ -3662,7 +3971,7 @@ const App={
         </button>
         <div class="history-kpis"><div><span>SERIES</span><strong>${Number(s.totalSets)||0}</strong></div><div><span>VOLUMEN</span><strong>${Math.round(Number(s.volume)||0).toLocaleString('es-ES')}</strong><small>kg</small></div><div><span>DURACIÓN</span><strong>${mins}</strong><small>min</small></div></div>
         <div id="${id}" class="history-detail" hidden>
-          ${exercises.map((e,ei)=>`<section class="history-exercise"><div class="history-exercise-title"><span>${ei+1}</span><div><strong>${e.name}</strong>${e.plannedName&&e.plannedName!==e.name?`<small>Sustituye a ${e.plannedName}${e.alternativeReason?` · ${e.alternativeReason}`:''}</small>`:''}</div></div><div class="history-sets">${(e.sets||[]).map((x,si)=>{const w=(Number(x.weight)||0)>0?`${Number(x.weight)} kg`:'Peso corporal';const unit=e.mode==='time'?'s':'reps';return `<div><span>S${si+1}</span><strong>${w}</strong><em>× ${Number(x.reps)||0} ${unit}</em></div>`}).join('')}</div></section>`).join('')}
+          ${exercises.map((e,ei)=>`<section class="history-exercise"><div class="history-exercise-title"><span>${ei+1}</span><div><strong>${e.plannedName||e.name} · PLANIFICADO</strong></div></div><div class="history-sets">${(e.sets||[]).map((x,si)=>{const w=(Number(x.weight)||0)>0?`${Number(x.weight)} kg`:'Peso corporal';const unit=(x.mode||e.mode)==='time'?'s':'reps';return `<div><span>S${si+1}</span><strong>${x.performedExerciseName||e.plannedName||e.name}</strong><em>${w} × ${Number(x.reps)||0} ${unit}</em></div>`}).join('')}</div></section>`).join('')}
           <button class="danger forged-danger history-delete-one" onclick="App.openHistoryDelete('single',${originalIndex})">Eliminar este entrenamiento</button>
         </div>
       </article>`
@@ -3858,7 +4167,7 @@ const App={
     if(!screen)return;
     screen.innerHTML=`<div class="forge-lab">
       <section class="forge-lab__hero phx-card phx-card--highlight">
-        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 046</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.9.0</span></div>
+        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 051</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.9.0</span></div>
         <p>Banco de pruebas visual. Los mismos componentes se comparan bajo cada material sin tocar datos ni lógica de entrenamiento.</p>
         <div class="forge-lab__material-bar" role="group" aria-label="Material del laboratorio">
           <button type="button" class="forge-lab__material ${material==='precision'?'active':''}" data-ui-material="precision" aria-pressed="${material==='precision'}" onclick="App.previewUiMaterial('precision')"><span>PRECISION</span><small>Vista previa segura</small></button>

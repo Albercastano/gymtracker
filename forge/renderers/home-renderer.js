@@ -1,6 +1,6 @@
 "use strict";
 (function(){
-  const VERSION="0.4.0";
+  const VERSION="0.5.0";
   const ACTION_ATTRIBUTE="data-forge-action";
   const REGION_VARIANTS=new Set(["precision-flow","precision-actions","precision-metrics"]);
 
@@ -28,7 +28,7 @@
         <div class="home-brand__plate"><img src="icon-512.png" alt="" aria-hidden="true"></div>
         <div class="home-brand__copy"><div class="home-brand__name">${escapeHtml(data?.name||"GYMTRACKER")}</div><div class="home-brand__sub">${escapeHtml(material.subtitle)}</div></div>
         <button type="button" class="home-material-access" ${action("open-material-settings","Cambiar material visual")}>
-          <span>MATERIAL</span><b data-material-short>${escapeHtml(material.short)}</b><em aria-hidden="true">›</em>
+          <span>APARIENCIA</span><b data-material-short>${escapeHtml(material.short)}</b><em aria-hidden="true">›</em>
         </button>
       </section>`;
     },
@@ -63,16 +63,16 @@
       const routineId=escapeHtml(data?.routineId||"");
       const title=active?"CONTINUAR":"ENTRENO";
       const context=active?"Sesión activa":ready?(busy?"Preparando adaptación":unresolved?`${unresolved} ejercicio${unresolved===1?"":"s"} pendiente${unresolved===1?"":"s"}`:`${environmentLabel} seleccionado`):"Sin rutina prevista";
-      const prompt=active?"Continuar ahora":ready?(busy?"PREPARANDO":unresolved?"REVISAR":"COMENZAR"):"ELEGIR RUTINA";
+      const prompt=active?"Continuar ahora":ready?(busy?"PREPARANDO":unresolved?"REVISAR":"FOCUS"):"ELEGIR RUTINA";
       return `<button class="home-mode home-mode--gym ${active?"has-active":""} ${ready?"has-routine":"is-empty"} ${unresolved?"has-pending":""} ${busy?"is-busy":""}" ${busy?'disabled aria-disabled="true"':action(actionName,active?"Continuar entrenamiento":ready?(unresolved?"Revisar ejercicios pendientes":`Comenzar entrenamiento en ${environmentLabel.toLowerCase()}`):"Elegir rutina",`data-routine-id="${routineId}"`)} data-forge-component="start-workout-action">
-        <span class="home-mode__kicker">${active?"SESIÓN ACTIVA":"PHOENIX CONTINUITY"}</span>
+        <span class="home-mode__kicker">${active?"ACTIVO":"ENTRENO"}</span>
         <strong>${title}</strong>
         <small class="home-mode__context">${context}</small>
         <span class="home-mode__cta">${prompt}</span>
       </button>`;
     },
     "open-data-action":()=>`<button class="home-mode home-mode--data" ${action("open-data","Abrir datos e historial")} data-forge-component="open-data-action">
-      <span class="home-mode__kicker">PROGRESO</span><strong>DATOS</strong><small>Historial y métricas</small>
+      <span class="home-mode__kicker">PROGRESO</span><strong>DATOS</strong><small>Ver evolución</small>
     </button>`,
     "weekly-progress":({data})=>{
       const sessions=number(data?.sessions);
@@ -105,7 +105,8 @@
     const html=(region.slots||[]).map(id=>slotMap.get(id)).filter(Boolean).map(slot=>renderSlot(slot,snapshot,context)).join("\n");
     if(!html.trim())return "";
     if(variant==="precision-actions")return `<section class="home-mode-switch" aria-label="Acciones principales" data-forge-region="${escapeHtml(region.id)}">${html}</section>`;
-    if(variant==="precision-metrics")return `<section class="home-metrics" aria-label="Resumen rápido" data-forge-region="${escapeHtml(region.id)}">${html}</section>`;
+    if(variant==="precision-metrics")return `<details class="home-light-details" data-forge-region="${escapeHtml(region.id)}"><summary><span>RESUMEN</span><b>7 días</b><em>›</em></summary><section class="home-metrics" aria-label="Resumen rápido">${html}</section></details>`;
+    if(region.id==="history-region")return `<details class="home-light-details home-light-details--history" data-forge-region="${escapeHtml(region.id)}"><summary><span>ÚLTIMO</span><b>Entrenamiento</b><em>›</em></summary>${html}</details>`;
     return html;
   }
   function fallbackRegions(slots){

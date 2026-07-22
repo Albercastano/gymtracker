@@ -145,10 +145,10 @@
   }
   function buildWorkoutSummary(app){
     const session=app?.lastCompletedSession;if(!session)return generic("workout-summary",app);
-    const exercises=(session.exercises||[]).map((e,idx)=>({index:idx,name:e.name,plannedName:e.plannedName||null,alternativeReason:e.alternativeReason||null,mode:e.mode||"reps",sets:(e.sets||[]).map((x,i)=>({index:i,reps:Number(x.reps)||0,weight:Number(x.weight)||0}))}));
+    const exercises=(session.exercises||[]).map((e,idx)=>({index:idx,name:e.name,plannedName:e.plannedName||e.name||null,plannedExerciseId:e.plannedExerciseId||e.exerciseId||null,mode:e.mode||"reps",sets:(e.sets||[]).map((x,i)=>({index:i,reps:Number(x.reps)||0,weight:Number(x.weight)||0,mode:x.mode||e.mode||"reps",performedExerciseId:x.performedExerciseId||e.exerciseId||null,performedExerciseName:x.performedExerciseName||e.name||e.plannedName||"Ejercicio",plannedExerciseId:x.plannedExerciseId||e.plannedExerciseId||e.exerciseId||null,plannedExerciseName:x.plannedExerciseName||e.plannedName||e.name||"Ejercicio",substitutionReason:x.substitutionReason??e.alternativeReason??null}))}));
     return freeze({screen:"workout-summary",generatedAt:new Date().toISOString(),state:{saved:true},components:{
       "workout-summary-hero":{routineName:session.routineName,endedAt:session.endedAt},
-      "workout-summary-metrics":{exercises:exercises.length,sets:Number(session.totalSets)||0,minutes:Math.max(1,Math.round((Number(session.durationMs)||0)/60000)),volume:Math.round(Number(session.volume)||0),alternatives:exercises.filter(e=>e.plannedName&&e.plannedName!==e.name).length},
+      "workout-summary-metrics":{exercises:exercises.length,sets:Number(session.totalSets)||0,minutes:Math.max(1,Math.round((Number(session.durationMs)||0)/60000)),volume:Math.round(Number(session.volume)||0),alternatives:exercises.reduce((n,e)=>n+e.sets.filter(s=>s.performedExerciseName!==s.plannedExerciseName).length,0)},
       "workout-summary-report":{exercises,prs:clone(session.prs||[])},
       "workout-summary-notes":{notes:session.notes||""},
       "workout-summary-actions":{enabled:true}
@@ -178,7 +178,7 @@
     }})
   }
   function buildHistory(app){
-    const sessions=(app?.data?.sessions||[]).map((x,index)=>({index,date:x.endedAt||x.date,routineName:x.routineName||"Entrenamiento",durationMs:Number(x.durationMs)||0,volume:Number(x.volume)||0,totalSets:Number(x.totalSets)||((x.exercises||[]).reduce((n,e)=>n+(e.sets||[]).length,0)),exercises:(x.exercises||[]).map(e=>({name:e.name,plannedName:e.plannedName||null,sets:(e.sets||[]).map(set=>({reps:Number(set.reps)||0,weight:Number(set.weight)||0}))}))})).reverse();
+    const sessions=(app?.data?.sessions||[]).map((x,index)=>({index,date:x.endedAt||x.date,routineName:x.routineName||"Entrenamiento",durationMs:Number(x.durationMs)||0,volume:Number(x.volume)||0,totalSets:Number(x.totalSets)||((x.exercises||[]).reduce((n,e)=>n+(e.sets||[]).length,0)),exercises:(x.exercises||[]).map(e=>({name:e.name,plannedName:e.plannedName||e.name||null,sets:(e.sets||[]).map((set,index)=>({index,reps:Number(set.reps)||0,weight:Number(set.weight)||0,mode:set.mode||e.mode||"reps",performedExerciseName:set.performedExerciseName||e.name||e.plannedName||"Ejercicio",plannedExerciseName:set.plannedExerciseName||e.plannedName||e.name||"Ejercicio"}))}))})).reverse();
     return freeze({screen:"history",generatedAt:new Date().toISOString(),components:{"history-list":{sessions}}})
   }
   function generic(screen,app){
