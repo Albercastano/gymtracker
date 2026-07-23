@@ -1992,3 +1992,16 @@ button:disabled,
   :root{--phx-btn-h-primary:56px;--phx-btn-h-secondary:48px;--phx-btn-h-segmented:40px;--phx-btn-h-utility:38px}
   :is(.secondary,.phx-button--secondary,.home-quick-action,.home-material-access,.gym-machine-action,.gym-postpone-action,.workout-complete-copy){padding-inline:12px!important}
 }
+
+
+/* BUILD 054 · Recuperación controlada de Home: dos accesos principales */
+.home-primary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.home-main-tile{min-width:0;min-height:148px;padding:17px 15px 15px;border-radius:22px;text-align:left;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;gap:5px;color:var(--ink,#f4efe4);border:1px solid rgba(255,255,255,.10);background:linear-gradient(150deg,#1b1d22,#0b0c0f 74%);box-shadow:0 7px 0 rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.08)}
+.home-main-tile:active{transform:translateY(4px);box-shadow:0 3px 0 rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.06)}
+.home-main-tile>span{font-size:.62rem;letter-spacing:.13em;font-weight:900;color:var(--mut,#8c8d92)}
+.home-main-tile>strong{font-size:1.42rem;line-height:1;letter-spacing:-.025em;font-weight:900}
+.home-main-tile>small{font-size:.73rem;line-height:1.25;color:var(--mut,#8c8d92)}
+.home-main-tile>em{margin-top:7px;font-style:normal;font-size:.64rem;letter-spacing:.09em;font-weight:900;color:var(--gold2,#ffe3a1)}
+.home-main-tile--workout{border-color:rgba(255,224,151,.32);background:radial-gradient(circle at 0 0,rgba(216,179,94,.16),transparent 55%),linear-gradient(150deg,#222016,#0d0e10 74%)}
+.home-main-tile--data{background:linear-gradient(150deg,#181a1f,#090a0d 74%)}
+@media(max-width:360px){.home-primary-grid{gap:9px}.home-main-tile{min-height:138px;padding:15px 12px}.home-main-tile>strong{font-size:1.22rem}.home-main-tile>small{font-size:.68rem}}
