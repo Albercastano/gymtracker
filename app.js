@@ -281,7 +281,7 @@ const App={
 
   registerServiceWorker(){
     if(!("serviceWorker" in navigator)||!/^https?:$/.test(location.protocol))return;
-    navigator.serviceWorker.register("sw.js?v=051",{updateViaCache:"none"}).then(async registration=>{
+    navigator.serviceWorker.register("sw.js?v=053",{updateViaCache:"none"}).then(async registration=>{
       try{await registration.update()}catch(_){}
       this.swRegistration=registration;
       registration.update().catch(()=>{});
@@ -915,109 +915,59 @@ const App={
   },
 
   renderHome(withHistory=true){
-    const target=document.getElementById("home");
-    const rendered=target&&window.PhoenixShapeEngine?.render?.("home",target,this,{source:"app"});
-    if(!rendered)return this.renderHomeLegacy(withHistory);
-    this.show("home","Inicio",{history:withHistory})
+    this.renderHomeLegacy(withHistory);
   },
 
   renderHomeLegacy(withHistory=true){
     const r=this.todayRoutine();
     const active=this.active;
     const totalExercises=r?.items?.length||0;
-    const totalSets=r?.items?.reduce((a,x)=>a+(Number(x.sets)||0),0)||0;
     const estimatedMinutes=this.estimateRoutineMinutes(r);
-    const sessions=this.data.sessions||[];
-    const lastSession=sessions.length?sessions[sessions.length-1]:null;
-    const now=Date.now();
-    const weekStart=now-(6*24*60*60*1000);
-    const weekSessions=sessions.filter(s=>new Date(s.date).getTime()>=weekStart);
-    const weekVolume=weekSessions.reduce((sum,s)=>sum+(Number(s.volume)||0),0);
     const bodyWeight=Number(this.data.profile?.bodyWeight)||0;
     const uiMaterial=this.data.settings?.uiMaterial||"precision";
-    const uiMaterialShort=uiMaterial==="apex"?"APEX":"PRECISION";
+    const uiMaterialShort=uiMaterial==="apex"?"APEX":uiMaterial==="vektor"?"VEKTOR":"PRECISION";
     const activeRoutine=active?this.getRoutine(active.routineId):null;
     const activeExercise=active?this.currentExercise():null;
-
-    const lastWorkoutCard=lastSession?`
-      <button class="phx-card phx-card--base phx-card--interactive home-last-card" onclick="App.renderHistory()" aria-label="Abrir historial del último entrenamiento">
-        <div class="phx-card__header">
-          <div>
-            <div class="phx-card__eyebrow">ÚLTIMO ENTRENAMIENTO</div>
-            <div class="phx-card__title">${lastSession.routineName||"Rutina"}</div>
-          </div>
-          <span class="phx-card__chevron" aria-hidden="true">›</span>
-        </div>
-        <div class="phx-card__meta">
-          <span>${new Date(lastSession.date).toLocaleDateString()}</span>
-          <span>${Number(lastSession.totalSets)||0} series</span>
-          <span>${Math.round(Number(lastSession.volume)||0)} kg</span>
-        </div>
-      </button>`:`
-      <div class="phx-card phx-card--base home-last-card">
-        <div class="phx-card__eyebrow">ÚLTIMO ENTRENAMIENTO</div>
-        <div class="phx-card__title">Aún no hay sesiones</div>
-        <div class="phx-card__copy">Completa tu primer entrenamiento para ver aquí el resumen.</div>
-      </div>`;
-
-    const todayEyebrow=active?"ENTRENAMIENTO EN CURSO":"HOY TOCA";
-    const todayTitle=active?(activeRoutine?.name||"Rutina"):(r?r.name:"DESCANSO");
-    const todayMeta=active
-      ? `<span>${Math.min((active.exerciseIndex||0)+1,activeRoutine?.items?.length||1)}/${activeRoutine?.items?.length||1} ejercicios</span><span>${activeExercise?.name||"Sesión activa"}</span><span class="estimated-time">Toca para continuar</span>`
-      : r
-        ? `<span>${totalExercises} ejercicios</span><span>${totalSets} series</span><span class="estimated-time">~${estimatedMinutes} min</span>`
-        : `<span>Sin rutina asignada</span>`;
-
     const storageNotice=this.storageHealthy?"":`<section class="system-alert" role="alert"><strong>GUARDADO EN PAUSA</strong><span>El dispositivo no permite guardar ahora. Libera espacio antes de cerrar GymTracker.</span></section>`;
-    document.getElementById("home").innerHTML=`<div class="home-phoenix home-definitive">${storageNotice}
+    const title=active?(activeRoutine?.name||"Entrenamiento activo"):(r?r.name:"Sin rutina prevista");
+    const meta=active
+      ? `${Math.min((active.exerciseIndex||0)+1,activeRoutine?.items?.length||1)}/${activeRoutine?.items?.length||1} ejercicios · ${activeExercise?.name||"Sesión en curso"}`
+      : r
+        ? `${totalExercises} ejercicios · ~${estimatedMinutes} min`
+        : `Elige o asigna una rutina para empezar`;
+    const kicker=active?"ENTRENAMIENTO ACTIVO":"PRÓXIMO ENTRENAMIENTO";
+    const focusAction=active?'App.resumeWorkout()':r?`App.startContinuityWorkout('${r.id}')`:'App.renderRoutines()';
+    const focusLabel=active?'CONTINUAR':'FOCUS';
+    const focusSub=active?'Sigue donde lo dejaste':(r?'Listo para entrenar':'Elegir rutina');
+    document.getElementById("home").innerHTML=`<div class="home-phoenix home-phoenix--wow">${storageNotice}
       <section class="home-brand home-brand--forged" aria-label="GymTracker Phoenix">
         <div class="home-brand__plate"><img src="icon-512.png" alt="" aria-hidden="true"></div>
         <div class="home-brand__copy"><div class="home-brand__name">GYMTRACKER</div><div class="home-brand__sub">${uiMaterial==="apex"?"PHOENIX · APEX":uiMaterial==="vektor"?"PHOENIX · VEKTOR":"PHOENIX · FORGED"}</div></div>
-        <button type="button" class="home-material-access" onclick="App.openMaterialSettings()" aria-label="Cambiar material visual">
-          <span>MATERIAL</span><b data-material-short>${uiMaterialShort}</b><em aria-hidden="true">›</em>
+        <button type="button" class="home-material-access" onclick="App.openMaterialSettings()" aria-label="Cambiar apariencia">
+          <span>APARIENCIA</span><b data-material-short>${uiMaterialShort}</b><em aria-hidden="true">›</em>
         </button>
       </section>
 
-      <section class="phx-card phx-card--highlight home-today-card home-today-card--definitive ${active?'is-active':''}" aria-labelledby="today-title">
-        <div class="phx-card__eyebrow">${todayEyebrow}</div>
-        <div id="today-title" class="phx-card__hero-title">${todayTitle}</div>
-        <div class="home-summary">${todayMeta}</div>
-        ${active?`<div class="home-active-actions"><button class="home-continue" onclick="App.resumeWorkout()">CONTINUAR</button><button class="home-discard" onclick="App.discardWorkout()">Descartar</button></div>`:""}
+      <section class="home-next-showcase phx-card phx-card--highlight ${active?'is-active':''}" aria-labelledby="home-next-title">
+        <div class="home-next-showcase__eyebrow">${kicker}</div>
+        <h1 id="home-next-title" class="home-next-showcase__title">${title}</h1>
+        <div class="home-next-showcase__meta">${meta}</div>
       </section>
 
-      <section class="home-mode-switch" aria-label="Acciones principales">
-        <button class="home-mode home-mode--gym ${active?'has-active':''} ${r?'has-routine':'is-empty'} ${this.continuityHomePlan?.items?.some(x=>x.unresolved)?'has-pending':''}" onclick="${active?'App.resumeWorkout()':r?(this.continuityHomePlan?.items?.some(x=>x.unresolved)?'App.reviewContinuityPlan()':`App.startContinuityWorkout('${r.id}')`):'App.renderRoutines()'}">
-          <span class="home-mode__kicker">${active?'SESIÓN ACTIVA':'PHOENIX CONTINUITY'}</span>
-          <strong>${active?'CONTINUAR':'ENTRENO'}</strong>
-          <small class="home-mode__context">${active?'Sesión activa':r?(this.continuityHomePlan?.items?.some(x=>x.unresolved)?`${this.continuityHomePlan.items.filter(x=>x.unresolved).length} ejercicios pendientes`:`${this.environmentLabel(this.continuityHomeEnvironment||"gym")} seleccionado`):'Sin rutina prevista'}</small>
-          <span class="home-mode__cta">${active?'CONTINUAR AHORA':r?(this.continuityHomePlan?.items?.some(x=>x.unresolved)?'REVISAR':'FOCUS'):'ELEGIR RUTINA'}</span>
+      <section class="home-wow-actions" aria-label="Acciones principales">
+        <button class="home-focus-primary" onclick="${focusAction}">
+          <span class="home-focus-primary__kicker">LISTO</span>
+          <strong>${focusLabel}</strong>
+          <small>${focusSub}</small>
         </button>
-        <button class="home-mode home-mode--data" onclick="App.renderData()">
-          <span class="home-mode__kicker">PROGRESO</span>
-          <strong>DATOS</strong>
-          <small>Historial y métricas</small>
-        </button>
+        <div class="home-secondary-actions">
+          <button class="home-quick-action" onclick="App.openWeightSheet()">
+            <span>PESO</span>
+            <strong>${bodyWeight?bodyWeight.toFixed(1)+' kg':'REGISTRAR PESO'}</strong>
+            <small>${bodyWeight?'Actualizar registro':'Añadir peso corporal'}</small>
+          </button>
+        </div>
       </section>
-
-      <section class="home-metrics" aria-label="Resumen rápido">
-        <button class="phx-card phx-card--compact phx-card--interactive" onclick="App.renderHistory()">
-          <span class="phx-card__eyebrow">7 DÍAS</span>
-          <strong class="phx-metric phx-metric--sessions">${weekSessions.length}</strong>
-          <span class="phx-metric-label">${weekSessions.length===1?'sesión':'sesiones'}</span>
-        </button>
-        <button class="phx-card phx-card--compact phx-card--interactive" onclick="App.renderHistory()">
-          <span class="phx-card__eyebrow">VOLUMEN</span>
-          <strong class="phx-metric phx-metric--volume">${Math.round(weekVolume).toLocaleString('es-ES')}</strong>
-          <span class="phx-metric-label">kg · 7 días</span>
-        </button>
-        <button class="phx-card phx-card--compact phx-card--interactive" onclick="App.openWeightSheet()">
-          <span class="phx-card__eyebrow">PESO</span>
-          <strong class="phx-metric phx-metric--weight">${bodyWeight?bodyWeight.toFixed(1):"—"}</strong>
-          <span class="phx-metric-label">${bodyWeight?"kg":"sin registrar"}</span>
-        </button>
-      </section>
-
-      ${lastWorkoutCard}
     </div>`;
 
     this.show("home","Inicio",{history:withHistory})
@@ -1335,7 +1285,7 @@ const App={
     document.getElementById("trainingEnvironmentPreviewTitle").textContent=`Entreno en ${this.environmentLabel(plan.environment)}`;
     document.getElementById("trainingEnvironmentSummary").textContent=(plan.environment==="gym"?"Rutina original, preparada para gimnasio.":`${changed} ejercicio${changed===1?"":"s"} adaptado${changed===1?"":"s"} mediante PEDB.${unresolved?` ${unresolved} pendiente${unresolved===1?"":"s"} de resolver.`:""}`)+` · Duración estimada: ${plan.estimatedMinutes} min.`;
     const startButton=document.querySelector("#trainingEnvironmentPreview .king");
-    if(startButton){startButton.disabled=unresolved>0;startButton.setAttribute("aria-disabled",String(unresolved>0));startButton.textContent=unresolved?"RESUELVE LAS SUSTITUCIONES":"COMENZAR ENTRENAMIENTO"}
+    if(startButton){startButton.disabled=unresolved>0;startButton.setAttribute("aria-disabled",String(unresolved>0));startButton.textContent=unresolved?"RESUELVE LAS SUSTITUCIONES":"FOCUS"}
     const equip=document.getElementById("trainingEnvironmentEquipmentButton");if(equip)equip.hidden=plan.environment==="gym";
     document.getElementById("trainingEnvironmentExercises").innerHTML=plan.items.map((x,i)=>`<article class="environment-exercise ${x.changed?'changed':''} ${x.unresolved?'unresolved':''}"><span>${String(i+1).padStart(2,'0')}</span><div><small>${x.changed?this.escape(x.originalName):'EJERCICIO'}</small><strong>${this.escape(x.selectedName)}</strong><em>${this.escape(x.reason)}</em><div class="environment-prescription"><b>${x.targetSets} × ${x.targetReps}</b><span>${x.targetRest}s descanso</span><i>${this.escape(x.equivalence)} · ${this.escape(x.prescriptionNote)}</i></div></div><button type="button" onclick="App.openEnvironmentExerciseAlternatives(${i})">CAMBIAR</button></article>`).join("");
   },
@@ -1563,7 +1513,7 @@ const App={
 
       <div class="gym-flow-actions">
         <button class="gym-machine-action" onclick="App.openMachineBusyMenu()"><span>MÁQUINA OCUPADA</span><small>Alternativa o cambiar orden</small></button>
-        <button class="gym-postpone-action" onclick="App.postponeCurrentExercise('manual_reorder')"><span>DEJAR PARA DESPUÉS</span><small>Pasa al final de la sesión</small></button>
+        <button class="gym-postpone-action" onclick="App.postponeCurrentExercise('manual_reorder')"><span>DEJAR DESPUÉS</span><small>Pasa al final de la sesión</small></button>
       </div>
       <button class="gym-primary-action" onclick="App.beginSet()"><span>${completed?"CONTINUAR":"INICIAR"} SERIE</span><b>›</b></button>
       <button class="gym-exit-action" onclick="App.pauseWorkout()">Salir sin terminar</button>
@@ -2024,7 +1974,7 @@ const App={
           <button type="button" id="restPauseButton" class="phoenix-timer__pause" onclick="App.toggleRestPause()"><b>${this.active.restPaused?"▶":"Ⅱ"}</b><span>${this.active.restPaused?"SEGUIR":"PAUSA"}</span></button>
           <button type="button" onclick="App.adjustRest(30)"><b>+30</b><span>SEGUNDOS</span></button>
         </div>
-        <button class="phoenix-timer__skip" onclick="App.skipRest()"><span>»</span> SALTAR DESCANSO</button>
+        <button class="phoenix-timer__skip" onclick="App.skipRest()"><span>»</span> SALTAR</button>
         <footer class="phoenix-timer__footer">
           <button type="button" onclick="App.toggleTimerSound()"><span>◖))</span><div><small>SONIDO</small><b id="timerSoundStatus">${soundOn?"ACTIVADO":"DESACTIVADO"}</b><em id="timerAudioReady">${soundOn?(this.audioUnlocked?"LISTO":"TOCA PARA ACTIVAR"):"OFF"}</em></div></button>
           <button type="button" onclick="App.toggleTimerVibration()"><span>▣</span><div><small>VIBRACIÓN</small><b id="timerVibrationStatus">${vibrationOn?"ACTIVADA":"DESACTIVADA"}</b></div></button>
@@ -2766,7 +2716,7 @@ const App={
     const workoutHost=document.getElementById("workoutSummary");
     if(!window.PhoenixShapeEngine?.render?.("workout-summary",workoutHost,this,{source:"finish-workout"})){
       const plainReport=this.workoutReportText(session).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
-      workoutHost.innerHTML=`<div class="focus workout-complete-forged"><section class="workout-complete-hero"><div class="eyebrow">ENTRENAMIENTO COMPLETADO</div><div class="workout-complete-title">${r.name.toUpperCase()}</div><div class="workout-saved-state">✓ SESIÓN GUARDADA</div></section><section class="workout-complete-metrics"><div><strong>${exercises.length}</strong><span>ejercicios</span></div><div><strong>${session.totalSets}</strong><span>series</span></div><div><strong>${durationMin}</strong><span>minutos</span></div><div><strong>${Math.round(session.volume)}</strong><span>kg volumen</span></div></section><section class="workout-complete-report workout-report-plain-card"><div class="workout-complete-report__head"><span>RESULTADO COPIABLE</span><b>Listo para copiar</b></div><textarea id="workoutReportPlainText" class="workout-report-plain" readonly>${plainReport}</textarea><div class="workout-share-grid"><button class="workout-complete-copy" onclick="App.copyLastWorkoutReport()">COPIAR PARA ENTRENADOR</button><button class="workout-complete-copy" onclick="App.shareLastWorkoutReport()">COMPARTIR RESUMEN</button></div></section><button class="workout-complete-home" onclick="App.renderHome()"><span>FINALIZAR Y VOLVER</span><b>✓</b></button></div>`;
+      workoutHost.innerHTML=`<div class="focus workout-complete-forged"><section class="workout-complete-hero"><div class="eyebrow">ENTRENAMIENTO COMPLETADO</div><div class="workout-complete-title">${r.name.toUpperCase()}</div><div class="workout-saved-state">✓ SESIÓN GUARDADA</div></section><section class="workout-complete-metrics"><div><strong>${exercises.length}</strong><span>ejercicios</span></div><div><strong>${session.totalSets}</strong><span>series</span></div><div><strong>${durationMin}</strong><span>minutos</span></div><div><strong>${Math.round(session.volume)}</strong><span>kg volumen</span></div></section><section class="workout-complete-report workout-report-plain-card"><div class="workout-complete-report__head"><span>RESULTADO COPIABLE</span><b>Listo para copiar</b></div><textarea id="workoutReportPlainText" class="workout-report-plain" readonly>${plainReport}</textarea><div class="workout-share-grid"><button class="workout-complete-copy" onclick="App.copyLastWorkoutReport()">COPIAR</button><button class="workout-complete-copy" onclick="App.shareLastWorkoutReport()">COMPARTIR</button></div></section><button class="workout-complete-home" onclick="App.renderHome()"><span>TERMINAR</span><b>✓</b></button></div>`;
     }
 
     this.renderProgressionSummary();
@@ -3063,7 +3013,7 @@ const App={
           <div class="data-v2__insights data-v2__insights--grouped">
             <button onclick="App.renderBackups()"><span>BACKUP</span><b>Guardar y restaurar datos</b><em>›</em></button>
             <button onclick="App.renderSettings()"><span>AJUSTES</span><b>Pantalla, entreno y datos</b><em>›</em></button>
-            <button class="data-v2__material-access" onclick="App.openMaterialSettings()"><span>MATERIAL DE INTERFAZ</span><b data-material-current>${uiMaterialName}</b><em>›</em></button>
+            <button class="data-v2__material-access" onclick="App.openMaterialSettings()"><span>APARIENCIA</span><b data-material-current>${uiMaterialName}</b><em>›</em></button>
           </div>
         </article>
       </section>
@@ -4167,7 +4117,7 @@ const App={
     if(!screen)return;
     screen.innerHTML=`<div class="forge-lab">
       <section class="forge-lab__hero phx-card phx-card--highlight">
-        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 051</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.9.0</span></div>
+        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 053</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.9.0</span></div>
         <p>Banco de pruebas visual. Los mismos componentes se comparan bajo cada material sin tocar datos ni lógica de entrenamiento.</p>
         <div class="forge-lab__material-bar" role="group" aria-label="Material del laboratorio">
           <button type="button" class="forge-lab__material ${material==='precision'?'active':''}" data-ui-material="precision" aria-pressed="${material==='precision'}" onclick="App.previewUiMaterial('precision')"><span>PRECISION</span><small>Vista previa segura</small></button>
@@ -4227,7 +4177,7 @@ const App={
         <div class="forge-lab__visual-core-head"><div><span>APEX VISUAL CORE 1.0</span><h2>Componentes ultratecnológicos de referencia</h2></div><b>BUILD 021</b></div>
         <p class="muted">Negro absoluto, líneas finas, números limpios y color funcional. Sin imágenes pesadas ni cambios en la lógica.</p>
         <div class="apex-core__grid">
-          <article class="apex-core__card apex-core__actions"><span>01 · ACCIONES</span><h3>Control limpio</h3><button class="phx-button phx-button--primary" onclick="App.toast('Acción primaria Apex')">COMENZAR ENTRENAMIENTO</button><button class="phx-button phx-button--secondary" onclick="App.toast('Acción secundaria Apex')">VER DETALLES</button></article>
+          <article class="apex-core__card apex-core__actions"><span>01 · ACCIONES</span><h3>Control limpio</h3><button class="phx-button phx-button--primary" onclick="App.toast('Acción primaria Apex')">FOCUS</button><button class="phx-button phx-button--secondary" onclick="App.toast('Acción secundaria Apex')">VER DETALLES</button></article>
           <article class="apex-core__card apex-core__metric"><span>02 · MÉTRICA</span><strong>12.480</strong><small>KG · VOLUMEN SEMANAL</small><i style="--apex-level:72%"></i></article>
           <article class="apex-core__card apex-core__panel"><span>03 · PANEL</span><h3>Decisión precisa</h3><p>Una superficie silenciosa con jerarquía inequívoca.</p><div><button class="phx-button phx-button--primary">CONFIRMAR</button><button class="phx-button phx-button--secondary">CANCELAR</button></div></article>
           <article class="apex-core__card apex-core__routine"><span>04 · RUTINA</span><div><em>01</em><p><b>PRESS BANCA</b><small>4 × 8 · 82,5 KG · 90 S</small></p><i>✓</i></div><div><em>02</em><p><b>REMO CON BARRA</b><small>4 × 10 · 70 KG · 90 S</small></p><i>›</i></div></article>

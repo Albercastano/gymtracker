@@ -1851,3 +1851,144 @@ html[data-phx-material="vektor"] .timed-set-dial,html[data-phx-material="vektor"
 .data-v2--grouped{gap:12px}.data-v2__head{min-height:150px!important;padding:16px!important}.data-v2__head h1{font-size:clamp(1.9rem,9vw,3rem)!important;line-height:.92;margin:5px 0 8px}.data-v2__head p{font-size:.68rem;max-width:70%}.data-v2__latest{padding:9px 10px}.data-v2__metrics{gap:7px}.data-v2__metric{padding:12px 10px!important;min-height:92px}.data-v2__metric strong{font-size:clamp(1.5rem,8vw,2.2rem)!important}.data-v2__chart{padding:14px 12px}.data-v2__group{padding:12px 10px}.data-v2__insights--grouped button{min-height:76px;padding:11px}.data-v2__session{padding:9px 10px}
 .week-planner,.routine-accordion,.settings-definitive{box-shadow:none}.week-planner{padding:14px}.week-summary{gap:6px}.week-day{min-height:74px}.routine-help,.material-intro{font-size:.66rem;line-height:1.35}.routine-accordion{margin-top:8px}.routine-summary{min-height:62px;padding:12px 13px}.routine-body{padding:0 10px 10px}.routine-item-card{padding:11px}.settings-definitive{padding:12px!important}.settings-section{padding:14px!important;margin-top:9px!important}.settings-section h3{font-size:1rem}.material-option{padding:11px!important;min-height:82px}.material-copy small{font-size:.62rem}.material-safety-actions{gap:7px}.material-safety-actions .secondary{min-height:42px;font-size:.62rem}.library-search-card,.library-filters,.library-card{box-shadow:none!important}.library-card{padding:12px!important}.library-card p,.library-card small{font-size:.65rem}.library-card .grid{gap:7px}
 @media(max-width:390px){.home-mode{min-height:104px}.home-material-access span{display:none}.data-v2__head p{max-width:66%}.data-v2__metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.data-v2__metric{min-height:84px}}
+
+
+.home-phoenix--wow{display:grid;gap:16px;padding-bottom:12px}.home-next-showcase{padding:18px 16px 16px;border-radius:24px;background:linear-gradient(180deg,rgba(255,221,128,.18),rgba(255,221,128,.07));box-shadow:0 18px 42px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.06)}
+.home-next-showcase__eyebrow{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}.home-next-showcase__title{margin:0;font-size:1.7rem;line-height:1.03;font-weight:800;letter-spacing:-.03em}.home-next-showcase__meta{margin-top:10px;color:var(--muted);font-size:.95rem}
+.home-wow-actions{display:grid;gap:12px}.home-focus-primary{display:grid;gap:4px;padding:18px 16px;border:none;border-radius:24px;background:linear-gradient(180deg,rgba(216,179,94,.96),rgba(188,150,66,.92));color:#0b0c10;box-shadow:0 14px 30px rgba(216,179,94,.22);text-align:left}.home-focus-primary__kicker{font-size:.72rem;letter-spacing:.14em;font-weight:700;opacity:.75}.home-focus-primary strong{font-size:1.45rem;line-height:1;font-weight:900;letter-spacing:-.03em}.home-focus-primary small{font-size:.92rem;color:rgba(9,10,12,.78)}
+.home-secondary-actions{display:grid;grid-template-columns:1fr;gap:10px}.home-quick-action{display:grid;gap:4px;padding:14px 13px;border-radius:20px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.025);text-align:left}.home-quick-action span{font-size:.72rem;letter-spacing:.12em;color:var(--muted)}.home-quick-action strong{font-size:1rem;line-height:1.15}.home-quick-action small{font-size:.83rem;color:var(--muted)}
+@media (max-width:380px){.home-next-showcase__title{font-size:1.45rem}.home-secondary-actions{grid-template-columns:1fr}.home-focus-primary strong{font-size:1.28rem}}
+
+
+/* =========================================================
+   BOT-001 · PHOENIX BUTTON CONTRACT 1.0
+   Four semantic families: primary, secondary, segmented, utility.
+   This layer normalizes legacy variants without changing logic.
+   ========================================================= */
+:root{
+  --phx-btn-h-primary:58px;
+  --phx-btn-h-secondary:50px;
+  --phx-btn-h-segmented:42px;
+  --phx-btn-h-utility:40px;
+  --phx-btn-r-primary:20px;
+  --phx-btn-r-secondary:17px;
+  --phx-btn-r-segmented:14px;
+  --phx-btn-r-utility:13px;
+  --phx-btn-font-primary:clamp(.98rem,4.3vw,1.08rem);
+  --phx-btn-font-secondary:.88rem;
+  --phx-btn-font-segmented:.72rem;
+  --phx-btn-font-utility:.72rem;
+  --phx-btn-tracking:.065em;
+}
+
+/* Shared rhythm and optical centering. */
+button,
+[role="button"]{
+  -webkit-tap-highlight-color:transparent;
+  text-wrap:balance;
+}
+button:disabled,
+[role="button"][aria-disabled="true"]{opacity:.48;filter:saturate(.65);cursor:not-allowed}
+
+/* A · PRIMARY — one dominant action per screen. */
+:is(
+  .primary,.king,.data-king,.small-king,.phx-button--primary,
+  .home-focus-primary,.gym-primary-action,.set-primary-action,
+  .workout-complete-home,.workout-notes-save,.timed-exercise-start,
+  .timed-exercise-finish,.home-continue,.continuity-start-button
+){
+  min-height:var(--phx-btn-h-primary)!important;
+  border-radius:var(--phx-btn-r-primary)!important;
+  padding:0 20px!important;
+  font-size:var(--phx-btn-font-primary)!important;
+  font-weight:850!important;
+  line-height:1.05!important;
+  letter-spacing:var(--phx-btn-tracking)!important;
+  text-transform:uppercase;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+  overflow:hidden;
+}
+:is(.home-focus-primary,.workout-complete-home){flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;letter-spacing:0!important}
+:is(.home-focus-primary,.workout-complete-home) strong,
+:is(.home-focus-primary,.workout-complete-home) span{line-height:1!important}
+
+/* B · SECONDARY — visible but quiet. */
+:is(
+  .secondary,.phx-button--secondary,.home-quick-action,.home-material-access,
+  .home-mode--data,.gym-machine-action,.gym-postpone-action,
+  .workout-complete-copy,.pedb-btn,.routine-actions button,
+  .settings-section button,.data-v2__insights button
+){
+  min-height:var(--phx-btn-h-secondary)!important;
+  border-radius:var(--phx-btn-r-secondary)!important;
+  padding:10px 14px!important;
+  font-size:var(--phx-btn-font-secondary)!important;
+  font-weight:720!important;
+  line-height:1.15!important;
+}
+:is(.home-quick-action,.home-material-access,.home-mode--data,.gym-machine-action,.gym-postpone-action,.data-v2__insights button){text-align:left}
+
+/* C · SEGMENTED — filters, modes and environments. */
+:is(
+  .home-continuity__choices button,.data-v2__tabs button,.data-v2__range button,
+  .pedb-filter-chip,.library-filter-chip,.execution-mode-option,
+  .segmented button,[role="tab"]
+){
+  min-height:var(--phx-btn-h-segmented)!important;
+  border-radius:var(--phx-btn-r-segmented)!important;
+  padding:0 12px!important;
+  font-size:var(--phx-btn-font-segmented)!important;
+  font-weight:760!important;
+  line-height:1!important;
+  letter-spacing:.055em!important;
+  white-space:nowrap;
+}
+
+/* D · UTILITY — supportive, never dominant. */
+:is(
+  .mini,.compact,.gym-exit-action,.phoenix-timer__skip,
+  .phoenix-timer__adjust,.workout-notes-save + button,
+  .data-v2__section-title button,.pedb-fav,.icon-button,
+  .dialog-close,.modal-close,.back-button
+){
+  min-height:var(--phx-btn-h-utility)!important;
+  border-radius:var(--phx-btn-r-utility)!important;
+  padding:0 12px!important;
+  font-size:var(--phx-btn-font-utility)!important;
+  font-weight:720!important;
+  line-height:1!important;
+  letter-spacing:.045em!important;
+}
+
+/* Text hierarchy inside compound buttons. */
+:is(.home-quick-action,.home-material-access,.gym-machine-action,.gym-postpone-action,.data-v2__insights button) > span{
+  font-size:.58rem!important;
+  line-height:1!important;
+  letter-spacing:.105em!important;
+  opacity:.72;
+}
+:is(.home-quick-action,.home-material-access,.gym-machine-action,.gym-postpone-action,.data-v2__insights button) > strong,
+:is(.home-quick-action,.home-material-access,.gym-machine-action,.gym-postpone-action,.data-v2__insights button) > b{
+  font-size:.84rem!important;
+  line-height:1.12!important;
+  letter-spacing:0!important;
+}
+:is(.home-quick-action,.home-material-access,.gym-machine-action,.gym-postpone-action,.data-v2__insights button) > small{
+  font-size:.68rem!important;
+  line-height:1.15!important;
+  opacity:.68;
+}
+
+/* Peace rules: equal siblings, predictable gaps, no accidental giants. */
+:is(.workout-share-grid,.gym-flow-actions,.home-secondary-actions){gap:10px!important}
+.workout-share-grid > button,.gym-flow-actions > button,.home-secondary-actions > button{min-width:0;width:100%}
+:is(.king,.data-king,.small-king){min-height:var(--phx-btn-h-primary)!important;font-size:var(--phx-btn-font-primary)!important;box-shadow:0 8px 0 rgba(0,0,0,.34),0 14px 28px rgba(0,0,0,.28)!important}
+:is(.king,.data-king,.small-king):active{transform:translateY(4px)!important;box-shadow:0 3px 0 rgba(0,0,0,.34),0 7px 16px rgba(0,0,0,.24)!important}
+
+@media(max-width:390px){
+  :root{--phx-btn-h-primary:56px;--phx-btn-h-secondary:48px;--phx-btn-h-segmented:40px;--phx-btn-h-utility:38px}
+  :is(.secondary,.phx-button--secondary,.home-quick-action,.home-material-access,.gym-machine-action,.gym-postpone-action,.workout-complete-copy){padding-inline:12px!important}
+}
