@@ -1,6 +1,6 @@
-GymTracker Phoenix 11 Alpha · Build 059
+GymTracker Phoenix 11 Alpha · Build 060
 
-Nombre: HOME ROUTINE PEEK + WEIGHT ORBIT REFINED
+Nombre: HOME EYE FIX + WEIGHT ORBIT CLEANUP
 
 Ajustes aplicados:
 - Nuevo icono de ojo estilo FORGED en la tarjeta de la rutina para abrir una vista rápida con el listado de ejercicios.

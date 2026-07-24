@@ -991,7 +991,7 @@ const App={
     const focusKicker=active?'ACTIVO':'LISTO';
     const focusSub=active?'Continuar donde lo dejaste':(display.status==='today'?'Abrir entrenamiento de hoy':display.status==='next'?'Preparar próximo entreno':display.status==='rest-next'?'Mañana toca descanso':'Ver rutinas');
     const focusCta=active?'CONTINUAR':'FOCUS';
-    const routinePeekButton=actionRoutine?`<button type="button" class="home-routine-peek" onclick="App.openRoutinePeek()" aria-label="Ver ejercicios de la rutina"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.2 12c2.25-3.76 5.58-5.64 9.8-5.64S19.55 8.24 21.8 12c-2.25 3.76-5.58 5.64-9.8 5.64S4.45 15.76 2.2 12Z"/><circle cx="12" cy="12" r="3.2"/><path d="M9.35 18.8h7.1M9.35 21h5.2"/></svg></button>`:'';
+    const routinePeekButton=actionRoutine?`<button type="button" class="home-routine-peek" onclick="event.stopPropagation();App.openRoutinePeek();return false;" aria-label="Ver ejercicios de la rutina" title="Ver ejercicios"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.2 12c2.25-3.76 5.58-5.64 9.8-5.64S19.55 8.24 21.8 12c-2.25 3.76-5.58 5.64-9.8 5.64S4.45 15.76 2.2 12Z"/><circle cx="12" cy="12" r="3.2"/><path d="M9.35 18.8h7.1M9.35 21h5.2"/></svg></button>`:'';
     this.homeRoutinePeekId=actionRoutine?.id||null;
     document.getElementById("home").innerHTML=`<div class="home-phoenix home-phoenix--wow">${storageNotice}
       <section class="home-brand home-brand--forged" aria-label="GymTracker Phoenix">
