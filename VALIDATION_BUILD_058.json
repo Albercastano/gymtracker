@@ -1,0 +1,10 @@
+{
+  "build": "058",
+  "name": "WEIGHT_ORBIT_FORGED_RING_ICON_CENTER",
+  "source": "Build 057",
+  "changes": [
+    "Refuerzo visual del círculo de peso con borde y anillos FORGED más visibles",
+    "Corrección del centrado del icono Phoenix en la placa de marca de Home"
+  ],
+  "rule": "No se toca nada más"
+}
