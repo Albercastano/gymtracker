@@ -281,7 +281,7 @@ const App={
 
   registerServiceWorker(){
     if(!("serviceWorker" in navigator)||!/^https?:$/.test(location.protocol))return;
-    navigator.serviceWorker.register("sw.js?v=054",{updateViaCache:"none"}).then(async registration=>{
+    navigator.serviceWorker.register("sw.js?v=055",{updateViaCache:"none"}).then(async registration=>{
       try{await registration.update()}catch(_){}
       this.swRegistration=registration;
       registration.update().catch(()=>{});
@@ -335,6 +335,7 @@ const App={
   openForgedDialog(options={}){
     const sheet=document.getElementById("forgedDialog");if(!sheet)return;
     this.pendingForgedAction=typeof options.onConfirm==="function"?options.onConfirm:null;
+    this.pendingForgedCancelAction=typeof options.onCancel==="function"?options.onCancel:null;
     const eyebrow=document.getElementById("forgedDialogEyebrow");
     const title=document.getElementById("forgedDialogTitle");
     const message=document.getElementById("forgedDialogMessage");
@@ -342,6 +343,7 @@ const App={
     const input=document.getElementById("forgedDialogInput");
     const inputLabel=document.getElementById("forgedDialogInputLabel");
     const confirm=document.getElementById("forgedDialogConfirm");
+    const cancel=sheet.querySelector(".forged-dialog-cancel");
     if(eyebrow)eyebrow.textContent=options.eyebrow||"PHOENIX";
     if(title)title.textContent=options.title||"Confirmar acción";
     if(message)message.textContent=options.message||"";
@@ -350,14 +352,21 @@ const App={
     if(input){input.value=options.inputValue||"";input.placeholder=options.placeholder||"";input.type=options.inputType||"text"}
     if(inputLabel)inputLabel.textContent=options.inputLabel||"Valor";
     if(confirm){confirm.textContent=options.confirmText||"CONFIRMAR";confirm.className=options.danger?"danger forged-danger forged-danger--full":"primary"}
+    if(cancel)cancel.textContent=options.cancelText||"Cancelar";
     sheet.classList.add("show");sheet.setAttribute("aria-hidden","false");document.body.classList.add("sheet-open");
     if(wantsInput)setTimeout(()=>input?.focus(),160);
+  },
+  cancelForgedDialog(){
+    const action=this.pendingForgedCancelAction;
+    this.closeForgedDialog();
+    if(typeof action==="function"){try{action()}catch(error){this.reportError(error)}}
   },
   closeForgedDialog(){
     const sheet=document.getElementById("forgedDialog");sheet?.classList.remove("show");sheet?.setAttribute("aria-hidden","true");
     const anotherSheet=[...document.querySelectorAll(".sheet.show")].some(el=>el!==sheet);
     if(!anotherSheet)document.body.classList.remove("sheet-open");
     this.pendingForgedAction=null;
+    this.pendingForgedCancelAction=null;
   },
   confirmForgedDialog(){
     const action=this.pendingForgedAction;
@@ -819,6 +828,58 @@ const App={
     const id=plan[mondayIndex];
     return id?this.getRoutine(id):null
   },
+  sameCalendarDay(value,date=new Date()){
+    if(value==null)return false;
+    const left=new Date(value);
+    const right=new Date(date);
+    return left.getFullYear()===right.getFullYear()&&left.getMonth()===right.getMonth()&&left.getDate()===right.getDate()
+  },
+  dayLabel(date=new Date()){
+    const names=["DOMINGO","LUNES","MARTES","MIÉRCOLES","JUEVES","VIERNES","SÁBADO"];
+    return names[new Date(date).getDay()]||"DÍA"
+  },
+  routineForDate(date=new Date()){
+    const target=new Date(date);
+    const jsDay=target.getDay();
+    const mondayIndex=jsDay===0?6:jsDay-1;
+    const plan=this.getWeekPlan(target,true);
+    const id=plan[mondayIndex];
+    return id?this.getRoutine(id):null
+  },
+  completedRoutineToday(routineId){
+    if(!routineId)return false;
+    return (this.data.sessions||[]).some(session=>session.routineId===routineId&&this.sameCalendarDay(session.endedAt||session.date,new Date()))
+  },
+  homeShowcaseState(){
+    const active=this.active;
+    if(active){
+      const activeRoutine=this.getRoutine(active.routineId);
+      const activeExercise=this.currentExercise();
+      return {
+        kicker:"ENTRENAMIENTO ACTIVO",
+        title:activeRoutine?.name||"Entrenamiento activo",
+        meta:`${Math.min((active.exerciseIndex||0)+1,activeRoutine?.items?.length||1)}/${activeRoutine?.items?.length||1} ejercicios · ${activeExercise?.name||"Sesión en curso"}`,
+        actionRoutine:activeRoutine,
+        status:"active"
+      }
+    }
+    const today=new Date();
+    const todayRoutine=this.routineForDate(today);
+    if(todayRoutine&&this.completedRoutineToday(todayRoutine.id)){
+      const nextDate=new Date(today);
+      nextDate.setDate(nextDate.getDate()+1);
+      const nextRoutine=this.routineForDate(nextDate);
+      const title=nextRoutine
+        ? `${this.dayLabel(nextDate)} — ${nextRoutine.name.toUpperCase()}`
+        : `${this.dayLabel(nextDate)} — DESCANSO`;
+      const meta=nextRoutine
+        ? `${nextRoutine.items?.length||0} ejercicios · ~${this.estimateRoutineMinutes(nextRoutine)} min`
+        : "Recuperación programada";
+      return {kicker:"PRÓXIMO ENTRENAMIENTO",title,meta,actionRoutine:nextRoutine,status:nextRoutine?"next":"rest-next"}
+    }
+    if(todayRoutine)return {kicker:"ENTRENAMIENTO ACTIVO",title:todayRoutine.name,meta:`${todayRoutine.items?.length||0} ejercicios · ~${this.estimateRoutineMinutes(todayRoutine)} min`,actionRoutine:todayRoutine,status:"today"};
+    return {kicker:"ENTRENAMIENTO ACTIVO",title:"DESCANSO",meta:"Sin rutina asignada para hoy",actionRoutine:null,status:"rest"}
+  },
   getRoutine(id){return this.data.routines.find(r=>r.id===id)},
 
   show(id,destination="Inicio",options={}){
@@ -919,26 +980,17 @@ const App={
   },
 
   renderHomeLegacy(withHistory=true){
-    const r=this.todayRoutine();
     const active=this.active;
-    const totalExercises=r?.items?.length||0;
-    const estimatedMinutes=this.estimateRoutineMinutes(r);
     const bodyWeight=Number(this.data.profile?.bodyWeight)||0;
     const uiMaterial=this.data.settings?.uiMaterial||"precision";
     const uiMaterialShort=uiMaterial==="apex"?"APEX":uiMaterial==="vektor"?"VEKTOR":"PRECISION";
-    const activeRoutine=active?this.getRoutine(active.routineId):null;
-    const activeExercise=active?this.currentExercise():null;
     const storageNotice=this.storageHealthy?"":`<section class="system-alert" role="alert"><strong>GUARDADO EN PAUSA</strong><span>El dispositivo no permite guardar ahora. Libera espacio antes de cerrar GymTracker.</span></section>`;
-    const title=active?(activeRoutine?.name||"Entrenamiento activo"):(r?r.name:"Sin rutina prevista");
-    const meta=active
-      ? `${Math.min((active.exerciseIndex||0)+1,activeRoutine?.items?.length||1)}/${activeRoutine?.items?.length||1} ejercicios · ${activeExercise?.name||"Sesión en curso"}`
-      : r
-        ? `${totalExercises} ejercicios · ~${estimatedMinutes} min`
-        : `Elige o asigna una rutina para empezar`;
-    const kicker=active?"ENTRENAMIENTO ACTIVO":"PRÓXIMO ENTRENAMIENTO";
-    const focusAction=active?'App.resumeWorkout()':r?`App.startContinuityWorkout('${r.id}')`:'App.renderRoutines()';
-    const focusLabel=active?'CONTINUAR':'FOCUS';
-    const focusSub=active?'Sigue donde lo dejaste':(r?'Listo para entrenar':'Elegir rutina');
+    const display=this.homeShowcaseState();
+    const actionRoutine=display.actionRoutine;
+    const focusAction=active?'App.resumeWorkout()':actionRoutine?`App.startContinuityWorkout('${actionRoutine.id}')`:'App.renderRoutines()';
+    const focusKicker=active?'ACTIVO':'LISTO';
+    const focusSub=active?'Continuar donde lo dejaste':(display.status==='today'?'Abrir entrenamiento de hoy':display.status==='next'?'Preparar próximo entreno':display.status==='rest-next'?'Mañana toca descanso':'Ver rutinas');
+    const focusCta=active?'CONTINUAR':'FOCUS';
     document.getElementById("home").innerHTML=`<div class="home-phoenix home-phoenix--wow">${storageNotice}
       <section class="home-brand home-brand--forged" aria-label="GymTracker Phoenix">
         <div class="home-brand__plate"><img src="icon-512.png" alt="" aria-hidden="true"></div>
@@ -949,33 +1001,32 @@ const App={
       </section>
 
       <section class="home-next-showcase phx-card phx-card--highlight ${active?'is-active':''}" aria-labelledby="home-next-title">
-        <div class="home-next-showcase__eyebrow">${kicker}</div>
-        <h1 id="home-next-title" class="home-next-showcase__title">${title}</h1>
-        <div class="home-next-showcase__meta">${meta}</div>
+        <div class="home-next-showcase__eyebrow">${display.kicker}</div>
+        <h1 id="home-next-title" class="home-next-showcase__title">${display.title}</h1>
+        <div class="home-next-showcase__meta">${display.meta}</div>
       </section>
 
       <section class="home-wow-actions" aria-label="Acciones principales">
         <div class="home-primary-grid">
           <button class="home-main-tile home-main-tile--workout" onclick="${focusAction}">
-            <span>${active?'ACTIVO':'LISTO'}</span>
+            <span>${focusKicker}</span>
             <strong>ENTRENO</strong>
-            <small>${active?'Continuar donde lo dejaste':focusSub}</small>
-            <em>${active?'CONTINUAR':'FOCUS'} ›</em>
+            <small>${focusSub}</small>
+            <em>${focusCta} ›</em>
           </button>
           <button class="home-main-tile home-main-tile--data" onclick="App.renderData()">
             <span>PROGRESO</span>
             <strong>DATOS</strong>
-            <small>Historial y evolución</small>
+            <small>Historial, rutinas y métricas</small>
             <em>ABRIR ›</em>
           </button>
         </div>
-        <div class="home-secondary-actions">
-          <button class="home-quick-action" onclick="App.openWeightSheet()">
-            <span>PESO</span>
-            <strong>${bodyWeight?bodyWeight.toFixed(1)+' kg':'REGISTRAR PESO'}</strong>
-            <small>${bodyWeight?'Actualizar registro':'Añadir peso corporal'}</small>
-          </button>
-        </div>
+      </section>
+
+      <section class="home-weight-stage" aria-label="Peso corporal">
+        <button type="button" class="home-weight-orbit" onclick="App.openWeightSheet()" aria-label="Registrar peso corporal">
+          <div class="home-weight-orbit__value"><strong>${bodyWeight?bodyWeight.toFixed(1):'—'}</strong><em>kg</em></div>
+        </button>
       </section>
     </div>`;
 
@@ -2769,7 +2820,10 @@ const App={
     catch(_){const ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();this.toast("Informe copiado")}
   },
 
-  pauseWorkout(){clearInterval(this.timer);this.saveActive();this.renderHome()},
+  pauseWorkout(){
+    clearInterval(this.timer);
+    this.openForgedDialog({eyebrow:"ENTRENAMIENTO EN CURSO",title:"Salir del entreno",message:"Si abandonas ahora podrás retomarlo desde Inicio. Si quieres dejarlo definitivamente, usa DESCARTAR.",confirmText:"DESCARTAR",cancelText:"IR AL INICIO",danger:true,onConfirm:()=>{this.active=null;this.saveActive();this.renderHome(false)},onCancel:()=>{this.saveActive();this.renderHome(false)}})
+  },
 
   pedbCategoryForReason(reason){return reason==="En casa"?"home":reason==="Otra zona"?"different_zone":"occupied"},
 
@@ -4126,7 +4180,7 @@ const App={
     if(!screen)return;
     screen.innerHTML=`<div class="forge-lab">
       <section class="forge-lab__hero phx-card phx-card--highlight">
-        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 054</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.9.0</span></div>
+        <div class="forge-lab__hero-top"><div><div class="eyebrow">PHOENIX 11 ALPHA · BUILD 055</div><h1>FORGE <em>LAB</em></h1></div><span class="forge-lab__engine">SKIN ENGINE 0.9.0</span></div>
         <p>Banco de pruebas visual. Los mismos componentes se comparan bajo cada material sin tocar datos ni lógica de entrenamiento.</p>
         <div class="forge-lab__material-bar" role="group" aria-label="Material del laboratorio">
           <button type="button" class="forge-lab__material ${material==='precision'?'active':''}" data-ui-material="precision" aria-pressed="${material==='precision'}" onclick="App.previewUiMaterial('precision')"><span>PRECISION</span><small>Vista previa segura</small></button>

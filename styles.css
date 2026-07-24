@@ -2003,5 +2003,10 @@ button:disabled,
 .home-main-tile>small{font-size:.73rem;line-height:1.25;color:var(--mut,#8c8d92)}
 .home-main-tile>em{margin-top:7px;font-style:normal;font-size:.64rem;letter-spacing:.09em;font-weight:900;color:var(--gold2,#ffe3a1)}
 .home-main-tile--workout{border-color:rgba(255,224,151,.32);background:radial-gradient(circle at 0 0,rgba(216,179,94,.16),transparent 55%),linear-gradient(150deg,#222016,#0d0e10 74%)}
-.home-main-tile--data{background:linear-gradient(150deg,#181a1f,#090a0d 74%)}
+.home-main-tile--data{border-color:rgba(221,227,238,.24);background:radial-gradient(circle at 0 0,rgba(212,218,228,.12),transparent 55%),linear-gradient(150deg,#232730,#0d0f13 74%)}
+.home-main-tile--data>em{color:#d9dee7}
 @media(max-width:360px){.home-primary-grid{gap:9px}.home-main-tile{min-height:138px;padding:15px 12px}.home-main-tile>strong{font-size:1.22rem}.home-main-tile>small{font-size:.68rem}}
+
+
+/* BUILD 055 · Home locked refinement */
+.home-wow-actions{display:grid;gap:14px}.home-weight-stage{display:flex;justify-content:center;align-items:center;padding:4px 0 14px}.home-weight-orbit{width:min(64vw,232px);aspect-ratio:1/1;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;border:1px solid rgba(255,220,143,.22);background:radial-gradient(circle at 50% 44%,rgba(255,225,154,.08),transparent 42%),radial-gradient(circle at 50% 50%,rgba(16,18,22,.98) 58%,rgba(8,9,12,.98) 100%);box-shadow:0 20px 44px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.06),inset 0 0 0 14px rgba(255,255,255,.02),inset 0 0 0 26px rgba(255,214,122,.04);color:var(--ink,#f4efe4)}.home-weight-orbit:active{transform:translateY(3px)}.home-weight-orbit__value{display:flex;align-items:flex-end;gap:6px}.home-weight-orbit__value strong{font-size:2.25rem;line-height:.95;letter-spacing:-.05em}.home-weight-orbit__value em{font-style:normal;font-size:1rem;letter-spacing:.06em;color:var(--gold2,#f7d98d)}@media(max-width:380px){.home-main-tile{min-height:142px}.home-weight-orbit{width:min(70vw,212px)}.home-weight-orbit__value strong{font-size:2rem}}
