@@ -2,16 +2,16 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="phx-build" content="059">
+  <meta name="phx-build" content="062">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#000000">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; form-action 'self'; connect-src 'self'; img-src 'self' data: blob:; media-src 'self' data: blob:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'">
-  <title>GymTracker Phoenix 11 Alpha · Build 061</title>
+  <title>GymTracker Phoenix 11 Alpha · Build 062</title>
   <script>
-    // Build 061 bootstrap: home routine peek and refined weight orbit.
+    // Build 062 bootstrap: home routine peek and refined weight orbit.
     document.documentElement.dataset.phxMaterial="apex";
     document.documentElement.dataset.material="apex";
-    document.documentElement.dataset.phxBuild="059";
+    document.documentElement.dataset.phxBuild="062";
     try{
       const activeProfile=localStorage.getItem("gymtracker_phoenix_active_profile_v1")||"alberto";
       const key=activeProfile==="alberto"?"gymtracker_phoenix_v8":`gymtracker_phoenix_v8_profile_${activeProfile}`;
@@ -22,13 +22,13 @@
       }
     }catch(_){/* storage may be unavailable during first paint */}
   </script>
-  <link rel="manifest" href="manifest.webmanifest?v=059">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=059">
-  <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png?v=059">
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=059">
-  <link rel="stylesheet" href="styles.css?v=059">
-  <link rel="stylesheet" href="themes/semantic-bridge.css?v=059">
-  <link rel="stylesheet" href="themes/apex/apex.css?v=059" data-phx-apex-bootstrap>
+  <link rel="manifest" href="manifest.webmanifest?v=062">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=062">
+  <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png?v=062">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=062">
+  <link rel="stylesheet" href="styles.css?v=062">
+  <link rel="stylesheet" href="themes/semantic-bridge.css?v=062">
+  <link rel="stylesheet" href="themes/apex/apex.css?v=062" data-phx-apex-bootstrap>
 </head>
 <body>
   <section id="splash" class="splash">
@@ -73,7 +73,7 @@
     <button id="destButton" class="dest-button" onclick="App.goDestination()">Inicio</button>
     <button type="button" class="topbar-brand phoenix-easter-trigger" data-phoenix-easter aria-label="GymTracker Phoenix">
       <img src="icon-512.png" alt="" aria-hidden="true">
-      <div class="topbar-brand__copy"><strong>GYMTRACKER</strong><span>PHOENIX</span><small class="build-stamp" aria-label="Versión instalada Build 061">BUILD 061</small></div>
+      <div class="topbar-brand__copy"><strong>GYMTRACKER</strong><span>PHOENIX</span><small class="build-stamp" aria-label="Versión instalada Build 062">BUILD 062</small></div>
     </button>
     <button id="profileButton" class="profile-button profile-trigger" type="button" onclick="App.openProfileGate()" aria-haspopup="dialog" aria-expanded="false" aria-controls="profileGate">
       <span>PERFIL ACTIVO</span>
@@ -370,26 +370,26 @@
   <script src="themes/material-contract.js?v=059"></script>
   <script src="themes/token-contract.js?v=059"></script>
   <script src="themes/component-contract.js?v=059"></script>
-  <script src="themes/material-engine.js?v=059"></script>
-  <script src="themes/component-runtime.js?v=059"></script>
-  <script src="forge/contracts/shape-contract.js?v=059"></script>
-  <script src="forge/core/forge-action-bus.js?v=059"></script>
-  <script src="forge/core/forge-view-model.js?v=059"></script>
-  <script src="forge/core/forge-diagnostics.js?v=059"></script>
-  <script src="forge/renderers/home-renderer.js?v=059"></script>
-  <script src="forge/instruments/instrument-registry.js?v=059"></script>
-  <script src="forge/renderers/workout-renderer.js?v=059"></script>
-  <script src="forge/renderers/set-renderer.js?v=059"></script>
-  <script src="forge/renderers/rest-renderer.js?v=059"></script>
-  <script src="forge/renderers/exercise-summary-renderer.js?v=059"></script>
-  <script src="forge/renderers/workout-summary-renderer.js?v=059"></script>
-  <script src="forge/renderers/data-renderer.js?v=059"></script>
-  <script src="forge/renderers/history-renderer.js?v=059"></script>
-  <script src="forge/engine/shape-engine.js?v=059"></script>
-  <script src="js/pedb-bundle.js?v=059"></script>
-  <script src="js/pedb-db.js?v=059"></script>
-  <script src="js/pedb-loader.js?v=059"></script>
-  <script src="app.js?v=059"></script>
+  <script src="themes/material-engine.js?v=062"></script>
+  <script src="themes/component-runtime.js?v=062"></script>
+  <script src="forge/contracts/shape-contract.js?v=062"></script>
+  <script src="forge/core/forge-action-bus.js?v=062"></script>
+  <script src="forge/core/forge-view-model.js?v=062"></script>
+  <script src="forge/core/forge-diagnostics.js?v=062"></script>
+  <script src="forge/renderers/home-renderer.js?v=062"></script>
+  <script src="forge/instruments/instrument-registry.js?v=062"></script>
+  <script src="forge/renderers/workout-renderer.js?v=062"></script>
+  <script src="forge/renderers/set-renderer.js?v=062"></script>
+  <script src="forge/renderers/rest-renderer.js?v=062"></script>
+  <script src="forge/renderers/exercise-summary-renderer.js?v=062"></script>
+  <script src="forge/renderers/workout-summary-renderer.js?v=062"></script>
+  <script src="forge/renderers/data-renderer.js?v=062"></script>
+  <script src="forge/renderers/history-renderer.js?v=062"></script>
+  <script src="forge/engine/shape-engine.js?v=062"></script>
+  <script src="js/pedb-bundle.js?v=062"></script>
+  <script src="js/pedb-db.js?v=062"></script>
+  <script src="js/pedb-loader.js?v=062"></script>
+  <script src="app.js?v=062"></script>
 
   <div id="nextExerciseOverlay" class="next-overlay" aria-hidden="true">
     <div class="next-card">

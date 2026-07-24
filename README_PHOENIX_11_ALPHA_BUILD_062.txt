@@ -7,3 +7,8 @@ Ajustes aplicados:
 - Reducción del tamaño de la órbita de peso y refuerzo del borde/anillos con un acabado FORGED más visible y elegante.
 
 No se ha tocado nada más.
+
+
+BUILD 062
+- Centrado del sheet/listado de ejercicios al abrir desde el icono del ojo en Home.
+- Sin cambios funcionales adicionales.
