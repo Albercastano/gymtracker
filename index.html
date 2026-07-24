@@ -2,16 +2,16 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="phx-build" content="058">
+  <meta name="phx-build" content="059">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#000000">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; form-action 'self'; connect-src 'self'; img-src 'self' data: blob:; media-src 'self' data: blob:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'">
-  <title>GymTracker Phoenix 11 Alpha · Build 058 · Golden Master Candidate 1</title>
+  <title>GymTracker Phoenix 11 Alpha · Build 059</title>
   <script>
-    // Build 058 bootstrap: environment actions use delegated listeners and stale caches are bypassed.
+    // Build 059 bootstrap: home routine peek and refined weight orbit.
     document.documentElement.dataset.phxMaterial="apex";
     document.documentElement.dataset.material="apex";
-    document.documentElement.dataset.phxBuild="058";
+    document.documentElement.dataset.phxBuild="059";
     try{
       const activeProfile=localStorage.getItem("gymtracker_phoenix_active_profile_v1")||"alberto";
       const key=activeProfile==="alberto"?"gymtracker_phoenix_v8":`gymtracker_phoenix_v8_profile_${activeProfile}`;
@@ -22,13 +22,13 @@
       }
     }catch(_){/* storage may be unavailable during first paint */}
   </script>
-  <link rel="manifest" href="manifest.webmanifest?v=058">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=058">
-  <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png?v=058">
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=058">
-  <link rel="stylesheet" href="styles.css?v=058">
-  <link rel="stylesheet" href="themes/semantic-bridge.css?v=058">
-  <link rel="stylesheet" href="themes/apex/apex.css?v=058" data-phx-apex-bootstrap>
+  <link rel="manifest" href="manifest.webmanifest?v=059">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=059">
+  <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png?v=059">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=059">
+  <link rel="stylesheet" href="styles.css?v=059">
+  <link rel="stylesheet" href="themes/semantic-bridge.css?v=059">
+  <link rel="stylesheet" href="themes/apex/apex.css?v=059" data-phx-apex-bootstrap>
 </head>
 <body>
   <section id="splash" class="splash">
@@ -73,7 +73,7 @@
     <button id="destButton" class="dest-button" onclick="App.goDestination()">Inicio</button>
     <button type="button" class="topbar-brand phoenix-easter-trigger" data-phoenix-easter aria-label="GymTracker Phoenix">
       <img src="icon-512.png" alt="" aria-hidden="true">
-      <div class="topbar-brand__copy"><strong>GYMTRACKER</strong><span>PHOENIX</span><small class="build-stamp" aria-label="Versión instalada Build 058">BUILD 058</small></div>
+      <div class="topbar-brand__copy"><strong>GYMTRACKER</strong><span>PHOENIX</span><small class="build-stamp" aria-label="Versión instalada Build 059">BUILD 059</small></div>
     </button>
     <button id="profileButton" class="profile-button profile-trigger" type="button" onclick="App.openProfileGate()" aria-haspopup="dialog" aria-expanded="false" aria-controls="profileGate">
       <span>PERFIL ACTIVO</span>
@@ -295,6 +295,18 @@
     </div>
   </div>
 
+  <div id="routinePeekSheet" class="sheet forged-sheet" aria-hidden="true">
+    <div class="sheet-backdrop" onclick="App.closeRoutinePeek()"></div>
+    <div class="sheet-panel routine-peek-panel" role="dialog" aria-modal="true" aria-labelledby="routinePeekTitle">
+      <div class="handle"></div>
+      <div class="eyebrow">VISTA RÁPIDA</div>
+      <h2 id="routinePeekTitle">Rutina</h2>
+      <p id="routinePeekMeta" class="muted"></p>
+      <div id="routinePeekList" class="routine-peek-list"></div>
+      <button type="button" class="king small-king" onclick="App.closeRoutinePeek()">CERRAR</button>
+    </div>
+  </div>
+
   <div id="weightSheet" class="sheet forged-sheet" aria-hidden="true">
     <div class="sheet-backdrop" onclick="App.closeWeightSheet()"></div>
     <div class="sheet-panel weight-forged-panel" role="dialog" aria-modal="true" aria-labelledby="weightSheetTitle">
@@ -353,31 +365,31 @@
   </div>
 
   <input id="pedbCsvInput" type="file" accept=".csv,text/csv" hidden onchange="App.importPersonalExercisesCsv(this)">
-  <script src="core/network-gate.js?v=058"></script>
-  <script src="core/sync-provider.js?v=058"></script>
-  <script src="themes/material-contract.js?v=058"></script>
-  <script src="themes/token-contract.js?v=058"></script>
-  <script src="themes/component-contract.js?v=058"></script>
-  <script src="themes/material-engine.js?v=058"></script>
-  <script src="themes/component-runtime.js?v=058"></script>
-  <script src="forge/contracts/shape-contract.js?v=058"></script>
-  <script src="forge/core/forge-action-bus.js?v=058"></script>
-  <script src="forge/core/forge-view-model.js?v=058"></script>
-  <script src="forge/core/forge-diagnostics.js?v=058"></script>
-  <script src="forge/renderers/home-renderer.js?v=058"></script>
-  <script src="forge/instruments/instrument-registry.js?v=058"></script>
-  <script src="forge/renderers/workout-renderer.js?v=058"></script>
-  <script src="forge/renderers/set-renderer.js?v=058"></script>
-  <script src="forge/renderers/rest-renderer.js?v=058"></script>
-  <script src="forge/renderers/exercise-summary-renderer.js?v=058"></script>
-  <script src="forge/renderers/workout-summary-renderer.js?v=058"></script>
-  <script src="forge/renderers/data-renderer.js?v=058"></script>
-  <script src="forge/renderers/history-renderer.js?v=058"></script>
-  <script src="forge/engine/shape-engine.js?v=058"></script>
-  <script src="js/pedb-bundle.js?v=058"></script>
-  <script src="js/pedb-db.js?v=058"></script>
-  <script src="js/pedb-loader.js?v=058"></script>
-  <script src="app.js?v=058"></script>
+  <script src="core/network-gate.js?v=059"></script>
+  <script src="core/sync-provider.js?v=059"></script>
+  <script src="themes/material-contract.js?v=059"></script>
+  <script src="themes/token-contract.js?v=059"></script>
+  <script src="themes/component-contract.js?v=059"></script>
+  <script src="themes/material-engine.js?v=059"></script>
+  <script src="themes/component-runtime.js?v=059"></script>
+  <script src="forge/contracts/shape-contract.js?v=059"></script>
+  <script src="forge/core/forge-action-bus.js?v=059"></script>
+  <script src="forge/core/forge-view-model.js?v=059"></script>
+  <script src="forge/core/forge-diagnostics.js?v=059"></script>
+  <script src="forge/renderers/home-renderer.js?v=059"></script>
+  <script src="forge/instruments/instrument-registry.js?v=059"></script>
+  <script src="forge/renderers/workout-renderer.js?v=059"></script>
+  <script src="forge/renderers/set-renderer.js?v=059"></script>
+  <script src="forge/renderers/rest-renderer.js?v=059"></script>
+  <script src="forge/renderers/exercise-summary-renderer.js?v=059"></script>
+  <script src="forge/renderers/workout-summary-renderer.js?v=059"></script>
+  <script src="forge/renderers/data-renderer.js?v=059"></script>
+  <script src="forge/renderers/history-renderer.js?v=059"></script>
+  <script src="forge/engine/shape-engine.js?v=059"></script>
+  <script src="js/pedb-bundle.js?v=059"></script>
+  <script src="js/pedb-db.js?v=059"></script>
+  <script src="js/pedb-loader.js?v=059"></script>
+  <script src="app.js?v=059"></script>
 
   <div id="nextExerciseOverlay" class="next-overlay" aria-hidden="true">
     <div class="next-card">

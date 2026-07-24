@@ -991,6 +991,8 @@ const App={
     const focusKicker=active?'ACTIVO':'LISTO';
     const focusSub=active?'Continuar donde lo dejaste':(display.status==='today'?'Abrir entrenamiento de hoy':display.status==='next'?'Preparar próximo entreno':display.status==='rest-next'?'Mañana toca descanso':'Ver rutinas');
     const focusCta=active?'CONTINUAR':'FOCUS';
+    const routinePeekButton=actionRoutine?`<button type="button" class="home-routine-peek" onclick="App.openRoutinePeek()" aria-label="Ver ejercicios de la rutina"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.2 12c2.25-3.76 5.58-5.64 9.8-5.64S19.55 8.24 21.8 12c-2.25 3.76-5.58 5.64-9.8 5.64S4.45 15.76 2.2 12Z"/><circle cx="12" cy="12" r="3.2"/><path d="M9.35 18.8h7.1M9.35 21h5.2"/></svg></button>`:'';
+    this.homeRoutinePeekId=actionRoutine?.id||null;
     document.getElementById("home").innerHTML=`<div class="home-phoenix home-phoenix--wow">${storageNotice}
       <section class="home-brand home-brand--forged" aria-label="GymTracker Phoenix">
         <div class="home-brand__plate"><img src="icon-512.png" alt="" aria-hidden="true"></div>
@@ -1001,6 +1003,7 @@ const App={
       </section>
 
       <section class="home-next-showcase phx-card phx-card--highlight ${active?'is-active':''}" aria-labelledby="home-next-title">
+        ${routinePeekButton}
         <div class="home-next-showcase__eyebrow">${display.kicker}</div>
         <h1 id="home-next-title" class="home-next-showcase__title">${display.title}</h1>
         <div class="home-next-showcase__meta">${display.meta}</div>
@@ -1031,6 +1034,41 @@ const App={
     </div>`;
 
     this.show("home","Inicio",{history:withHistory})
+  },
+
+  openRoutinePeek(){
+    const sheet=document.getElementById("routinePeekSheet");
+    if(!sheet)return;
+    const display=this.homeShowcaseState();
+    const routine=display.actionRoutine||null;
+    if(!routine||!Array.isArray(routine.items)||!routine.items.length){
+      this.toast("No hay una rutina para mostrar.");
+      return;
+    }
+    const title=document.getElementById("routinePeekTitle");
+    const meta=document.getElementById("routinePeekMeta");
+    const list=document.getElementById("routinePeekList");
+    const items=this.active&&this.active.routineId===routine.id&&Array.isArray(this.active.sessionItems)&&this.active.sessionItems.length?this.active.sessionItems:routine.items;
+    if(title)title.textContent=routine.name||display.title||"Rutina";
+    if(meta)meta.textContent=`${items.length} ejercicios · ${display.meta||""}`;
+    if(list)list.innerHTML=items.map((item,index)=>{
+      const mode=item.mode==="time"?"tiempo":"reps";
+      const prescription=mode==="time"
+        ?`${Math.max(1,Number(item.sets)||1)} × ${Math.max(1,Number(item.reps)||30)}s`
+        :`${Math.max(1,Number(item.sets)||1)} × ${Math.max(1,Number(item.reps)||0)} reps`;
+      const rest=Math.max(0,Number(item.rest)||0);
+      return `<article class="routine-peek-item"><span>${String(index+1).padStart(2,'0')}</span><div><b>${this.escape(item.name||'Ejercicio')}</b><small>${prescription}${rest?` · ${rest}s descanso`:''}</small></div></article>`;
+    }).join("");
+    sheet.classList.add("show");
+    sheet.setAttribute("aria-hidden","false");
+    document.body.classList.add("sheet-open");
+  },
+  closeRoutinePeek(){
+    const sheet=document.getElementById("routinePeekSheet");
+    sheet?.classList.remove("show");
+    sheet?.setAttribute("aria-hidden","true");
+    const anotherSheet=[...document.querySelectorAll(".sheet.show")].some(el=>el!==sheet);
+    if(!anotherSheet)document.body.classList.remove("sheet-open");
   },
 
   continuityStorageKey(){return `phx_continuity_${this.activeProfileId||"alberto"}`},
