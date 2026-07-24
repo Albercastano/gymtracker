@@ -4068,13 +4068,29 @@ const App={
       title.textContent="Borrar todo el historial";
       desc.textContent=`Se eliminarán todos los entrenamientos guardados de ${this.activeProfile()?.name||'este perfil'}.`;
     }
-    input.value="";document.getElementById("historyDeleteExecute").disabled=true;
-    sheet.classList.add("show");document.body.classList.add("sheet-open");
+    const execute=document.getElementById("historyDeleteExecute");
+    const validate=()=>this.validateHistoryDeletePhrase();
+    input.value="";
+    if(execute){execute.disabled=true;execute.setAttribute("aria-disabled","true")}
+    input.oninput=validate;
+    input.onchange=validate;
+    input.onkeyup=validate;
+    input.oncompositionend=validate;
+    input.onpaste=()=>setTimeout(validate,0);
+    input.onkeydown=event=>{if(event.key==="Enter"){event.preventDefault();if(this.validateHistoryDeletePhrase())this.executeHistoryDelete()}};
+    sheet.classList.add("show");sheet.setAttribute("aria-hidden","false");document.body.classList.add("sheet-open");
+    setTimeout(()=>input.focus(),120);
   },
-  closeHistoryDelete(){document.getElementById("historyDeleteSheet")?.classList.remove("show");document.body.classList.remove("sheet-open");this.historyDeleteMode=null;this.historyDeleteIndex=null},
-  validateHistoryDeletePhrase(){const ok=document.getElementById("historyDeleteConfirmInput")?.value.trim().toUpperCase()==="BORRAR";document.getElementById("historyDeleteExecute").disabled=!ok},
+  closeHistoryDelete(){const sheet=document.getElementById("historyDeleteSheet");sheet?.classList.remove("show");sheet?.setAttribute("aria-hidden","true");document.body.classList.remove("sheet-open");this.historyDeleteMode=null;this.historyDeleteIndex=null},
+  validateHistoryDeletePhrase(){
+    const input=document.getElementById("historyDeleteConfirmInput");
+    const button=document.getElementById("historyDeleteExecute");
+    const ok=(input?.value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim().toUpperCase()==="BORRAR";
+    if(button){button.disabled=!ok;button.setAttribute("aria-disabled",String(!ok));button.classList.toggle("is-ready",ok)}
+    return ok
+  },
   executeHistoryDelete(){
-    if(document.getElementById("historyDeleteConfirmInput")?.value.trim().toUpperCase()!=="BORRAR")return;
+    if(!this.validateHistoryDeletePhrase()){this.toast("Escribe BORRAR para confirmar");return}
     const sessions=this.data.sessions||[];
     let removed=0;
     if(this.historyDeleteMode==="single"){

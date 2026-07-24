@@ -2022,3 +2022,5 @@ button:disabled,
 .routine-peek-item small{display:block;margin-top:4px;color:var(--mut,#8c8d92);font-size:.74rem;line-height:1.25}
 
 @media(max-height:760px){.home-phoenix--wow{min-height:auto;grid-template-rows:auto auto auto auto}.home-weight-stage{padding:4px 0 10px;min-height:auto}}
+
+.history-delete-ready-note{display:none}.forged-danger--full.is-ready{opacity:1;filter:none;border-color:rgba(255,220,145,.72)!important;box-shadow:0 0 0 2px rgba(255,220,145,.16),inset 0 1px 0 rgba(255,255,255,.06),0 8px 18px rgba(0,0,0,.35)}
