@@ -2766,41 +2766,7 @@ const App={
   },
 
   detectSessionPRs(session){
-    const previous=(this.data.sessions||[]).flatMap(s=>s.exercises||[]);
-    const prs=[];
-    (session.exercises||[]).forEach((exercise,index)=>{
-      const matches=previous.filter(e=>(exercise.exerciseId&&e.exerciseId===exercise.exerciseId)||String(e.name||"").toLowerCase()===String(exercise.name||"").toLowerCase());
-      if(!matches.length)return;
-      const currentSets=exercise.sets||[];
-      const previousSets=matches.flatMap(e=>e.sets||[]);
-      if(!currentSets.length||!previousSets.length)return;
-      if(exercise.mode==="time"){
-        const currentBest=Math.max(0,...currentSets.map(x=>Number(x.reps)||0));
-        const previousBest=Math.max(0,...previousSets.map(x=>Number(x.reps)||0));
-        if(currentBest>previousBest)prs.push({exerciseIndex:exercise.exerciseIndex??index,name:exercise.name,type:"time",label:`${currentBest} s`,detail:`Nuevo récord de tiempo · antes ${previousBest} s`});
-        return;
-      }
-      const currentMaxWeight=Math.max(0,...currentSets.map(x=>Number(x.weight)||0));
-      const previousMaxWeight=Math.max(0,...previousSets.map(x=>Number(x.weight)||0));
-      if(currentMaxWeight>previousMaxWeight&&currentMaxWeight>0){
-        prs.push({exerciseIndex:exercise.exerciseIndex??index,name:exercise.name,type:"weight",label:`${currentMaxWeight} kg`,detail:`Nueva carga máxima · antes ${previousMaxWeight} kg`});
-        return;
-      }
-      if(currentMaxWeight===0&&previousMaxWeight===0){
-        const currentReps=Math.max(0,...currentSets.map(x=>Number(x.reps)||0));
-        const previousReps=Math.max(0,...previousSets.map(x=>Number(x.reps)||0));
-        if(currentReps>previousReps){
-          prs.push({exerciseIndex:exercise.exerciseIndex??index,name:exercise.name,type:"reps",label:`${currentReps} reps`,detail:`Nuevo récord de repeticiones · antes ${previousReps}`});
-          return;
-        }
-      }
-      const currentBestVolume=Math.max(0,...currentSets.map(x=>(Number(x.weight)||0)*(Number(x.reps)||0)));
-      const previousBestVolume=Math.max(0,...previousSets.map(x=>(Number(x.weight)||0)*(Number(x.reps)||0)));
-      if(currentBestVolume>previousBestVolume&&currentBestVolume>0){
-        prs.push({exerciseIndex:exercise.exerciseIndex??index,name:exercise.name,type:"set-volume",label:`${Math.round(currentBestVolume)} kg`,detail:`Nuevo récord de volumen en una serie · antes ${Math.round(previousBestVolume)} kg`});
-      }
-    });
-    return prs;
+    return []
   },
 
   saveWorkoutNotes(){
@@ -2848,7 +2814,8 @@ const App={
     session.volume=exercises.reduce((total,e)=>total+e.sets.reduce((sum,s)=>sum+((Number(s.weight)||0)*(Number(s.reps)||0)),0),0);
     session.reportedExerciseCount=exercises.length;
     session.durationMs=Math.max(0,session.endedAt-(Number(session.startedAt)||session.endedAt));
-    session.prs=this.detectSessionPRs(session);
+    // Producto ACX: la experiencia se centra en constancia, no en récords.
+    session.prs=[];
     session.notes="";
     session.progressionSuggestions=this.progressionSuggestionsFor(session,r);
     this.stagePendingSession(session);
@@ -2866,7 +2833,6 @@ const App={
 
     const durationMin=Math.max(1,Math.round(session.durationMs/60000));
     const alternatives=exercises.reduce((count,e)=>count+(e.sets||[]).filter(s=>s.performedExerciseName&&s.performedExerciseName!==s.plannedExerciseName).length,0);
-    const prReport=(session.prs||[]).map(pr=>`<div class="workout-pr-row"><span>PR</span><div><strong>${pr.name}</strong><small>${pr.detail}</small></div><b>${pr.label}</b></div>`).join("");
     const exerciseReport=exercises.map((e,idx)=>{
       const series=e.sets.map((s,i)=>{
         const repsLabel=(s.mode||e.mode)==="time"?`${s.reps} s`:`${s.reps} reps`;
@@ -2914,9 +2880,6 @@ const App={
       });
       if(idx<session.exercises.length-1)lines.push("");
     });
-    if((session.prs||[]).length){
-      lines.push("",`PR: ${(session.prs||[]).map(x=>`${x.name} · ${x.label}`).join(" | ")}`)
-    }
     if(session.notes)lines.push("",`Notas: ${session.notes}`);
     return lines.join("\n")
   },
@@ -3123,10 +3086,16 @@ const App={
       source=sampled;
     }
     const values=source.map(x=>x.value);
-    const min=values.length?Math.min(...values):0,max=values.length?Math.max(...values):1,span=Math.max(1,max-min);
-    const points=values.map((v,i)=>`${10+(i*(80/Math.max(1,values.length-1)))},${82-((v-min)/span)*58}`).join(' ');
+    const rawMin=values.length?Math.min(...values):0,rawMax=values.length?Math.max(...values):1;
+    const equalPad=rawMin===rawMax?Math.max(Math.abs(rawMax)*.05,metric==="relative"?.05:metric==="weight"?.5:1):0;
+    const min=Math.max(0,rawMin-equalPad),max=rawMax+equalPad,span=Math.max(metric==="relative"?.01:1,max-min);
+    const coords=values.map((v,i)=>({x:values.length===1?50:7+(i*(86/(values.length-1))),y:74-((v-min)/span)*60}));
+    const points=coords.map(point=>`${point.x},${point.y}`).join(' ');
+    const firstX=coords[0]?.x??7,lastX=coords.at(-1)?.x??93;
     const endValue=values.length?values[values.length-1]:0;
     const formatValue=v=>metric==="relative"?`${v.toFixed(2)}×`:metric==="weight"?`${v.toFixed(1)} kg`:metric==="load"?`${Math.round(v)} kg`:`${Math.round(v).toLocaleString('es-ES')} kg`;
+    const formatAxisValue=v=>metric==="relative"?v.toFixed(2):metric==="weight"?v.toFixed(1):Math.abs(v)>=1000?`${(v/1000).toFixed(v>=10000?0:1)}k`:String(Math.round(v));
+    const axisDates=source.length?[source[0],source[Math.floor((source.length-1)/2)],source.at(-1)].map(x=>x.date.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit'})):[];
     const recent=sessions.slice(-3).reverse();
     document.getElementById("data").innerHTML=`<div class="data-v2 data-v2--grouped">
       <section class="data-v2__head phx-card phx-card--highlight">
@@ -3153,7 +3122,7 @@ const App={
           <button role="tab" aria-selected="${metric==='weight'}" class="${metric==='weight'?'active':''}" onclick="App.setDataMetric('weight')">PESO</button>
         </div>
         <div class="data-v2__graph ${values.length?'':'is-empty'}">
-          ${values.length?`<svg viewBox="0 0 100 92" preserveAspectRatio="none" aria-label="Gráfica de ${labels[metric]}"><defs><linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1"><stop class="data-v2__graph-stop" offset="0" stop-opacity=".30"/><stop class="data-v2__graph-stop" offset="1" stop-opacity="0"/></linearGradient></defs><path class="data-v2__graph-fill" d="M10 82 L ${points.replaceAll(' ',', L ')} L90 88 L10 88 Z" fill="url(#chartFill)"/><polyline class="data-v2__graph-line" points="${points}" fill="none" stroke-width="2.2" vector-effect="non-scaling-stroke"/><circle class="data-v2__graph-point" cx="${points.split(' ').at(-1).split(',')[0]}" cy="${points.split(' ').at(-1).split(',')[1]}" r="2.7" stroke-width="1.2"/></svg>`:`<div><b>Aún no hay datos suficientes</b><span>Completa sesiones para ver la evolución.</span></div>`}
+          ${values.length?`<div class="data-v2__y-axis"><span>${formatAxisValue(max)}</span><span>${formatAxisValue(min+(span/2))}</span><span>${formatAxisValue(min)}</span></div><div class="data-v2__plot"><svg viewBox="0 0 100 82" preserveAspectRatio="none" aria-label="Gráfica de ${labels[metric]}"><defs><linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1"><stop class="data-v2__graph-stop" offset="0" stop-opacity=".24"/><stop class="data-v2__graph-stop" offset="1" stop-opacity="0"/></linearGradient></defs><path class="data-v2__graph-fill" d="M${firstX} 78 L ${points.replaceAll(' ',', L ')} L${lastX} 78 Z" fill="url(#chartFill)"/><polyline class="data-v2__graph-line" points="${points}" fill="none" vector-effect="non-scaling-stroke"/><circle class="data-v2__graph-point" cx="${coords.at(-1).x}" cy="${coords.at(-1).y}" r="2.2" vector-effect="non-scaling-stroke"/></svg><div class="data-v2__x-axis"><span>${axisDates[0]}</span><span>${axisDates[1]}</span><span>${axisDates[2]}</span></div></div>`:`<div><b>Aún no hay datos suficientes</b><span>Completa sesiones para ver la evolución.</span></div>`}
         </div>
         <div class="data-v2__range" role="tablist" aria-label="Periodo de la gráfica"><button role="tab" aria-selected="${range==='4w'}" class="${range==='4w'?'active':''}" onclick="App.setDataRange('4w')">4S</button><button role="tab" aria-selected="${range==='3m'}" class="${range==='3m'?'active':''}" onclick="App.setDataRange('3m')">3M</button><button role="tab" aria-selected="${range==='6m'}" class="${range==='6m'?'active':''}" onclick="App.setDataRange('6m')">6M</button><button role="tab" aria-selected="${range==='1y'}" class="${range==='1y'?'active':''}" onclick="App.setDataRange('1y')">1A</button></div>
       </section>
@@ -3165,7 +3134,7 @@ const App={
             <button onclick="App.renderHistory()"><span>HISTORIAL</span><b>Sesiones y detalle</b><em>›</em></button>
             <button onclick="App.openWeightSheet()"><span>PESO CORPORAL</span><b>${bodyWeight?bodyWeight.toFixed(1)+' kg':'Registrar peso'}</b><em>›</em></button>
             <button onclick="App.setDataMetric('relative')"><span>FUERZA RELATIVA</span><b>${relative?relative.toFixed(2)+'×':'Sin peso corporal'}</b><em>›</em></button>
-            <button onclick="App.renderHistory()"><span>PR REALES</span><b>${allMax?Math.round(allMax)+' kg':'Sin registros'}</b><em>›</em></button>
+            <button onclick="App.renderHistory()"><span>CONSTANCIA</span><b>${weekSessions.length} sesión${weekSessions.length===1?'':'es'} esta semana</b><em>›</em></button>
           </div>
         </article>
 

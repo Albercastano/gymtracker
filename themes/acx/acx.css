@@ -31,12 +31,16 @@ html[data-phx-material="acx"] .rest-dial,html[data-phx-material="acx"] .phx-time
 html[data-phx-material="acx"] .casio{border:0!important;border-radius:24px!important;background:#171716!important;padding:16px!important;box-shadow:none!important}html[data-phx-material="acx"] .lcd{border:8px solid #0b0b0b!important;border-radius:18px!important;background:var(--cream)!important;color:#121212!important}
 html[data-phx-material="acx"] .data-v2__brand{padding:18px!important;border-radius:20px!important;background:#171716!important;border-left:6px solid var(--coral)!important}html[data-phx-material="acx"] .data-v2__plate{background:var(--coral)!important;border-radius:12px!important}html[data-phx-material="acx"] .exercise-card strong,html[data-phx-material="acx"] .list-item strong{color:var(--cream)!important}
 html[data-phx-material="acx"] .data-v2__chart{border:1px solid #ffffff24!important;background:#171716!important;color:var(--cream)!important;box-shadow:none!important}
-html[data-phx-material="acx"] .data-v2__graph{min-height:190px!important;border:1px solid #ffffff2e!important;background-color:#0d0d0d!important;background-image:linear-gradient(#ffffff10 1px,transparent 1px),linear-gradient(90deg,#ffffff0b 1px,transparent 1px)!important;background-size:100% 25%,20% 100%!important}
-html[data-phx-material="acx"] .data-v2__graph svg{overflow:visible!important;filter:drop-shadow(0 0 8px #f34a2e66)!important}
+html[data-phx-material="acx"] .data-v2__graph{min-height:214px!important;padding:12px 10px 8px!important;display:grid!important;grid-template-columns:42px minmax(0,1fr)!important;gap:7px!important;border:1px solid #ffffff2e!important;background:#0d0d0d!important}
+html[data-phx-material="acx"] .data-v2__plot{min-width:0;display:grid;grid-template-rows:168px 24px;background-image:linear-gradient(#ffffff10 1px,transparent 1px),linear-gradient(90deg,#ffffff0b 1px,transparent 1px);background-size:100% 33.333%,25% 100%;background-position:0 0}
+html[data-phx-material="acx"] .data-v2__graph svg{width:100%!important;height:168px!important;overflow:visible!important;filter:none!important}
 html[data-phx-material="acx"] .data-v2__graph-stop{stop-color:#f34a2e!important}
-html[data-phx-material="acx"] .data-v2__graph-fill{opacity:.9!important}
-html[data-phx-material="acx"] .data-v2__graph-line{stroke:#ff5b40!important;stroke-width:4!important;stroke-linecap:round!important;stroke-linejoin:round!important;filter:drop-shadow(0 0 4px #f34a2e)!important}
-html[data-phx-material="acx"] .data-v2__graph-point{fill:#f3f0e8!important;stroke:#f34a2e!important;stroke-width:2!important;filter:drop-shadow(0 0 5px #f34a2e)!important}
+html[data-phx-material="acx"] .data-v2__graph-fill{opacity:.72!important}
+html[data-phx-material="acx"] .data-v2__graph-line{stroke:#ff5b40!important;stroke-width:1.75!important;stroke-linecap:round!important;stroke-linejoin:round!important;filter:drop-shadow(0 0 2px #f34a2e88)!important}
+html[data-phx-material="acx"] .data-v2__graph-point{fill:#f3f0e8!important;stroke:#f34a2e!important;stroke-width:1.5!important;filter:none!important}
+html[data-phx-material="acx"] .data-v2__y-axis{height:168px;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;padding:0 2px 0 0;color:#bdb7ae;font:800 .58rem/1 Montserrat,sans-serif;font-variant-numeric:tabular-nums}
+html[data-phx-material="acx"] .data-v2__x-axis{display:flex;justify-content:space-between;align-items:end;color:#aaa49b;font:800 .56rem/1 Montserrat,sans-serif;font-variant-numeric:tabular-nums}
+html[data-phx-material="acx"] .data-v2__graph.is-empty{display:grid!important;grid-template-columns:1fr!important;place-items:center!important}
 html[data-phx-material="acx"] .data-v2__chart-head>strong{color:#f3f0e8!important}html[data-phx-material="acx"] .data-v2__chart-head span{color:#aaa49b!important}
 html[data-phx-material="acx"] .data-v2__tabs button,html[data-phx-material="acx"] .data-v2__range button{border-color:#ffffff22!important;background:#121212!important;color:#b7b1a8!important}
 html[data-phx-material="acx"] .data-v2__tabs button.active,html[data-phx-material="acx"] .data-v2__range button.active{border-color:var(--coral)!important;background:var(--coral)!important;color:#fff!important}
