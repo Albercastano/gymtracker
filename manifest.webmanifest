@@ -1,7 +1,7 @@
 {
   "name": "GymTracker ACX",
   "short_name": "GymTracker ACX",
-  "start_url": "./index.html?v=070",
+  "start_url": "./index.html?v=071",
   "display": "standalone",
   "background_color": "#0b0b0b",
   "theme_color": "#0b0b0b",
@@ -10,13 +10,13 @@
       "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ],
   "description": "GymTracker ACX · entrenamiento, adherencia y progreso offline"

@@ -929,6 +929,7 @@ const App={
     el.setAttribute("aria-hidden","false");
     this.currentScreen=id;
     this.destination=destination;
+    document.body.classList.toggle("acx-rest-fullscreen",id==="rest");
     window.PhoenixShapeEngine?.observeScreen?.(id,this);
 
     const btn=document.getElementById("destButton");
@@ -1036,7 +1037,7 @@ const App={
       <section class="acx-environment"><div><span class="acx-kicker">ENTORNO</span><h3>¿Dónde entrenas hoy?</h3></div><div>${[['gym','GIMNASIO'],['home','CASA'],['street','CALLE']].map(([id,label])=>`<button class="${environment===id?'active':''}" onclick="App.selectHomeTrainingEnvironment('${id}')">${label}</button>`).join('')}</div></section>
       <section class="acx-list-head"><div><span class="acx-kicker">ACX · RUTINA DEL DÍA</span><h2>${routine?.name||'Sin rutina'}</h2></div><p><b>${doneCount}</b> hechos · <b>${Math.max(0,total-doneCount)}</b> pendientes</p></section>
       <section class="acx-workout-list">${rows||`<button class="acx-workout-row" onclick="App.renderRoutines()"><span class="acx-workout-row__state">+</span><span class="acx-workout-row__copy"><b>Asignar entrenamiento</b><small>Crea o selecciona una rutina</small></span><em>ABRIR</em></button>`}</section>
-      <section class="acx-dashboard-grid"><button onclick="App.renderData()"><span>PROGRESO</span><strong>DATOS</strong><small>Historial, PR y volumen</small></button><button onclick="App.openWeightSheet()"><span>PESO CORPORAL</span><strong>${bodyWeight?bodyWeight.toFixed(1):'—'} <i>kg</i></strong><small>Registrar y consultar</small></button><button onclick="App.renderRoutines()"><span>PLAN</span><strong>RUTINAS</strong><small>Semana y plantillas</small></button><button onclick="App.openQuickTimer()"><span>HERRAMIENTA</span><strong>RELOJ</strong><small>Temporizador Phoenix</small></button></section>
+      <section class="acx-dashboard-grid"><button onclick="App.renderData()"><span>PROGRESO</span><strong>DATOS</strong><small>Historial, constancia y volumen</small></button><button onclick="App.openWeightSheet()"><span>PESO CORPORAL</span><strong>${bodyWeight?bodyWeight.toFixed(1):'—'} <i>kg</i></strong><small>Registrar y consultar</small></button><button onclick="App.renderRoutines()"><span>PLAN</span><strong>RUTINAS</strong><small>Semana y plantillas</small></button><button onclick="App.openQuickTimer()"><span>HERRAMIENTA</span><strong>RELOJ</strong><small>Temporizador ACX</small></button></section>
       <section class="acx-continuity-note"><span>NO SE OLVIDA</span><p>${active?`${Math.max(0,total-doneCount)} ejercicios siguen pendientes. Puedes salir y volver sin perder la sesión.`:'Tus entrenamientos, historial y progreso permanecen guardados en este dispositivo.'}</p></section>
     </div>`;
     this.homeRoutinePeekId=routine?.id||null;this.show('home','Inicio',{history:withHistory});
@@ -1607,7 +1608,7 @@ const App={
   startQuickTimerTicker(){if(this.quickTimerInterval)return;this.quickTimerInterval=setInterval(()=>{if(!this.quickTimer?.running){clearInterval(this.quickTimerInterval);this.quickTimerInterval=null;return}this.quickTimer.remaining=Math.max(0,Math.ceil((this.quickTimer.endAt-Date.now())/1000));if(this.quickTimer.remaining<=0){this.quickTimer.running=false;clearInterval(this.quickTimerInterval);this.quickTimerInterval=null;this.persistQuickTimer();this.updateQuickTimerButton();this.renderQuickTimer();this.toast("PHX Timer finalizado");try{navigator.vibrate?.([180,80,240])}catch(_){ }return}this.updateQuickTimerButton();if(document.getElementById("quickTimerSheet")?.classList.contains("show"))this.renderQuickTimer()},1000)},
   quickTimerText(){const value=this.quickTimer?.running?Math.max(0,Math.ceil((this.quickTimer.endAt-Date.now())/1000)):Math.max(0,Number(this.quickTimer?.remaining)||0),m=Math.floor(value/60),sec=value%60;return `${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`},
   updateQuickTimerButton(){const b=document.getElementById("quickTimerButton"),v=document.getElementById("quickTimerValue");if(!b||!v)return;const active=Boolean(this.quickTimer&&(this.quickTimer.running||this.quickTimer.remaining>0));b.classList.toggle("is-active",active);v.textContent=active?this.quickTimerText():"RELOJ"},
-  renderQuickTimer(){const host=document.getElementById("quickTimerPanel");if(!host)return;const active=Boolean(this.quickTimer);host.innerHTML=`<div class="handle"></div><div class="quick-timer-kicker">PHX SIGNATURE TIMER</div><div class="quick-timer-value">${active?this.quickTimerText():"00:00"}</div><div class="quick-timer-presets">${[30,60,90,120,180].map(s=>`<button onclick="App.setQuickTimer(${s})">${s<60?s+' s':(s/60)+' min'}</button>`).join("")}</div><div class="quick-timer-controls"><button onclick="App.adjustQuickTimer(-30)">−30</button><button class="quick-timer-main" onclick="App.toggleQuickTimer()">${this.quickTimer?.running?"PAUSAR":"INICIAR"}</button><button onclick="App.adjustQuickTimer(30)">+30</button></div><button class="quick-timer-reset" onclick="App.resetQuickTimer()">REINICIAR</button>`},
+  renderQuickTimer(){const host=document.getElementById("quickTimerPanel");if(!host)return;const active=Boolean(this.quickTimer);host.innerHTML=`<div class="handle"></div><section class="acx-quick-timer"><header><div><span>HERRAMIENTA ACX</span><h2>RELOJ AUXILIAR</h2></div><i aria-hidden="true"></i></header><div class="acx-quick-timer__clock"><b>${active?this.quickTimerText():"00:00"}</b><span>${this.quickTimer?.running?"EN MARCHA":"LISTO"}</span></div><div class="acx-quick-timer__presets" aria-label="Tiempos rápidos">${[30,60,90,120,180].map(s=>`<button onclick="App.setQuickTimer(${s})">${s<60?s+' S':(s/60)+' MIN'}</button>`).join("")}</div><div class="acx-quick-timer__controls"><button onclick="App.adjustQuickTimer(-30)">−30 S</button><button class="is-primary" onclick="App.toggleQuickTimer()">${this.quickTimer?.running?"PAUSAR":"INICIAR"}</button><button onclick="App.adjustQuickTimer(30)">+30 S</button></div><button class="acx-quick-timer__reset" onclick="App.resetQuickTimer()">REINICIAR RELOJ</button><small>Usa el color ACX seleccionado en Ajustes</small></section>`},
 
   renderGym(withHistory=true){
     if(!this.active){this.renderHome();return}
@@ -2092,7 +2093,7 @@ const App={
     const vibrationOn=this.data?.settings?.vibration!==false;
     document.getElementById("rest").innerHTML=`<div class="focus acx-rest-screen">
       <section id="phoenixTimer" class="acx-rest-card" aria-label="Temporizador de descanso ACX">
-        <div class="acx-rest-card__top"><span>DESCANSO</span><b>SERIE ${currentSeries}/${e.sets}</b></div>
+        <div class="acx-rest-card__top"><span>DESCANSO</span><b>SERIE ${currentSeries}/${e.sets}</b><button type="button" onclick="App.exitRestFullscreen()" aria-label="Salir de pantalla completa">×</button></div>
         <div class="acx-rest-card__exercise"><small>SIGUIENTE</small><strong>${this.escape(e.name)}</strong><span>SERIE ${nextSeries} DE ${e.sets}</span></div>
         <div class="acx-rest-card__clock"><div id="restTime" role="timer" aria-live="off">00:00</div><span id="phoenixTimerState">DESCANSO</span></div>
         <div class="acx-rest-card__track"><i id="phoenixTimerRing" style="--progress:1"></i></div>
@@ -2137,6 +2138,8 @@ const App={
     if(state)state.textContent=t===0?"LISTO":this.active?.restPaused?"PAUSADO":"DESCANSO";
     if(pulse)pulse.textContent=t===0?"SIGUIENTE SERIE":t<=10?"ÚLTIMOS SEGUNDOS":"TIEMPO PARA RECUPERAR";
   },
+
+  exitRestFullscreen(){document.body.classList.remove("acx-rest-fullscreen")},
 
   adjustRest(delta){
     if(!this.active||this.active.phase!=="rest")return;

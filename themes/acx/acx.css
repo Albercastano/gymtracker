@@ -171,3 +171,46 @@ html[data-phx-material="acx"] .acx-rest-card__settings span{color:#88827b;font-s
 html[data-phx-material="acx"] .acx-rest-card.is-warning .acx-rest-card__clock{animation:acxTimerWarning .7s ease-in-out infinite alternate}@keyframes acxTimerWarning{to{filter:brightness(1.2)}}
 html[data-phx-material="acx"] .acx-rest-card.is-paused .acx-rest-card__clock{background:#4a4742}
 @media(max-width:390px){html[data-phx-material="acx"] .acx-set-screen .set-value{min-height:190px;padding-inline:8px}html[data-phx-material="acx"] .acx-set-screen .set-stepper{grid-template-columns:36px minmax(0,1fr) 36px}html[data-phx-material="acx"] .acx-set-screen .set-stepper button{width:36px;height:36px}html[data-phx-material="acx"] .acx-rest-card{padding:18px 14px}html[data-phx-material="acx"] .acx-rest-card__clock{min-height:170px}html[data-phx-material="acx"] .acx-palette-grid{grid-template-columns:1fr}}
+
+/* Build 071 · reloj adaptativo a pantalla completa */
+html[data-phx-material="acx"] body.acx-rest-fullscreen{overflow:hidden!important}
+html[data-phx-material="acx"] body.acx-rest-fullscreen>.topbar,
+html[data-phx-material="acx"] body.acx-rest-fullscreen>.acx-app-dock,
+html[data-phx-material="acx"] body.acx-rest-fullscreen>.quick-timer-button{display:none!important}
+html[data-phx-material="acx"] body.acx-rest-fullscreen>main{width:100%!important;max-width:none!important;margin:0!important;padding:0!important}
+html[data-phx-material="acx"] body.acx-rest-fullscreen #rest{position:fixed!important;inset:0!important;z-index:900!important;width:100vw!important;height:100dvh!important;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))!important;overflow:auto!important;background:#0b0b0b!important}
+html[data-phx-material="acx"] body.acx-rest-fullscreen .acx-rest-screen{width:min(100%,900px);min-height:calc(100dvh - 24px);margin:auto;padding:0;display:grid;align-items:center}
+html[data-phx-material="acx"] body.acx-rest-fullscreen .acx-rest-card{max-height:none;min-height:min(760px,calc(100dvh - 24px));grid-template-rows:auto auto minmax(180px,1fr) auto auto auto auto auto}
+html[data-phx-material="acx"] .acx-rest-card__top{align-items:center}
+html[data-phx-material="acx"] .acx-rest-card__top button{width:32px;height:32px;padding:0;border:1px solid #ffffff25;border-radius:50%;background:#0e0e0e;color:#fff;font-size:1.25rem;line-height:1}
+@media(orientation:landscape) and (max-height:620px){
+  html[data-phx-material="acx"] body.acx-rest-fullscreen .acx-rest-screen{min-height:calc(100dvh - 24px)}
+  html[data-phx-material="acx"] body.acx-rest-fullscreen .acx-rest-card{min-height:calc(100dvh - 24px);grid-template-columns:minmax(250px,1.15fr) minmax(260px,1fr);grid-template-rows:auto auto auto 1fr auto;gap:10px 16px;padding:16px 18px}
+  html[data-phx-material="acx"] body.acx-rest-fullscreen .acx-rest-card__top{grid-column:1/-1}
+  html[data-phx-material="acx"] body.acx-rest-fullscreen .acx-rest-card__clock{grid-column:1;grid-row:2/6;min-height:0}
+  html[data-phx-material="acx"] body.acx-rest-fullscreen .acx-rest-card__clock>div{font-size:clamp(4.6rem,18vh,8rem)}
+  html[data-phx-material="acx"] body.acx-rest-fullscreen .acx-rest-card__exercise{grid-column:2;grid-row:2}
+  html[data-phx-material="acx"] body.acx-rest-fullscreen .acx-rest-card__track{grid-column:2;grid-row:3}
+  html[data-phx-material="acx"] body.acx-rest-fullscreen .acx-rest-card__meta{grid-column:2;grid-row:4;align-self:start}
+  html[data-phx-material="acx"] body.acx-rest-fullscreen .acx-rest-card__controls{grid-column:2;grid-row:4;align-self:center}
+  html[data-phx-material="acx"] body.acx-rest-fullscreen .acx-rest-card__skip{grid-column:2;grid-row:5}
+  html[data-phx-material="acx"] body.acx-rest-fullscreen .acx-rest-card__settings{display:none}
+}
+
+/* Reloj auxiliar ACX: hereda la paleta elegida */
+html[data-phx-material="acx"] .quick-timer-panel{padding:14px!important;border:1px solid #ffffff20!important;border-radius:26px 26px 0 0!important;background:#111!important;color:#fff!important}
+html[data-phx-material="acx"] .acx-quick-timer{display:grid;gap:14px;padding:8px}
+html[data-phx-material="acx"] .acx-quick-timer header{display:flex;justify-content:space-between;align-items:center;padding:4px 4px 10px}
+html[data-phx-material="acx"] .acx-quick-timer header span{color:var(--coral);font-size:.58rem;font-weight:900;letter-spacing:.14em}
+html[data-phx-material="acx"] .acx-quick-timer h2{margin:5px 0 0;font-size:1.25rem;letter-spacing:-.03em}
+html[data-phx-material="acx"] .acx-quick-timer header i{width:34px;height:58px;border-radius:999px;background:var(--coral)}
+html[data-phx-material="acx"] .acx-quick-timer__clock{min-height:180px;border-radius:22px;background:var(--coral);display:grid;place-content:center;text-align:center}
+html[data-phx-material="acx"] .acx-quick-timer__clock b{font:900 clamp(4.3rem,23vw,8rem)/.8 Montserrat,sans-serif;letter-spacing:-.09em;font-variant-numeric:tabular-nums;color:#fff}
+html[data-phx-material="acx"] .acx-quick-timer__clock span{margin-top:20px;color:#ffffffc9;font-size:.6rem;font-weight:900;letter-spacing:.16em}
+html[data-phx-material="acx"] .acx-quick-timer__presets{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+html[data-phx-material="acx"] .acx-quick-timer__presets button,html[data-phx-material="acx"] .acx-quick-timer__controls button,html[data-phx-material="acx"] .acx-quick-timer__reset{min-height:48px;border:1px solid #ffffff1f;border-radius:14px;background:#191919;color:#fff;font-weight:900}
+html[data-phx-material="acx"] .acx-quick-timer__controls{display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:8px}
+html[data-phx-material="acx"] .acx-quick-timer__controls .is-primary{border-color:var(--coral);background:var(--coral)}
+html[data-phx-material="acx"] .acx-quick-timer__reset{width:100%;background:#f3f0e8;color:#111}
+html[data-phx-material="acx"] .acx-quick-timer>small{text-align:center;color:#817d77;font-size:.58rem;letter-spacing:.07em}
+@media(max-width:390px){html[data-phx-material="acx"] .acx-quick-timer__presets{grid-template-columns:repeat(3,1fr)}}
