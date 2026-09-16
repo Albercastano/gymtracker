@@ -4570,7 +4570,7 @@ const App={
           </button>
           <button type="button" class="material-option acx ${uiMaterial==='acx'?'active':''}" data-ui-material="acx" aria-pressed="${uiMaterial==='acx'}" onclick="App.setUiMaterial('acx')">
             <span class="material-swatch" aria-hidden="true"><i></i><i></i><i></i></span>
-            <span class="material-copy"><b>ACX · CUMPLE <mark>1.0</mark></b><small>Carbón · hueso · óxido · claridad sin postureo</small><em class="material-state">${uiMaterial==='acx'?'MATERIAL ACTIVO':'APLICAR MATERIAL'}</em></span>
+            <span class="material-copy"><b>ACX · CUMPLE <mark>2.0</mark></b><small>Negro editorial · coral · crema · sin metal</small><em class="material-state">${uiMaterial==='acx'?'MATERIAL ACTIVO':'APLICAR MATERIAL'}</em></span>
           </button>
         </div>
         <div class="material-safety-actions"><button type="button" class="secondary" onclick="App.restorePrecisionMaterial()">RESTAURAR FORGED PRECISION</button><button type="button" class="secondary" onclick="App.renderForgeLab()">VISTA PREVIA EN FORGE LAB</button><button type="button" class="secondary" onclick="App.repairApexInstallation()">REPARAR CACHÉ APEX</button></div>

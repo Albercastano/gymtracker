@@ -20,7 +20,7 @@
       capabilities:Object.freeze(["visual-tokens","components","timer","motion","component-contract","responsive","accessibility-states"]),network:"forbidden",scripts:"forbidden"
     }),
     acx:Object.freeze({
-      schemaVersion:1,id:"acx",name:"ACX · CUMPLE",author:"AC Rodríguex",version:"1.0.0",engine:"0.8.x",componentContract:"0.1.x",status:"stable",fallback:false,
+      schemaVersion:1,id:"acx",name:"ACX · CUMPLE",author:"AC Rodríguex",version:"2.0.0",engine:"0.8.x",componentContract:"0.1.x",status:"stable",fallback:false,
       styles:Object.freeze(["acx.css"]),assetsBudgetKb:64,
       capabilities:Object.freeze(["visual-tokens","components","timer","motion","component-contract","full-app-coverage","responsive","accessibility-states"]),network:"forbidden",scripts:"forbidden"
     })
