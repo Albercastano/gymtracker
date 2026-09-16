@@ -558,7 +558,7 @@ const App={
 
   defaults(){
     return{
-      settings:{weightStep:.5,defaultRest:90,sound:true,vibration:true,planningMode:"fixed",fontScale:"normal",timerOrientation:"auto",uiMaterial:"acx",uiShape:"precision",uiInstruments:{},uiCalibration:{}},
+      settings:{weightStep:.5,defaultRest:90,sound:true,vibration:true,planningMode:"fixed",fontScale:"normal",timerOrientation:"auto",uiMaterial:"acx",uiPalette:"oxide",uiShape:"precision",uiInstruments:{},uiCalibration:{}},
       profile:{bodyWeight:null},
       routines:[
         {id:"r1",name:"Torso A",day:1,items:[
@@ -625,6 +625,8 @@ const App={
     this.data.settings.defaultRest=Math.max(0,Number(this.data.settings.defaultRest)||90);
     this.data.settings.sound=this.data.settings.sound!==false;
     this.data.settings.vibration=this.data.settings.vibration!==false;
+    this.data.settings.uiMaterial="acx";
+    this.data.settings.uiPalette=["oxide","yellow","green","blue"].includes(this.data.settings.uiPalette)?this.data.settings.uiPalette:"oxide";
     this.data.profile=this.data.profile||{bodyWeight:null};
     this.data.profile.environmentEquipment=(this.data.profile.environmentEquipment&&typeof this.data.profile.environmentEquipment==="object")?this.data.profile.environmentEquipment:{home:["bodyweight"],street:["bodyweight","pullup_bar","parallel_bars","bench"]};
     this.data.profile.environmentPreference=["closest","faster","no_equipment","calisthenics"].includes(this.data.profile.environmentPreference)?this.data.profile.environmentPreference:"closest";
@@ -1909,6 +1911,7 @@ const App={
     if(this.active.setIndex>=exercise.sets){this.renderExerciseSummary();return}
     if(exercise.mode==="time"){this.renderTimedSetReady();return}
     this.active.phase="series";this.active.restEndsAt=null;this.active.restLeft=0;this.saveActive();
+    if((this.data.settings?.uiMaterial||"acx")==="acx")return this.beginSetLegacy();
     const target=document.getElementById("series");
     const rendered=window.PhoenixShapeEngine?.render?.("series",target,this,{source:"beginSet"})===true;
     if(rendered){this.show("series","Ejercicio");return}
@@ -1922,7 +1925,7 @@ const App={
     if(this.active.setIndex>=e.sets){this.renderExerciseSummary();return}
     this.active.phase="series";this.active.restEndsAt=null;this.active.restLeft=0;this.saveActive();
     const previous=this.active.currentSets?.[this.active.currentSets.length-1]||null;
-    document.getElementById("series").innerHTML=`<div class="focus set-forged">
+    document.getElementById("series").innerHTML=`<div class="focus set-forged acx-set-screen">
       <section class="set-header ${override?"is-alternative":""}">
         <div>
           <div class="eyebrow">${r.name} · EJERCICIO ${this.active.exerciseIndex+1}/${r.items.length}</div>
@@ -2071,6 +2074,7 @@ const App={
   },
 
   renderRest(){
+    if((this.data.settings?.uiMaterial||"acx")==="acx"){this.releaseTimerOrientation();return this.renderRestLegacy()}
     this.requestTimerLandscape();
     const target=document.getElementById("rest");
     const rendered=window.PhoenixShapeEngine?.render?.("rest",target,this,{source:"app.renderRest"});
@@ -2080,65 +2084,23 @@ const App={
   },
 
   renderRestLegacy(){
-    this.requestTimerLandscape();
+    if((this.data.settings?.uiMaterial||"acx")==="acx")this.releaseTimerOrientation();else this.requestTimerLandscape();
     const e=this.currentExercise();
     const currentSeries=Math.max(1,Number(this.active.setIndex)||1);
     const nextSeries=Math.min(Number(e.sets)||1,currentSeries+1);
     const soundOn=this.data?.settings?.sound!==false;
     const vibrationOn=this.data?.settings?.vibration!==false;
-    document.getElementById("rest").innerHTML=`<div class="focus phoenix-timer-screen">
-      <section id="phoenixTimer" class="phoenix-timer" aria-label="Phoenix Timer de descanso">
-        <header class="phoenix-timer__header">
-          <div class="phoenix-timer__brand"><img src="icon-192.png" alt=""><div><b>PHOENIX</b><span>GYMTRACKER</span></div></div>
-          <div class="phoenix-timer__title"><span>DESCANSO</span><i></i></div>
-          <div class="phoenix-timer__series">
-            <div><small>SERIE ACTUAL</small><b>${currentSeries}/${e.sets}</b></div>
-            <span aria-hidden="true">→</span>
-            <div><small>SIGUIENTE</small><b>${nextSeries}/${e.sets}</b><em>${this.escape(e.name)}</em></div>
-          </div>
-        </header>
-
-        <div class="phoenix-timer__instrument">
-          <div class="phoenix-timer__screw phoenix-timer__screw--tl"></div><div class="phoenix-timer__screw phoenix-timer__screw--tr"></div>
-          <div class="phoenix-timer__screw phoenix-timer__screw--bl"></div><div class="phoenix-timer__screw phoenix-timer__screw--br"></div>
-          <div class="phoenix-timer__plate">PHOENIX TIMER</div>
-          <div id="phoenixTimerRing" class="phoenix-timer__ring" style="--progress:1">
-            <svg class="phoenix-timer__svg" viewBox="0 0 120 120" aria-hidden="true">
-              <defs>
-                <linearGradient id="apexTimerGradient" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stop-color="#00d9ff"></stop>
-                  <stop offset="56%" stop-color="#00d9ff"></stop>
-                  <stop offset="100%" stop-color="#00e676"></stop>
-                </linearGradient>
-              </defs>
-              <circle class="phoenix-timer__svg-track" cx="60" cy="60" r="53" pathLength="100"></circle>
-              <circle id="phoenixTimerArc" class="phoenix-timer__svg-arc" cx="60" cy="60" r="53" pathLength="100"></circle>
-              <circle class="phoenix-timer__svg-inner" cx="60" cy="60" r="45" pathLength="100"></circle>
-            </svg>
-            <div class="phoenix-timer__ticks" aria-hidden="true"></div>
-            <div class="phoenix-timer__core">
-              <span class="phoenix-timer__hourglass" aria-hidden="true">◷</span>
-              <div id="restTime" class="phoenix-timer__time" role="timer" aria-live="off">00:00</div>
-              <div class="phoenix-timer__next">SIGUIENTE · SERIE ${nextSeries}/${e.sets}</div>
-              <div id="phoenixTimerState" class="phoenix-timer__state">DESCANSO</div>
-              <div class="phoenix-timer__telemetry"><span id="phoenixTimerPercent">100%</span><i></i><span id="phoenixTimerTotal">${this.formatDuration(this.active.restTotal||0)} TOTAL</span></div>
-              <span id="phoenixTimerLive" class="sr-only" aria-live="polite"></span>
-            </div>
-            <div class="phoenix-timer__spark" aria-hidden="true"></div>
-          </div>
-          <div class="phoenix-timer__status"><span>●</span><b id="phoenixTimerPulse">PRECISIÓN FORGED</b></div>
-        </div>
-
-        <div class="phoenix-timer__controls">
-          <button type="button" onclick="App.adjustRest(-30)"><b>−30</b><span>SEGUNDOS</span></button>
-          <button type="button" id="restPauseButton" class="phoenix-timer__pause" onclick="App.toggleRestPause()"><b>${this.active.restPaused?"▶":"Ⅱ"}</b><span>${this.active.restPaused?"SEGUIR":"PAUSA"}</span></button>
-          <button type="button" onclick="App.adjustRest(30)"><b>+30</b><span>SEGUNDOS</span></button>
-        </div>
-        <button class="phoenix-timer__skip" onclick="App.skipRest()"><span>»</span> SALTAR</button>
-        <footer class="phoenix-timer__footer">
-          <button type="button" onclick="App.toggleTimerSound()"><span>◖))</span><div><small>SONIDO</small><b id="timerSoundStatus">${soundOn?"ACTIVADO":"DESACTIVADO"}</b><em id="timerAudioReady">${soundOn?(this.audioUnlocked?"LISTO":"TOCA PARA ACTIVAR"):"OFF"}</em></div></button>
-          <button type="button" onclick="App.toggleTimerVibration()"><span>▣</span><div><small>VIBRACIÓN</small><b id="timerVibrationStatus">${vibrationOn?"ACTIVADA":"DESACTIVADA"}</b></div></button>
-        </footer>
+    document.getElementById("rest").innerHTML=`<div class="focus acx-rest-screen">
+      <section id="phoenixTimer" class="acx-rest-card" aria-label="Temporizador de descanso ACX">
+        <div class="acx-rest-card__top"><span>DESCANSO</span><b>SERIE ${currentSeries}/${e.sets}</b></div>
+        <div class="acx-rest-card__exercise"><small>SIGUIENTE</small><strong>${this.escape(e.name)}</strong><span>SERIE ${nextSeries} DE ${e.sets}</span></div>
+        <div class="acx-rest-card__clock"><div id="restTime" role="timer" aria-live="off">00:00</div><span id="phoenixTimerState">DESCANSO</span></div>
+        <div class="acx-rest-card__track"><i id="phoenixTimerRing" style="--progress:1"></i></div>
+        <div class="acx-rest-card__meta"><span id="phoenixTimerPercent">100%</span><b id="phoenixTimerPulse">TIEMPO PARA RECUPERAR</b><span id="phoenixTimerTotal">${this.formatDuration(this.active.restTotal||0)} TOTAL</span></div>
+        <span id="phoenixTimerLive" class="sr-only" aria-live="polite"></span>
+        <div class="acx-rest-card__controls"><button type="button" onclick="App.adjustRest(-30)">−30</button><button type="button" id="restPauseButton" class="is-primary" onclick="App.toggleRestPause()">${this.active.restPaused?"SEGUIR":"PAUSA"}</button><button type="button" onclick="App.adjustRest(30)">+30</button></div>
+        <button class="acx-rest-card__skip" onclick="App.skipRest()">SALTAR DESCANSO <b>→</b></button>
+        <footer class="acx-rest-card__settings"><button type="button" onclick="App.toggleTimerSound()"><span>SONIDO</span><b id="timerSoundStatus">${soundOn?"ACTIVADO":"DESACTIVADO"}</b><em id="timerAudioReady">${soundOn?(this.audioUnlocked?"LISTO":"TOCA PARA ACTIVAR"):"OFF"}</em></button><button type="button" onclick="App.toggleTimerVibration()"><span>VIBRACIÓN</span><b id="timerVibrationStatus">${vibrationOn?"ACTIVADA":"DESACTIVADA"}</b></button></footer>
       </section>
     </div>`;
     this.updateRestDisplay();
@@ -2173,7 +2135,7 @@ const App={
       timer.classList.toggle("is-paused",Boolean(this.active?.restPaused));
     }
     if(state)state.textContent=t===0?"LISTO":this.active?.restPaused?"PAUSADO":"DESCANSO";
-    if(pulse){const mat=this.data?.settings?.uiMaterial||"precision";pulse.textContent=t===0?"SIGUIENTE SERIE":t<=10?(mat==="apex"?"ALERTA APEX":"PULSO DORADO"):(mat==="apex"?"SEÑAL APEX":"PRECISIÓN FORGED")};
+    if(pulse)pulse.textContent=t===0?"SIGUIENTE SERIE":t<=10?"ÚLTIMOS SEGUNDOS":"TIEMPO PARA RECUPERAR";
   },
 
   adjustRest(delta){
@@ -2346,10 +2308,22 @@ const App={
     this.data.settings.uiMaterial=material;
     this.data.settings.uiShape=shape;
     document.documentElement.dataset.fontScale=scale;
+    document.documentElement.dataset.acxPalette=this.data.settings.uiPalette||"oxide";
     if(engine)engine.apply(material,{source:"app"});
     else{document.documentElement.dataset.phxMaterial=material;document.documentElement.dataset.material=material;document.body.dataset.material=material}
     if(shapeEngine)shapeEngine.apply(shape,{source:"app"});
     else{document.documentElement.dataset.phxShape=shape;document.documentElement.dataset.shape=shape;document.body.dataset.phxShape=shape}
+  },
+
+  setAcxPalette(palette){
+    if(!["oxide","yellow","green","blue"].includes(palette))return;
+    this.data.settings.uiMaterial="acx";
+    this.data.settings.uiPalette=palette;
+    document.documentElement.dataset.acxPalette=palette;
+    window.PhoenixMaterialEngine?.apply?.("acx",{source:"palette"});
+    this.save();
+    this.renderSettings(false);
+    this.toast(`Paleta ACX ${palette==="oxide"?"óxido":palette==="yellow"?"amarilla":palette==="green"?"verde":"azul"} aplicada`)
   },
 
   setUiMaterial(material){
@@ -4594,32 +4568,15 @@ const App={
     const mode=this.data.settings.planningMode||"fixed";
     const fontScale=this.data.settings.fontScale||"normal";
     const timerOrientation=this.data.settings.timerOrientation||"auto";
-    const uiMaterial=this.data.settings.uiMaterial||"precision";
+    const uiMaterial="acx";
+    const uiPalette=this.data.settings.uiPalette||"oxide";
     document.getElementById("settings").innerHTML=`<div class="card settings-definitive"><div class="eyebrow">AJUSTES</div>
-      <section id="materialSettingsSection" class="settings-section material-settings material-settings--alpha"><div class="engine-badge"><span>PHX SKIN ENGINE</span><b>0.9 · SIGNATURE READY</b></div><h3>Apariencia y materiales</h3>
-        <p class="material-intro">Elige el material visual. No cambia datos, rutinas ni funcionamiento.</p>
-        <div class="material-selector" role="group" aria-label="Material de la interfaz">
-          <button type="button" class="material-option precision ${uiMaterial==='precision'?'active':''}" data-ui-material="precision" aria-pressed="${uiMaterial==='precision'}" onclick="App.setUiMaterial('precision')">
-            <span class="material-swatch" aria-hidden="true"><i></i><i></i><i></i></span>
-            <span class="material-copy"><b>FORGED Precision</b><small>Minimalista · técnica · material seguro</small><em class="material-state">${uiMaterial==='precision'?'MATERIAL ACTIVO':'APLICAR MATERIAL'}</em></span>
-          </button>
-          <button type="button" class="material-option apex ${uiMaterial==='apex'?'active':''}" data-ui-material="apex" aria-pressed="${uiMaterial==='apex'}" onclick="App.setUiMaterial('apex')">
-            <span class="material-swatch" aria-hidden="true"><i></i><i></i><i></i></span>
-            <span class="material-copy"><b>FORGED Apex <mark>1.0</mark></b><small>Negro absoluto · líneas finas · cian, verde y rojo</small><em class="material-state">${uiMaterial==='apex'?'MATERIAL ACTIVO':'APLICAR MATERIAL'}</em></span>
-          </button>
-          <button type="button" class="material-option vektor ${uiMaterial==='vektor'?'active':''}" data-ui-material="vektor" aria-pressed="${uiMaterial==='vektor'}" onclick="App.setUiMaterial('vektor')">
-            <span class="material-swatch" aria-hidden="true"><i></i><i></i><i></i></span>
-            <span class="material-copy"><b>FORGED Vektor <mark>0.2</mark></b><small>Instrumental · angular · acero y naranja técnico</small><em class="material-state">${uiMaterial==='vektor'?'MATERIAL ACTIVO':'APLICAR MATERIAL'}</em></span>
-          </button>
-          <button type="button" class="material-option acx ${uiMaterial==='acx'?'active':''}" data-ui-material="acx" aria-pressed="${uiMaterial==='acx'}" onclick="App.setUiMaterial('acx')">
-            <span class="material-swatch" aria-hidden="true"><i></i><i></i><i></i></span>
-            <span class="material-copy"><b>ACX · CUMPLE <mark>2.0</mark></b><small>Negro editorial · coral · crema · sin metal</small><em class="material-state">${uiMaterial==='acx'?'MATERIAL ACTIVO':'APLICAR MATERIAL'}</em></span>
-          </button>
+      <section id="materialSettingsSection" class="settings-section acx-palette-settings"><span class="acx-kicker">APARIENCIA</span><h3>Una interfaz. Tu color.</h3>
+        <p class="material-intro">GymTracker utiliza siempre la estructura ACX. El color no cambia ninguna función ni tus datos.</p>
+        <div class="acx-palette-grid" role="group" aria-label="Color principal de ACX">
+          ${[["oxide","ÓXIDO","#c45132"],["yellow","MOSTAZA","#d5a62e"],["green","VERDE","#568265"],["blue","AZUL","#3e7485"]].map(([id,name,color])=>`<button type="button" class="${uiPalette===id?'active':''}" aria-pressed="${uiPalette===id}" onclick="App.setAcxPalette('${id}')" style="--palette-color:${color}"><i></i><span>${name}</span><b>${uiPalette===id?'ACTIVO':'ELEGIR'}</b></button>`).join('')}
         </div>
-        <div class="material-safety-actions"><button type="button" class="secondary" onclick="App.restorePrecisionMaterial()">RESTAURAR FORGED PRECISION</button><button type="button" class="secondary" onclick="App.renderForgeLab()">VISTA PREVIA EN FORGE LAB</button><button type="button" class="secondary" onclick="App.repairApexInstallation()">REPARAR CACHÉ APEX</button></div>
-        <div class="alpha-security-strip"><span>RED</span><b>LOCAL ONLY</b><span>NUBE</span><b>DESACTIVADA</b></div>
-        <small class="material-footnote">Las creaciones visuales no ejecutan JavaScript ni pueden leer o transmitir tus datos.</small>
-        <button type="button" class="secondary forge-lab-launch" onclick="App.renderForgeLab()"><span>ABRIR FORGE LAB</span><small>Comparar componentes y materiales</small></button>
+        <small class="material-footnote">Óxido es la identidad principal ACX. Las demás opciones mantienen exactamente el mismo diseño.</small>
       </section>
       <section class="settings-section"><h3>Entrenamiento</h3>
         <label>Descanso predeterminado<input id="defaultRest" type="number" min="0" step="5" value="${this.data.settings.defaultRest}"><small>Segundos usados al crear nuevos ejercicios.</small></label>

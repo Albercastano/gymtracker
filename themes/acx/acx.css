@@ -108,3 +108,66 @@ html[data-phx-material="acx"] .gym-target-grid>div{border:0!important;background
 html[data-phx-material="acx"] .gym-primary-action{border:0!important;border-radius:999px!important;background:var(--coral)!important;color:#fff!important;box-shadow:none!important}html[data-phx-material="acx"] .gym-primary-action b{background:#fff!important;color:#121212!important}
 html[data-phx-material="acx"] .gym-machine-action,html[data-phx-material="acx"] .gym-postpone-action,html[data-phx-material="acx"] .gym-exit-action{border:1px solid #ffffff22!important;border-radius:18px!important;background:#171716!important;color:#fff!important;box-shadow:none!important}
 @media(max-width:520px){html[data-phx-material="acx"] .acx-today-head{grid-template-columns:1fr 92px;padding:20px}html[data-phx-material="acx"] .acx-progress-orbit{width:88px;height:88px}html[data-phx-material="acx"] .acx-environment{grid-template-columns:1fr}html[data-phx-material="acx"] .acx-environment>div:last-child{width:100%}html[data-phx-material="acx"] .acx-environment button{flex:1;padding-inline:5px}html[data-phx-material="acx"] .acx-app-dock button{min-width:48px}html[data-phx-material="acx"] .acx-app-dock span{font-size:.54rem}}
+
+/* ACX producto cerrado: una estructura, cuatro paletas */
+html[data-phx-material="acx"][data-acx-palette="oxide"]{--coral:#c45132;--gold:#c45132;--gold2:#c45132;--orange:#c45132;--red:#c45132}
+html[data-phx-material="acx"][data-acx-palette="yellow"]{--coral:#d5a62e;--gold:#d5a62e;--gold2:#d5a62e;--orange:#d5a62e;--red:#d5a62e}
+html[data-phx-material="acx"][data-acx-palette="green"]{--coral:#568265;--gold:#568265;--gold2:#568265;--orange:#568265;--red:#568265}
+html[data-phx-material="acx"][data-acx-palette="blue"]{--coral:#3e7485;--gold:#3e7485;--gold2:#3e7485;--orange:#3e7485;--red:#3e7485}
+
+html[data-phx-material="acx"] .acx-palette-settings{padding:22px!important;border:1px solid #ffffff1f!important;background:#171716!important}
+html[data-phx-material="acx"] .acx-palette-settings h3{margin:9px 0 8px;font-size:1.55rem}
+html[data-phx-material="acx"] .acx-palette-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:16px}
+html[data-phx-material="acx"] .acx-palette-grid button{min-height:102px;padding:14px;border:1px solid #ffffff20;border-radius:18px;background:#0e0e0e;color:#fff;display:grid;grid-template-columns:34px 1fr;gap:5px 10px;align-items:center;text-align:left}
+html[data-phx-material="acx"] .acx-palette-grid button i{grid-row:1/3;width:30px;height:64px;border-radius:999px;background:var(--palette-color)}
+html[data-phx-material="acx"] .acx-palette-grid button span{align-self:end;font:900 .8rem Montserrat,sans-serif}
+html[data-phx-material="acx"] .acx-palette-grid button b{align-self:start;color:#ffffff70;font-size:.56rem;letter-spacing:.1em}
+html[data-phx-material="acx"] .acx-palette-grid button.active{border-color:var(--palette-color);box-shadow:inset 4px 0 0 var(--palette-color)}
+html[data-phx-material="acx"] .acx-palette-grid button.active b{color:var(--palette-color)}
+
+/* Serie ACX */
+html[data-phx-material="acx"] .acx-set-screen{display:grid;gap:12px;padding-bottom:22px}
+html[data-phx-material="acx"] .acx-set-screen .set-header{padding:22px;border:1px solid #ffffff20;border-left:7px solid var(--coral);border-radius:22px;background:#171716;box-shadow:none}
+html[data-phx-material="acx"] .acx-set-screen .set-header__name{margin-top:14px;color:#fff;font:900 clamp(2rem,10vw,4rem)/.9 Montserrat,sans-serif;letter-spacing:-.055em}
+html[data-phx-material="acx"] .acx-set-screen .set-header__badge{min-width:72px;padding:12px;border:1px solid #ffffff22;border-radius:16px;background:#0e0e0e;color:#aaa49b;text-align:center}
+html[data-phx-material="acx"] .acx-set-screen .set-header__badge b{display:block;margin-top:5px;color:var(--coral);font-size:1.25rem}
+html[data-phx-material="acx"] .acx-set-screen .set-card{padding:0;border:0;background:transparent;box-shadow:none}
+html[data-phx-material="acx"] .acx-set-screen .set-card__eyebrow{padding:5px 3px 10px;color:var(--coral);font-size:.62rem;font-weight:900;letter-spacing:.13em}
+html[data-phx-material="acx"] .acx-set-screen .set-card__values{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+html[data-phx-material="acx"] .acx-set-screen .set-value{min-height:210px;padding:18px 12px;border:1px solid #ffffff20;border-radius:22px;background:#171716;display:flex;flex-direction:column;justify-content:space-between;text-align:center}
+html[data-phx-material="acx"] .acx-set-screen .set-value>span{color:#aaa49b;font-size:.62rem;font-weight:900;letter-spacing:.12em}
+html[data-phx-material="acx"] .acx-set-screen .set-stepper{display:grid;grid-template-columns:42px minmax(0,1fr) 42px;gap:4px;align-items:center}
+html[data-phx-material="acx"] .acx-set-screen .set-stepper button{width:42px;height:42px;padding:0;border:1px solid #ffffff24;border-radius:50%;background:#0e0e0e;color:#fff;font-size:1.35rem}
+html[data-phx-material="acx"] .acx-set-screen .set-stepper strong{min-width:0;color:#fff;font:900 clamp(2.7rem,13vw,5rem)/1 Montserrat,sans-serif;letter-spacing:-.08em}
+html[data-phx-material="acx"] .acx-set-screen .set-value>small{color:var(--coral)!important;font-size:.66rem;font-weight:900;text-transform:uppercase}
+html[data-phx-material="acx"] .acx-set-screen .set-previous{margin-top:10px;padding:13px;border:1px solid #ffffff18;border-radius:14px;background:#0e0e0e;color:#aaa49b;text-align:center;font-size:.7rem}
+html[data-phx-material="acx"] .acx-set-screen .set-finish{min-height:64px;border:0;border-radius:999px;background:var(--coral);color:#fff;box-shadow:none;font-weight:900}
+html[data-phx-material="acx"] .acx-set-screen .set-finish b{background:#fff;color:#111}
+html[data-phx-material="acx"] .acx-set-screen .set-alternative-forged,html[data-phx-material="acx"] .acx-set-screen .set-back{min-height:50px;border:1px solid #ffffff20;border-radius:999px;background:transparent;color:#f3f0e8;box-shadow:none}
+
+/* Reloj ACX */
+html[data-phx-material="acx"] .acx-rest-screen{padding:0 0 24px}
+html[data-phx-material="acx"] .acx-rest-card{padding:22px;border:1px solid #ffffff20;border-left:7px solid var(--coral);border-radius:26px;background:#171716;color:#fff;display:grid;gap:18px;box-shadow:none}
+html[data-phx-material="acx"] .acx-rest-card__top{display:flex;justify-content:space-between;gap:12px;color:var(--coral);font:900 .66rem Montserrat,sans-serif;letter-spacing:.13em}
+html[data-phx-material="acx"] .acx-rest-card__exercise{padding:16px;border-radius:17px;background:#0e0e0e;display:grid;grid-template-columns:1fr auto;gap:5px 12px}
+html[data-phx-material="acx"] .acx-rest-card__exercise small{grid-column:1/-1;color:#88827b!important;font-size:.55rem;letter-spacing:.12em}
+html[data-phx-material="acx"] .acx-rest-card__exercise strong{font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html[data-phx-material="acx"] .acx-rest-card__exercise span{color:var(--coral);font-size:.6rem;font-weight:900}
+html[data-phx-material="acx"] .acx-rest-card__clock{min-height:190px;padding:20px;border-radius:22px;background:var(--coral);display:grid;place-content:center;text-align:center}
+html[data-phx-material="acx"] .acx-rest-card__clock>div{font:900 clamp(4.8rem,25vw,9rem)/.78 Montserrat,sans-serif;letter-spacing:-.09em;font-variant-numeric:tabular-nums;color:#fff}
+html[data-phx-material="acx"] .acx-rest-card__clock>span{margin-top:22px;color:#ffffffc7;font-size:.68rem;font-weight:900;letter-spacing:.15em}
+html[data-phx-material="acx"] .acx-rest-card__track{height:8px;border-radius:999px;background:#ffffff15;overflow:hidden}
+html[data-phx-material="acx"] .acx-rest-card__track i{display:block;width:calc(var(--progress) * 100%);height:100%;border-radius:inherit;background:var(--coral);transition:width .25s linear}
+html[data-phx-material="acx"] .acx-rest-card__meta{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;color:#8f8982;font-size:.57rem;text-align:center}
+html[data-phx-material="acx"] .acx-rest-card__meta b{color:#f3f0e8;font-size:.58rem;letter-spacing:.08em}
+html[data-phx-material="acx"] .acx-rest-card__controls{display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:8px}
+html[data-phx-material="acx"] .acx-rest-card__controls button{min-height:56px;border:1px solid #ffffff22;border-radius:16px;background:#0e0e0e;color:#fff;font-weight:900}
+html[data-phx-material="acx"] .acx-rest-card__controls button.is-primary{border-color:var(--coral);background:var(--coral)}
+html[data-phx-material="acx"] .acx-rest-card__skip{min-height:58px;padding:10px 16px;border:1px solid #ffffff22;border-radius:999px;background:#f3f0e8;color:#111;display:flex;justify-content:space-between;align-items:center;font-weight:900}
+html[data-phx-material="acx"] .acx-rest-card__skip b{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--coral);color:#fff}
+html[data-phx-material="acx"] .acx-rest-card__settings{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+html[data-phx-material="acx"] .acx-rest-card__settings button{min-height:62px;padding:11px;border:1px solid #ffffff18;border-radius:15px;background:#0e0e0e;color:#fff;display:grid;text-align:left}
+html[data-phx-material="acx"] .acx-rest-card__settings span{color:#88827b;font-size:.52rem;letter-spacing:.1em}html[data-phx-material="acx"] .acx-rest-card__settings b{font-size:.7rem}html[data-phx-material="acx"] .acx-rest-card__settings em{color:var(--coral);font-size:.5rem;font-style:normal}
+html[data-phx-material="acx"] .acx-rest-card.is-warning .acx-rest-card__clock{animation:acxTimerWarning .7s ease-in-out infinite alternate}@keyframes acxTimerWarning{to{filter:brightness(1.2)}}
+html[data-phx-material="acx"] .acx-rest-card.is-paused .acx-rest-card__clock{background:#4a4742}
+@media(max-width:390px){html[data-phx-material="acx"] .acx-set-screen .set-value{min-height:190px;padding-inline:8px}html[data-phx-material="acx"] .acx-set-screen .set-stepper{grid-template-columns:36px minmax(0,1fr) 36px}html[data-phx-material="acx"] .acx-set-screen .set-stepper button{width:36px;height:36px}html[data-phx-material="acx"] .acx-rest-card{padding:18px 14px}html[data-phx-material="acx"] .acx-rest-card__clock{min-height:170px}html[data-phx-material="acx"] .acx-palette-grid{grid-template-columns:1fr}}
