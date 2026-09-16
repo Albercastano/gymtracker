@@ -977,7 +977,32 @@ const App={
   },
 
   renderHome(withHistory=true){
+    if((this.data.settings?.uiMaterial||"acx")==="acx")return this.renderHomeACX(withHistory);
     this.renderHomeLegacy(withHistory);
+  },
+
+  renderHomeACX(withHistory=true){
+    const active=this.active,routine=active?this.currentRoutine():this.todayRoutine();
+    const items=active?.sessionItems?.length?active.sessionItems:(routine?.items||[]),done=this.completedExerciseIndexes();
+    const doneCount=active?done.size:0,total=items.length,progress=total?Math.round((doneCount/total)*100):0,now=new Date();
+    const dayName=now.toLocaleDateString('es-ES',{weekday:'long'}),dateLabel=now.toLocaleDateString('es-ES',{day:'2-digit',month:'long'});
+    const nextIndex=active?Math.min(Number(active.exerciseIndex)||0,Math.max(0,total-1)):0,next=items[nextIndex]||null;
+    const environment=this.continuityHomeEnvironment||active?.trainingEnvironment||'gym',bodyWeight=Number(this.data.profile?.bodyWeight)||0;
+    const focusAction=active?'App.resumeWorkout()':routine?`App.startContinuityWorkout('${routine.id}')`:'App.renderRoutines()';
+    const weekDays=['LUN','MAR','MIÉ','JUE','VIE','SÁB','DOM'],todayIndex=(now.getDay()+6)%7;
+    const rows=items.map((item,index)=>{const isDone=done.has(index),isCurrent=active&&!isDone&&index===nextIndex;const mode=item.mode==='time'?`${item.sets||1} × ${item.reps||30}s`:`${item.sets||1} × ${item.reps||0} reps`;return `<button class="acx-workout-row ${isDone?'is-done':isCurrent?'is-current':''}" onclick="${active&&!isDone?`App.active.exerciseIndex=${index};App.active.phase='gym';App.saveActive();App.renderGym()`:`App.openRoutinePeek()`}"><span class="acx-workout-row__state">${isDone?'✓':String(index+1).padStart(2,'0')}</span><span class="acx-workout-row__copy"><b>${this.escape(item.name||'Ejercicio')}</b><small>${mode} · ${Number(item.weight)||0} kg · ${Number(item.rest)||0}s</small></span><em>${isDone?'HECHO':isCurrent?'AHORA':'PENDIENTE'}</em></button>`}).join('');
+    document.getElementById('home').innerHTML=`<div class="acx-routine-app">
+      ${this.storageHealthy?'':`<section class="system-alert" role="alert"><strong>GUARDADO EN PAUSA</strong><span>Libera espacio antes de cerrar GymTracker.</span></section>`}
+      <section class="acx-today-head"><div><span class="acx-kicker">HOY · ${dateLabel}</span><h1>${dayName}</h1><p>${active?'Entrenamiento en marcha. Nada se pierde.':routine?'Esto es lo que toca. Sin negociar de más.':'Día sin entrenamiento asignado.'}</p></div><button class="acx-progress-orbit" onclick="App.renderData()" style="--acx-progress:${progress*3.6}deg"><strong>${progress}%</strong><small>PROGRESO</small></button></section>
+      <nav class="acx-week-strip" aria-label="Semana de entrenamiento">${weekDays.map((day,index)=>`<button class="${index===todayIndex?'active':''}" onclick="App.renderRoutines()"><b>${day}</b><span>${index===todayIndex?'HOY':'·'}</span></button>`).join('')}</nav>
+      <section class="acx-next-block ${active?'is-live':''}"><div class="acx-block-label"><span>${active?'SIGUIENTE EJERCICIO':'ENTRENAMIENTO DE HOY'}</span><b>${routine?.name||'SIN RUTINA'}</b></div><h2>${next?this.escape(next.name):'Planifica tu siguiente sesión'}</h2><p>${next?`${next.sets||1} series · ${next.reps||0}${next.mode==='time'?' segundos':' repeticiones'} · ${Number(next.weight)||0} kg`:'Abre Rutinas para asignar un entrenamiento.'}</p><button class="acx-main-action" onclick="${focusAction}"><span>${active?'CONTINUAR ENTRENAMIENTO':routine?'COMENZAR RUTINA':'ABRIR RUTINAS'}</span><b>→</b></button></section>
+      <section class="acx-environment"><div><span class="acx-kicker">ENTORNO</span><h3>¿Dónde entrenas hoy?</h3></div><div>${[['gym','GIMNASIO'],['home','CASA'],['street','CALLE']].map(([id,label])=>`<button class="${environment===id?'active':''}" onclick="App.selectHomeTrainingEnvironment('${id}')">${label}</button>`).join('')}</div></section>
+      <section class="acx-list-head"><div><span class="acx-kicker">ACX · RUTINA DEL DÍA</span><h2>${routine?.name||'Sin rutina'}</h2></div><p><b>${doneCount}</b> hechos · <b>${Math.max(0,total-doneCount)}</b> pendientes</p></section>
+      <section class="acx-workout-list">${rows||`<button class="acx-workout-row" onclick="App.renderRoutines()"><span class="acx-workout-row__state">+</span><span class="acx-workout-row__copy"><b>Asignar entrenamiento</b><small>Crea o selecciona una rutina</small></span><em>ABRIR</em></button>`}</section>
+      <section class="acx-dashboard-grid"><button onclick="App.renderData()"><span>PROGRESO</span><strong>DATOS</strong><small>Historial, PR y volumen</small></button><button onclick="App.openWeightSheet()"><span>PESO CORPORAL</span><strong>${bodyWeight?bodyWeight.toFixed(1):'—'} <i>kg</i></strong><small>Registrar y consultar</small></button><button onclick="App.renderRoutines()"><span>PLAN</span><strong>RUTINAS</strong><small>Semana y plantillas</small></button><button onclick="App.openQuickTimer()"><span>HERRAMIENTA</span><strong>RELOJ</strong><small>Temporizador Phoenix</small></button></section>
+      <section class="acx-continuity-note"><span>NO SE OLVIDA</span><p>${active?`${Math.max(0,total-doneCount)} ejercicios siguen pendientes. Puedes salir y volver sin perder la sesión.`:'Tus entrenamientos, historial y progreso permanecen guardados en este dispositivo.'}</p></section>
+    </div>`;
+    this.homeRoutinePeekId=routine?.id||null;this.show('home','Inicio',{history:withHistory});
   },
 
   renderHomeLegacy(withHistory=true){
@@ -1551,6 +1576,7 @@ const App={
     if(!this.active){this.renderHome();return}
     if(!this.active.executionMode||this.active.phase==="mode-select"){this.renderFocusModeChooser();return}
     if(this.active.executionMode==="free"&&this.active.phase==="free-menu"){this.renderFreeExerciseMenu();return}
+    if((this.data.settings?.uiMaterial||"acx")==="acx")return this.renderGymLegacy(withHistory);
     const target=document.getElementById("gym");
     const rendered=target&&window.PhoenixShapeEngine?.render?.("gym",target,this,{source:"app"});
     if(!rendered)return this.renderGymLegacy(withHistory);

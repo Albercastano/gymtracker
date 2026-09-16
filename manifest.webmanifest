@@ -1,10 +1,10 @@
 {
-  "name": "GymTracker Phoenix 11 Alpha Build 021",
-  "short_name": "Phoenix 11 A021",
-  "start_url": "./index.html?v=021",
+  "name": "GymTracker ACX",
+  "short_name": "GymTracker ACX",
+  "start_url": "./index.html?v=067",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#0b0b0b",
+  "theme_color": "#0b0b0b",
   "icons": [
     {
       "src": "icon-192.png",
@@ -19,5 +19,5 @@
       "purpose": "any maskable"
     }
   ],
-  "description": "GymTracker Phoenix · Precision Home Renderer 0.2 · Forge Shape Engine · PEDB 3.4"
+  "description": "GymTracker ACX · entrenamiento, adherencia y progreso offline"
 }

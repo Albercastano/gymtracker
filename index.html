@@ -2,21 +2,21 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="phx-build" content="066">
+  <meta name="phx-build" content="067">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#151515">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; form-action 'self'; connect-src 'self'; img-src 'self' data: blob:; media-src 'self' data: blob:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'">
-  <title>GymTracker ACX · Build 066</title>
+  <title>GymTracker ACX · Build 067</title>
   <script>
     // Build 064 bootstrap: home routine peek and refined weight orbit.
     document.documentElement.dataset.phxMaterial="acx";
     document.documentElement.dataset.material="acx";
-    document.documentElement.dataset.phxBuild="066";
+    document.documentElement.dataset.phxBuild="067";
     try{
       const activeProfile=localStorage.getItem("gymtracker_phoenix_active_profile_v1")||"alberto";
       const key=activeProfile==="alberto"?"gymtracker_phoenix_v8":`gymtracker_phoenix_v8_profile_${activeProfile}`;
       const data=JSON.parse(localStorage.getItem(key)||"null");
-      if(data?.settings?.uiMaterial==="foundry"){
+      if(data?.settings){
         data.settings.uiMaterial="acx";
         localStorage.setItem(key,JSON.stringify(data));
       }
@@ -28,7 +28,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=064">
   <link rel="stylesheet" href="styles.css?v=064">
   <link rel="stylesheet" href="themes/semantic-bridge.css?v=064">
-  <link rel="stylesheet" href="themes/acx/acx.css?v=066" data-phx-acx-bootstrap>
+  <link rel="stylesheet" href="themes/acx/acx.css?v=067" data-phx-acx-bootstrap>
 </head>
 <body>
   <section id="splash" class="splash">
@@ -101,6 +101,14 @@
     <section id="library" class="screen" aria-hidden="true"></section>
     <section id="forgeLab" class="screen" aria-hidden="true"></section>
   </main>
+
+  <nav class="acx-app-dock" aria-label="Navegación principal">
+    <button type="button" onclick="App.renderHome()"><b>⌂</b><span>Hoy</span></button>
+    <button type="button" onclick="App.active?App.resumeWorkout():App.renderRoutines()"><b>▶</b><span>Entreno</span></button>
+    <button type="button" onclick="App.renderData()"><b>↗</b><span>Datos</span></button>
+    <button type="button" onclick="App.renderRoutines()"><b>≡</b><span>Rutinas</span></button>
+    <button type="button" onclick="App.renderSettings()"><b>⚙</b><span>Ajustes</span></button>
+  </nav>
 
 
   <div id="quickTimerSheet" class="sheet" aria-hidden="true">
