@@ -381,6 +381,7 @@ const App={
 
   profileDbKey(id){return id==="alberto"?DB_KEY:`${DB_KEY}_profile_${id}`},
   profileActiveKey(id){return id==="alberto"?ACTIVE_KEY:`${ACTIVE_KEY}_profile_${id}`},
+  profilePendingSessionKey(id){return `${this.profileDbKey(id)}_pending_session`},
   activeProfile(){return this.profiles.find(p=>p.id===this.activeProfileId)||this.profiles[0]},
   loadProfiles(){
     try{this.profiles=JSON.parse(localStorage.getItem(PROFILE_REGISTRY_KEY)||"null")||[]}catch(e){this.profiles=[]}
@@ -548,7 +549,9 @@ const App={
   loadProfileData(){
     try{this.data=JSON.parse(localStorage.getItem(this.profileDbKey(this.activeProfileId)))}catch(e){this.data=null}
     if(!this.data)this.data=this.defaults();
-    this.normalize();this.save();
+    this.normalize();
+    const recoveredPendingSession=this.recoverPendingSession();
+    if(this.save()&&recoveredPendingSession)this.clearPendingSession();
     try{this.active=JSON.parse(localStorage.getItem(this.profileActiveKey(this.activeProfileId))||"null")}catch(e){this.active=null}
     if(this.active)this.normalizeActive();
   },
@@ -638,6 +641,16 @@ const App={
     }
     this.data.trainingBlocks=Array.isArray(this.data.trainingBlocks)?this.data.trainingBlocks:[];
     this.data.sessions=Array.isArray(this.data.sessions)?this.data.sessions:[];
+    const usedSessionIds=new Set();
+    this.data.sessions=this.data.sessions.filter(session=>session&&typeof session==="object").map((session,index)=>{
+      const fallbackTime=Number(session.endedAt)||Number(session.startedAt)||new Date(session.date||0).getTime()||Date.now();
+      let id=String(session.id||`session_legacy_${fallbackTime}_${index}`);
+      if(usedSessionIds.has(id))id=`${id}_${index}`;
+      usedSessionIds.add(id);
+      const exercises=Array.isArray(session.exercises)?session.exercises:[];
+      exercises.forEach(exercise=>{exercise.sets=Array.isArray(exercise.sets)?exercise.sets:[]});
+      return {...session,id,date:session.date||new Date(fallbackTime).toISOString(),endedAt:Number(session.endedAt)||fallbackTime,exercises,totalSets:Number(session.totalSets)||exercises.reduce((n,e)=>n+e.sets.length,0),volume:Number(session.volume)||exercises.reduce((total,e)=>total+e.sets.reduce((sum,set)=>sum+((Number(set.weight)||0)*(Number(set.reps)||0)),0),0)}
+    });
     // DATA-014: cada serie conserva el ejercicio realmente ejecutado. Las
     // sesiones antiguas reciben una identidad compatible sin alterar resultados.
     this.data.sessions.forEach(session=>{
@@ -689,9 +702,16 @@ const App={
 
   save(){
     try{
-      const weightSnapshot={profileId:this.activeProfileId,updatedAt:new Date().toISOString(),bodyWeight:this.data.profile?.bodyWeight??null,weights:Array.isArray(this.data.weights)?this.data.weights:[]};
-      localStorage.setItem(`${this.profileDbKey(this.activeProfileId)}_weight_journal`,JSON.stringify(weightSnapshot));
-      localStorage.setItem(this.profileDbKey(this.activeProfileId),JSON.stringify(this.data));
+      const key=this.profileDbKey(this.activeProfileId);
+      const serialized=JSON.stringify(this.data);
+      localStorage.setItem(key,serialized);
+      const verified=localStorage.getItem(key);
+      if(verified!==serialized)throw new Error("El guardado no coincide con los datos en memoria");
+      JSON.parse(verified);
+      try{
+        const weightSnapshot={profileId:this.activeProfileId,updatedAt:new Date().toISOString(),bodyWeight:this.data.profile?.bodyWeight??null,weights:Array.isArray(this.data.weights)?this.data.weights:[]};
+        localStorage.setItem(`${key}_weight_journal`,JSON.stringify(weightSnapshot));
+      }catch(journalError){console.warn("Phoenix weight journal warning",journalError)}
       this.storageHealthy=true;this.lastSaveAt=Date.now();return true
     }catch(error){
       this.storageHealthy=false;console.error("Phoenix save error",error);
@@ -699,6 +719,21 @@ const App={
       return false
     }
   },
+  recoverPendingSession(){
+    const key=this.profilePendingSessionKey(this.activeProfileId);
+    let pending=null;
+    try{pending=JSON.parse(localStorage.getItem(key)||"null")}catch(error){console.warn("Phoenix pending session recovery warning",error)}
+    if(!pending?.id)return false;
+    if(!(this.data.sessions||[]).some(session=>session.id===pending.id))this.data.sessions.push(pending);
+    return true
+  },
+  stagePendingSession(session){
+    try{
+      localStorage.setItem(this.profilePendingSessionKey(this.activeProfileId),JSON.stringify(session));
+      return true
+    }catch(error){console.warn("Phoenix pending session warning",error);return false}
+  },
+  clearPendingSession(){try{localStorage.removeItem(this.profilePendingSessionKey(this.activeProfileId))}catch(_){ }},
   saveActive(){
     try{
       this.active?localStorage.setItem(this.profileActiveKey(this.activeProfileId),JSON.stringify(this.active)):localStorage.removeItem(this.profileActiveKey(this.activeProfileId));
@@ -2816,9 +2851,16 @@ const App={
     session.prs=this.detectSessionPRs(session);
     session.notes="";
     session.progressionSuggestions=this.progressionSuggestionsFor(session,r);
-    this.data.sessions.push(session);
-    this.save();
-
+    this.stagePendingSession(session);
+    const previousSessions=this.data.sessions;
+    if(!previousSessions.some(item=>item.id===session.id))previousSessions.push(session);
+    if(!this.save()){
+      const index=previousSessions.findIndex(item=>item.id===session.id);
+      if(index>=0)previousSessions.splice(index,1);
+      this.toast("No se ha cerrado el entrenamiento: sigue abierto para evitar perder tus datos.");
+      return
+    }
+    this.clearPendingSession();
     this.active=null;
     this.saveActive();
 
@@ -4119,6 +4161,7 @@ const App={
   executeHistoryDelete(){
     if(!this.validateHistoryDeletePhrase()){this.toast("Escribe BORRAR para confirmar");return}
     const sessions=this.data.sessions||[];
+    const safetyCopy=sessions.slice();
     let removed=0;
     if(this.historyDeleteMode==="single"){
       const i=Number(this.historyDeleteIndex);if(Number.isInteger(i)&&i>=0&&i<sessions.length){sessions.splice(i,1);removed=1}
@@ -4132,7 +4175,12 @@ const App={
     }else if(this.historyDeleteMode==="all"){
       removed=sessions.length;this.data.sessions=[];
     }
-    this.save();this.closeHistoryDelete();this.renderHistory(false);this.toast(removed?`${removed} entrenamiento${removed===1?'':'s'} eliminado${removed===1?'':'s'}`:"No había entrenamientos en ese intervalo");
+    if(removed&&!this.save()){
+      this.data.sessions=safetyCopy;
+      this.toast("No se ha borrado nada: el almacenamiento no confirmó el cambio.");
+      return
+    }
+    this.closeHistoryDelete();this.renderHistory(false);this.toast(removed?`${removed} entrenamiento${removed===1?'':'s'} eliminado${removed===1?'':'s'}`:"No había entrenamientos en ese intervalo");
   },
 
   openPlanningRepeatSheet(){
