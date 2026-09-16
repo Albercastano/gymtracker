@@ -312,7 +312,7 @@ const App={
       await Promise.all(registrations.map(reg=>reg.unregister()));
       const keys=await window.caches?.keys?.()||[];
       await Promise.all(keys.filter(key=>key.startsWith("gymtracker-phoenix")).map(key=>window.caches.delete(key)));
-      this.data.settings.uiMaterial="apex";this.save();
+      this.data.settings.uiMaterial="acx";this.save();
       location.replace(`index.html?v=038&apexrepair=${Date.now()}#settings`);
     }catch(error){this.reportError(error)}
   },
@@ -555,7 +555,7 @@ const App={
 
   defaults(){
     return{
-      settings:{weightStep:.5,defaultRest:90,sound:true,vibration:true,planningMode:"fixed",fontScale:"normal",timerOrientation:"auto",uiMaterial:"apex",uiShape:"precision",uiInstruments:{},uiCalibration:{}},
+      settings:{weightStep:.5,defaultRest:90,sound:true,vibration:true,planningMode:"fixed",fontScale:"normal",timerOrientation:"auto",uiMaterial:"acx",uiShape:"precision",uiInstruments:{},uiCalibration:{}},
       profile:{bodyWeight:null},
       routines:[
         {id:"r1",name:"Torso A",day:1,items:[
@@ -612,7 +612,7 @@ const App={
     if(!["auto","portrait","landscape"].includes(this.data.settings.timerOrientation))this.data.settings.timerOrientation="auto";
     if(this.data.settings.uiMaterial==="foundry")this.data.settings.uiMaterial="apex";
     if(window.PhoenixMaterialEngine&&!window.PhoenixMaterialEngine.isSupported(this.data.settings.uiMaterial))this.data.settings.uiMaterial=window.PhoenixMaterialEngine.isSupported("apex")?"apex":window.PhoenixMaterialEngine.fallback;
-    else if(!window.PhoenixMaterialEngine&&!["precision","apex"].includes(this.data.settings.uiMaterial))this.data.settings.uiMaterial="apex";
+    else if(!window.PhoenixMaterialEngine&&!["precision","apex","vektor","acx"].includes(this.data.settings.uiMaterial))this.data.settings.uiMaterial="acx";
     const shapeEngine=window.PhoenixShapeEngine;
     if(!this.data.settings.uiShape)this.data.settings.uiShape="precision";
     if(shapeEngine&&!shapeEngine.isSupported(this.data.settings.uiShape))this.data.settings.uiShape=shapeEngine.fallback;
@@ -984,7 +984,7 @@ const App={
     const active=this.active;
     const bodyWeight=Number(this.data.profile?.bodyWeight)||0;
     const uiMaterial=this.data.settings?.uiMaterial||"precision";
-    const uiMaterialShort=uiMaterial==="apex"?"APEX":uiMaterial==="vektor"?"VEKTOR":"PRECISION";
+    const uiMaterialShort=uiMaterial==="acx"?"ACX":uiMaterial==="apex"?"APEX":uiMaterial==="vektor"?"VEKTOR":"PRECISION";
     const storageNotice=this.storageHealthy?"":`<section class="system-alert" role="alert"><strong>GUARDADO EN PAUSA</strong><span>El dispositivo no permite guardar ahora. Libera espacio antes de cerrar GymTracker.</span></section>`;
     const display=this.homeShowcaseState();
     const actionRoutine=display.actionRoutine;
@@ -997,7 +997,7 @@ const App={
     document.getElementById("home").innerHTML=`<div class="home-phoenix home-phoenix--wow">${storageNotice}
       <section class="home-brand home-brand--forged" aria-label="GymTracker Phoenix">
         <div class="home-brand__plate"><img src="icon-512.png" alt="" aria-hidden="true"></div>
-        <div class="home-brand__copy"><div class="home-brand__name">GYMTRACKER</div><div class="home-brand__sub">${uiMaterial==="apex"?"PHOENIX · APEX":uiMaterial==="vektor"?"PHOENIX · VEKTOR":"PHOENIX · FORGED"}</div></div>
+        <div class="home-brand__copy"><div class="home-brand__name">GYMTRACKER</div><div class="home-brand__sub">${uiMaterial==="acx"?"PHOENIX · ACX":uiMaterial==="apex"?"PHOENIX · APEX":uiMaterial==="vektor"?"PHOENIX · VEKTOR":"PHOENIX · FORGED"}</div></div>
         <button type="button" class="home-material-access" onclick="App.openMaterialSettings()" aria-label="Cambiar apariencia">
           <span>APARIENCIA</span><b data-material-short>${uiMaterialShort}</b><em aria-hidden="true">›</em>
         </button>
@@ -2309,8 +2309,8 @@ const App={
     });
     const manifest=engine?.getManifest?.(material);
     document.querySelectorAll('[data-material-current]').forEach(el=>el.textContent=manifest?.name||(material==='apex'?'FORGED Apex':material==='vektor'?'FORGED Vektor':'FORGED Precision'));
-    document.querySelectorAll('[data-material-short]').forEach(el=>el.textContent=material==='apex'?'APEX':material==='vektor'?'VEKTOR':'PRECISION');
-    this.toast(material==='apex'?'FORGED Apex aplicado':material==='vektor'?'FORGED Vektor aplicado':'FORGED Precision aplicado');
+    document.querySelectorAll('[data-material-short]').forEach(el=>el.textContent=material==='acx'?'ACX':material==='apex'?'APEX':material==='vektor'?'VEKTOR':'PRECISION');
+    this.toast(material==='acx'?'ACX aplicado':material==='apex'?'FORGED Apex aplicado':material==='vektor'?'FORGED Vektor aplicado':'FORGED Precision aplicado');
     if(this.currentScreen==="forgeLab"){
       requestAnimationFrame(()=>{
         this.updateForgeLabMaterialState();
@@ -2334,7 +2334,7 @@ const App={
   previewUiMaterial(material){
     const engine=window.PhoenixMaterialEngine;
     if(engine&&!engine.isSupported(material)){this.toast("Material no compatible");return}
-    if(!engine&&!['precision','apex','vektor'].includes(material))return;
+    if(!engine&&!['precision','apex','vektor','acx'].includes(material))return;
     if(!this.materialPreviewOriginal)this.materialPreviewOriginal=this.data?.settings?.uiMaterial||'precision';
     this.materialPreview=material;
     document.documentElement.dataset.phxMaterialPreview='true';
@@ -3030,7 +3030,7 @@ const App={
     const weekMinutes=Math.round(weekSessions.reduce((sum,s)=>sum+(Number(s.durationMs)||0),0)/60000);
     const bodyWeight=Number(this.data.profile?.bodyWeight)||0;
     const uiMaterial=this.data.settings?.uiMaterial||"precision";
-    const uiMaterialName=uiMaterial==="apex"?"FORGED Apex":uiMaterial==="vektor"?"FORGED Vektor":"FORGED Precision";
+    const uiMaterialName=uiMaterial==="acx"?"ACX · CUMPLE":uiMaterial==="apex"?"FORGED Apex":uiMaterial==="vektor"?"FORGED Vektor":"FORGED Precision";
     const allMax=Math.max(0,...sessions.map(maxLoad));
     const relative=bodyWeight&&allMax?allMax/bodyWeight:0;
     const latest=sessions[sessions.length-1];
@@ -3062,7 +3062,7 @@ const App={
     const recent=sessions.slice(-3).reverse();
     document.getElementById("data").innerHTML=`<div class="data-v2 data-v2--grouped">
       <section class="data-v2__head phx-card phx-card--highlight">
-        <div class="data-v2__brand"><span class="data-v2__plate"><img src="icon-512.png" alt=""></span><div><small>GYMTRACKER</small><b>${uiMaterial==="apex"?"PHOENIX · APEX DATA":uiMaterial==="vektor"?"PHOENIX · VEKTOR DATA":"PHOENIX · DATA"}</b></div></div>
+        <div class="data-v2__brand"><span class="data-v2__plate"><img src="icon-512.png" alt=""></span><div><small>GYMTRACKER</small><b>${uiMaterial==="acx"?"PHOENIX · ACX DATA":uiMaterial==="apex"?"PHOENIX · APEX DATA":uiMaterial==="vektor"?"PHOENIX · VEKTOR DATA":"PHOENIX · DATA"}</b></div></div>
         <div class="eyebrow">DATOS</div>
         <h1>Datos<br><em>ordenados.</em></h1>
         <p>Resumen arriba. Evolución en el centro. Herramientas agrupadas abajo.</p>
@@ -4567,6 +4567,10 @@ const App={
           <button type="button" class="material-option vektor ${uiMaterial==='vektor'?'active':''}" data-ui-material="vektor" aria-pressed="${uiMaterial==='vektor'}" onclick="App.setUiMaterial('vektor')">
             <span class="material-swatch" aria-hidden="true"><i></i><i></i><i></i></span>
             <span class="material-copy"><b>FORGED Vektor <mark>0.2</mark></b><small>Instrumental · angular · acero y naranja técnico</small><em class="material-state">${uiMaterial==='vektor'?'MATERIAL ACTIVO':'APLICAR MATERIAL'}</em></span>
+          </button>
+          <button type="button" class="material-option acx ${uiMaterial==='acx'?'active':''}" data-ui-material="acx" aria-pressed="${uiMaterial==='acx'}" onclick="App.setUiMaterial('acx')">
+            <span class="material-swatch" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="material-copy"><b>ACX · CUMPLE <mark>1.0</mark></b><small>Carbón · hueso · óxido · claridad sin postureo</small><em class="material-state">${uiMaterial==='acx'?'MATERIAL ACTIVO':'APLICAR MATERIAL'}</em></span>
           </button>
         </div>
         <div class="material-safety-actions"><button type="button" class="secondary" onclick="App.restorePrecisionMaterial()">RESTAURAR FORGED PRECISION</button><button type="button" class="secondary" onclick="App.renderForgeLab()">VISTA PREVIA EN FORGE LAB</button><button type="button" class="secondary" onclick="App.repairApexInstallation()">REPARAR CACHÉ APEX</button></div>

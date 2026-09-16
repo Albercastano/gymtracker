@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "acx",
+  "name": "ACX · CUMPLE",
+  "author": "AC Rodríguex",
+  "version": "1.0.0",
+  "engine": "0.8.x",
+  "status": "stable",
+  "fallback": false,
+  "styles": ["acx.css"],
+  "assetsBudgetKb": 64,
+  "capabilities": ["component-contract","components","motion","timer","visual-tokens","full-app-coverage","responsive","accessibility-states"],
+  "network": "forbidden",
+  "scripts": "forbidden",
+  "componentContract": "0.1.x"
+}

@@ -1,7 +1,7 @@
 "use strict";
 (function(){
   const ENGINE_VERSION="0.8.0";
-  const BOOT_DEFAULT="apex";
+  const BOOT_DEFAULT="acx";
   const FALLBACK="precision";
   const registry=Object.freeze({
     precision:Object.freeze({
@@ -18,6 +18,11 @@
       schemaVersion:1,id:"vektor",name:"FORGED Vektor",author:"Phoenix Forge",version:"0.1.0-alpha",engine:"0.8.x",componentContract:"0.1.x",status:"alpha",fallback:false,
       styles:Object.freeze(["vektor.css"]),assetsBudgetKb:82,
       capabilities:Object.freeze(["visual-tokens","components","timer","motion","component-contract","responsive","accessibility-states"]),network:"forbidden",scripts:"forbidden"
+    }),
+    acx:Object.freeze({
+      schemaVersion:1,id:"acx",name:"ACX · CUMPLE",author:"AC Rodríguex",version:"1.0.0",engine:"0.8.x",componentContract:"0.1.x",status:"stable",fallback:false,
+      styles:Object.freeze(["acx.css"]),assetsBudgetKb:64,
+      capabilities:Object.freeze(["visual-tokens","components","timer","motion","component-contract","full-app-coverage","responsive","accessibility-states"]),network:"forbidden",scripts:"forbidden"
     })
   });
   const contract=window.PhoenixMaterialContract;
@@ -49,7 +54,7 @@
   function linkFor(id,file,token){
     return new Promise((resolve,reject)=>{
       if(!safeStyle(file))return reject(new Error('Unsafe material stylesheet'));
-      const bootstrap=id==='apex'&&file==='apex.css'?document.querySelector('link[data-phx-apex-bootstrap]'):null;
+      const bootstrap=id==='acx'&&file==='acx.css'?document.querySelector('link[data-phx-acx-bootstrap]'):id==='apex'&&file==='apex.css'?document.querySelector('link[data-phx-apex-bootstrap]'):null;
       if(bootstrap)return resolve(bootstrap);
       const link=document.createElement('link');
       link.rel='stylesheet';link.href=`themes/${id}/${file}`;link.dataset.phxMaterialStyle=id;
