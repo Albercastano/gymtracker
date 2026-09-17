@@ -2,17 +2,17 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="phx-build" content="071">
+  <meta name="phx-build" content="073">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#151515">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; form-action 'self'; connect-src 'self'; img-src 'self' data: blob:; media-src 'self' data: blob:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'">
-  <title>GymTracker ACX · Build 071</title>
+  <title>GymTracker ACX · Build 073</title>
   <script>
     // Build 064 bootstrap: home routine peek and refined weight orbit.
     document.documentElement.dataset.phxMaterial="acx";
     document.documentElement.dataset.material="acx";
     document.documentElement.dataset.acxPalette="oxide";
-    document.documentElement.dataset.phxBuild="071";
+    document.documentElement.dataset.phxBuild="073";
     try{
       const activeProfile=localStorage.getItem("gymtracker_phoenix_active_profile_v1")||"alberto";
       const key=activeProfile==="alberto"?"gymtracker_phoenix_v8":`gymtracker_phoenix_v8_profile_${activeProfile}`;
@@ -25,32 +25,32 @@
       }
     }catch(_){/* storage may be unavailable during first paint */}
   </script>
-  <link rel="manifest" href="manifest.webmanifest?v=071">
+  <link rel="manifest" href="manifest.webmanifest?v=073">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=071">
   <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png?v=071">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=071">
   <link rel="stylesheet" href="styles.css?v=064">
   <link rel="stylesheet" href="themes/semantic-bridge.css?v=064">
-  <link rel="stylesheet" href="themes/acx/acx.css?v=071" data-phx-acx-bootstrap>
+  <link rel="stylesheet" href="themes/acx/acx.css?v=073" data-phx-acx-bootstrap>
 </head>
 <body>
   <section id="splash" class="splash">
     <div class="splash-card forged">
-      <button type="button" class="phoenix-emblem phoenix-easter-trigger" data-phoenix-easter aria-label="Logo Phoenix"><img src="icon-512.png" alt=""></button>
+      <div class="phoenix-emblem" aria-label="Logotipo ACX"><img src="icon-512.png" alt=""></div>
       <h1><span>GYM</span><span>TRACKER</span></h1>
-      <div class="sub">PHOENIX · ACX</div>
+      <div class="sub">GYMTRACKER · ACX</div>
       <p>Cumple el siguiente paso.</p>
     </div>
   </section>
 
-  <div id="phoenixOrigin" class="phoenix-origin" aria-hidden="true" hidden>
+  <div id="phoenixOrigin" class="phoenix-origin" aria-hidden="true" hidden inert>
     <div class="phoenix-origin__backdrop" onclick="App.closePhoenixOrigin()"></div>
     <section class="phoenix-origin__panel forged" role="dialog" aria-modal="true" aria-labelledby="phoenixOriginTitle">
       <div class="phoenix-origin__halo" aria-hidden="true"></div>
       <div class="phoenix-origin__emblem"><img src="icon-512.png" alt=""></div>
       <div class="eyebrow">UX-EGG-001 · EL ORIGEN</div>
-      <h1 id="phoenixOriginTitle">POR QUÉ EXISTE <em>PHOENIX</em></h1>
-      <p class="phoenix-origin__intro">GymTracker Phoenix nació para acompañar el entrenamiento, no para interrumpirlo.</p>
+      <h1 id="phoenixOriginTitle">POR QUÉ EXISTE <em>GYMTRACKER ACX</em></h1>
+      <p class="phoenix-origin__intro">GymTracker ACX nació para acompañar el entrenamiento, no para interrumpirlo.</p>
       <p class="phoenix-origin__lead">No pretende decirte cómo debes entrenar ni convertir cada sesión en una competición. Su función es ayudarte a registrar, comprender y mejorar tu propio proceso.</p>
 
       <div class="phoenix-origin__principles">
@@ -59,7 +59,7 @@
         <article><span>03</span><div><h2>Tus datos son tuyos</h2><p>Tu historial, tus rutinas y tu progreso deben poder consultarse, exportarse y conservarse sin depender de una plataforma.</p></div></article>
         <article><span>04</span><div><h2>Menos acciones, más entrenamiento</h2><p>Cada pantalla y cada botón deben reducir distracciones y evitar pasos innecesarios.</p></div></article>
         <article><span>05</span><div><h2>Claridad bajo esfuerzo</h2><p>La información importante debe entenderse rápidamente, incluso durante una serie exigente.</p></div></article>
-        <article><span>06</span><div><h2>Progresión con criterio</h2><p>Phoenix puede analizar, recordar y proponer. La decisión final siempre pertenece al usuario.</p></div></article>
+        <article><span>06</span><div><h2>Progresión con criterio</h2><p>GymTracker puede analizar, recordar y proponer. La decisión final siempre pertenece al usuario.</p></div></article>
         <article><span>07</span><div><h2>Belleza funcional</h2><p>El diseño no existe para presumir. Existe para hacer el entrenamiento más cómodo, rápido y claro.</p></div></article>
       </div>
 
@@ -74,10 +74,10 @@
 
   <header class="topbar">
     <button id="destButton" class="dest-button" onclick="App.goDestination()">Inicio</button>
-    <button type="button" class="topbar-brand phoenix-easter-trigger" data-phoenix-easter aria-label="GymTracker Phoenix">
+    <div class="topbar-brand" aria-label="GymTracker ACX">
       <img src="icon-512.png" alt="" aria-hidden="true">
-      <div class="topbar-brand__copy"><strong>GYMTRACKER</strong><span>ACX</span><small class="build-stamp" aria-label="Versión instalada Build 071">BUILD 071</small></div>
-    </button>
+      <div class="topbar-brand__copy"><strong>GYMTRACKER</strong><span>ACX</span><small class="build-stamp" aria-label="Versión instalada Build 073">BUILD 073</small></div>
+    </div>
     <button id="profileButton" class="profile-button profile-trigger" type="button" onclick="App.openProfileGate()" aria-haspopup="dialog" aria-expanded="false" aria-controls="profileGate">
       <span>PERFIL ACTIVO</span>
       <b id="profileButtonName">Alberto</b>
@@ -148,19 +148,19 @@
       <h2 id="trainingEnvironmentTitle">¿Dónde entrenas hoy?</h2>
       <p class="training-environment-routine">Rutina: <b id="trainingEnvironmentRoutine"></b></p>
       <section id="trainingEnvironmentChooser" class="training-environment-chooser">
-        <div class="environment-preference-block"><div><span>PRIORIDAD DE HOY</span><small>Phoenix ajustará toda la sesión, no solo cada ejercicio.</small></div><div class="environment-preference-options">
+        <div class="environment-preference-block"><div><span>PRIORIDAD DE HOY</span><small>GymTracker ajustará toda la sesión, no solo cada ejercicio.</small></div><div class="environment-preference-options">
           <button type="button" data-environment-preference="closest" class="active">LO MÁS PARECIDO</button>
           <button type="button" data-environment-preference="faster">MÁS RÁPIDO</button>
           <button type="button" data-environment-preference="no_equipment">SIN MATERIAL</button>
           <button type="button" data-environment-preference="calisthenics">MÁS CALISTENIA</button>
         </div></div>
         <button type="button" class="environment-choice environment-choice--gym" data-training-environment="gym"><span>01</span><div><b>GIMNASIO</b><small>Rutina prevista y alternativas de gimnasio</small></div><em>→</em></button>
-        <button type="button" class="environment-choice environment-choice--home" data-training-environment="home"><span>02</span><div><b>CASA</b><small>Phoenix adapta la sesión con PEDB</small></div><em>→</em></button>
+        <button type="button" class="environment-choice environment-choice--home" data-training-environment="home"><span>02</span><div><b>CASA</b><small>ACX adapta la sesión con tu material</small></div><em>→</em></button>
         <button type="button" class="environment-choice environment-choice--street" data-training-environment="street"><span>03</span><div><b>CALLE</b><small>Calistenia, barras, paralelas y suelo</small></div><em>→</em></button>
       </section>
       <section id="trainingEnvironmentEquipment" class="training-environment-equipment" hidden>
         <div class="eyebrow">MATERIAL DEL PERFIL</div><h3 id="environmentEquipmentTitle">Material disponible</h3>
-        <p>Phoenix solo propondrá ejercicios que puedas realizar con este material.</p>
+        <p>GymTracker solo propondrá ejercicios que puedas realizar con este material.</p>
         <div id="environmentEquipmentOptions" class="environment-equipment-options"></div>
         <button type="button" class="king small-king" onclick="App.saveEnvironmentEquipment()">GUARDAR Y RECALCULAR</button>
         <button type="button" class="secondary" onclick="App.selectTrainingEnvironment(App.pendingEnvironmentPlan?.environment||'home')">Cancelar</button>
@@ -346,7 +346,7 @@
     <div class="sheet-backdrop" onclick="App.cancelForgedDialog()"></div>
     <div class="sheet-panel forged-dialog-panel" role="dialog" aria-modal="true" aria-labelledby="forgedDialogTitle">
       <div class="handle"></div>
-      <div id="forgedDialogEyebrow" class="eyebrow">PHOENIX</div>
+      <div id="forgedDialogEyebrow" class="eyebrow">GYMTRACKER ACX</div>
       <h2 id="forgedDialogTitle">Confirmar acción</h2>
       <p id="forgedDialogMessage" class="muted"></p>
       <label id="forgedDialogInputWrap" class="forged-dialog-input" hidden><span id="forgedDialogInputLabel">Valor</span><input id="forgedDialogInput" type="text" autocomplete="off"></label>
@@ -357,7 +357,7 @@
 
 
   <aside id="pwaUpdate" class="pwa-update" hidden role="status" aria-live="polite" aria-atomic="true">
-    <div class="pwa-update__copy"><span>PHOENIX ACTUALIZADO</span><b>Hay una versión nueva lista para aplicar.</b></div>
+    <div class="pwa-update__copy"><span>GYMTRACKER ACX ACTUALIZADO</span><b>Hay una versión nueva lista para aplicar.</b></div>
     <div class="pwa-update__actions"><button type="button" class="secondary pwa-update__later" onclick="App.dismissAppUpdate()">MÁS TARDE</button><button type="button" class="primary" onclick="App.applyAppUpdate()">ACTUALIZAR</button></div>
   </aside>
 
@@ -401,7 +401,7 @@
   <script src="js/pedb-bundle.js?v=064"></script>
   <script src="js/pedb-db.js?v=064"></script>
   <script src="js/pedb-loader.js?v=064"></script>
-  <script src="app.js?v=071"></script>
+  <script src="app.js?v=073"></script>
 
   <div id="nextExerciseOverlay" class="next-overlay" aria-hidden="true">
     <div class="next-card">
@@ -418,18 +418,21 @@
     <div class="sheet-backdrop" onclick="App.closeRoutineTextImporter()"></div>
     <div class="sheet-panel routine-import-panel">
       <div class="handle"></div>
-      <div class="eyebrow">IMPORTAR</div>
-      <h2>Rutina desde texto</h2>
-      <p class="muted">Pega una rutina. Phoenix detectará nombre, ejercicios, series, repeticiones, peso y descanso.</p>
-      <textarea id="routineTextInput" class="routine-textarea" placeholder="Ejemplo:
+      <div class="eyebrow">IMPORTADOR ACX · 3 PASOS</div>
+      <h2>Trae tu rutina desde una IA</h2>
+      <section class="acx-ai-step"><b>1</b><div><span>COPIA EL PROMPT</span><strong>GymTracker explica el formato por ti</strong><small>Pégalo en ChatGPT, Gemini o la IA que utilices.</small></div><button type="button" onclick="App.copyRoutineAiPrompt()">COPIAR</button></section>
+      <details class="acx-ai-prompt"><summary>Ver el prompt completo</summary><pre id="routineAiPrompt"></pre></details>
+      <section class="acx-ai-step"><b>2</b><div><span>AÑADE TU RUTINA</span><strong>Escríbela con normalidad en la IA</strong><small>Puede contener uno o varios días de entrenamiento.</small></div></section>
+      <section class="acx-ai-step"><b>3</b><div><span>PEGA EL RESULTADO</span><strong>Lo revisamos antes de guardar</strong><small>Nada se importa hasta que confirmes.</small></div></section>
+      <textarea id="routineTextInput" class="routine-textarea" oninput="App.invalidateRoutineImport()" placeholder="Ejemplo:
 
-Torso A
-Press banca 3x8 80kg 90s
-Dominadas 3x8 0kg 90s
-Remo con barra 3x10 60kg 90s"></textarea>
+RUTINA: Torso A
+DÍA: Lunes
+EJERCICIO: Press banca | SERIES: 3 | REPETICIONES: 8 | PESO: 80 | DESCANSO: 90"></textarea>
       <div id="routineImportPreview" class="routine-import-preview"></div>
-      <button class="secondary" onclick="App.previewRoutineText()">Previsualizar</button>
-      <button class="king small-king" onclick="App.importRoutineText()">IMPORTAR RUTINA</button>
+      <label class="acx-ai-assign"><input id="routineImportAssignWeek" type="checkbox" checked><span><b>Asignar también los días indicados</b><small>Solo si la IA ha incluido DÍA.</small></span></label>
+      <button class="secondary" onclick="App.previewRoutineText()">REVISAR RESULTADO</button>
+      <button id="routineImportConfirm" class="king small-king" onclick="App.importRoutineText()" disabled>IMPORTAR LO REVISADO</button>
       <button class="secondary" onclick="App.closeRoutineTextImporter()">Cancelar</button>
     </div>
   </div>

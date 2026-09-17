@@ -344,7 +344,7 @@ const App={
     const inputLabel=document.getElementById("forgedDialogInputLabel");
     const confirm=document.getElementById("forgedDialogConfirm");
     const cancel=sheet.querySelector(".forged-dialog-cancel");
-    if(eyebrow)eyebrow.textContent=options.eyebrow||"PHOENIX";
+    if(eyebrow)eyebrow.textContent=options.eyebrow||"GYMTRACKER ACX";
     if(title)title.textContent=options.title||"Confirmar acción";
     if(message)message.textContent=options.message||"";
     const wantsInput=Boolean(options.input);
@@ -980,7 +980,7 @@ const App={
     if(target==="blocks"){this.renderBlocks(withHistory);return}
     if(target==="history"){this.renderHistory(withHistory);return}
     if(target==="settings"){this.renderSettings(withHistory);return}
-    if(target==="forgeLab"){this.renderForgeLab(withHistory);return}
+    if(target==="forgeLab"){this.renderSettings(withHistory);return}
     if(target==="backups"){this.renderBackups(withHistory);return}
     if(target==="gym"){this.renderGym(withHistory);return}
     if(target==="series"){this.beginSet();return}
@@ -1498,7 +1498,7 @@ const App={
     host.innerHTML=`<div class="focus focus-mode-screen">
       <section class="focus-mode-hero"><div class="eyebrow">FOCUS</div><h1>¿CÓMO QUIERES ENTRENAR?</h1><p>${r?.name||"Entrenamiento"}</p></section>
       <section class="focus-mode-options">
-        <button onclick="App.selectExecutionMode('automatic')"><span>AUTOMÁTICO</span><strong>Seguir el orden cargado</strong><small>Phoenix enlaza cada ejercicio y muestra el resumen intermedio.</small><b>›</b></button>
+        <button onclick="App.selectExecutionMode('automatic')"><span>AUTOMÁTICO</span><strong>Seguir el orden cargado</strong><small>GymTracker enlaza cada ejercicio y muestra el resumen intermedio.</small><b>›</b></button>
         <button onclick="App.selectExecutionMode('free')"><span>LIBRE</span><strong>Elegir el siguiente ejercicio</strong><small>Vuelves a la lista de pendientes después de completar cada ejercicio.</small><b>›</b></button>
       </section>
       <button class="gym-exit-action" onclick="App.pauseWorkout()">Volver al inicio</button>
@@ -2474,7 +2474,7 @@ const App={
     clearInterval(this.timer);
     if(this.active){this.active.phase="summary";this.saveActive()}
     const host=document.getElementById("exerciseSummary");
-    if(window.PhoenixShapeEngine?.render?.("exercise-summary",host,this,{source:"exercise-summary"})){this.show("exerciseSummary","Ejercicio");return}
+    if((this.data.settings?.uiMaterial||"acx")!=="acx"&&window.PhoenixShapeEngine?.render?.("exercise-summary",host,this,{source:"exercise-summary"})){this.show("exerciseSummary","Ejercicio");return}
     this.renderExerciseSummaryLegacy()
   },
 
@@ -2739,7 +2739,7 @@ const App={
   renderProgressionSummary(){
     const host=document.getElementById("progressionSummary");if(!host||!this.lastCompletedSession)return;
     const suggestions=this.lastCompletedSession.progressionSuggestions||[];
-    host.innerHTML=suggestions.length?`<section class="workout-complete-report progression-summary"><div class="workout-complete-report__head"><span>PRÓXIMA SESIÓN</span><b>Phoenix propone · Tú decides</b></div>${suggestions.map(x=>`<div class="progression-row ${x.status}"><div><strong>${x.name}</strong><span>${x.title}</span><small>${x.reason}</small></div>${x.status==="pending"?`<div class="progression-actions"><button class="secondary" onclick="App.rejectProgression('${x.id}')">Mantener</button><button onclick="App.applyProgression('${x.id}')">Aceptar</button></div>`:`<em>${x.status==="accepted"?"Aplicada":"Rechazada"}</em>`}</div>`).join("")}</section>`:""
+    host.innerHTML=suggestions.length?`<section class="workout-complete-report progression-summary"><div class="workout-complete-report__head"><span>PRÓXIMA SESIÓN</span><b>GymTracker propone · Tú decides</b></div>${suggestions.map(x=>`<div class="progression-row ${x.status}"><div><strong>${x.name}</strong><span>${x.title}</span><small>${x.reason}</small></div>${x.status==="pending"?`<div class="progression-actions"><button class="secondary" onclick="App.rejectProgression('${x.id}')">Mantener</button><button onclick="App.applyProgression('${x.id}')">Aceptar</button></div>`:`<em>${x.status==="accepted"?"Aplicada":"Rechazada"}</em>`}</div>`).join("")}</section>`:""
   },
 
   detectSessionPRs(session){
@@ -2761,7 +2761,7 @@ const App={
   async shareLastWorkoutReport(){
     const text=this.workoutReportText();if(!text){this.toast("No hay informe disponible");return}
     if(navigator.share){
-      try{await navigator.share({title:`GymTracker Phoenix · ${this.lastCompletedSession?.routineName||"Entrenamiento"}`,text});return}catch(error){if(error?.name==="AbortError")return}
+      try{await navigator.share({title:`GymTracker ACX · ${this.lastCompletedSession?.routineName||"Entrenamiento"}`,text});return}catch(error){if(error?.name==="AbortError")return}
     }
     await this.copyLastWorkoutReport();
   },
@@ -2824,7 +2824,7 @@ const App={
 
     this.lastCompletedSession=session;
     const workoutHost=document.getElementById("workoutSummary");
-    if(!window.PhoenixShapeEngine?.render?.("workout-summary",workoutHost,this,{source:"finish-workout"})){
+    if((this.data.settings?.uiMaterial||"acx")==="acx"||!window.PhoenixShapeEngine?.render?.("workout-summary",workoutHost,this,{source:"finish-workout"})){
       const plainReport=this.workoutReportText(session).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
       workoutHost.innerHTML=`<div class="focus workout-complete-forged"><section class="workout-complete-hero"><div class="eyebrow">ENTRENAMIENTO COMPLETADO</div><div class="workout-complete-title">${r.name.toUpperCase()}</div><div class="workout-saved-state">✓ SESIÓN GUARDADA</div></section><section class="workout-complete-metrics"><div><strong>${exercises.length}</strong><span>ejercicios</span></div><div><strong>${session.totalSets}</strong><span>series</span></div><div><strong>${durationMin}</strong><span>minutos</span></div><div><strong>${Math.round(session.volume)}</strong><span>kg volumen</span></div></section><section class="workout-complete-report workout-report-plain-card"><div class="workout-complete-report__head"><span>RESULTADO COPIABLE</span><b>Listo para copiar</b></div><textarea id="workoutReportPlainText" class="workout-report-plain" readonly>${plainReport}</textarea><div class="workout-share-grid"><button class="workout-complete-copy" onclick="App.copyLastWorkoutReport()">COPIAR</button><button class="workout-complete-copy" onclick="App.shareLastWorkoutReport()">COMPARTIR</button></div></section><button class="workout-complete-home" onclick="App.renderHome()"><span>TERMINAR</span><b>✓</b></button></div>`;
     }
@@ -2837,7 +2837,7 @@ const App={
     if(!session)return"";
     const mins=Math.max(1,Math.round((Number(session.durationMs)||0)/60000));
     const lines=[
-      "GYMTRACKER PHOENIX",
+      "GYMTRACKER ACX",
       `Entrenamiento: ${session.routineName}`,
       `Fecha: ${new Date(session.endedAt||session.date).toLocaleString('es-ES')}`,
       `Duración: ${mins} min`,
@@ -3076,7 +3076,7 @@ const App={
     const recent=sessions.slice(-3).reverse();
     document.getElementById("data").innerHTML=`<div class="data-v2 data-v2--grouped">
       <section class="data-v2__head phx-card phx-card--highlight">
-        <div class="data-v2__brand"><span class="data-v2__plate"><img src="icon-512.png" alt=""></span><div><small>GYMTRACKER</small><b>${uiMaterial==="acx"?"PHOENIX · ACX DATA":uiMaterial==="apex"?"PHOENIX · APEX DATA":uiMaterial==="vektor"?"PHOENIX · VEKTOR DATA":"PHOENIX · DATA"}</b></div></div>
+        <div class="data-v2__brand"><span class="data-v2__plate"><img src="icon-512.png" alt=""></span><div><small>GYMTRACKER</small><b>ACX · DATOS</b></div></div>
         <div class="eyebrow">DATOS</div>
         <h1>Datos<br><em>ordenados.</em></h1>
         <p>Resumen arriba. Evolución en el centro. Herramientas agrupadas abajo.</p>
@@ -3166,7 +3166,7 @@ const App={
       if(session)completedCount++;
       const today=this.isoDate(date)===this.isoDate(new Date());
       const state=session?'Completado':today?'Hoy':routine?'Pendiente':'Descanso';
-      return `<button class="week-day ${routine?'assigned':'rest'} ${today?'today':''} ${session?'completed':''}" onclick="App.chooseDayRoutine(${day})"><span>${name} · ${date.getDate()}</span><b>${routine?routine.name:'Descanso'}</b><small>${routine?`${this.estimateRoutineMinutes(routine)} min · ${state}`:state}</small></button>`
+      return `<button class="week-day acx-week-card ${routine?'assigned':'rest'} ${today?'today':''} ${session?'completed':''}" onclick="App.chooseDayRoutine(${day})"><time><b>${name}</b><span>${String(date.getDate()).padStart(2,'0')}</span></time><div><small>${today?'HOY':state.toUpperCase()}</small><strong>${routine?this.escape(routine.name):'Descanso'}</strong><em>${routine?`${routine.items.length} ejercicios · ~${this.estimateRoutineMinutes(routine)} min`:'Sin entrenamiento asignado'}</em></div><i>${session?'✓':'›'}</i></button>`
     }).join("");
 
     const cards=this.data.routines.map(r=>{
@@ -3190,7 +3190,7 @@ const App={
     }).join("");
 
     const range=`${monday.getDate()} ${monday.toLocaleDateString('es-ES',{month:'short'}).replace('.','').toUpperCase()} – ${sunday.getDate()} ${sunday.toLocaleDateString('es-ES',{month:'short'}).replace('.','').toUpperCase()}`;
-    document.getElementById("routines").innerHTML=`<div class="card week-planner"><div class="eyebrow">PLANIFICACIÓN SEMANAL · ${this.data.settings.planningMode==='fixed'?'PLAN FIJO':'SEMANA INDEPENDIENTE'}</div><div class="week-nav"><button onclick="App.shiftPlanningWeek(-1)">‹</button><strong>${range}</strong><button onclick="App.shiftPlanningWeek(1)">›</button></div><div class="week-summary"><span><b>${plannedCount}</b> sesiones</span><span><b>${estimatedMinutes}</b> min</span><span><b>${completedCount}</b> completadas</span></div><div class="week-grid">${plan}</div><div class="week-actions"><button class="secondary" onclick="App.goCurrentWeek()">Semana actual</button><button class="secondary" onclick="App.openPlanningRepeatSheet()">Configurar repetición</button></div><p class="routine-help">Semana de lunes a domingo. ${this.data.settings.planningMode==='fixed'?'La base se repite automáticamente; puedes crear excepciones puntuales.':'Cada lunes comienza en descanso y solo muestra lo que asignes.'}</p></div><div class="card"><div class="eyebrow">RUTINAS</div><div class="grid"><button class="secondary" onclick="App.createRoutine()">＋ Nueva rutina</button><button class="secondary" onclick="App.openRoutineTextImporter()">Importar texto</button><button class="secondary" onclick="App.renderLibrary(false)">Biblioteca PEDB</button><button class="secondary" onclick="App.renderBlocks()">Bloques</button></div></div>${cards}`;
+    document.getElementById("routines").innerHTML=`<div class="card week-planner acx-week-planner"><div class="eyebrow">PLANIFICACIÓN SEMANAL · ${this.data.settings.planningMode==='fixed'?'PLAN FIJO':'SEMANA INDEPENDIENTE'}</div><div class="week-nav"><button onclick="App.shiftPlanningWeek(-1)">‹</button><strong>${range}</strong><button onclick="App.shiftPlanningWeek(1)">›</button></div><div class="week-summary"><span><b>${plannedCount}</b> sesiones</span><span><b>${estimatedMinutes}</b> min</span><span><b>${completedCount}</b> hechas</span></div><div class="week-grid">${plan}</div><div class="week-actions"><button class="secondary" onclick="App.goCurrentWeek()">SEMANA ACTUAL</button>${this.data.settings.planningMode==='clear'?`<button class="secondary" onclick="App.copyPreviousWeek()">REPETIR ANTERIOR</button>`:''}<button class="secondary" onclick="App.openPlanningRepeatSheet()">REPETICIÓN</button></div><p class="routine-help">Toca una tarjeta para asignar, cambiar o dejar ese día en descanso.</p></div><div class="card acx-routine-tools"><div class="eyebrow">MIS RUTINAS</div><div class="grid"><button class="secondary" onclick="App.createRoutine()">＋ CREAR</button><button class="secondary acx-ai-import-button" onclick="App.openRoutineTextImporter()">IMPORTAR CON IA</button><button class="secondary" onclick="App.renderLibrary(false)">EJERCICIOS</button><button class="secondary" onclick="App.renderBlocks()">BLOQUES</button></div></div>${cards}`;
     this.show("routines","Datos",{history:withHistory})
   },
 
@@ -3198,7 +3198,14 @@ const App={
     const d=this.mondayOf(new Date(this.planningWeekStart+"T12:00:00"));d.setDate(d.getDate()+delta*7);this.planningWeekStart=this.weekKey(d);this.renderRoutines(false)
   },
   goCurrentWeek(){this.planningWeekStart=this.weekKey(new Date());this.renderRoutines(false)},
-  copyPreviousWeek(){this.toast("La planificación ya no necesita copiarse.")},
+  copyPreviousWeek(){
+    const monday=this.mondayOf(new Date((this.planningWeekStart||this.weekKey(new Date()))+"T12:00:00"));
+    const previous=new Date(monday);previous.setDate(previous.getDate()-7);
+    const source=this.getWeekPlan(previous,false);
+    if(!Object.keys(source).length){this.toast("La semana anterior está vacía.");return}
+    const key=this.weekKey(monday);
+    this.data.weeklyPlans[key]={...source};this.save();this.renderRoutines(false);this.toast("Semana anterior repetida.")
+  },
 
   toggleRoutine(id){this.openRoutineId=this.openRoutineId===id?null:id;this.renderRoutines(false)},
   addExercise(rid){
@@ -3307,11 +3314,51 @@ const App={
     const preview=document.getElementById("routineImportPreview");
     if(preview){preview.classList.remove("show");preview.innerHTML=""}
     if(input&&!input.value.trim())input.value="";
-    sheet?.classList.add("show")
+    this.routineImportValidatedText=null;const confirm=document.getElementById("routineImportConfirm");if(confirm)confirm.disabled=true;
+    const prompt=document.getElementById("routineAiPrompt");if(prompt)prompt.textContent=this.routineAiPrompt();
+    sheet?.classList.add("show");sheet?.setAttribute("aria-hidden","false");document.body.classList.add("sheet-open")
   },
 
   closeRoutineTextImporter(){
-    document.getElementById("routineTextSheet")?.classList.remove("show")
+    const sheet=document.getElementById("routineTextSheet");sheet?.classList.remove("show");sheet?.setAttribute("aria-hidden","true");document.body.classList.remove("sheet-open")
+  },
+
+  invalidateRoutineImport(){this.routineImportValidatedText=null;const button=document.getElementById("routineImportConfirm");if(button)button.disabled=true},
+
+  routineAiPrompt(){return `Convierte mi planificación al formato de importación de GymTracker ACX. Devuelve únicamente el resultado, sin explicaciones, sin Markdown y sin bloques de código. Usa un bloque por rutina y una línea por ejercicio. No inventes ejercicios, pesos ni datos que no aparezcan: si falta el peso usa 0; si falta el descanso usa 90. El día debe ser lunes, martes, miércoles, jueves, viernes, sábado o domingo. Formato exacto:\n\nRUTINA: Nombre de la rutina\nDÍA: Lunes\nEJERCICIO: Nombre | SERIES: 4 | REPETICIONES: 8 | PESO: 60 | DESCANSO: 90 | MODO: reps\n\nPara ejercicios por tiempo usa REPETICIONES para los segundos y MODO: tiempo. Si hay varias rutinas, repite RUTINA y DÍA para cada una. Conserva el orden original.\n\nMI PLANIFICACIÓN:\n[Pega aquí tu rutina]`},
+
+  async copyRoutineAiPrompt(){
+    const value=this.routineAiPrompt();
+    try{await navigator.clipboard.writeText(value);this.toast("Prompt copiado. Pégalo en tu IA.")}
+    catch(_){const area=document.createElement("textarea");area.value=value;document.body.appendChild(area);area.select();document.execCommand("copy");area.remove();this.toast("Prompt copiado. Pégalo en tu IA.")}
+  },
+
+  parseAiRoutinePlan(rawText){
+    const text=String(rawText||"").replace(/\r/g,"").trim();
+    if(!/^RUTINA\s*:/im.test(text)||!/^EJERCICIO\s*:/im.test(text))return null;
+    const dayMap={lunes:0,martes:1,miercoles:2,"miércoles":2,jueves:3,viernes:4,sabado:5,"sábado":5,domingo:6};
+    const blocks=text.split(/(?=^RUTINA\s*:)/gim).map(x=>x.trim()).filter(Boolean);
+    const routines=blocks.map((block,blockIndex)=>{
+      const name=(block.match(/^RUTINA\s*:\s*(.+)$/im)?.[1]||"").trim();
+      if(!name)throw new Error(`Falta el nombre de la rutina ${blockIndex+1}.`);
+      const dayRaw=(block.match(/^D[IÍ]A\s*:\s*(.+)$/im)?.[1]||"").trim().toLocaleLowerCase("es");
+      const day=Object.prototype.hasOwnProperty.call(dayMap,dayRaw)?dayMap[dayRaw]:null;
+      const lines=block.split("\n").filter(line=>/^EJERCICIO\s*:/i.test(line.trim()));
+      const items=lines.map((line,index)=>{
+        const fields={};line.split("|").forEach(part=>{const match=part.trim().match(/^([^:]+):\s*(.*)$/);if(match)fields[this.normalizeExerciseName(match[1])]=match[2].trim()});
+        const exerciseName=fields.ejercicio||"";if(!exerciseName)throw new Error(`Hay un ejercicio sin nombre en ${name}.`);
+        const sets=Math.max(1,Number(String(fields.series||3).replace(",","."))||3);
+        const reps=Math.max(0,Number(String(fields.repeticiones||8).replace(",","."))||0);
+        const weight=Math.max(0,Number(String(fields.peso||0).replace(",","."))||0);
+        const rest=Math.max(0,Number(String(fields.descanso||90).replace(",","."))||90);
+        const mode=/tiempo|time/i.test(fields.modo||"")?"time":"reps";
+        const pedb=this.matchPedbByName(exerciseName);const library=pedb?this.pedbToUi(pedb):null;
+        return {id:`i${Date.now()}_${blockIndex}_${index}`,libraryId:library?.id||null,exercise_id:library?.id||null,name:library?.name||exerciseName,sets,reps,weight,rest,mode,increment:library?.increment??.5,recognized:Boolean(library)}
+      });
+      if(!items.length)throw new Error(`${name} no contiene ejercicios.`);
+      return {name,day,dayLabel:day===null?null:["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"][day],items}
+    });
+    return routines
   },
 
   parseRoutineText(rawText){
@@ -3439,12 +3486,14 @@ const App={
     const input=document.getElementById("routineTextInput");
     const preview=document.getElementById("routineImportPreview");
     try{
-      const parsed=this.parseRoutineText(input?.value);
-      preview.innerHTML=`<strong>${parsed.name}</strong><br>${parsed.items.map(
-        e=>`${e.name} · ${e.sets}×${e.reps} · ${e.weight} kg · ${e.rest}s`
-      ).join("<br>")}`;
-      preview.classList.add("show")
+      const ai=this.parseAiRoutinePlan(input?.value);
+      const routines=ai||[this.parseRoutineText(input?.value)];
+      const total=routines.reduce((sum,r)=>sum+r.items.length,0);
+      const unrecognized=routines.reduce((sum,r)=>sum+r.items.filter(e=>e.recognized===false).length,0);
+      preview.innerHTML=`<div class="acx-import-verdict"><span>VISTA PREVIA</span><b>${routines.length} rutina${routines.length===1?'':'s'} · ${total} ejercicios</b><small>${unrecognized?`${unrecognized} nombre${unrecognized===1?'':'s'} se guardará${unrecognized===1?'':'n'} tal como aparece${unrecognized===1?'':'n'}.`:'Formato validado y listo para importar.'}</small></div>${routines.map(r=>`<section class="acx-import-routine"><header><strong>${this.escape(r.name)}</strong><span>${r.dayLabel||'SIN DÍA'}</span></header>${r.items.map(e=>`<div><b>${this.escape(e.name)}</b><small>${e.sets}×${e.reps}${e.mode==='time'?' s':' reps'} · ${e.weight} kg · ${e.rest}s</small><em>${e.recognized===false?'REVISAR':'✓'}</em></div>`).join('')}</section>`).join('')}`;
+      preview.classList.add("show");this.routineImportValidatedText=String(input?.value||"");const confirm=document.getElementById("routineImportConfirm");if(confirm)confirm.disabled=false
     }catch(error){
+      this.routineImportValidatedText=null;const confirm=document.getElementById("routineImportConfirm");if(confirm)confirm.disabled=true;
       preview.innerHTML=`<span class="muted">${error.message}</span>`;
       preview.classList.add("show")
     }
@@ -3453,16 +3502,26 @@ const App={
   importRoutineText(){
     const input=document.getElementById("routineTextInput");
     try{
-      const parsed=this.parseRoutineText(input?.value);
-      this.data.routines.push({
-        id:"r"+Date.now(),
-        name:parsed.name,
-        items:parsed.items
+      if(this.routineImportValidatedText!==String(input?.value||""))throw new Error("Revisa el resultado antes de importarlo.");
+      const ai=this.parseAiRoutinePlan(input?.value);
+      const routines=ai||[this.parseRoutineText(input?.value)];
+      const assign=Boolean(document.getElementById("routineImportAssignWeek")?.checked);
+      const stamp=Date.now();
+      this.data.baseWeekPlan=this.data.baseWeekPlan||{};
+      routines.forEach((parsed,index)=>{
+        const id=`r${stamp}_${index}`;
+        this.data.routines.push({id,name:parsed.name,items:parsed.items});
+        if(assign&&Number.isInteger(parsed.day)){
+          if(this.data.settings.planningMode==="clear"){
+            const key=this.weekKey(new Date());this.data.weeklyPlans[key]=this.data.weeklyPlans[key]||{};this.data.weeklyPlans[key][parsed.day]=id
+          }else this.data.baseWeekPlan[parsed.day]=id
+        }
+        this.openRoutineId=id
       });
       this.save();
       this.closeRoutineTextImporter();
       if(input)input.value="";
-      this.toast("Rutina importada");
+      this.toast(`${routines.length} rutina${routines.length===1?' importada':'s importadas'}`);
       this.renderRoutines()
     }catch(error){
       this.toast(error.message||"No se pudo importar la rutina")
@@ -3713,7 +3772,7 @@ const App={
       <article><span>ENTORNO</span><b>${pedb.home_suitable?'Casa / Gym':'Gym'}</b></article>`;
     const patternText=this.pedbMeta?.patterns?.get?.(pedb.pattern_id)?.name_es||"";
     const tags=[pedb.level,patternText,pedb.home_suitable?"Casa + gimnasio":"Gimnasio",...(pedb.tags||[]),...(equipmentText?[equipmentText]:[])].filter(Boolean).slice(0,14);
-    document.getElementById("exercisePreviewTags").innerHTML=tags.length?tags.map(t=>`<span>${this.escape(String(t))}</span>`).join(''):`<span>Ficha oficial Phoenix</span>`;
+    document.getElementById("exercisePreviewTags").innerHTML=tags.length?tags.map(t=>`<span>${this.escape(String(t))}</span>`).join(''):`<span>Ficha GymTracker ACX</span>`;
     const sheet=document.getElementById("exercisePreviewSheet");sheet?.classList.add("show");sheet?.setAttribute("aria-hidden","false")
   },
   closeExercisePreview(){
@@ -4049,7 +4108,7 @@ const App={
 
   renderHistory(withHistory=true){
     const target=document.getElementById("history");
-    const ok=window.PhoenixShapeEngine?.render?.("history",target,this,{source:"app"});
+    const ok=(this.data.settings?.uiMaterial||"acx")!=="acx"&&window.PhoenixShapeEngine?.render?.("history",target,this,{source:"app"});
     if(!ok)return this.renderHistoryLegacy(withHistory);
     this.show("history","Datos",{history:withHistory});
   },
@@ -4621,7 +4680,7 @@ const App={
     this.data.settings.vibration=Boolean(document.getElementById("vibrationSetting")?.checked);
     this.data.settings.fontScale=document.getElementById("fontScale")?.value||"normal";
     this.data.settings.timerOrientation=document.getElementById("timerOrientation")?.value||"auto";
-    this.data.settings.uiMaterial=window.PhoenixMaterialEngine?.isSupported?.(this.data.settings.uiMaterial)?this.data.settings.uiMaterial:"precision";
+    this.data.settings.uiMaterial="acx";
     this.data.settings.planningMode=document.querySelector('input[name="planningMode"]:checked')?.value||"fixed";
     const bodyWeight=this.parseDecimal(document.getElementById("bodyWeight")?.value);
     if(bodyWeight>=20&&bodyWeight<=400&&Number(bodyWeight.toFixed(1))!==Number(this.data.profile?.bodyWeight||0)){
@@ -4696,7 +4755,7 @@ const App={
 
   buildBackupPayload(){
     const payload={
-      format:"GymTracker Phoenix Backup",
+      format:"GymTracker ACX Backup",
       schema_version:1,
       app_version:"11 Alpha Build 022",
       profile:{id:this.activeProfileId,name:this.activeProfile()?.name||this.activeProfileId},
@@ -4745,7 +4804,7 @@ const App={
     try{
       const sessions=(this.data.sessions||[]).filter(s=>this.monthKey(this.sessionDate(s))===key);
       const setCount=sessions.reduce((n,s)=>n+(s.totalSets||((s.exercises||[]).reduce((a,e)=>a+(e.sets||[]).length,0))),0);
-      const payload={format:"GymTracker Phoenix Monthly Archive",schema_version:1,month:key,createdAt:new Date().toISOString(),counts:{sessions:sessions.length,sets:setCount},sessions};
+      const payload={format:"GymTracker ACX Monthly Archive",schema_version:1,month:key,createdAt:new Date().toISOString(),counts:{sessions:sessions.length,sets:setCount},sessions};
       const canonical=JSON.stringify(payload);payload.verification={algorithm:"FNV-1a",checksum:this.archiveChecksum(canonical)};
       this.downloadFile(`GymTracker_${key}.json`,JSON.stringify(payload,null,2));
       const entry={month:key,sessions:sessions.length,sets:setCount,checksum:payload.verification.checksum,verifiedAt:new Date().toISOString()};
@@ -4762,7 +4821,7 @@ const App={
     const totalSets=(this.data.sessions||[]).reduce((n,s)=>n+(Number(s.totalSets)||((s.exercises||[]).reduce((a,e)=>a+(e.sets||[]).length,0))),0);
     document.getElementById("backups").innerHTML=`<div class="archive-phoenix">
       <section class="archive-hero phx-card phx-card--highlight">
-        <div class="eyebrow">ARCHIVO PHOENIX</div><h1>Tus datos.<br><em>Siempre contigo.</em></h1>
+        <div class="eyebrow">ARCHIVO GYMTRACKER ACX</div><h1>Tus datos.<br><em>Siempre contigo.</em></h1>
         <p>Copias locales, verificadas y bajo tu control.</p>
         <div class="archive-last"><span>ÚLTIMA COPIA</span><b>${latest?new Date(latest.createdAt).toLocaleString("es-ES",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}):"Aún no creada"}</b><small>${latest?`${latest.counts.sessions} sesiones · Verificada ${latest.checksum}`:"Crea tu primera copia completa"}</small></div>
         <button class="king archive-primary" onclick="App.createFullBackup()">CREAR COPIA AHORA</button>
@@ -4775,7 +4834,7 @@ const App={
       <section class="archive-months"><div class="data-v2__section-title"><div><span>ARCHIVO MENSUAL</span><h2>Meses disponibles</h2></div></div>
       ${months.length?months.map(([key,sessions])=>{const sets=sessions.reduce((n,s)=>n+(Number(s.totalSets)||((s.exercises||[]).reduce((a,e)=>a+(e.sets||[]).length,0))),0);const saved=archived.find(x=>x.month===key);return `<div class="archive-month ${saved?'verified':''}"><div><strong>${this.monthLabel(key)}</strong><small>${sessions.length} sesiones · ${sets} series</small></div><span>${saved?'VERIFICADO':'PENDIENTE'}</span><button onclick="App.exportMonthArchive('${key}')">${saved?'GUARDAR DE NUEVO':'GUARDAR'}</button></div>`}).join(""):`<div class="data-v2__empty">Los meses aparecerán después de tus primeros entrenamientos.</div>`}
       </section>
-      <p class="archive-note">Phoenix no elimina datos mientras una copia no pueda verificarse correctamente.</p>
+      <p class="archive-note">GymTracker no elimina datos mientras una copia no pueda verificarse correctamente.</p>
     </div>`;
     this.show("backups","Datos",{history:withHistory})
   },

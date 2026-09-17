@@ -1,7 +1,7 @@
 {
   "name": "GymTracker ACX",
   "short_name": "GymTracker ACX",
-  "start_url": "./index.html?v=071",
+  "start_url": "./index.html?v=073",
   "display": "standalone",
   "background_color": "#0b0b0b",
   "theme_color": "#0b0b0b",
